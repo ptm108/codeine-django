@@ -19,15 +19,15 @@ docker network create -d bridge <network-name>
 Only do the first time, or when Dockerfile is updated. Spin up container after build.
 
 ```bash
-cd web-ssh
-docker build --tag web-ssh .
+docker build --tag web-ssh ./web-ssh
 docker run -d -P --network <network-name> --name <container-instance-name> web-ssh
 ```
 
-### 3. Deploy WeTTy image
+### 3. Build and deploy WeTTy image
 
 ```bash
-docker run -dt -e REMOTE_SSH_SERVER=<container-instance-name> -e REMOTE_SSH_PORT=22 -e REMOTE_SSH_USER=root -p 3000 --name <wetty-instance-name> --network <network-name> svenihoney/wetty
+docker build --tag wetty ./wetty
+docker run -dt -e REMOTE_SSH_SERVER=<container-instance-name> -e REMOTE_SSH_PORT=22 -e REMOTE_SSH_USER=root -p 3000 --name <wetty-instance-name> --network <network-name> wetty
 ```
 
 Get WeTTy deployed port number:
