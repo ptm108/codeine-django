@@ -16,7 +16,7 @@ docker network create -d bridge <network-name>
 
 ### 2. Build and deploy web-ssh image
 
-Only do the first time, or when Dockerfile is updated. Spin up container after build. 
+Only do the first time, or when Dockerfile is updated. Spin up container after build.
 
 ```bash
 cd web-ssh
@@ -39,7 +39,6 @@ docker port <wetty-instance-name>
 
 Access browser WeTTy at localhost:55043
 SSH password is root
-
 
 ## Django backend
 
