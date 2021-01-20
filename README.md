@@ -2,13 +2,13 @@
 
 Backend powering codeine
 
-## docker images
+## Docker usage
 
 Use docker engine python sdk to create/delete docker containers
 
 ### 1. Create Docker network bridge
 
-For docker containers to connect to each other
+For docker containers deploy in the same network
 
 ```bash
 docker network create -d bridge <network-name>
@@ -39,3 +39,12 @@ docker port <wetty-instance-name>
 
 Access browser WeTTy at localhost:55043
 SSH password is root
+
+
+## Django backend
+
+We are using pipenv to manage python packages and virtual environment.
+
+Install packages from Pipfile: `pipenv install`
+Activate pipenv: `pipenv shell`
+Exit pipenv: `exit`
