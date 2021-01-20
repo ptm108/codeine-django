@@ -1,3 +1,5 @@
+#!/bin/sh
+
 if [ "x${BASE}" == "x" ]; then
   BASE="/"
 fi
