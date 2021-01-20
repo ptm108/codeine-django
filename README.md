@@ -37,14 +37,16 @@ docker port <wetty-instance-name>
 3000/tcp -> 0.0.0.0:55043
 ```
 
-Access browser WeTTy at localhost:55043
+Access browser WeTTy at `localhost:55043`
 
-SSH password is root
+SSH password is `root`
 
 ## Django backend
 
 We are using pipenv to manage python packages and virtual environment.
 
 Install packages from Pipfile: `pipenv install`
+
 Activate pipenv: `pipenv shell`
+
 Exit pipenv: `exit`
