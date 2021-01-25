@@ -40,3 +40,20 @@ def create_member(request):
         # end with
     # end if
 # end def
+
+@api_view(['GET', 'PUT', 'DELETE'])
+@permission_classes((IsAuthenticatedOrReadOnly,))
+def single_member_view(request, pk): 
+    '''
+    Gets a member by primary key/ id
+    '''
+    if request.method == 'GET':
+        try:
+            member = Member.objects.get(pk=pk)
+
+            return Response(MemberSerializer(member).data)
+        except (ObjectDoesNotExist, KeyError, ValueError) as e: 
+            print(e)
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+    # end if
+# end def
