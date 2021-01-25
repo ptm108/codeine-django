@@ -28,10 +28,12 @@ DEBUG = int(os.environ.get("DEBUG", default=0))
 
 ALLOWED_HOSTS = [] if os.environ.get("DJANGO_ALLOWED_HOSTS") is None else os.environ.get("DJANGO_ALLOWED_HOSTS").split(" ")
 
+AUTH_USER_MODEL = "common.BaseUser"
 
 # Application definition
 
 INSTALLED_APPS = [
+    'common',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',

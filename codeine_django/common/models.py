@@ -1,7 +1,8 @@
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser
 from django.contrib.auth.models import BaseUserManager
-from multiselectfield import MultiSelectField
+from django.contrib.auth.models import PermissionsMixin
+from django.utils.translation import gettext_lazy as _
 from django.utils import timezone
 
 import uuid
@@ -71,5 +72,40 @@ class BaseUser(AbstractBaseUser, PermissionsMixin):
     def is_staff(self):
         return self.is_admin
     # end def
+# end class
 
+
+class Member(models.Model):
+    user = models.OneToOneField(BaseUser, on_delete=models.CASCADE, null=True)
+    first_name = models.CharField(max_length=150)
+    last_name = models.CharField(max_length=150)
+
+    def __str__(self):
+        return f'{self.first_name} {self.last_name}'
+    # end def
+# end class
+
+
+class ContentProvider(models.Model):
+    user = models.OneToOneField(BaseUser, on_delete=models.CASCADE, null=True)
+    first_name = models.CharField(max_length=150)
+    last_name = models.CharField(max_length=150)
+    company_name = models.CharField(max_length=255)
+    job_title = models.CharField(max_length=150)
+    bio = models.TextField()
+
+    def __str__(self):
+        return f'{self.first_name} {self.last_name}'
+    # end def
+# end class
+
+
+class IndustryPartner(models.Model):
+    user = models.OneToOneField(BaseUser, on_delete=models.CASCADE, null=True)
+    company_name = models.CharField(max_length=150)
+    contact_number = models.CharField(max_length=11)
+
+    def __str__(self):
+        return self.company_name
+    # end def
 # end class
