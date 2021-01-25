@@ -78,6 +78,7 @@ class BaseUser(AbstractBaseUser, PermissionsMixin):
 
 
 class Member(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, unique=True)
     user = models.OneToOneField(BaseUser, on_delete=models.CASCADE, null=True)
     first_name = models.CharField(max_length=150)
     last_name = models.CharField(max_length=150)
@@ -89,6 +90,7 @@ class Member(models.Model):
 
 
 class ContentProvider(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, unique=True)
     user = models.OneToOneField(BaseUser, on_delete=models.CASCADE, null=True)
     first_name = models.CharField(max_length=150)
     last_name = models.CharField(max_length=150)
@@ -103,6 +105,7 @@ class ContentProvider(models.Model):
 
 
 class IndustryPartner(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, unique=True)
     user = models.OneToOneField(BaseUser, on_delete=models.CASCADE, null=True)
     company_name = models.CharField(max_length=150)
     contact_number = models.CharField(max_length=11)
