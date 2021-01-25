@@ -12,3 +12,5 @@ db.sqlite3.*
 **/media/**
 !**/media
 !**/media/static
+
+/static/**
