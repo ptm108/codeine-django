@@ -29,4 +29,7 @@ urlpatterns = [
     # auth end points
     path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+
+    # common infra endpoints
+    path('auth/', include('common.urls'), name='Common infra end points')
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
