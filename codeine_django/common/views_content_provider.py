@@ -14,9 +14,9 @@ from .models import BaseUser, ContentProvider
 from .serializers import ContentProviderSerializer
 
 
-@api_view(['POST'])
+@api_view(['POST', 'GET'])
 @permission_classes((AllowAny,))
-def create_content_provider(request):
+def content_provider_view(request):
     '''
     Creates a new content provider
     '''
@@ -31,7 +31,7 @@ def create_content_provider(request):
                 content_provider = ContentProvider(user=user, first_name=data['first_name'], last_name=data['last_name'], company_name=data['company_name'], job_title=data['job_title'], bio=data['bio'])
                 content_provider.save()
 
-                serializer = MemberSerializer(content_provider)
+                serializer = ContentProviderSerializer(content_provider)
 
                 return Response(serializer.data, status=status.HTTP_201_CREATED)
             except (IntegrityError, ValueError, KeyError) as e:
@@ -39,29 +39,24 @@ def create_content_provider(request):
                 return Response(status=status.HTTP_400_BAD_REQUEST)
         # end with
     # end if
-# end def
 
-@api_view(['GET'])
-@permission_classes((IsAuthenticated,))
-def get_all_content_providers(request):
     '''
     Retrieves all content providers
     '''
     if request.method == 'GET':
         try:
             content_providers = ContentProvider.objects.all()
-            serializer = ContentProviderSerializer(content_providers, many=True, context={"request": request})
-            return Response(serializer.data, status=status.HTTP_200_OK)
+            return Response(content_providers, status=status.HTTP_200_OK)
         except ObjectDoesNotExist:
             return Response(status=status.HTTP_400_BAD_REQUEST)
         # end try-except
     # end if
     return Response({'message': 'Unsupported'}, status=status.HTTP_400_BAD_REQUEST)
+
 # end def
 
-@api_view(['GET'])
+@api_view(['GET', 'PATCH'])
 @permission_classes((IsAuthenticatedOrReadOnly,))
-@parser_classes((MultiPartParser, FormParser, JSONParser))
 def protected_content_provider_view(request, pk):
     '''
     Get current user
@@ -70,51 +65,23 @@ def protected_content_provider_view(request, pk):
 
         try:
             content_provider = ContentProvider.objects.get(pk=pk)
-            serializer = ContentProviderSerializer(content_provider, context={"request": request})
-            return Response(serializer.data, status=status.HTTP_200_OK)
+            return Response(content_provider, status=status.HTTP_200_OK)
            
         except ContentProvider.DoesNotExist:
             return Response(status=status.HTTP_400_BAD_REQUEST)
         # end try-except
     # end if
-# end def
 
-
-@api_view(['PUT'])
-@permission_classes((IsAuthenticatedOrReadOnly,))
-@parser_classes((MultiPartParser, FormParser, JSONParser))
-def activate_content_provider(request, pk):
     '''
-    Activates current user
+    Activate or deactivates current user
     '''
-    if request.method == 'PUT':
+    if request.method == 'PATCH':
         data = request.data
 
         try:
             content_provider = ContentProvider.objects.get(pk=pk)
-            content_provider.is_active = True
-            content_provider.save()
-            return Response(serializer.data, status=status.HTTP_200_OK)
-           
-        except ContentProvider.DoesNotExist:
-            return Response(status=status.HTTP_400_BAD_REQUEST)
-        # end try-except
-    # end if
-# end def
-
-@api_view(['PUT'])
-@permission_classes((IsAuthenticatedOrReadOnly,))
-@parser_classes((MultiPartParser, FormParser, JSONParser))
-def deactivate_content_provider(request, pk):
-    '''
-    Deactivates current user
-    '''
-    if request.method == 'PUT':
-        data = request.data
-
-        try:
-            content_provider = ContentProvider.objects.get(pk=pk)
-            content_provider.is_active = False
+            is_active = self.request.query_params.get('active')
+            content_provider.is_active = is_active
             content_provider.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
            
