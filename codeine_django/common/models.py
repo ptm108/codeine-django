@@ -7,9 +7,11 @@ from django.utils import timezone
 
 import uuid
 
+
 def user_directory_path(instance, filename):
     return 'user_{0}/{1}'.format(instance.id, filename)
 # end def
+
 
 class CustomUserManager(BaseUserManager):
     """
@@ -42,7 +44,7 @@ class CustomUserManager(BaseUserManager):
             raise ValueError(_('Superuser must have is_admin=True.'))
         if extra_fields.get('is_superuser') is not True:
             raise ValueError(_('Superuser must have is_superuser=True.'))
-        # end ifs 
+        # end ifs
 
         return self.create_user(email, password, **extra_fields)
     # end def
@@ -65,7 +67,7 @@ class BaseUser(AbstractBaseUser, PermissionsMixin):
     objects = CustomUserManager()
 
     def __str__(self):
-        return self.email
+        return f'{self.first_name} {self.last_name}; {self.email}'
     # end def
 
     def has_perm(self, perm, obj=None):
@@ -88,7 +90,7 @@ class Member(models.Model):
     user = models.OneToOneField(BaseUser, on_delete=models.CASCADE, null=True)
 
     def __str__(self):
-        return f'{self.first_name} {self.last_name}'
+        return self.user
     # end def
 # end class
 
@@ -101,7 +103,7 @@ class ContentProvider(models.Model):
     bio = models.TextField()
 
     def __str__(self):
-        return f'{self.first_name} {self.last_name}'
+        return self.user
     # end def
 # end class
 
@@ -113,6 +115,6 @@ class IndustryPartner(models.Model):
     contact_number = models.CharField(max_length=11)
 
     def __str__(self):
-        return self.company_name
+        return self.user
     # end def
 # end class
