@@ -52,7 +52,7 @@ def industry_partner_view(request):
                 user.save()
 
                 industry_partner = IndustryPartner(user=user, company_name=data['company_name'])
-                member.save()
+                industry_partner.save()
 
                 serializer = IndustryPartnerSerializer(industry_partner, context={"request": request})
 
