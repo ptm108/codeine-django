@@ -4,5 +4,6 @@ from . import views_member
 
 urlpatterns = [
   path('members', views_member.create_member, name='Create/Get all/Search Member'),
-  path('members/<slug:pk>', views_member.single_member_view, name='RUD for members'),
+  path('members/<slug:pk>', views_member.single_member_view, name='Read/update/delete for members'),
+  path('members/<slug:pk>/changePassword', views_member.member_change_password_view, name='Member change password'),
 ]

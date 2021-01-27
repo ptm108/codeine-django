@@ -79,4 +79,80 @@ def single_member_view(request, pk):
             print(e)
             return Response(status=status.HTTP_400_BAD_REQUEST)
     # end if
+
+    '''
+    Updates a member
+    '''
+    if request.method == 'PUT':
+        data = request.data
+        try:
+            with transaction.atomic():
+                member = Member.objects.get(pk=pk)
+                member.first_name = data['first_name']
+                member.last_name = data['last_name']
+                member.save()
+
+                user = member.user
+                user.email = data['email']
+                user.save()
+            # end with
+
+            serializer = MemberSerializer(member)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except (ObjectDoesNotExist, KeyError) as e:
+            print(e)
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+        # end try-except
+    # end if
+
+    '''
+    Deletes a member
+    '''
+    if request.method == 'DELETE':
+        try:
+            member = Member.objects.get(pk=pk)
+            user = member.user
+            user.is_active = False # mark as deleted
+            user.save()
+
+            return Response(status=status.HTTP_200_OK)
+        except Member.DoesNotExist:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+    # end if
+# end def
+
+@api_view(['PATCH'])
+@permission_classes((IsAuthenticated,))
+def member_change_password_view(request, pk):
+    '''
+    Updates member's password
+    '''
+    if request.method == 'PATCH':
+        try:
+            user = request.user
+            member = Member.objects.get(pk=pk)
+            
+            # assert requesting user is editing own account
+            if member.user != user:
+                return Response(status=status.HTTP_400_BAD_REQUEST)
+            # end if
+
+            # check old password
+            if not user.check_password(data['old_password']):
+                return Response(status=status.HTTP_401_UNAUTHORIZED)
+            # end if
+
+            user.set_password(data['new_password'])
+            user.save()
+
+            member = user.member
+            serializer = MemberSerializer(member)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+
+        except ObjectDoesNotExist: 
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        except KeyError: 
+            return Response('Invalid payload', status=status.HTTP_400_BAD_REQUEST)
+        # end try-except
+    # end if
 # end def
