@@ -90,7 +90,7 @@ class Member(models.Model):
     user = models.OneToOneField(BaseUser, on_delete=models.CASCADE, null=True)
 
     def __str__(self):
-        return self.user
+        return f'{self.user}'
     # end def
 # end class
 
@@ -103,7 +103,7 @@ class ContentProvider(models.Model):
     bio = models.TextField()
 
     def __str__(self):
-        return self.user
+        return f'{self.user}'
     # end def
 # end class
 
@@ -115,6 +115,6 @@ class IndustryPartner(models.Model):
     contact_number = models.CharField(max_length=11)
 
     def __str__(self):
-        return self.user
+        return f'{self.user}'
     # end def
 # end class

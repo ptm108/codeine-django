@@ -188,30 +188,3 @@ def activate_member_view(request, pk):
         # end try-except
     # end if
 # end def
-
-@api_view(['POST'])
-@permission_classes((IsAuthenticated,))
-def deactivate_member_view(request, pk):
-    '''
-    Deactivates member
-    ''' 
-    if request.method == 'POST':
-        requesting_user = request.user
-        try:
-            member = Member.objects.get(pk=pk)
-            user = member.user
-
-            if not requesting_user.is_admin or requesting_user != user:
-                return Response(status=status.HTTP_400_BAD_REQUEST)
-            # end if
-
-            user.is_active = False
-            user.save()
-            
-            serializer = MemberSerializer(member, context={"request": request})
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        except ObjectDoesNotExist:
-            return Response(status=status.HTTP_404_NOT_FOUND)
-        # end try-except
-    # end if
-# end def
