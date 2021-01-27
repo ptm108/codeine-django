@@ -128,6 +128,7 @@ def member_change_password_view(request, pk):
     Updates member's password
     '''
     if request.method == 'PATCH':
+        data = request.data
         try:
             user = request.user
             member = Member.objects.get(pk=pk)
