@@ -54,7 +54,7 @@ def industry_partner_view(request):
                 industry_partner = IndustryPartner(user=user, company_name=data['company_name'])
                 member.save()
 
-                serializer = MemberSerializer(member, context={"request": request})
+                serializer = IndustryPartnerSerializer(industry_partner, context={"request": request})
 
                 return Response(serializer.data, status=status.HTTP_201_CREATED)
             except (IntegrityError, ValueError, KeyError) as e:

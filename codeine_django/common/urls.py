@@ -1,6 +1,6 @@
 from django.urls import path
 
-from . import views_member
+from . import views_member, views_industry_partner
 
 urlpatterns = [
     # members views
@@ -10,5 +10,5 @@ urlpatterns = [
     path('members/<slug:pk>/activate', views_member.activate_member_view, name='Activates member'),
 
     # Industry partners views
-    path('industryPartners', views_member.industry_partner_view, name='Create/Get all/Search Industry Partners'),
+    path('industryPartners', views_industry_partner.industry_partner_view, name='Create/Get all/Search Industry Partners'),
 ]
