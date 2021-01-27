@@ -4,6 +4,7 @@ from django.core.exceptions import ValidationError, ObjectDoesNotExist
 from django.db.models import Q
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes, parser_classes, renderer_classes
+from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.response import Response
 
 from rest_framework.permissions import (
@@ -32,7 +33,7 @@ def create_member(request):
                 member = Member(user=user, first_name=data['first_name'], last_name=data['last_name'])
                 member.save()
 
-                serializer = MemberSerializer(member)
+                serializer = MemberSerializer(member, context={"request": request})
 
                 return Response(serializer.data, status=status.HTTP_201_CREATED)
             except (IntegrityError, ValueError, KeyError) as e:
@@ -58,7 +59,7 @@ def create_member(request):
             )
         # end if
 
-        serializer = MemberSerializer(members.all(), many=True)
+        serializer = MemberSerializer(members.all(), many=True, context={"request": request})
         return Response(serializer.data, status=status.HTTP_200_OK)
     # end if
 # end def
@@ -66,6 +67,7 @@ def create_member(request):
 
 @api_view(['GET', 'PUT', 'DELETE'])
 @permission_classes((IsAuthenticatedOrReadOnly,))
+@parser_classes((MultiPartParser, FormParser))
 def single_member_view(request, pk):
     '''
     Gets a member by primary key/ id
@@ -74,7 +76,7 @@ def single_member_view(request, pk):
         try:
             member = Member.objects.get(pk=pk)
 
-            return Response(MemberSerializer(member).data)
+            return Response(MemberSerializer(member, context={"request": request}).data)
         except (ObjectDoesNotExist, KeyError, ValueError) as e:
             print(e)
             return Response(status=status.HTTP_400_BAD_REQUEST)
@@ -88,19 +90,26 @@ def single_member_view(request, pk):
         try:
             with transaction.atomic():
                 member = Member.objects.get(pk=pk)
-                member.first_name = data['first_name']
-                member.last_name = data['last_name']
+                if 'first_name' in data:
+                    member.first_name = data['first_name']
+                if 'last_name' in data:
+                    member.last_name = data['last_name']
+                # end if
                 member.save()
 
                 user = member.user
-                user.email = data['email']
+                if 'email' in data:
+                    user.email = data['email']
+                if 'profile_photo' in data:
+                    user.profile_photo = data['profile_photo']
                 user.save()
             # end with
 
-            serializer = MemberSerializer(member)
+            serializer = MemberSerializer(member, context={"request": request})
             return Response(serializer.data, status=status.HTTP_200_OK)
-        except (ObjectDoesNotExist, KeyError) as e:
-            print(e)
+        except Member.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        except (KeyError, ValueError) as e:
             return Response(status=status.HTTP_400_BAD_REQUEST)
         # end try-except
     # end if
@@ -147,7 +156,7 @@ def member_change_password_view(request, pk):
             user.save()
 
             member = user.member
-            serializer = MemberSerializer(member)
+            serializer = MemberSerializer(member, context={"request": request})
             return Response(serializer.data, status=status.HTTP_200_OK)
 
         except ObjectDoesNotExist: 
