@@ -1,13 +1,13 @@
 from rest_framework import serializers
 
-from .models import Member, BaseUser
+from .models import Member, BaseUser, IndustryPartner
 
 
 class BaseUserSerializer(serializers.ModelSerializer):
     profile_photo = serializers.SerializerMethodField('get_profile_photo_url')
     class Meta:
         model = BaseUser
-        fields = ('email', 'is_active', 'date_joined', 'profile_photo')
+        fields = ('email', 'is_active', 'date_joined', 'profile_photo', 'first_name', 'last_name')
     # end Meta
 
     def get_profile_photo_url(self, obj):
@@ -23,6 +23,15 @@ class MemberSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Member
+        fields = '__all__'
+    # end Meta
+# end class
+
+class IndustryPartnerSerializer(serializers.ModelSerializer):
+    user = BaseUserSerializer()
+
+    class Meta:
+        model = IndustryPartner
         fields = '__all__'
     # end Meta
 # end class
