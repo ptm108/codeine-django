@@ -18,7 +18,7 @@ from .serializers import MemberSerializer
 
 @api_view(['GET', 'POST'])
 @permission_classes((AllowAny,))
-def create_member(request):
+def member_view(request):
     '''
     Creates a new member
     '''
@@ -27,10 +27,10 @@ def create_member(request):
 
         with transaction.atomic():
             try:
-                user = BaseUser.objects.create_user(data['email'], data['password'])
+                user = BaseUser.objects.create_user(data['email'], data['password'], first_name=data['first_name'], last_name=data['last_name'])
                 user.save()
 
-                member = Member(user=user, first_name=data['first_name'], last_name=data['last_name'])
+                member = Member(user=user)
                 member.save()
 
                 serializer = MemberSerializer(member, context={"request": request})
@@ -53,8 +53,8 @@ def create_member(request):
 
         if search is not None:
             members = members.filter(
-                Q(first_name__icontains=search) |
-                Q(last_name__icontains=search) |
+                Q(user__first_name__icontains=search) |
+                Q(user__last_name__icontains=search) |
                 Q(user__email__icontains=search)
             )
         # end if
@@ -90,14 +90,12 @@ def single_member_view(request, pk):
         try:
             with transaction.atomic():
                 member = Member.objects.get(pk=pk)
-                if 'first_name' in data:
-                    member.first_name = data['first_name']
-                if 'last_name' in data:
-                    member.last_name = data['last_name']
-                # end if
-                member.save()
-
                 user = member.user
+
+                if 'first_name' in data:
+                    user.first_name = data['first_name']
+                if 'last_name' in data:
+                    user.last_name = data['last_name']
                 if 'email' in data:
                     user.email = data['email']
                 if 'profile_photo' in data:
@@ -121,7 +119,7 @@ def single_member_view(request, pk):
         try:
             member = Member.objects.get(pk=pk)
             user = member.user
-            user.is_active = False # mark as deleted
+            user.is_active = False  # mark as deleted
             user.save()
 
             return Response(status=status.HTTP_200_OK)
@@ -129,6 +127,7 @@ def single_member_view(request, pk):
             return Response(status=status.HTTP_400_BAD_REQUEST)
     # end if
 # end def
+
 
 @api_view(['PATCH'])
 @permission_classes((IsAuthenticated,))
@@ -141,7 +140,7 @@ def member_change_password_view(request, pk):
         try:
             user = request.user
             member = Member.objects.get(pk=pk)
-            
+
             # assert requesting user is editing own account
             if member.user != user:
                 return Response(status=status.HTTP_400_BAD_REQUEST)
@@ -159,9 +158,9 @@ def member_change_password_view(request, pk):
             serializer = MemberSerializer(member, context={"request": request})
             return Response(serializer.data, status=status.HTTP_200_OK)
 
-        except ObjectDoesNotExist: 
+        except ObjectDoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
-        except KeyError: 
+        except KeyError:
             return Response('Invalid payload', status=status.HTTP_400_BAD_REQUEST)
         # end try-except
     # end if
