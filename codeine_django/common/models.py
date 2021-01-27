@@ -55,6 +55,8 @@ class BaseUser(AbstractBaseUser, PermissionsMixin):
     is_admin = models.BooleanField(default=False)
     is_active = models.BooleanField(default=False)
     date_joined = models.DateTimeField(default=timezone.now)
+    first_name = models.CharField(max_length=150, null=True)
+    last_name = models.CharField(max_length=150, null=True)
     profile_photo = models.ImageField(upload_to=user_directory_path, max_length=100, blank=True, null=True, default=None)
 
     USERNAME_FIELD = 'email'
@@ -84,8 +86,6 @@ class BaseUser(AbstractBaseUser, PermissionsMixin):
 class Member(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, unique=True)
     user = models.OneToOneField(BaseUser, on_delete=models.CASCADE, null=True)
-    first_name = models.CharField(max_length=150)
-    last_name = models.CharField(max_length=150)
 
     def __str__(self):
         return f'{self.first_name} {self.last_name}'
@@ -96,8 +96,6 @@ class Member(models.Model):
 class ContentProvider(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, unique=True)
     user = models.OneToOneField(BaseUser, on_delete=models.CASCADE, null=True)
-    first_name = models.CharField(max_length=150)
-    last_name = models.CharField(max_length=150)
     company_name = models.CharField(max_length=255)
     job_title = models.CharField(max_length=150)
     bio = models.TextField()
