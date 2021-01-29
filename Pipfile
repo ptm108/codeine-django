@@ -13,6 +13,7 @@ markdown = "*"
 django-filter = "*"
 djangorestframework-simplejwt = "*"
 pillow = "*"
+django-multiselectfield = "*"
 
 [requires]
 python_version = "3.8"
