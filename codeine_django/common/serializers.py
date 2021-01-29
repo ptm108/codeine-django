@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from .models import Member, BaseUser, IndustryPartner
+from .models import Member, BaseUser, IndustryPartner, ContentProvider
 
 
 class BaseUserSerializer(serializers.ModelSerializer):
@@ -23,6 +23,15 @@ class MemberSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Member
+        fields = '__all__'
+    # end Meta
+# end class
+
+class ContentProviderSerializer(serializers.ModelSerializer):
+    user = BaseUserSerializer()
+
+    class Meta:
+        model = ContentProvider
         fields = '__all__'
     # end Meta
 # end class
