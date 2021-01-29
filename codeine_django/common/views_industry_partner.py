@@ -64,6 +64,41 @@ def industry_partner_view(request):
     # end if
 # end def
 
+@api_view(['GET', 'DELETE'])
+@permission_classes((IsAuthenticatedOrReadOnly,))
+@parser_classes((MultiPartParser, FormParser))
+def single_industry_partner_view(request, pk):
+    '''
+    Gets a member by primary key/ id
+    '''
+    if request.method == 'GET':
+        try:
+            industry_partner = IndustryPartner.objects.get(pk=pk)
+
+            return Response(IndustryPartnerSerializer(industry_partner, context={"request": request}).data)
+        except (ObjectDoesNotExist, KeyError, ValueError) as e:
+            print(e)
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+    # end if
+
+    '''
+    Deactivates industry partner
+    ''' 
+    if request.method == 'DELETE':
+        try:
+            industry_partner = IndustryPartner.objects.get(pk=pk)
+            user = industry_partner.user
+
+            user.is_active = False
+            user.save()
+
+            return Response(status=status.HTTP_200_OK)
+        except ObjectDoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        # end try-except
+    # end if
+# end def
+
 @api_view(['POST'])
 @permission_classes((AllowAny,))
 def activate_industry_partner_view(request, pk):
