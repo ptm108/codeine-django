@@ -11,4 +11,5 @@ urlpatterns = [
 
     # Industry partners views
     path('industryPartners', views_industry_partner.industry_partner_view, name='Create/Get all/Search Industry Partners'),
+    path('industryPartners/<slug:pk>/activate', views_industry_partner.activate_industry_partner_view, name='Activates Industry Partner'),
 ]

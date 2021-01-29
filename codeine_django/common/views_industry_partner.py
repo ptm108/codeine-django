@@ -62,5 +62,26 @@ def industry_partner_view(request):
                 return Response(status=status.HTTP_400_BAD_REQUEST)
         # end with
     # end if
-    
+# end def
+
+@api_view(['POST'])
+@permission_classes((AllowAny,))
+def activate_industry_partner_view(request, pk):
+    '''
+    Activates industry partner
+    ''' 
+    if request.method == 'POST':
+        try:
+            industry_partner = IndustryPartner.objects.get(pk=pk)
+            user = industry_partner.user
+
+            user.is_active = True
+            user.save()
+            
+            serializer = IndustryPartnerSerializer(industry_partner, context={"request": request})
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except ObjectDoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        # end try-except
+    # end if
 # end def
