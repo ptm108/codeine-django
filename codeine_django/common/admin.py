@@ -53,7 +53,7 @@ class UserChangeForm(forms.ModelForm):
 
     class Meta:
         model = BaseUser
-        fields = ('email', 'password', 'is_active', 'is_admin',)
+        fields = ('email', 'password', 'is_active', 'is_admin', 'first_name', 'last_name')
     # end class
 
     def clean_password(self):
@@ -120,12 +120,12 @@ class UserAdmin(BaseUserAdmin):
 
 
 class MemberAdmin(admin.ModelAdmin):
-    list_display = ('id', 'user', 'first_name', 'last_name')
+    list_display = ('id', 'user')
 # end class
 
 
 class ContentProviderAdmin(admin.ModelAdmin):
-    list_display = ('id', 'user', 'first_name', 'last_name', 'company_name', 'job_title')
+    list_display = ('id', 'user', 'company_name', 'job_title')
 # end class
 
 

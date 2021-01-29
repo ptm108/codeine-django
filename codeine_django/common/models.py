@@ -8,6 +8,11 @@ from django.utils import timezone
 import uuid
 
 
+def user_directory_path(instance, filename):
+    return 'user_{0}/{1}'.format(instance.id, filename)
+# end def
+
+
 class CustomUserManager(BaseUserManager):
     """
     Custom user model manager where email is the unique identifiers
@@ -39,7 +44,7 @@ class CustomUserManager(BaseUserManager):
             raise ValueError(_('Superuser must have is_admin=True.'))
         if extra_fields.get('is_superuser') is not True:
             raise ValueError(_('Superuser must have is_superuser=True.'))
-        # end ifs 
+        # end ifs
 
         return self.create_user(email, password, **extra_fields)
     # end def
@@ -52,6 +57,9 @@ class BaseUser(AbstractBaseUser, PermissionsMixin):
     is_admin = models.BooleanField(default=False)
     is_active = models.BooleanField(default=False)
     date_joined = models.DateTimeField(default=timezone.now)
+    first_name = models.CharField(max_length=150, null=True)
+    last_name = models.CharField(max_length=150, null=True)
+    profile_photo = models.ImageField(upload_to=user_directory_path, max_length=100, blank=True, null=True, default=None)
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = []
@@ -59,7 +67,7 @@ class BaseUser(AbstractBaseUser, PermissionsMixin):
     objects = CustomUserManager()
 
     def __str__(self):
-        return self.email
+        return f'{self.first_name} {self.last_name}; {self.email}'
     # end def
 
     def has_perm(self, perm, obj=None):
@@ -78,36 +86,35 @@ class BaseUser(AbstractBaseUser, PermissionsMixin):
 
 
 class Member(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, unique=True)
     user = models.OneToOneField(BaseUser, on_delete=models.CASCADE, null=True)
-    first_name = models.CharField(max_length=150)
-    last_name = models.CharField(max_length=150)
 
     def __str__(self):
-        return f'{self.first_name} {self.last_name}'
+        return f'{self.user}'
     # end def
 # end class
 
 
 class ContentProvider(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, unique=True)
     user = models.OneToOneField(BaseUser, on_delete=models.CASCADE, null=True)
-    first_name = models.CharField(max_length=150)
-    last_name = models.CharField(max_length=150)
     company_name = models.CharField(max_length=255)
     job_title = models.CharField(max_length=150)
     bio = models.TextField()
 
     def __str__(self):
-        return f'{self.first_name} {self.last_name}'
+        return f'{self.user}'
     # end def
 # end class
 
 
 class IndustryPartner(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, unique=True)
     user = models.OneToOneField(BaseUser, on_delete=models.CASCADE, null=True)
     company_name = models.CharField(max_length=150)
     contact_number = models.CharField(max_length=11)
 
     def __str__(self):
-        return self.company_name
+        return f'{self.user}'
     # end def
 # end class
