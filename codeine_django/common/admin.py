@@ -4,7 +4,7 @@ from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.contrib.auth.forms import ReadOnlyPasswordHashField
 from django.core.exceptions import ValidationError
 
-from .models import BaseUser, Member, ContentProvider, IndustryPartner
+from .models import BaseUser, Member, ContentProvider, IndustryPartner, CodeineAdmin
 
 
 class UserCreationForm(forms.ModelForm):
@@ -87,9 +87,16 @@ class IndustryPartnerInline(admin.StackedInline):
 # end class
 
 
+class CodeineAdminInline(admin.StackedInline):
+    model = CodeineAdmin
+    can_delete = False
+    verbose_name_plural = 'Members'
+# end class
+
+
 class UserAdmin(BaseUserAdmin):
     # Vendor and Customer inline
-    inlines = (MemberInline, ContentProviderInline, IndustryPartnerInline)
+    inlines = (MemberInline, ContentProviderInline, IndustryPartnerInline, CodeineAdminInline)
 
     # The forms to add and change user instances
     form = UserChangeForm
@@ -133,8 +140,12 @@ class IndustryPartnerAdmin(admin.ModelAdmin):
     list_display = ('id', 'user', 'company_name', 'contact_number')
 # end class
 
+class CodeineAdminAdmin(admin.ModelAdmin):
+    list_display = ('id', 'user')
+# end class
 
 admin.site.register(BaseUser, UserAdmin)
 admin.site.register(Member, MemberAdmin)
 admin.site.register(ContentProvider, ContentProviderAdmin)
 admin.site.register(IndustryPartner, IndustryPartnerAdmin)
+admin.site.register(CodeineAdmin, CodeineAdminAdmin)
