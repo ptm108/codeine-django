@@ -144,7 +144,7 @@ class MCQ(models.Model):
     correct_answer = models.CharField(max_length=255)
 # end class
 
-class MCQ(models.Model):
+class MRQ(models.Model):
     question = models.OneToOneField('Question', on_delete=models.CASCADE, null=True, blank=True)
     marks = models.PositiveIntegerField(default=1)
     options = models.JSONField()
