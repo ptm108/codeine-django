@@ -122,6 +122,5 @@ class CourseReview(models.Model):
     course = models.ForeignKey('Course', on_delete=models.CASCADE, null=True, related_name='course_reviews')
 
     # ref for member
-    member = models.ForeignKey('common.Member', on_delete=models.CASCADE, related_name='course_reviews')
+    member = models.ForeignKey('common.Member', on_delete=models.CASCADE, related_name='+')
 # end class
-
