@@ -36,6 +36,7 @@ AUTH_USER_MODEL = "common.BaseUser"
 
 INSTALLED_APPS = [
     'common',
+    'courses',
     'corsheaders',
     'django.contrib.admin',
     'django.contrib.auth',
