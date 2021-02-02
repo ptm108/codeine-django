@@ -12,7 +12,7 @@ from rest_framework.permissions import (
     AllowAny,
     IsAuthenticatedOrReadOnly,
 )
-from .models import BaseUser, CodeineAdmin
+from .models import BaseUser, CodeineAdmin, ContentProvider
 from .serializers import CodeineAdminSerializer
 
 
