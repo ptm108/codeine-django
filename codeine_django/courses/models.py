@@ -124,3 +124,29 @@ class CourseReview(models.Model):
     # ref for member
     member = models.ForeignKey('common.Member', on_delete=models.CASCADE, related_name='+')
 # end class
+
+class Question(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, unique=True)
+    title = models.TextField()
+    subtitle = models.TextField(null=True, default='', blank=True)
+# end class
+
+class ShortAnswer(models.Model):
+    question = models.OneToOneField('Question', on_delete=models.CASCADE, null=True, blank=True)
+    marks = models.PositiveIntegerField(default=1)
+    keywords = models.JSONField()
+# end class
+
+class MCQ(models.Model):
+    question = models.OneToOneField('Question', on_delete=models.CASCADE, null=True, blank=True)
+    marks = models.PositiveIntegerField(default=1)
+    options = models.JSONField()
+    correct_answer = models.CharField(max_length=255)
+# end class
+
+class MCQ(models.Model):
+    question = models.OneToOneField('Question', on_delete=models.CASCADE, null=True, blank=True)
+    marks = models.PositiveIntegerField(default=1)
+    options = models.JSONField()
+    correct_answer = models.JSONField()
+# end class
