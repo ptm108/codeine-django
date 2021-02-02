@@ -1,6 +1,6 @@
 from django.urls import path
 
-from . import views_member, views_content_provider, views_industry_partner
+from . import views_member, views_content_provider, views_industry_partner, views_codeine_admin
 
 urlpatterns = [
     # members views
@@ -17,4 +17,9 @@ urlpatterns = [
 
     # Industry partners views
     path('industryPartners', views_industry_partner.industry_partner_view, name='Create/Get all/Search Industry Partners'),
+
+    # Admin views
+    path('codeineAdmins', views_codeine_admin.admin_view, name='Create/Get all/Search Admins'),
+    path('codeineAdmins/<slug:pk>', views_codeine_admin.single_admin_view, name='Read/update/delete for admin'),
+    path('codeineAdmins/<slug:pk>/changePassword', views_codeine_admin.admin_change_password_view, name='Admin change password'),
 ]

@@ -118,3 +118,13 @@ class IndustryPartner(models.Model):
         return f'{self.user}'
     # end def
 # end class
+
+
+class CodeineAdmin(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, unique=True)
+    user = models.OneToOneField(BaseUser, on_delete=models.CASCADE, null=True)
+
+    def __str__(self):
+        return f'{self.user}'
+    # end def
+# end class

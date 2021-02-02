@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from .models import Member, BaseUser, IndustryPartner, ContentProvider
+from .models import Member, BaseUser, IndustryPartner, ContentProvider, CodeineAdmin
 
 
 class BaseUserSerializer(serializers.ModelSerializer):
@@ -41,6 +41,15 @@ class IndustryPartnerSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = IndustryPartner
+        fields = '__all__'
+    # end Meta
+# end class
+
+class CodeineAdminSerializer(serializers.ModelSerializer):
+    user = BaseUserSerializer()
+
+    class Meta:
+        model = CodeineAdmin
         fields = '__all__'
     # end Meta
 # end class
