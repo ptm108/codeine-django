@@ -31,7 +31,8 @@ urlpatterns = [
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
 
     # common infra endpoints
-    path('auth/', include('common.urls'), name='Common infra end points')
+    path('auth/', include('common.urls'), name='Common infra end points'),
+    path('contentProvider/', include('content_provider.urls'), name='Content Provider end points')
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
