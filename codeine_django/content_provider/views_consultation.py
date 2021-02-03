@@ -37,6 +37,7 @@ def consultation_slot_view(request):
                     end_date=data['end_date'],
                     start_time=data['start_time'],
                     end_time=data['end_time'],
+                    meeting_link=data['meeting_link'],
                     content_provider=user
                 )
                 consultation_slot.save()
@@ -92,7 +93,7 @@ def single_consultation_slot_view(request, pk):
     # end if
 
     '''
-    Updates a Consultation Slot
+    Updates a start and end time for Consultation Slot
     '''
     if request.method == 'PUT':
         data = request.data
