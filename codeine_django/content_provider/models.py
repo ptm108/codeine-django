@@ -18,8 +18,8 @@ class ConsultationSlot(models.Model):
     is_rejected = models.BooleanField(default=False)
 
     # ref
-    content_provider = models.ForeignKey('common.ContentProvider', on_delete=models.SET_NULL, related_name='consultation_slots', null=True)
-    member = models.ForeignKey('common.Member', on_delete=models.SET_NULL, related_name='consultation_slots', null=True)
+    content_provider = models.ForeignKey('common.ContentProvider', on_delete=models.SET_NULL, related_name='cp_consultation_slots', null=True, blank=True)
+    member = models.ForeignKey('common.Member', on_delete=models.SET_NULL, related_name='member_consultation_slots', null=True, blank=True)
 
     def __str__(self):
         return f'Consultation slot on {self.start_date} at {self.start_time} to {self.end_date} {self.end_time}'
@@ -54,8 +54,8 @@ class PaymentTransaction(models.Model):
     payment_type = MultiSelectField(choices=PAYMENT_TYPES)
 
     # ref
-    consultation_slot = models.OneToOneField('ConsultationSlot', on_delete=models.DO_NOTHING, related_name="transaction", null=True)
-    enrollment = models.OneToOneField('courses.Enrollment', on_delete=models.DO_NOTHING, related_name="transaction", null=True)
+    consultation_slot = models.OneToOneField('ConsultationSlot', on_delete=models.DO_NOTHING, related_name="transaction", null=True, blank=True)
+    enrollment = models.OneToOneField('courses.Enrollment', on_delete=models.DO_NOTHING, related_name="transaction", null=True, blank=True)
 
     def __str__(self):
         return f'Payment of {self.payment_amount} using {self.payment_type}, status: {self.payment_status}'

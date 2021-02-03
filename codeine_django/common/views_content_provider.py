@@ -213,10 +213,7 @@ def content_provider_update_consultation_rate(request, pk):
                 return Response(status=status.HTTP_400_BAD_REQUEST)
             # end if
 
-            user.set_password(data['consultation_rate'])
-            user.save()
-
-            content_provider = user.contentprovider
+            content_provider.consultation_rate = data['consultation_rate']
             serializer = ContentProviderSerializer(content_provider, context={"request": request})
             return Response(serializer.data, status=status.HTTP_200_OK)
 

@@ -27,18 +27,18 @@ def consultation_slot_view(request):
         user = request.user
         data = request.data
 
-        if (timezone.now() > utc.localize(datetime.strptime(data['start_date'], '%Y-%m-%d'))) or (datetime.strptime(data['end_time']) > datetime.strptime(data['start_time'])):
-            return Response({'message': 'Invalid date'}, status=status.HTTP_400_BAD_REQUEST)
+        # if (datetime.strptime(data['end_time']) > datetime.strptime(data['start_time'])):
+        #     return Response({'message': 'Invalid date'}, status=status.HTTP_400_BAD_REQUEST)
 
         with transaction.atomic():
             try:
                 consultation_slot = ConsultationSlotSerializer(
-                    start_date=data['start_date'],
-                    end_date=data['end_date'],
-                    start_time=data['start_time'],
-                    end_time=data['end_time'],
-                    meeting_link=data['meeting_link'],
-                    content_provider=user
+                    start_date = data['start_date'],
+                    end_date = data['end_date'],
+                    start_time = data['start_time'],
+                    end_time = data['end_time'],
+                    meeting_link = data['meeting_link'],
+                    content_provider = user
                 )
                 consultation_slot.save()
 
@@ -68,7 +68,7 @@ def consultation_slot_view(request):
             )
         # end if
 
-        ConsultationSlot = ConsultationSlotSerializer(
+        serializer = ConsultationSlotSerializer(
             consultation_slots.all(), many=True, context={"request": request})
         return Response(serializer.data, status=status.HTTP_200_OK)
     # end if
@@ -76,8 +76,8 @@ def consultation_slot_view(request):
 
 
 @api_view(['GET', 'PUT', 'DELETE'])
-@permission_classes((IsAuthenticatedOrReadOnly,))
-@parser_classes((MultiPartParser, FormParser))
+@permission_classes((IsAuthenticated,))
+@parser_classes((MultiPartParser, FormParser,))
 def single_consultation_slot_view(request, pk):
     '''
     Gets a consultation slot by primary key/ id
@@ -93,7 +93,7 @@ def single_consultation_slot_view(request, pk):
     # end if
 
     '''
-    Updates a start and end time for Consultation Slot
+    Updates start time, end time and meeting link for Consultation Slot
     '''
     if request.method == 'PUT':
         data = request.data
@@ -109,11 +109,12 @@ def single_consultation_slot_view(request, pk):
                     consultation_slot.start_time = data['start_time']
                 if 'end_time' in data:
                     consultation_slot.end_time = data['end_time']
+                if 'meeting_link' in data:
+                    consultation_slot.meeting_link = data['meeting_link']
                 consultation_slot.save()
             # end with
 
-            serializer = ConsultationSlotSerializer(
-                consultation_slot, context={"request": request})
+            serializer = ConsultationSlotSerializer(consultation_slot, context={"request": request})
             return Response(serializer.data, status=status.HTTP_200_OK)
         except ConsultationSlot.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
@@ -145,7 +146,7 @@ def confirm_consultation_slot(request, pk):
     '''
     Content Provider confirms a consultation slot
     '''
-    if request.method == 'POST':
+    if request.method == 'PATCH':
         data = request.data
         try:
             consultation_slot = ConsultationSlot.objects.get(pk=pk)
@@ -153,7 +154,7 @@ def confirm_consultation_slot(request, pk):
             user = request.user
             content_provider = consultation_slot.content_provider
 
-            # assert requesting content provider is editing their own consultation slots
+            # assert requesting content provider is confirming their own consultation slots
             if content_provider.user != user:
                 return Response(status=status.HTTP_400_BAD_REQUEST)
             # end if
