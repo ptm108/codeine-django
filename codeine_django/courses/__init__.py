@@ -1,1 +1,1 @@
-default_app_config = 'courses.apps.PappardelleConfig'
+default_app_config = 'courses.apps.CoursesConfig'
