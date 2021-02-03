@@ -64,7 +64,7 @@ def course_view(request):
         paginator = PageNumberPagination()
         paginator.page_size = page_size
 
-        result_page = paginator.paginate_queryset(courses, request)
+        result_page = paginator.paginate_queryset(courses.all(), request)
         serializer = CourseSerializer(result_page, many=True, context={"request": request})
 
         return paginator.get_paginated_response(serializer.data)
