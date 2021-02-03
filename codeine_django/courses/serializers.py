@@ -49,7 +49,7 @@ class CourseSerializer(serializers.ModelSerializer):
 # end class
 
 
-class EnrollmentSerializer(models.Model):
+class EnrollmentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Enrollment
         fields = '__all__'
@@ -59,7 +59,7 @@ class EnrollmentSerializer(models.Model):
 
 # Assessment related
 
-class ShortAnswerSerializer(models.Model):
+class ShortAnswerSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = ShortAnswer
@@ -68,8 +68,7 @@ class ShortAnswerSerializer(models.Model):
 # end class
 
 
-class MCQSerializer(models.Model):
-    question = QuestionSerializer()
+class MCQSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = MCQ
@@ -78,8 +77,7 @@ class MCQSerializer(models.Model):
 # end class
 
 
-class MRQAnswerSerializer(models.Model):
-    question = QuestionSerializer()
+class MRQAnswerSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = MRQ
@@ -88,7 +86,7 @@ class MRQAnswerSerializer(models.Model):
 # end class
 
 
-class QuestionSerializer(models.Model):
+class QuestionSerializer(serializers.ModelSerializer):
     shortanswer = ShortAnswerSerializer()
     mcq = MCQSerializer()
     mrq = MRQAnswerSerializer()
@@ -99,7 +97,8 @@ class QuestionSerializer(models.Model):
     # end class
 # end class
 
-class AssessmentSerializer(models.Model):
+
+class AssessmentSerializer(serializers.ModelSerializer):
     questions = QuestionSerializer(many=True)
 
     class Meta:
@@ -107,5 +106,3 @@ class AssessmentSerializer(models.Model):
         fields = ('id', 'passing_grade', 'course', 'questions')
     # end Meta
 # end class
-
-
