@@ -12,28 +12,28 @@ from rest_framework.permissions import (
     AllowAny,
     IsAuthenticatedOrReadOnly,
 )
-from .models import BaseUser, ContentProvider
-from .serializers import ContentProviderSerializer
+from .models import BaseUser, CodeineAdmin, ContentProvider
+from .serializers import CodeineAdminSerializer
 
 
 @api_view(['POST', 'GET'])
-@permission_classes((AllowAny,))
-def content_provider_view(request):
+@permission_classes((IsAuthenticated,))
+def admin_view(request):
     '''
-    Creates a new content provider
+    Creates a new admin
     '''
     if request.method == 'POST':
         data = request.data
 
         with transaction.atomic():
             try:
-                user = BaseUser.objects.create_user(data['email'], data['password'], first_name=data['first_name'], last_name=data['last_name'])
+                user = BaseUser.objects.create_user(data['email'], data['password'], is_admin=True, is_active=True, first_name=data['first_name'], last_name=data['last_name'])
                 user.save()
 
-                content_provider = ContentProvider(user=user, company_name=data['company_name'], job_title=data['job_title'], bio=data['bio'])
-                content_provider.save()
+                admin = CodeineAdmin(user=user)
+                admin.save()
 
-                serializer = ContentProviderSerializer(content_provider)
+                serializer = CodeineAdminSerializer(admin, context={"request": request})
 
                 return Response(serializer.data, status=status.HTTP_201_CREATED)
             except (IntegrityError, ValueError, KeyError) as e:
@@ -43,23 +43,23 @@ def content_provider_view(request):
     # end if
 
     '''
-    Retrieves all content providers
+    Retrieves all admin users
     '''
     if request.method == 'GET':
         # extract query params
         search = request.query_params.get('search', None)
 
-        content_providers = ContentProvider.objects
+        admins = CodeineAdmin.objects
 
         if search is not None:
-            content_providers = content_providers.filter(
+            admins = admins.filter(
                 Q(user__first_name__icontains=search) |
                 Q(user__last_name__icontains=search) |
                 Q(user__email__icontains=search)
             )
         # end if
 
-        serializer = ContentProviderSerializer(content_providers.all(), many=True, context={"request": request})
+        serializer = CodeineAdminSerializer(admins.all(), many=True, context={"request": request})
         return Response(serializer.data, status=status.HTTP_200_OK)
     # end if
 # end def
@@ -67,16 +67,17 @@ def content_provider_view(request):
 @api_view(['GET', 'PUT', 'DELETE'])
 @permission_classes((IsAuthenticatedOrReadOnly,))
 @parser_classes((MultiPartParser, FormParser))
-def single_content_provider_view(request, pk):
+def single_admin_view(request, pk):
     '''
-    Gets a content provider by primary key/ id
+    Gets an admin by primary key/ id
     '''
     if request.method == 'GET':
 
         try:
-            content_provider = ContentProvider.objects.get(pk=pk)
+            user = BaseUser.objects.get(pk=pk)
+            admin = CodeineAdmin.objects.get(user=user)
            
-            return Response(ContentProviderSerializer(content_provider, context={"request": request}).data)
+            return Response(CodeineAdminSerializer(admin, context={"request": request}).data)
         except (ObjectDoesNotExist, KeyError, ValueError) as e:
             print(e)
             return Response(status=status.HTTP_400_BAD_REQUEST)
@@ -84,14 +85,14 @@ def single_content_provider_view(request, pk):
     # end if
 
     '''
-    Updates a content provider
+    Updates an admin
     '''
     if request.method == 'PUT':
         data = request.data
         try:
             with transaction.atomic():
-                content_provider = ContentProvider.objects.get(pk=pk)
-                user = content_provider.user
+                user = BaseUser.objects.get(pk=pk)
+                admin = CodeineAdmin.objects.get(user=user)
 
                 if 'first_name' in data:
                     user.first_name = data['first_name']
@@ -102,19 +103,11 @@ def single_content_provider_view(request, pk):
                 if 'profile_photo' in data:
                     user.profile_photo = data['profile_photo']
                 user.save()
-
-                if 'company_name' in data:
-                    content_provider.company_name = data['company_name']
-                if 'job_title' in data:
-                    content_provider.job_title = data['job_title']
-                if 'bio' in data:
-                    content_provider.bio = data['bio']
-                content_provider.save()
             # end with
 
-            serializer = ContentProviderSerializer(content_provider, context={"request": request})
+            serializer = CodeineAdminSerializer(admin, context={"request": request})
             return Response(serializer.data, status=status.HTTP_200_OK)
-        except ContentProvider.DoesNotExist:
+        except CodeineAdmin.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
         except (KeyError, ValueError) as e:
             return Response(status=status.HTTP_400_BAD_REQUEST)
@@ -122,13 +115,15 @@ def single_content_provider_view(request, pk):
     # end if
 
     '''
-    Deletes a content provider
+    Deletes an admin
     '''
     if request.method == 'DELETE':
         try:
-            content_provider = ContentProvider.objects.get(pk=pk)
-            user = content_provider.user
+            user = BaseUser.objects.get(pk=pk)
+            admin = CodeineAdmin.objects.get(user=user)
+            
             user.is_active = False  # mark as deleted
+            user.is_admin = False # remove admin privileges
             user.save()
 
             return Response(status=status.HTTP_200_OK)
@@ -138,18 +133,18 @@ def single_content_provider_view(request, pk):
 
 @api_view(['PATCH'])
 @permission_classes((IsAuthenticated,))
-def content_provider_change_password_view(request, pk):
+def admin_change_password_view(request, pk):
     '''
-    Updates content providers's password
+    Updates admin's password
     '''
     if request.method == 'PATCH':
         data = request.data
         try:
             user = request.user
-            content_provider = ContentProvider.objects.get(pk=pk)
+            admin = CodeineAdmin.objects.get(pk=pk)
 
             # assert requesting user is editing own account
-            if content_provider.user != user:
+            if admin.user != user:
                 return Response(status=status.HTTP_400_BAD_REQUEST)
             # end if
 
@@ -161,36 +156,14 @@ def content_provider_change_password_view(request, pk):
             user.set_password(data['new_password'])
             user.save()
 
-            content_provider = user.contentprovider
-            serializer = ContentProviderSerializer(content_provider, context={"request": request})
+            admin = user.codeineadmin
+            serializer = CodeineAdminSerializer(admin, context={"request": request})
             return Response(serializer.data, status=status.HTTP_200_OK)
 
         except ObjectDoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
         except KeyError:
             return Response('Invalid payload', status=status.HTTP_400_BAD_REQUEST)
-        # end try-except
-    # end if
-# end def
-
-@api_view(['POST'])
-@permission_classes((AllowAny,))
-def activate_content_provider_view(request, pk):
-    '''
-    Activates content provider
-    ''' 
-    if request.method == 'POST':
-        try:
-            content_provider = ContentProvider.objects.get(pk=pk)
-            user = content_provider.user
-
-            user.is_active = True
-            user.save()
-            
-            serializer = ContentProviderSerializer(content_provider, context={"request": request})
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        except ObjectDoesNotExist:
-            return Response(status=status.HTTP_404_NOT_FOUND)
         # end try-except
     # end if
 # end def

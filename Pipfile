@@ -13,6 +13,8 @@ markdown = "*"
 django-filter = "*"
 djangorestframework-simplejwt = "*"
 pillow = "*"
+django-multiselectfield = "*"
+django-cors-headers = "*"
 
 [requires]
 python_version = "3.8"
