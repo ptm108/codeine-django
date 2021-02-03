@@ -1,6 +1,8 @@
 from django.db import models
+from django.utils.translation import gettext_lazy as _
 from django.utils import timezone
-from common.models import ContentProvider, Member
+from multiselectfield import MultiSelectField
+from django.core.exceptions import ValidationError
 
 import uuid
 
@@ -12,11 +14,12 @@ class ConsultationSlot(models.Model):
     start_time = models.TimeField()
     end_time = models.TimeField()
     meeting_link = models.TextField(default='')
-    is_cancelled = models.BooleanField(default=False)
     is_confirmed = models.BooleanField(default=False)
+    is_rejected = models.BooleanField(default=False)
 
-    content_provider = models.ForeignKey(ContentProvider, on_delete=models.CASCADE)
-    member = models.ForeignKey(Member, on_delete=models.SET_NULL, null=True)
+    # ref
+    content_provider = models.ForeignKey('common.ContentProvider', on_delete=models.SET_NULL, related_name='consultation_slots')
+    member = models.ForeignKey('common.Member', on_delete=models.SET_NULL, related_name='consultation_slots')
 
     def __str__(self):
         return f'Consultation slot on {self.start_date} at {self.start_time} to {self.end_date} {self.end_time}'
@@ -24,5 +27,41 @@ class ConsultationSlot(models.Model):
 
     class Meta:
         ordering = ['start_date', 'start_time', 'end_date', 'end_time']
+    #end class
+# end class
+
+
+class PaymentTransaction(models.Model):
+    PAYMENT_STATUSES = (
+        ('PENDING', 'Pending'),
+        ('COMPLETED', 'Completed'),
+        ('REFUNDED', 'Refunded'),
+        ('FAILED', 'Failed')
+    )
+
+    PAYMENT_TYPES = (
+        ('VISA', 'Visa'),
+        ('MASTER', 'Mastercard'),
+        ('AMEX', 'American Express')
+    )
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, unique=True)
+    timestamp = DateTimeField(auto_now_add=True)
+    payment_amount = models.DecimalField(decimal_places=2)
+
+    # enums
+    payment_status = MultiSelectField(choices=PAYMENT_STATUSES)
+    payment_type = MultiSelectField(choices=PAYMENT_TYPES)
+
+    # ref
+    consultation_slot = models.OneToOneField('ConsultationSlot', on_delete=models.SET_NULL, primary_key=True)
+    enrollment = models.OneToOneField('courses.Enrollment', on_delete=models.SET_NULL, primary_key=True)
+
+    def __str__(self):
+        return f'Payment of {self.payment_amount} using {self.payment_type}, status: {self.payment_status}'
+    # end def
+
+    class Meta:
+        ordering = ['timestamp']
     #end class
 # end class

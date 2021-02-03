@@ -60,6 +60,13 @@ def consultation_slot_view(request):
 
         consultation_slots = ConsultationSlot.objects
 
+        if search is not None:
+            consultation_slots = consultation_slots.filter(
+                Q(content_provider__user__id__contains=search) |
+                Q(member__user__id__contains=search)
+            )
+        # end if
+
         ConsultationSlot = ConsultationSlotSerializer(
             consultation_slots.all(), many=True, context={"request": request})
         return Response(serializer.data, status=status.HTTP_200_OK)
@@ -104,7 +111,8 @@ def single_consultation_slot_view(request, pk):
                 consultation_slot.save()
             # end with
 
-            serializer = ConsultationSlotSerializer(consultation_slot, context={"request": request})
+            serializer = ConsultationSlotSerializer(
+                consultation_slot, context={"request": request})
             return Response(serializer.data, status=status.HTTP_200_OK)
         except ConsultationSlot.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
@@ -119,33 +127,72 @@ def single_consultation_slot_view(request, pk):
     if request.method == 'DELETE':
         try:
             consultation_slot = ConsultationSlot.objects.get(pk=pk)
-            consultation_slot.is_cancelled = False  # mark as deleted
-            consultation_slot.save()
-
-            return Response(status=status.HTTP_200_OK)
+            if consultation_slot.is_confirmed is True:
+                return Response(status=status.HTTP_400_BAD_REQUEST)
+            else:
+                consultation_slot.delete()
+                return Response(status=status.HTTP_200_OK)
         except ConsultationSlot.DoesNotExist:
             return Response(status=status.HTTP_400_BAD_REQUEST)
     # end if
 # end def
 
 
-@ api_view(['PATCH'])
-@ permission_classes((IsAuthenticated,))
+@api_view(['PATCH'])
+@permission_classes((IsAuthenticated,))
 def confirm_consultation_slot(request, pk):
     '''
-    Confirms a consultation slot
-    ''' 
+    Content Provider confirms a consultation slot
+    '''
     if request.method == 'POST':
+        data = request.data
         try:
             consultation_slot = ConsultationSlot.objects.get(pk=pk)
 
-            consultation_slot.is_confirmed = True
-            if 'meeting_link' in data:
-                consultation_slot.meeting_link = data['meeting_link']
+            user = request.user
+            content_provider = consultation_slot.content_provider
 
+            # assert requesting content provider is editing their own consultation slots
+            if content_provider.user != user:
+                return Response(status=status.HTTP_400_BAD_REQUEST)
+            # end if
+
+            consultation_slot.is_confirmed = True
             consultation_slot.save()
-            
-            serializer = ConsultationSlotSerializer(consultation_slot, context={"request": request})
+
+            serializer = ConsultationSlotSerializer(
+                consultation_slot, context={"request": request})
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except ObjectDoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        # end try-except
+    # end if
+# end def
+
+@api_view(['PATCH'])
+@permission_classes((IsAuthenticated,))
+def reject_consultation_slot(request, pk):
+    '''
+    Content Provider rejects a consultation slot
+    '''
+    if request.method == 'PATCH':
+        data = request.data
+        try:
+            consultation_slot = ConsultationSlot.objects.get(pk=pk)
+
+            user = request.user
+            content_provider = consultation_slot.content_provider
+
+            # assert requesting content provider is rejecting their own consultation slots
+            if content_provider.user != user:
+                return Response(status=status.HTTP_400_BAD_REQUEST)
+            # end if
+
+            consultation_slot.is_rejected = True
+            consultation_slot.save()
+
+            serializer = ConsultationSlotSerializer(
+                consultation_slot, context={"request": request})
             return Response(serializer.data, status=status.HTTP_200_OK)
         except ObjectDoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
