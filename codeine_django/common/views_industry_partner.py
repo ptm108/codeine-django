@@ -120,3 +120,40 @@ def activate_industry_partner_view(request, pk):
         # end try-except
     # end if
 # end def
+
+@api_view(['PATCH'])
+@permission_classes((IsAuthenticated,))
+def industry_partner_change_password_view(request, pk):
+    '''
+    Updates industry partner's password
+    '''
+    if request.method == 'PATCH':
+        data = request.data
+        try:
+            user = request.user
+            industry_partner = IndustryPartner.objects.get(pk=pk)
+
+            # assert requesting industry partner is editing own account
+            if industry_partner.user != user:
+                return Response(status=status.HTTP_400_BAD_REQUEST)
+            # end if
+
+            # check old password
+            if not user.check_password(data['old_password']):
+                return Response(status=status.HTTP_401_UNAUTHORIZED)
+            # end if
+
+            user.set_password(data['new_password'])
+            user.save()
+
+            industry_partner = user.industrypartner
+            serializer = IndustryPartnerSerializer(industry_partner, context={"request": request})
+            return Response(serializer.data, status=status.HTTP_200_OK)
+
+        except ObjectDoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        except KeyError:
+            return Response('Invalid payload', status=status.HTTP_400_BAD_REQUEST)
+        # end try-except
+    # end if
+# end def
