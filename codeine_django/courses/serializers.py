@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from .models import (Section, Chapter, Course)
+from .models import (Section, Chapter, Course, Enrollment, Question, ShortAnswer, MCQ, MRQ)
 
 
 class SectionSerializer(serializers.ModelSerializer):
@@ -36,5 +36,48 @@ class CourseSerializer(serializers.ModelSerializer):
             return request.build_absolute_uri(obj.profile_photo.url)
         # end if
     # end def
+# end class
+
+
+class EnrollmentSerializer(models.Model):
+    class Meta:
+        model = Enrollment
+        fields = '__all__'
+    # end Meta
+# end class
+
+
+# Assessment related
+
+class QuestionSerializer(models.Model):
+    class Meta:
+        model = Question
+        fields = ('title', 'subtitle',)
+    # end class
+# end class
+
+
+class ShortAnswerSerializer(models.Model):
+    question = QuestionSerializer()
+    class Meta:
+        model = ShortAnswer
+        fields = ('question', 'marks', 'keywords')
+    # end class
+# end class
+
+class MCQSerializer(models.Model):
+    question = QuestionSerializer()
+    class Meta:
+        model = MCQ
+        fields = ('question', 'marks', 'options', 'correct_answer')
+    # end class
+# end class
+
+class MRQAnswerSerializer(models.Model):
+    question = QuestionSerializer()
+    class Meta:
+        model = MRQ
+        fields = ('question', 'marks', 'options', 'correct_answer')
+    # end class
 # end class
 
