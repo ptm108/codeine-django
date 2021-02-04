@@ -74,7 +74,8 @@ def single_member_view(request, pk):
     '''
     if request.method == 'GET':
         try:
-            member = Member.objects.get(pk=pk)
+            user = BaseUser.objects.get(pk=pk)
+            member = Member.objects.get(user=user)
 
             return Response(MemberSerializer(member, context={"request": request}).data)
         except (ObjectDoesNotExist, KeyError, ValueError) as e:
@@ -89,8 +90,8 @@ def single_member_view(request, pk):
         data = request.data
         try:
             with transaction.atomic():
-                member = Member.objects.get(pk=pk)
-                user = member.user
+                user = request.user
+                member = Member.objects.get(user=user)
 
                 if 'first_name' in data:
                     user.first_name = data['first_name']
@@ -117,8 +118,8 @@ def single_member_view(request, pk):
     '''
     if request.method == 'DELETE':
         try:
-            member = Member.objects.get(pk=pk)
-            user = member.user
+            user = request.user
+            member = Member.objects.get(user=user)
             user.is_active = False  # mark as deleted
             user.save()
 
@@ -172,15 +173,15 @@ def member_change_password_view(request, pk):
 def activate_member_view(request, pk):
     '''
     Activates member
-    ''' 
+    '''
     if request.method == 'POST':
         try:
-            member = Member.objects.get(pk=pk)
-            user = member.user
+            user = request.user
+            member = Member.objects.get(user=user)
 
             user.is_active = True
             user.save()
-            
+
             serializer = MemberSerializer(member, context={"request": request})
             return Response(serializer.data, status=status.HTTP_200_OK)
         except ObjectDoesNotExist:
