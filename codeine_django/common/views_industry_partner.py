@@ -41,7 +41,7 @@ def industry_partner_view(request):
     # end if
 
     '''
-    Creates/Register Industry Partner
+    Creates/Register industry partner
     '''
     if request.method == 'POST':
         data = request.data
@@ -64,12 +64,12 @@ def industry_partner_view(request):
     # end if
 # end def
 
-@api_view(['GET', 'DELETE'])
+@api_view(['GET', 'PUT','DELETE'])
 @permission_classes((IsAuthenticatedOrReadOnly,))
 @parser_classes((MultiPartParser, FormParser))
 def single_industry_partner_view(request, pk):
     '''
-    Gets a member by primary key/ id
+    Gets a industry partner by primary key/id
     '''
     if request.method == 'GET':
         try:
@@ -79,6 +79,42 @@ def single_industry_partner_view(request, pk):
         except (ObjectDoesNotExist, KeyError, ValueError) as e:
             print(e)
             return Response(status=status.HTTP_400_BAD_REQUEST)
+    # end if
+
+        '''
+    Updates a industry partner
+    '''
+    if request.method == 'PUT':
+        data = request.data
+        try:
+            with transaction.atomic():
+                industry_partner = IndustryPartner.objects.get(pk=pk)
+                user = industry_partner.user
+
+                if 'first_name' in data:
+                    user.first_name = data['first_name']
+                if 'last_name' in data:
+                    user.last_name = data['last_name']
+                if 'email' in data:
+                    user.email = data['email']
+                if 'profile_photo' in data:
+                    user.profile_photo = data['profile_photo']
+                user.save()
+
+                if 'company_name' in data:
+                    industry_partner.company_name = data['company_name']
+                if 'contact_number' in data:
+                    industry_partner.contact_number = data['contact_number']
+                industry_partner.save()
+            # end with
+
+            serializer = IndustryPartnerSerializer(industry_partner, context={"request": request})
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except IndustryPartner.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        except (KeyError, ValueError) as e:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+        # end try-except
     # end if
 
     '''
