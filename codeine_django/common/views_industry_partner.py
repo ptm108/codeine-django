@@ -12,7 +12,7 @@ from rest_framework.permissions import (
     AllowAny,
     IsAuthenticatedOrReadOnly,
 )
-from .models import BaseUser, IndustryPartner
+from .models import BaseUser, IndustryPartner, CodeineAdmin
 from .serializers import IndustryPartnerSerializer
 
 
@@ -64,7 +64,7 @@ def industry_partner_view(request):
     # end if
 # end def
 
-@api_view(['GET', 'PUT','DELETE'])
+@api_view(['GET', 'PUT', 'DELETE', 'POST'])
 @permission_classes((IsAuthenticatedOrReadOnly,))
 @parser_classes((MultiPartParser, FormParser))
 def single_industry_partner_view(request, pk):
@@ -73,23 +73,25 @@ def single_industry_partner_view(request, pk):
     '''
     if request.method == 'GET':
         try:
-            industry_partner = IndustryPartner.objects.get(pk=pk)
+            user = BaseUser.objects.get(pk=pk)
+            industry_partner = IndustryPartner.objects.get(user=user)
 
-            return Response(IndustryPartnerSerializer(industry_partner, context={"request": request}).data)
+            serializer = IndustryPartnerSerializer(industry_partner, context={"request": request})
+            return Response(serializer.data, status=status.HTTP_200_OK)
         except (ObjectDoesNotExist, KeyError, ValueError) as e:
             print(e)
             return Response(status=status.HTTP_400_BAD_REQUEST)
     # end if
 
-        '''
+    '''
     Updates a industry partner
     '''
     if request.method == 'PUT':
         data = request.data
         try:
             with transaction.atomic():
-                industry_partner = IndustryPartner.objects.get(pk=pk)
-                user = industry_partner.user
+                user = request.user
+                industry_partner = IndustryPartner.objects.get(user=user)
 
                 if 'first_name' in data:
                     user.first_name = data['first_name']
@@ -122,32 +124,38 @@ def single_industry_partner_view(request, pk):
     ''' 
     if request.method == 'DELETE':
         try:
-            industry_partner = IndustryPartner.objects.get(pk=pk)
-            user = industry_partner.user
+            try:
+                user = request.user
+                admin = CodeineAdmin.objects.get(user=user)
+            except CodeineAdmin.DoesNotExist:
+                return Response(status=status.HTTP_401_UNAUTHORIZED)
 
-            user.is_active = False
-            user.save()
+            industry_partner = IndustryPartner.objects.get(pk=pk)
+
+            industry_partner.user.is_active = False
+            industry_partner.user.save()
 
             return Response(status=status.HTTP_200_OK)
         except ObjectDoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
         # end try-except
     # end if
-# end def
 
-@api_view(['POST'])
-@permission_classes((AllowAny,))
-def activate_industry_partner_view(request, pk):
     '''
     Activates industry partner
     ''' 
     if request.method == 'POST':
         try:
-            industry_partner = IndustryPartner.objects.get(pk=pk)
-            user = industry_partner.user
+            try:
+                user = request.user
+                admin = CodeineAdmin.objects.get(user=user)
+            except CodeineAdmin.DoesNotExist:
+                return Response(status=status.HTTP_401_UNAUTHORIZED)
 
-            user.is_active = True
-            user.save()
+            industry_partner = IndustryPartner.objects.get(pk=pk)
+
+            industry_partner.user.is_active = True
+            industry_partner.user.save()
             
             serializer = IndustryPartnerSerializer(industry_partner, context={"request": request})
             return Response(serializer.data, status=status.HTTP_200_OK)
@@ -156,6 +164,7 @@ def activate_industry_partner_view(request, pk):
         # end try-except
     # end if
 # end def
+
 
 @api_view(['PATCH'])
 @permission_classes((IsAuthenticated,))
@@ -167,7 +176,8 @@ def industry_partner_change_password_view(request, pk):
         data = request.data
         try:
             user = request.user
-            industry_partner = IndustryPartner.objects.get(pk=pk)
+            base_user = BaseUser.objects.get(pk=pk)
+            industry_partner = IndustryPartner.objects.get(user=user)
 
             # assert requesting industry partner is editing own account
             if industry_partner.user != user:
