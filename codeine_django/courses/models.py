@@ -56,10 +56,10 @@ class Course(models.Model):
     learning_objectives = models.JSONField()  # list of objectives
     requirements = models.JSONField()  # list of requirements
     description = models.TextField()
-    introduction_video_url = models.CharField(max_length=255)
-    github_repo = models.CharField(max_length=255)
+    introduction_video_url = models.CharField(max_length=255, null=True, blank=True, default=None)
+    github_repo = models.CharField(max_length=255, null=True, blank=True, default=None)
     thumbnail = models.ImageField(upload_to=image_directory_path, max_length=100, null=True, default=None)
-    views = models.PositiveIntegerField()
+    views = models.PositiveIntegerField(default=0)
 
     # enums
     coding_languages = MultiSelectField(choices=CODING_LANGUAGES)
