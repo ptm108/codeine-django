@@ -15,10 +15,13 @@ from rest_framework.permissions import (
 )
 from .models import Course, Section, Chapter
 from .serializers import CourseSerializer
+from common.models import ContentProvider
+
+import json
 
 
-@api_view(['GET'])
-@permission_classes((AllowAny,))
+@api_view(['GET', 'POST'])
+@permission_classes((IsAuthenticatedOrReadOnly,))
 def course_view(request):
     '''
     Get/ Search all courses
@@ -68,5 +71,37 @@ def course_view(request):
         serializer = CourseSerializer(result_page, many=True, context={"request": request})
 
         return paginator.get_paginated_response(serializer.data)
+    # end if
+
+    '''
+    Create a new Course
+    '''
+    if request.method == 'POST':
+        try:
+            user = request.user
+            content_provider = ContentProvider.objects.get(user=user)
+            data = request.data
+
+            # print(type(json.loads(data['list'])))
+
+            course = Course(
+                title=data['title'],
+                learning_objectives=json.loads(data['learning_objectives']),
+                requirements=json.loads(data['requirements']),
+                description=data['description'],
+                introduction_video_url=data['introduction_video_url'],
+                thumbnail=data['thumbnail'],
+                coding_languages=json.loads(data['coding_languages']),
+                languages=json.loads(data['languages']),
+                categories=json.loads(data['categories']),
+                price=data['price'],
+                content_provider=content_provider
+            )
+            course.save()
+
+            return Response(CourseSerializer(course, context={'request': request}).data, status=status.HTTP_200_OK)
+        except (ObjectDoesNotExist, KeyError) as e:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+        # end try-except
     # end if
 # end def

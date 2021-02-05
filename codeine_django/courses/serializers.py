@@ -42,8 +42,8 @@ class CourseSerializer(serializers.ModelSerializer):
 
     def get_thumbnail_url(self, obj):
         request = self.context.get("request")
-        if obj.profile_photo and hasattr(obj.profile_photo, 'url'):
-            return request.build_absolute_uri(obj.profile_photo.url)
+        if obj.thumbnail and hasattr(obj.thumbnail, 'url'):
+            return request.build_absolute_uri(obj.thumbnail.url)
         # end if
     # end def
 # end class
