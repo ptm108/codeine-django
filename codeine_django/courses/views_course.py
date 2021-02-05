@@ -105,3 +105,56 @@ def course_view(request):
         # end try-except
     # end if
 # end def
+
+@api_view(['GET', 'PUT', 'DELETE'])
+@permission_classes((IsAuthenticatedOrReadOnly,))
+def single_course_view(request, pk):
+    '''
+    Get single course details
+    '''
+    if request.method == 'GET':
+        try:
+            course = Course.objects.get(pk=pk)
+            return Response(CourseSerializer(course, context={'request': request}).data, status=status.HTTP_200_OK)
+        except Course.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        # end try-except
+    # end if
+
+    '''
+    Update a course
+    '''
+    if request.method == 'PUT':
+        try:
+            user = request.user
+            content_provider = ContentProvider.objects.get(user=user)
+
+            course = Course.objects.get(pk=pk)
+
+            # check if content provider is owner of course
+            if course.content_provider != content_provider:
+                return Response(status=status.HTTP_400_BAD_REQUEST)
+            # end if
+
+            data = request.data
+            
+            course.title=data['title']
+            course.learning_objectives=json.loads(data['learning_objectives'])
+            course.requirements=json.loads(data['requirements'])
+            course.description=data['description']
+            course.introduction_video_url=data['introduction_video_url']
+            course.thumbnail=data['thumbnail']
+            course.coding_languages=json.loads(data['coding_languages'])
+            course.languages=json.loads(data['languages'])
+            course.categories=json.loads(data['categories'])
+            course.price=data['price']
+            course.save() # save course
+
+            return Response(CourseSerializer(course, context={'request': request}).data, status=status.HTTP_200_OK)
+        except KeyError:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+        except ObjectDoesNotExist: 
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        # end try-except
+    # end if 
+# end def
