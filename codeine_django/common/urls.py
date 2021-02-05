@@ -17,9 +17,8 @@ urlpatterns = [
 
     # Industry partners views
     path('industryPartners', views_industry_partner.industry_partner_view, name='Create/Get all/Search Industry Partners'),
-    path('industryPartners/<slug:pk>', views_industry_partner.single_industry_partner_view, name='Read/Update/Delete/Activate for Industry Partner'),
-    # path('industryPartners/<slug:pk>/activate', views_industry_partner.activate_industry_partner_view, name='Activates Industry Partner'),
-    path('industryPartners/<slug:pk>/changePassword', views_industry_partner.industry_partner_change_password_view, name='Industry Member change password'),
+    path('industryPartners/<slug:pk>', views_industry_partner.single_industry_partner_view, name='Read/Update/Delete/Change Password for Industry Partner'),
+    path('industryPartners/<slug:pk>/admin', views_industry_partner.industry_partner_admin_view, name='Admin Delete/Activates Industry Member'),
 
     # Admin views
     path('codeineAdmins', views_codeine_admin.admin_view, name='Create/Get all/Search Admins'),

@@ -11,6 +11,7 @@ from rest_framework.permissions import (
     IsAuthenticated,
     AllowAny,
     IsAuthenticatedOrReadOnly,
+    IsAdminUser,
 )
 from .models import BaseUser, IndustryPartner, CodeineAdmin
 from .serializers import IndustryPartnerSerializer
@@ -64,7 +65,7 @@ def industry_partner_view(request):
     # end if
 # end def
 
-@api_view(['GET', 'PUT', 'DELETE', 'POST'])
+@api_view(['GET', 'PUT', 'DELETE', 'PATCH'])
 @permission_classes((IsAuthenticatedOrReadOnly,))
 @parser_classes((MultiPartParser, FormParser))
 def single_industry_partner_view(request, pk):
@@ -124,13 +125,14 @@ def single_industry_partner_view(request, pk):
     ''' 
     if request.method == 'DELETE':
         try:
-            try:
-                user = request.user
-                admin = CodeineAdmin.objects.get(user=user)
-            except CodeineAdmin.DoesNotExist:
-                return Response(status=status.HTTP_401_UNAUTHORIZED)
+            user = request.user
+            base_user = BaseUser.objects.get(pk=pk)
+            industry_partner = IndustryPartner.objects.get(user=user)
 
-            industry_partner = IndustryPartner.objects.get(pk=pk)
+            # assert requesting industry partner is deleting own account
+            if industry_partner.user != user:
+                return Response(status=status.HTTP_400_BAD_REQUEST)
+            # end if
 
             industry_partner.user.is_active = False
             industry_partner.user.save()
@@ -141,34 +143,6 @@ def single_industry_partner_view(request, pk):
         # end try-except
     # end if
 
-    '''
-    Activates industry partner
-    ''' 
-    if request.method == 'POST':
-        try:
-            try:
-                user = request.user
-                admin = CodeineAdmin.objects.get(user=user)
-            except CodeineAdmin.DoesNotExist:
-                return Response(status=status.HTTP_401_UNAUTHORIZED)
-
-            industry_partner = IndustryPartner.objects.get(pk=pk)
-
-            industry_partner.user.is_active = True
-            industry_partner.user.save()
-            
-            serializer = IndustryPartnerSerializer(industry_partner, context={"request": request})
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        except ObjectDoesNotExist:
-            return Response(status=status.HTTP_404_NOT_FOUND)
-        # end try-except
-    # end if
-# end def
-
-
-@api_view(['PATCH'])
-@permission_classes((IsAuthenticated,))
-def industry_partner_change_password_view(request, pk):
     '''
     Updates industry partner's password
     '''
@@ -200,6 +174,45 @@ def industry_partner_change_password_view(request, pk):
             return Response(status=status.HTTP_404_NOT_FOUND)
         except KeyError:
             return Response('Invalid payload', status=status.HTTP_400_BAD_REQUEST)
+        # end try-except
+    # end if
+# end def
+
+
+@api_view(['DELETE', 'POST'])
+@permission_classes((IsAdminUser,))
+def industry_partner_admin_view(request, pk):
+    
+    '''
+    Admin deactivates industry partner
+    ''' 
+    if request.method == 'DELETE':
+        try:
+            industry_partner = IndustryPartner.objects.get(pk=pk)
+
+            industry_partner.user.is_active = False
+            industry_partner.user.save()
+
+            return Response(status=status.HTTP_200_OK)
+        except ObjectDoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        # end try-except
+    # end if
+
+    '''
+    Admin activates industry partner
+    ''' 
+    if request.method == 'POST':
+        try:
+            industry_partner = IndustryPartner.objects.get(pk=pk)
+
+            industry_partner.user.is_active = True
+            industry_partner.user.save()
+            
+            serializer = IndustryPartnerSerializer(industry_partner, context={"request": request})
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except ObjectDoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
         # end try-except
     # end if
 # end def
