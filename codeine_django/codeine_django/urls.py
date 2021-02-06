@@ -36,6 +36,9 @@ urlpatterns = [
     # content provider endpoints
     path('contentProvider/', include('content_provider.urls'), name='Content Provider end points'),
 
+    # content provider endpoints
+    path('contentProvider/', include('content_provider.urls'), name='Content Provider end points'),
+
     # courses endpoints
     path('courses', include('courses.urls'), name='Courses endpoints')
 ]
