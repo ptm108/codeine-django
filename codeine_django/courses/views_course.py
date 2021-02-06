@@ -38,7 +38,7 @@ def course_view(request):
             # get pagination params from request, default is (10, 1)
             page_size = int(request.query_params.get('pagesize', 10))
 
-            courses = Course.objects
+            courses = Course.objects.filter(is_deleted=False).filter(is_available=True) # implicit requirements for public view
 
             if search is not None:
                 courses = courses.filter(
