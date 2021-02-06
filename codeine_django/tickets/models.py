@@ -48,7 +48,7 @@ class TicketMessage(models.Model):
 
     # ref
     base_user = models.ForeignKey('common.BaseUser', on_delete=models.SET_NULL, related_name='ticket_messages', null=True, blank=True)
-    ticket = models.ForeignKey('tickets.Ticket', on_delete=models.SET_NULL, related_name='ticket_messages', null=True, blank=True)
+    ticket = models.ForeignKey('tickets.Ticket', on_delete=models.CASCADE, related_name='ticket_messages', null=True, blank=True)
 
     def __str__(self):
         return f'Ticket Message {self.id} for {self.ticket.id} from {self.base_user.id}'
