@@ -4,7 +4,7 @@ from django.core.exceptions import ValidationError, ObjectDoesNotExist
 from django.db.models import Q
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes, parser_classes
-from rest_framework.parsers import MultiPartParser, FormParser
+from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
 from rest_framework.response import Response
 
 from rest_framework.permissions import (
@@ -67,7 +67,7 @@ def industry_partner_view(request):
 
 @api_view(['GET', 'PUT', 'DELETE', 'PATCH'])
 @permission_classes((IsAuthenticatedOrReadOnly,))
-@parser_classes((MultiPartParser, FormParser))
+@parser_classes((MultiPartParser, FormParser, JSONParser))
 def single_industry_partner_view(request, pk):
     '''
     Gets a industry partner by primary key/id
@@ -129,11 +129,6 @@ def single_industry_partner_view(request, pk):
             base_user = BaseUser.objects.get(pk=pk)
             industry_partner = IndustryPartner.objects.get(user=user)
 
-            # assert requesting industry partner is deleting own account
-            if industry_partner.user != user:
-                return Response(status=status.HTTP_400_BAD_REQUEST)
-            # end if
-
             industry_partner.user.is_active = False
             industry_partner.user.save()
 
@@ -153,14 +148,9 @@ def single_industry_partner_view(request, pk):
             base_user = BaseUser.objects.get(pk=pk)
             industry_partner = IndustryPartner.objects.get(user=user)
 
-            # assert requesting industry partner is editing own account
-            if industry_partner.user != user:
-                return Response(status=status.HTTP_400_BAD_REQUEST)
-            # end if
-
             # check old password
             if not user.check_password(data['old_password']):
-                return Response(status=status.HTTP_401_UNAUTHORIZED)
+                return Response('Current password does not match', status=status.HTTP_400_BAD_REQUEST)
             # end if
 
             user.set_password(data['new_password'])
