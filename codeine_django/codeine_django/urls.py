@@ -31,10 +31,7 @@ urlpatterns = [
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
 
     # common infra endpoints
-    path('auth/', include('common.urls'), name='Common infra end points')
-
-    # content provider endpoints
-    path('contentProvider/', include('content_provider.urls'), name='Content Provider end points'),
+    path('auth/', include('common.urls'), name='Common infra end points'),
 
     # content provider endpoints
     path('contentProvider/', include('content_provider.urls'), name='Content Provider end points'),
