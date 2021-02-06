@@ -74,7 +74,7 @@ REST_FRAMEWORK = {
 }
 
 SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=15),
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=120),
 }
 
 # CORS settings
@@ -147,6 +147,11 @@ USE_I18N = True
 USE_L10N = True
 
 USE_TZ = True
+
+
+# Silence warnings
+
+SILENCED_SYSTEM_CHECKS = ["urls.W002"]
 
 
 # Static files (CSS, JavaScript, Images)
