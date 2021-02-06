@@ -12,12 +12,12 @@ from rest_framework.permissions import (
     AllowAny,
     IsAuthenticatedOrReadOnly,
 )
-from .models import BaseUser, CodeineAdmin
+from .models import BaseUser, CodeineAdmin, ContentProvider
 from .serializers import CodeineAdminSerializer
 
 
 @api_view(['POST', 'GET'])
-@permission_classes((AllowAny,))
+@permission_classes((IsAuthenticated,))
 def admin_view(request):
     '''
     Creates a new admin
@@ -74,7 +74,8 @@ def single_admin_view(request, pk):
     if request.method == 'GET':
 
         try:
-            admin = CodeineAdmin.objects.get(pk=pk)
+            user = BaseUser.objects.get(pk=pk)
+            admin = CodeineAdmin.objects.get(user=user)
            
             return Response(CodeineAdminSerializer(admin, context={"request": request}).data)
         except (ObjectDoesNotExist, KeyError, ValueError) as e:
@@ -90,8 +91,8 @@ def single_admin_view(request, pk):
         data = request.data
         try:
             with transaction.atomic():
-                admin = CodeineAdmin.objects.get(pk=pk)
-                user = admin.user
+                user = BaseUser.objects.get(pk=pk)
+                admin = CodeineAdmin.objects.get(user=user)
 
                 if 'first_name' in data:
                     user.first_name = data['first_name']
@@ -118,8 +119,9 @@ def single_admin_view(request, pk):
     '''
     if request.method == 'DELETE':
         try:
-            admin = CodeineAdmin.objects.get(pk=pk)
-            user = admin.user
+            user = BaseUser.objects.get(pk=pk)
+            admin = CodeineAdmin.objects.get(user=user)
+            
             user.is_active = False  # mark as deleted
             user.is_admin = False # remove admin privileges
             user.save()

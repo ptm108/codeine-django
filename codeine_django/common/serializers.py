@@ -49,7 +49,7 @@ class CodeineAdminSerializer(serializers.ModelSerializer):
     user = BaseUserSerializer()
 
     class Meta:
-        model = Member
+        model = CodeineAdmin
         fields = '__all__'
     # end Meta
 # end class

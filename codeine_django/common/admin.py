@@ -90,7 +90,7 @@ class IndustryPartnerInline(admin.StackedInline):
 class CodeineAdminInline(admin.StackedInline):
     model = CodeineAdmin
     can_delete = False
-    verbose_name_plural = 'Members'
+    verbose_name_plural = 'Admins'
 # end class
 
 
