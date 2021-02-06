@@ -1,7 +1,10 @@
 from rest_framework import serializers
 
 from .models import (
-    Section,
+    CourseMaterial,
+    CourseFile,
+    Video,
+    Quiz,
     Chapter,
     Course,
     Enrollment,
@@ -9,20 +12,44 @@ from .models import (
     ShortAnswer,
     MCQ,
     MRQ,
-    Assessment
 )
 
 
-class SectionSerializer(serializers.ModelSerializer):
+class CourseFileSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Section
-        fields = ('id', 'title', 'description', 'video_url', 'google_drive_link')
+        model = CourseFile
+        fields = ('zip_file', 'google_drive_url')
+    # end Meta
+# end class
+
+class CourseVideoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Video
+        fields = ('video_url')
+    # end Meta
+# end class
+
+class QuizSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Quiz
+        fields = ('id', 'passing_grade', 'course', 'chapter')
+    # end Meta
+# end class
+
+class CourseMaterialSerializer(serializers.ModelSerializer):
+    course_file = CourseFileSerializer()
+    video = CourseVideoSerializer()
+    quiz = QuizSerializer()
+
+    class Meta:
+        model = CourseMaterial
+        fields = ('id', 'title', 'description', 'material_type', 'course_file', 'video', 'quiz')
     # end Meta
 # end class
 
 
 class ChapterSerializer(serializers.ModelSerializer):
-    sections = SectionSerializer(many=True)
+    sections = CourseMaterialSerializer(many=True)
 
     class Meta:
         model = Chapter
@@ -95,14 +122,4 @@ class QuestionSerializer(serializers.ModelSerializer):
         model = Question
         fields = ('title', 'subtitle',)
     # end class
-# end class
-
-
-class AssessmentSerializer(serializers.ModelSerializer):
-    questions = QuestionSerializer(many=True)
-
-    class Meta:
-        model = Assessment
-        fields = ('id', 'passing_grade', 'course', 'questions')
-    # end Meta
 # end class

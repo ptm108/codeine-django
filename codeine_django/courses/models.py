@@ -116,9 +116,9 @@ class CourseMaterial(models.Model):
 # end class
 
 
-class File(models.Model):
-    course_material = models.OneToOneField('CourseMaterial', on_delete=models.CASCADE, related_name='file')
-    zip_file = models.FileField(upload_to=image_directory_path, max_length=100, null=True, blank=True)
+class CourseFile(models.Model):
+    course_material = models.OneToOneField('CourseMaterial', on_delete=models.CASCADE, related_name='course_file')
+    zip_file = models.FileField(upload_to=zipfile_directory_path, max_length=100, null=True, blank=True)
     google_drive_url = models.TextField(null=True, default='', blank=True)
 # end class
 
@@ -155,15 +155,6 @@ class CourseReview(models.Model):
 # end class
 
 
-class Assessment(models.Model):
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, unique=True)
-    passing_grade = models.DecimalField(max_digits=5, decimal_places=2)
-
-    # ref to course
-    course = models.OneToOneField('Course', on_delete=models.CASCADE)
-# end class
-
-
 class Quiz(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, unique=True)
     passing_grade = models.DecimalField(max_digits=5, decimal_places=2)
@@ -183,8 +174,7 @@ class Question(models.Model):
     subtitle = models.TextField(null=True, default='', blank=True)
 
     # ref to Assessment
-    assessment = models.ForeignKey('Assessment', on_delete=models.CASCADE, null=True, blank=True)
-    quiz = models.ForeignKey('Quiz', on_delete=models.CASCADE, null=True, blank=True)
+    quiz = models.ForeignKey('Quiz', on_delete=models.CASCADE, null=True, blank=True, related_name='questions')
 # end class
 
 
