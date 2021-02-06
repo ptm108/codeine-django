@@ -44,6 +44,7 @@ def content_provider_view(request):
 
     '''
     Retrieves all content providers
+    Search by content provider first name, last name or email
     '''
     if request.method == 'GET':
         # extract query params
@@ -126,8 +127,8 @@ def single_content_provider_view(request, pk):
     '''
     if request.method == 'DELETE':
         try:
-            content_provider = ContentProvider.objects.get(pk=pk)
-            user = content_provider.user
+            user = BaseUser.objects.get(pk=pk)
+            content_provider = ContentProvider.objects.get(user=user)
             user.is_active = False  # mark as deleted
             user.save()
 
@@ -145,23 +146,23 @@ def content_provider_change_password_view(request, pk):
     if request.method == 'PATCH':
         data = request.data
         try:
-            user = request.user
-            content_provider = ContentProvider.objects.get(pk=pk)
+            request_user = request.user
+            pk_user = BaseUser.objects.get(pk=pk)
+            content_provider = ContentProvider.objects.get(user=pk_user)
 
             # assert requesting user is editing own account
-            if content_provider.user != user:
+            if content_provider.user != request_user:
                 return Response(status=status.HTTP_400_BAD_REQUEST)
             # end if
 
             # check old password
-            if not user.check_password(data['old_password']):
+            if not request_user.check_password(data['old_password']):
                 return Response(status=status.HTTP_401_UNAUTHORIZED)
             # end if
 
-            user.set_password(data['new_password'])
-            user.save()
+            request_user.set_password(data['new_password'])
+            request_user.save()
 
-            content_provider = user.contentprovider
             serializer = ContentProviderSerializer(content_provider, context={"request": request})
             return Response(serializer.data, status=status.HTTP_200_OK)
 
@@ -181,8 +182,8 @@ def activate_content_provider_view(request, pk):
     ''' 
     if request.method == 'POST':
         try:
-            content_provider = ContentProvider.objects.get(pk=pk)
-            user = content_provider.user
+            user = BaseUser.objects.get(pk=pk)
+            content_provider = ContentProvider.objects.get(user=user)
 
             user.is_active = True
             user.save()
@@ -191,6 +192,35 @@ def activate_content_provider_view(request, pk):
             return Response(serializer.data, status=status.HTTP_200_OK)
         except ObjectDoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
+        # end try-except
+    # end if
+# end def
+
+@api_view(['PATCH'])
+@permission_classes((IsAuthenticated,))
+def content_provider_update_consultation_rate(request, pk):
+    '''
+    Updates content providers's consultation rate
+    '''
+    if request.method == 'PATCH':
+        data = request.data
+        try:
+            request_user = request.user
+            pk_user = BaseUser.objects.get(pk=pk)
+            content_provider = ContentProvider.objects.get(user=pk_user)
+
+            # assert requesting user is editing own account
+            if content_provider.user != request_user:
+                return Response(status=status.HTTP_400_BAD_REQUEST)
+
+            content_provider.consultation_rate = data['consultation_rate']
+            serializer = ContentProviderSerializer(content_provider, context={"request": request})
+            return Response(serializer.data, status=status.HTTP_200_OK)
+
+        except ObjectDoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        except KeyError:
+            return Response('Invalid payload', status=status.HTTP_400_BAD_REQUEST)
         # end try-except
     # end if
 # end def
