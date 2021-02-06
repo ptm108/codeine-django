@@ -13,6 +13,7 @@ from rest_framework.permissions import (
     IsAuthenticatedOrReadOnly,
 )
 from .models import ConsultationSlot
+from common.models import ContentProvider
 from .serializers import ConsultationSlotSerializer
 from datetime import datetime, timedelta
 
@@ -25,6 +26,7 @@ def consultation_slot_view(request):
     '''
     if request.method == 'POST':
         user = request.user
+        content_provider = ContentProvider.objects.get(user=user)
         data = request.data
 
         # if (datetime.strptime(data['end_time']) > datetime.strptime(data['start_time'])):
@@ -32,14 +34,15 @@ def consultation_slot_view(request):
 
         with transaction.atomic():
             try:
-                consultation_slot = ConsultationSlotSerializer(
+                consultation_slot = ConsultationSlot(
                     start_date = data['start_date'],
                     end_date = data['end_date'],
                     start_time = data['start_time'],
                     end_time = data['end_time'],
                     meeting_link = data['meeting_link'],
-                    content_provider = user
+                    content_provider = content_provider
                 )
+
                 consultation_slot.save()
 
                 serializer = ConsultationSlotSerializer(
