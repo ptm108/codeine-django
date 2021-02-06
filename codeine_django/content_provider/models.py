@@ -22,7 +22,7 @@ class ConsultationSlot(models.Model):
     member = models.ForeignKey('common.Member', on_delete=models.SET_NULL, related_name='member_consultation_slots', null=True, blank=True)
 
     def __str__(self):
-        return f'Consultation slot on {self.start_date} at {self.start_time} to {self.end_date} {self.end_time}'
+        return f'Consultation slot: {self.id}'
     # end def
 
     class Meta:
@@ -50,8 +50,8 @@ class PaymentTransaction(models.Model):
     payment_amount = models.DecimalField(max_digits=5, decimal_places=2, default=0.0)
 
     # enums
-    payment_status = MultiSelectField(choices=PAYMENT_STATUSES)
-    payment_type = MultiSelectField(choices=PAYMENT_TYPES)
+    payment_status = models.TextField(choices=PAYMENT_STATUSES)
+    payment_type = models.TextField(choices=PAYMENT_TYPES)
 
     # ref
     consultation_slot = models.OneToOneField('ConsultationSlot', on_delete=models.DO_NOTHING, related_name="transaction", null=True, blank=True)

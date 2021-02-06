@@ -177,7 +177,7 @@ def content_provider_change_password_view(request, pk):
 # end def
 
 @api_view(['POST'])
-@permission_classes((AllowAny,))
+@permission_classes((IsAdminUser,))
 def activate_content_provider_view(request, pk):
     '''
     Activates content provider
