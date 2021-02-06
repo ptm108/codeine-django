@@ -13,7 +13,7 @@ from rest_framework.permissions import (
     AllowAny,
     IsAuthenticatedOrReadOnly,
 )
-from .models import Course, Section, Chapter
+from .models import Course, Chapter, CourseMaterial
 from .serializers import CourseSerializer
 from common.models import ContentProvider
 
