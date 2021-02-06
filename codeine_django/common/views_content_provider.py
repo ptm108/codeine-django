@@ -194,3 +194,33 @@ def activate_content_provider_view(request, pk):
         # end try-except
     # end if
 # end def
+
+
+@api_view(['PATCH'])
+@permission_classes((IsAuthenticated,))
+def content_provider_update_consultation_rate(request, pk):
+    '''
+    Updates content providers's consultation rate
+    '''
+    if request.method == 'PATCH':
+        data = request.data
+        try:
+            user = request.user
+            content_provider = ContentProvider.objects.get(pk=pk)
+
+            # assert requesting user is editing own account
+            if content_provider.user != user:
+                return Response(status=status.HTTP_400_BAD_REQUEST)
+            # end if
+
+            content_provider.consultation_rate = data['consultation_rate']
+            serializer = ContentProviderSerializer(content_provider, context={"request": request})
+            return Response(serializer.data, status=status.HTTP_200_OK)
+
+        except ObjectDoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        except KeyError:
+            return Response('Invalid payload', status=status.HTTP_400_BAD_REQUEST)
+        # end try-except
+    # end if
+# end def
