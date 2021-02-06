@@ -11,8 +11,7 @@ class Ticket(models.Model):
     TICKET_STATUSES = (
         ('OPEN', 'Open'),
         ('PENDING', 'Pending'),
-        ('RESOLVED', 'Completed'),
-        ('CLOSED', 'Closed')
+        ('RESOLVED', 'Resolved')
     )
 
     TICKET_TYPES = (
@@ -26,7 +25,7 @@ class Ticket(models.Model):
     timestamp = models.DateTimeField(default=timezone.now)
 
     # enums
-    ticket_status = models.TextField(choices=TICKET_STATUSES)
+    ticket_status = models.TextField(choices=TICKET_STATUSES, default='OPEN')
     ticket_type = MultiSelectField(choices=TICKET_TYPES)
 
     # ref
