@@ -1,3 +1,4 @@
+from django.utils import timezone
 from django.db import transaction
 from django.db.utils import IntegrityError
 from django.core.exceptions import ValidationError, ObjectDoesNotExist
@@ -7,17 +8,18 @@ from rest_framework.decorators import api_view, permission_classes, parser_class
 from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
-
 from rest_framework.permissions import (
     IsAuthenticated,
     AllowAny,
     IsAuthenticatedOrReadOnly,
 )
+
+import json
+
 from .models import Course, Chapter, CourseMaterial
 from .serializers import CourseSerializer
 from common.models import ContentProvider
 
-import json
 
 
 @api_view(['GET', 'POST'])
@@ -36,9 +38,9 @@ def course_view(request):
             rating_sort = request.query_params.get('sortRating', None)
 
             # get pagination params from request, default is (10, 1)
-            page_size = int(request.query_params.get('pagesize', 10))
+            page_size = int(request.query_params.get('pageSize', 10))
 
-            courses = Course.objects.filter(is_deleted=False).filter(is_available=True) # implicit requirements for public view
+            courses = Course.objects.filter(is_deleted=False).filter(is_available=True).filter(is_published=True) # implicit requirements for public view
 
             if search is not None:
                 courses = courses.filter(
@@ -183,9 +185,71 @@ def single_course_view(request, pk):
             # end if
 
             course.is_deleted = True
+            course.save()
+
             return Response(CourseSerializer(course, context={'request': request}).data, status=status.HTTP_200_OK)
         except ObjectDoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
         # end try-except
     # end if
 # end def
+
+@api_view(['PATCH'])
+@permission_classes((IsAuthenticated,))
+def publish_course_view(request, pk):
+    '''
+    Publish course
+    '''
+    if request.method == 'PATCH':
+        try:
+            user = request.user
+            content_provider = ContentProvider.objects.get(user=user)
+
+            course = Course.objects.get(pk=pk)
+
+            # check if content provider is owner of course
+            if course.content_provider != content_provider:
+                return Response(status=status.HTTP_400_BAD_REQUEST)
+            # end if
+
+            course.is_published = True
+            course.published_date = timezone.now()
+            course.save()
+
+            return Response(CourseSerializer(course, context={'request': request}).data, status=status.HTTP_200_OK)
+        except ObjectDoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        # end try-except
+    # end if
+# end def
+
+@api_view(['PATCH'])
+@permission_classes((IsAuthenticated,))
+def unpublish_course_view(request, pk):
+    '''
+    Publish course
+    '''
+    if request.method == 'PATCH':
+        try:
+            user = request.user
+            content_provider = ContentProvider.objects.get(user=user)
+
+            course = Course.objects.get(pk=pk)
+
+            # check if content provider is owner of course
+            if course.content_provider != content_provider:
+                return Response(status=status.HTTP_400_BAD_REQUEST)
+            # end if
+
+            course.is_published = False
+            course.published_date = None
+            course.save()
+
+            return Response(CourseSerializer(course, context={'request': request}).data, status=status.HTTP_200_OK)
+        except ObjectDoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        # end try-except
+    # end if
+# end def
+
+
