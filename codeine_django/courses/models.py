@@ -82,9 +82,12 @@ class Course(models.Model):
 
     # provider ref
     content_provider = models.ForeignKey('common.ContentProvider', on_delete=models.SET_NULL, related_name='courses', null=True)
-    
+
     # rating, updated by trigger
     rating = models.DecimalField(max_digits=3, decimal_places=2, default=0)
+
+    # experience points - set by content_provider
+    exp_points = models.PositiveIntegerField(default=0)
 # end class
 
 
@@ -97,14 +100,32 @@ class Chapter(models.Model):
 # end class
 
 
-class Section(models.Model):
+class CourseMaterial(models.Model):
+    class MaterialType(models.TextChoices):  # to extend
+        FILE = 'FILE', _('File')
+        VIDEO = 'VIDEO', _('Video')
+        QUIZ = 'QUIZ', _('Quiz')
+    # end class
+
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, unique=True)
     title = models.CharField(max_length=255)
     description = models.TextField(null=True, default='', blank=True)
-    video_url = models.CharField(max_length=255)
-    google_drive_link = models.CharField(max_length=255)
+    material_type = models.CharField(max_length=255, choices=MaterialType.choices)
 
-    chapter = models.ForeignKey('Chapter', on_delete=models.CASCADE, related_name='sections')
+    chapter = models.ForeignKey('Chapter', on_delete=models.CASCADE, related_name='course_materials')
+# end class
+
+
+class File(models.Model):
+    course_material = models.OneToOneField('CourseMaterial', on_delete=models.CASCADE, related_name='file')
+    zip_file = models.FileField(upload_to=image_directory_path, max_length=100, null=True, blank=True)
+    google_drive_url = models.TextField(null=True, default='', blank=True)
+# end class
+
+
+class Video(models.Model):
+    course_material = models.OneToOneField('CourseMaterial', on_delete=models.CASCADE, related_name='video')
+    video_url = models.TextField()
 # end class
 
 
@@ -147,8 +168,12 @@ class Quiz(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, unique=True)
     passing_grade = models.DecimalField(max_digits=5, decimal_places=2)
 
-    # ref to course
-    section = models.OneToOneField('Section', on_delete=models.CASCADE)
+    # extends course material
+    course_material = models.OneToOneField('CourseMaterial', on_delete=models.CASCADE)
+
+    # either mapped to chapter or course
+    course = models.OneToOneField('Course',  on_delete=models.CASCADE, related_name='quiz', null=True, blank=True)
+    chapter = models.OneToOneField('Chapter',  on_delete=models.CASCADE, related_name='quiz', null=True, blank=True)
 # end class
 
 
@@ -183,31 +208,6 @@ class MRQ(models.Model):
     marks = models.PositiveIntegerField(default=1)
     options = models.JSONField()
     correct_answer = models.JSONField()
-# end class
-
-
-class AssessmentResult(models.Model):
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, unique=True)
-    total_marks = models.PositiveIntegerField()
-    passed = models.BooleanField(default=False)
-
-    # member who took assessment
-    member = models.ForeignKey('common.Member', on_delete=models.CASCADE, related_name='assessment_results')
-
-    # assessment ref
-    assessment = models.ForeignKey('Assessment', on_delete=models.SET_NULL, null=True, related_name='assessment_results')
-# end class
-
-
-class AssessmentAnswer(models.Model):
-    # parent assessment result
-    assessment_result = models.ForeignKey('AssessmentResult', on_delete=models.CASCADE, related_name='assessment_answers')
-
-    # ref to question
-    question = models.ForeignKey('Question', on_delete=models.SET_NULL, null=True, related_name='assessment_answers')
-
-    response = models.TextField(null=True, blank=True)
-    responses = models.JSONField(null=True, blank=True)
 # end class
 
 
