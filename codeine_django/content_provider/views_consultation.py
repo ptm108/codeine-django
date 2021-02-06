@@ -4,7 +4,7 @@ from django.core.exceptions import ValidationError, ObjectDoesNotExist
 from django.db.models import Q
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes, parser_classes, renderer_classes
-from rest_framework.parsers import MultiPartParser, FormParser
+from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
 from rest_framework.response import Response
 
 from rest_framework.permissions import (
@@ -80,7 +80,7 @@ def consultation_slot_view(request):
 
 @api_view(['GET', 'PUT', 'DELETE'])
 @permission_classes((IsAuthenticated,))
-@parser_classes((MultiPartParser, FormParser,))
+@parser_classes((MultiPartParser, FormParser, JSONParser))
 def single_consultation_slot_view(request, pk):
     '''
     Gets a consultation slot by primary key/ id

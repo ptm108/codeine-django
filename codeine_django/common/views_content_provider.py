@@ -4,13 +4,14 @@ from django.core.exceptions import ValidationError, ObjectDoesNotExist
 from django.db.models import Q
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes, parser_classes, renderer_classes
-from rest_framework.parsers import MultiPartParser, FormParser
+from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
 from rest_framework.response import Response
 
 from rest_framework.permissions import (
     IsAuthenticated,
     AllowAny,
     IsAuthenticatedOrReadOnly,
+    IsAdminUser,
 )
 from .models import BaseUser, ContentProvider
 from .serializers import ContentProviderSerializer
@@ -44,6 +45,7 @@ def content_provider_view(request):
 
     '''
     Retrieves all content providers
+    Search by content provider first name, last name or email
     '''
     if request.method == 'GET':
         # extract query params
@@ -66,7 +68,7 @@ def content_provider_view(request):
 
 @api_view(['GET', 'PUT', 'DELETE'])
 @permission_classes((IsAuthenticatedOrReadOnly,))
-@parser_classes((MultiPartParser, FormParser))
+@parser_classes((MultiPartParser, FormParser, JSONParser,))
 def single_content_provider_view(request, pk):
     '''
     Gets a content provider by primary key/ id
@@ -74,7 +76,8 @@ def single_content_provider_view(request, pk):
     if request.method == 'GET':
 
         try:
-            content_provider = ContentProvider.objects.get(pk=pk)
+            user = BaseUser.objects.get(pk=pk)
+            content_provider = ContentProvider.objects.get(user=user)
            
             return Response(ContentProviderSerializer(content_provider, context={"request": request}).data)
         except (ObjectDoesNotExist, KeyError, ValueError) as e:
@@ -90,8 +93,8 @@ def single_content_provider_view(request, pk):
         data = request.data
         try:
             with transaction.atomic():
-                content_provider = ContentProvider.objects.get(pk=pk)
-                user = content_provider.user
+                user = BaseUser.objects.get(pk=pk)
+                content_provider = ContentProvider.objects.get(user=user)
 
                 if 'first_name' in data:
                     user.first_name = data['first_name']
@@ -126,8 +129,8 @@ def single_content_provider_view(request, pk):
     '''
     if request.method == 'DELETE':
         try:
-            content_provider = ContentProvider.objects.get(pk=pk)
-            user = content_provider.user
+            user = BaseUser.objects.get(pk=pk)
+            content_provider = ContentProvider.objects.get(user=user)
             user.is_active = False  # mark as deleted
             user.save()
 
@@ -146,22 +149,22 @@ def content_provider_change_password_view(request, pk):
         data = request.data
         try:
             user = request.user
-            content_provider = ContentProvider.objects.get(pk=pk)
+            base_user = BaseUser.objects.get(pk=pk)
+            content_provider = ContentProvider.objects.get(user=user)
 
             # assert requesting user is editing own account
-            if content_provider.user != user:
-                return Response(status=status.HTTP_400_BAD_REQUEST)
+            if user != base_user:
+                return Response('User is not changing their own password', status=status.HTTP_400_BAD_REQUEST)
             # end if
 
             # check old password
             if not user.check_password(data['old_password']):
-                return Response(status=status.HTTP_401_UNAUTHORIZED)
+                return Response('Current password does not match', status=status.HTTP_400_BAD_REQUEST)
             # end if
 
-            user.set_password(data['new_password'])
-            user.save()
+            request_user.set_password(data['new_password'])
+            request_user.save()
 
-            content_provider = user.contentprovider
             serializer = ContentProviderSerializer(content_provider, context={"request": request})
             return Response(serializer.data, status=status.HTTP_200_OK)
 
@@ -181,8 +184,8 @@ def activate_content_provider_view(request, pk):
     ''' 
     if request.method == 'POST':
         try:
-            content_provider = ContentProvider.objects.get(pk=pk)
-            user = content_provider.user
+            user = BaseUser.objects.get(pk=pk)
+            content_provider = ContentProvider.objects.get(user=user)
 
             user.is_active = True
             user.save()
@@ -195,7 +198,6 @@ def activate_content_provider_view(request, pk):
     # end if
 # end def
 
-
 @api_view(['PATCH'])
 @permission_classes((IsAuthenticated,))
 def content_provider_update_consultation_rate(request, pk):
@@ -206,10 +208,11 @@ def content_provider_update_consultation_rate(request, pk):
         data = request.data
         try:
             user = request.user
-            content_provider = ContentProvider.objects.get(pk=pk)
+            base_user = BaseUser.objects.get(pk=pk)
+            content_provider = ContentProvider.objects.get(user=user)
 
             # assert requesting user is editing own account
-            if content_provider.user != user:
+            if content_provider.user != base_user:
                 return Response(status=status.HTTP_400_BAD_REQUEST)
             # end if
 

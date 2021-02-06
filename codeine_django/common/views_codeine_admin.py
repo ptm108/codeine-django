@@ -4,20 +4,21 @@ from django.core.exceptions import ValidationError, ObjectDoesNotExist
 from django.db.models import Q
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes, parser_classes, renderer_classes
-from rest_framework.parsers import MultiPartParser, FormParser
+from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
 from rest_framework.response import Response
 
 from rest_framework.permissions import (
     IsAuthenticated,
     AllowAny,
     IsAuthenticatedOrReadOnly,
+    IsAdminUser,
 )
 from .models import BaseUser, CodeineAdmin, ContentProvider
 from .serializers import CodeineAdminSerializer
 
 
 @api_view(['POST', 'GET'])
-@permission_classes((IsAuthenticated,))
+@permission_classes((IsAdminUser,))
 def admin_view(request):
     '''
     Creates a new admin
@@ -65,8 +66,8 @@ def admin_view(request):
 # end def
 
 @api_view(['GET', 'PUT', 'DELETE'])
-@permission_classes((IsAuthenticatedOrReadOnly,))
-@parser_classes((MultiPartParser, FormParser))
+@permission_classes((IsAdminUser,))
+@parser_classes((MultiPartParser, FormParser, JSONParser))
 def single_admin_view(request, pk):
     '''
     Gets an admin by primary key/ id
@@ -90,10 +91,16 @@ def single_admin_view(request, pk):
     if request.method == 'PUT':
         data = request.data
         try:
-            with transaction.atomic():
-                user = BaseUser.objects.get(pk=pk)
-                admin = CodeineAdmin.objects.get(user=user)
+            user = request.user
+            base_user = BaseUser.objects.get(pk=pk)
+            admin = CodeineAdmin.objects.get(user=user)
 
+            # assert requesting user is editing own account
+            if user != base_user:
+                return Response('User is not changing their own password', status=status.HTTP_400_BAD_REQUEST)
+            # end if
+
+            with transaction.atomic():
                 if 'first_name' in data:
                     user.first_name = data['first_name']
                 if 'last_name' in data:
@@ -132,7 +139,7 @@ def single_admin_view(request, pk):
     # end if
 
 @api_view(['PATCH'])
-@permission_classes((IsAuthenticated,))
+@permission_classes((IsAdminUser,))
 def admin_change_password_view(request, pk):
     '''
     Updates admin's password
@@ -141,16 +148,17 @@ def admin_change_password_view(request, pk):
         data = request.data
         try:
             user = request.user
-            admin = CodeineAdmin.objects.get(pk=pk)
+            base_user = BaseUser.objects.get(pk=pk)
+            admin = CodeineAdmin.objects.get(user=user)
 
             # assert requesting user is editing own account
-            if admin.user != user:
-                return Response(status=status.HTTP_400_BAD_REQUEST)
+            if user != base_user:
+                return Response('User is not changing their own password', status=status.HTTP_400_BAD_REQUEST)
             # end if
 
             # check old password
             if not user.check_password(data['old_password']):
-                return Response(status=status.HTTP_401_UNAUTHORIZED)
+                return Response('Current password does not match', status=status.HTTP_400_BAD_REQUEST)
             # end if
 
             user.set_password(data['new_password'])
