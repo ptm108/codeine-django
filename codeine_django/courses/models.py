@@ -96,6 +96,7 @@ class Chapter(models.Model):
     title = models.CharField(max_length=255)
     overview = models.TextField(null=True, default='')
     order = models.PositiveSmallIntegerField()
+    timestamp = models.DateTimeField(auto_now_add=True)
 
     course = models.ForeignKey('Course', on_delete=models.CASCADE, related_name='chapters')
 
@@ -117,6 +118,7 @@ class CourseMaterial(models.Model):
     description = models.TextField(null=True, default='', blank=True)
     material_type = models.CharField(max_length=255, choices=MaterialType.choices)
     order = models.PositiveSmallIntegerField()
+    timestamp = models.DateTimeField(auto_now_add=True)
 
     chapter = models.ForeignKey('Chapter', on_delete=models.CASCADE, related_name='course_materials')
 
