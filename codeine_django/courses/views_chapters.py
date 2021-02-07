@@ -60,8 +60,8 @@ def chapter_view(request, pk):
 
             chapter = Chapter(
                 title=data['title'],
-                description=data['overview'],
-                order=data['order'],
+                overview=data['overview'],
+                order=int(data['order']),
                 course=course
             )
             chapter.save()
@@ -117,7 +117,7 @@ def single_chapter_view(request, pk, chapter_id):
             data = request.data
 
             chapter.title = data['title']
-            chapter.description = data['overview']
+            chapter.overview = data['overview']
             chapter.save()
 
             serializer = ChapterSerializer(chapter, context={'public': True})
@@ -177,13 +177,13 @@ def order_chapter_view(request, pk):
                 return Response(status=status.HTTP_400_BAD_REQUEST)
             # end if
 
-            chapter_id_list = request.data['chapter_id_list']
+            chapter_id_list = request.data
 
             for index, chapter_id in enumerate(chapter_id_list):
                 Chapter.objects.filter(pk=chapter_id).update(order=index)
             # end for
 
-            serializer = CourseSerializer(course, context={'public': True})
+            serializer = CourseSerializer(course, context={'request': request, 'public': True})
 
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         except ObjectDoesNotExist:
