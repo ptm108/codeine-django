@@ -1,10 +1,10 @@
 from django.utils import timezone
 from django.db import transaction
 from django.db.utils import IntegrityError
-from django.core.exceptions import ValidationError, ObjectDoesNotExist
+from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import Q
 from rest_framework import status
-from rest_framework.decorators import api_view, permission_classes, parser_classes
+from rest_framework.decorators import api_view, permission_classes
 from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
@@ -16,14 +16,15 @@ from rest_framework.permissions import (
 
 import json
 
-from .models import Course, Chapter, CourseMaterial
+from .models import Course
 from .serializers import CourseSerializer
 from common.models import ContentProvider
+from common.permissions import IsContentProviderOrReadOnly, IsContentProviderOnly
 
 
 
 @api_view(['GET', 'POST'])
-@permission_classes((IsAuthenticatedOrReadOnly,))
+@permission_classes((IsContentProviderOrReadOnly,))
 def course_view(request):
     '''
     Get/ Search all courses
@@ -71,7 +72,7 @@ def course_view(request):
             paginator.page_size = page_size
 
             result_page = paginator.paginate_queryset(courses.all(), request)
-            serializer = CourseSerializer(result_page, many=True, context={"request": request})
+            serializer = CourseSerializer(result_page, many=True, context={"request": request, 'public': True})
 
             return paginator.get_paginated_response(serializer.data)
         except (ValueError) as e:
@@ -116,7 +117,7 @@ def course_view(request):
 
 
 @api_view(['GET', 'PUT', 'DELETE'])
-@permission_classes((IsAuthenticatedOrReadOnly,))
+@permission_classes((IsContentProviderOrReadOnly,))
 def single_course_view(request, pk):
     '''
     Get single course details
@@ -195,7 +196,7 @@ def single_course_view(request, pk):
 # end def
 
 @api_view(['PATCH'])
-@permission_classes((IsAuthenticated,))
+@permission_classes((IsContentProviderOnly,))
 def publish_course_view(request, pk):
     '''
     Publish course
@@ -224,7 +225,7 @@ def publish_course_view(request, pk):
 # end def
 
 @api_view(['PATCH'])
-@permission_classes((IsAuthenticated,))
+@permission_classes((IsContentProviderOnly,))
 def unpublish_course_view(request, pk):
     '''
     Publish course
@@ -251,5 +252,3 @@ def unpublish_course_view(request, pk):
         # end try-except
     # end if
 # end def
-
-
