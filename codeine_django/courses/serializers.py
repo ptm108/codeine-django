@@ -36,6 +36,13 @@ class QuizSerializer(serializers.ModelSerializer):
     # end Meta
 # end class
 
+class PublicCourseMaterialSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CourseMaterial
+        fields = ('id', 'title', 'description')
+    # end Meta
+# end class
+
 class CourseMaterialSerializer(serializers.ModelSerializer):
     course_file = CourseFileSerializer()
     video = CourseVideoSerializer()
@@ -49,12 +56,21 @@ class CourseMaterialSerializer(serializers.ModelSerializer):
 
 
 class ChapterSerializer(serializers.ModelSerializer):
-    sections = CourseMaterialSerializer(many=True)
-
+    # course_materials = CourseMaterialSerializer(many=True)
+    course_materials = serializers.SerializerMethodField('get_course_material')
     class Meta:
         model = Chapter
-        fields = ('id', 'title', 'overview', 'sections')
-        # end Meta
+        fields = ('id', 'title', 'overview', 'course_materials')
+    # end Meta
+
+    def get_course_materials(self, obj):
+        if (self.context.get('public')):
+            return PublicCourseMaterialSerializer(obj, many=True)
+        else:
+            return CourseMaterialSerializer(obj, many=True)
+        # end if-else
+    # end def
+
 # end class
 
 
