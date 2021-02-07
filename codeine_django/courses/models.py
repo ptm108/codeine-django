@@ -95,8 +95,13 @@ class Chapter(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, unique=True)
     title = models.CharField(max_length=255)
     overview = models.TextField(null=True, default='')
+    order = models.PositiveSmallIntegerField()
 
     course = models.ForeignKey('Course', on_delete=models.CASCADE, related_name='chapters')
+
+    class Meta:
+        ordering = ['order']
+    # end Meta
 # end class
 
 
@@ -111,8 +116,13 @@ class CourseMaterial(models.Model):
     title = models.CharField(max_length=255)
     description = models.TextField(null=True, default='', blank=True)
     material_type = models.CharField(max_length=255, choices=MaterialType.choices)
+    order = models.PositiveSmallIntegerField()
 
     chapter = models.ForeignKey('Chapter', on_delete=models.CASCADE, related_name='course_materials')
+
+    class Meta:
+        ordering = ['order']
+    # end Meta
 # end class
 
 
