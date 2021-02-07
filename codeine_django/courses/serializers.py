@@ -22,12 +22,14 @@ class CourseFileSerializer(serializers.ModelSerializer):
     # end Meta
 # end class
 
+
 class CourseVideoSerializer(serializers.ModelSerializer):
     class Meta:
         model = Video
         fields = ('video_url')
     # end Meta
 # end class
+
 
 class QuizSerializer(serializers.ModelSerializer):
     class Meta:
@@ -36,12 +38,14 @@ class QuizSerializer(serializers.ModelSerializer):
     # end Meta
 # end class
 
+
 class PublicCourseMaterialSerializer(serializers.ModelSerializer):
     class Meta:
         model = CourseMaterial
         fields = ('id', 'title', 'description')
     # end Meta
 # end class
+
 
 class CourseMaterialSerializer(serializers.ModelSerializer):
     course_file = CourseFileSerializer()
@@ -50,24 +54,26 @@ class CourseMaterialSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = CourseMaterial
-        fields = ('id', 'title', 'description', 'material_type', 'course_file', 'video', 'quiz')
+        fields = ('id', 'title', 'description', 'material_type', 'course_file', 'video', 'quiz', 'order')
     # end Meta
 # end class
 
 
 class ChapterSerializer(serializers.ModelSerializer):
     # course_materials = CourseMaterialSerializer(many=True)
-    course_materials = serializers.SerializerMethodField('get_course_material')
+    course_materials = serializers.SerializerMethodField('get_course_materials')
+
     class Meta:
         model = Chapter
-        fields = ('id', 'title', 'overview', 'course_materials')
+        fields = ('id', 'title', 'overview', 'course_materials', 'order')
     # end Meta
 
     def get_course_materials(self, obj):
         if (self.context.get('public')):
-            return PublicCourseMaterialSerializer(obj, many=True)
+            print(obj.course_materials)
+            return PublicCourseMaterialSerializer(obj.course_materials, many=True).data
         else:
-            return CourseMaterialSerializer(obj, many=True)
+            return CourseMaterialSerializer(obj.course_materials, many=True).data
         # end if-else
     # end def
 
