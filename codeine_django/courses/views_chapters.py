@@ -73,3 +73,82 @@ def chapter_views(request, pk):
         # end try-except
     # end if
 # end def
+
+@api_view(['GET', 'PUT', 'DELETE'])
+@permission_classes((IsContentProviderOnly,))
+def single_chapter_views(request, pk, chapter_id):
+    '''
+    GET a single chapter in a course 
+    '''
+    if request.method == 'GET':
+        try:
+            course = Course.objects.get(pk=pk)
+            chapter = Chapter.objects.filter(course=course).get(pk=chapter_id)
+
+            serializer = ChapterSerializer(chapter, context={'public': True})
+
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except Chapter.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        # end try-except
+    # end if
+
+    '''
+    Edits a chapter
+    '''
+    if request.method == 'PUT':
+        try:
+            user = request.user
+            content_provider = ContentProvider.objects.get(user=user)
+
+            course = Course.objects.get(pk=pk)
+
+            # check if content provider is owner of course
+            if course.content_provider != content_provider:
+                return Response(status=status.HTTP_400_BAD_REQUEST)
+            # end if
+
+            chapter = Chapter.objects.filter(course=course).get(pk=chapter_id)
+            data = request.data
+
+            chapter.title=data['title']
+            chapter.description=data['overview']
+            chapter.save()
+
+            serializer = ChapterSerializer(chapter, context={'public': True})
+
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        except ObjectDoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        except (ValueError, KeyError) as e:
+            print(e)
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+        # end try-except
+    # end if
+
+    '''
+    Deletes a chapter
+    '''
+    if request.method == 'DELETE':
+        try:
+            user = request.user
+            content_provider = ContentProvider.objects.get(user=user)
+
+            course = Course.objects.get(pk=pk)
+
+            # check if content provider is owner of course
+            if course.content_provider != content_provider:
+                return Response(status=status.HTTP_400_BAD_REQUEST)
+            # end if
+
+            chapter = Chapter.objects.filter(course=course).get(pk=chapter_id)
+            chapter.delete()
+
+            serializer = ChapterSerializer(chapter, context={'public': True})
+
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        except ObjectDoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        # end try-except
+    # end if
+# end def
