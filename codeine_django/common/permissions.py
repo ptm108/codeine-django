@@ -7,6 +7,9 @@ class IsContentProviderOnly(BasePermission):
     '''
 
     def has_permission(self, request, view):
+        if not request.user.is_authenticated:
+            return False
+        # end if
         return hasattr(request.user, 'content_provider')
     # end def
 # end class
@@ -35,6 +38,9 @@ class IsMemberOnly(BasePermission):
     '''
 
     def has_permission(self, request, view):
+        if not request.user.is_authenticated:
+            return False
+        # end if
         return hasattr(request.user, 'member')
     # end def
 # end class
@@ -64,6 +70,9 @@ class IsIndustryPartnerOnly(BasePermission):
     '''
 
     def has_permission(self, request, view):
+        if not request.user.is_authenticated:
+            return False
+        # end if
         return hasattr(request.user, 'industry_partner')
     # end def
 # end class
