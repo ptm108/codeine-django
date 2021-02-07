@@ -2,22 +2,18 @@ from django.core.exceptions import ObjectDoesNotExist
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework import status
 from rest_framework.response import Response
-from rest_framework.permissions import (
-    IsAuthenticated,
-    AllowAny,
-    IsAuthenticatedOrReadOnly,
-)
+from rest_framework.permissions import IsAdminUser
 
 from .models import Course, Chapter
-from .serializers import ChapterSerializer
+from .serializers import CourseSerializer, ChapterSerializer
 
 from common.models import ContentProvider
 from common.permissions import IsContentProviderOnly, IsContentProviderOrReadOnly
 
 
 @api_view(['GET', 'POST'])
-@permission_classes((IsContentProviderOnly,))
-def chapter_views(request, pk):
+@permission_classes((IsContentProviderOnly, IsAdminUser,))
+def chapter_view(request, pk):
     '''
     Get all chapters under Course(pk=pk)
     '''
@@ -74,9 +70,10 @@ def chapter_views(request, pk):
     # end if
 # end def
 
+
 @api_view(['GET', 'PUT', 'DELETE'])
-@permission_classes((IsContentProviderOnly,))
-def single_chapter_views(request, pk, chapter_id):
+@permission_classes((IsContentProviderOnly, IsAdminUser,))
+def single_chapter_view(request, pk, chapter_id):
     '''
     GET a single chapter in a course 
     '''
@@ -111,8 +108,8 @@ def single_chapter_views(request, pk, chapter_id):
             chapter = Chapter.objects.filter(course=course).get(pk=chapter_id)
             data = request.data
 
-            chapter.title=data['title']
-            chapter.description=data['overview']
+            chapter.title = data['title']
+            chapter.description = data['overview']
             chapter.save()
 
             serializer = ChapterSerializer(chapter, context={'public': True})
@@ -149,6 +146,42 @@ def single_chapter_views(request, pk, chapter_id):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         except ObjectDoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
+        # end try-except
+    # end if
+# end def
+
+
+@api_view(['PATCH'])
+@permission_classes((IsContentProviderOnly, IsAdminUser,))
+def order_chapter_view(request, pk):
+    '''
+    Updates order of chapters by array of chapter ids
+    '''
+    if request.method == 'PATCH':
+        try:
+            user = request.user
+            content_provider = ContentProvider.objects.get(user=user)
+
+            course = Course.objects.get(pk=pk)
+
+            # check if content provider is owner of course
+            if course.content_provider != content_provider:
+                return Response(status=status.HTTP_400_BAD_REQUEST)
+            # end if
+
+            chapter_id_list = request.data['chapter_id_list']
+
+            for index, chapter_id in enumerate(chapter_id_list):
+                Chapter.objects.filter(pk=chapter_id).update(order=index)
+            # end for
+
+            serializer = CourseSerializer(course, context={'public': True})
+
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        except ObjectDoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        except TypeError:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
         # end try-except
     # end if
 # end def
