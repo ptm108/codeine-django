@@ -41,9 +41,10 @@ class IsMemberOnly(BasePermission):
 
 
 class IsMemberOrReadOnly(BasePermission):
+
     '''
     View level check for unsafe methods
-    Check if requesting user is a Mmeber
+    Check if requesting user is a Member
     '''
 
     def has_permission(self, request, view):
@@ -82,4 +83,29 @@ class IsIndustryPartnerOrReadOnly(BasePermission):
         # end ifs
         return False
     # end def
+# end class
+
+
+class IsOwnerOnly(BasePermission):
+    ''' 
+    View level check if requesting user is owner (BaseUser)
+    '''
+
+    def has_object_permission(self, request, view, obj):
+        return obj.user == request.user
+    # end def
+# end class
+
+
+class IsOwnerOnlyOrReadOnly(BasePermission):
+    '''
+    View level check for unsafe methods
+    Check if requesting user is the owner of object (BaseUser)
+    '''
+
+    def has_object_permission(self, request, view, obj):
+        if request.method in SAFE_METHODS:
+            return True
+        # end if
+        return obj.user == request.user
 # end class
