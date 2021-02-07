@@ -12,18 +12,26 @@ from common.permissions import IsContentProviderOnly, IsContentProviderOrReadOnl
 
 
 @api_view(['GET', 'POST'])
-@permission_classes((IsContentProviderOnly, IsAdminUser,))
+@permission_classes((IsContentProviderOnly,))
 def chapter_view(request, pk):
     '''
     Get all chapters under Course(pk=pk)
     '''
     if request.method == 'GET':
         try:
+            user = request.user
+            content_provider = ContentProvider.objects.get(user=user)
+
             course = Course.objects.get(pk=pk)
 
-            chapters = Chapter.objects.get(course=course)
+            # check if content provider is owner of course
+            if course.content_provider != content_provider:
+                return Response(status=status.HTTP_400_BAD_REQUEST)
+            # end if
+
+            chapters = Chapter.objects.filter(course=course)
             serializer = ChapterSerializer(chapters, many=True, context={'public': False})
-            return Response()
+            return Response(serializer.data, status=status.HTTP_200_OK)
         except (ValueError, KeyError) as e:
             print(e)
             return Response(status=status.HTTP_400_BAD_REQUEST)
@@ -72,7 +80,7 @@ def chapter_view(request, pk):
 
 
 @api_view(['GET', 'PUT', 'DELETE'])
-@permission_classes((IsContentProviderOnly, IsAdminUser,))
+@permission_classes((IsContentProviderOnly,))
 def single_chapter_view(request, pk, chapter_id):
     '''
     GET a single chapter in a course 
@@ -152,7 +160,7 @@ def single_chapter_view(request, pk, chapter_id):
 
 
 @api_view(['PATCH'])
-@permission_classes((IsContentProviderOnly, IsAdminUser,))
+@permission_classes((IsContentProviderOnly,))
 def order_chapter_view(request, pk):
     '''
     Updates order of chapters by array of chapter ids
