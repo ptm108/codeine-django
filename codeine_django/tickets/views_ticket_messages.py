@@ -28,9 +28,9 @@ def ticket_message_view(request):
 
         if search is not None:
             ticket_messages = ticket_messages.filter(
-                Q(base_user__user__id__contains=search) |
-                Q(ticket__id__contains=search) |
-                Q(message__contains=search)
+                Q(base_user__user__id__icontains=search) |
+                Q(ticket__id__icontains=search) |
+                Q(message__icontains=search)
             )
         # end if
 
@@ -75,8 +75,8 @@ def single_ticket_message_view(request, pk):
     if request.method == 'GET':
         try:
             ticket_message = TicketMessage.objects.get(pk=pk)
-
-            return Response(TicketMessageSerializer(ticket_message, context={"request": request}).data)
+            serializer = TicketMessageSerializer(ticket_message)
+            return Response(serializer.data)
         except (ObjectDoesNotExist, KeyError, ValueError) as e:
             print(e)
             return Response(status=status.HTTP_400_BAD_REQUEST)
@@ -96,7 +96,7 @@ def single_ticket_message_view(request, pk):
                 ticket_message.save()
             # end with
 
-            serializer = TicketMessageSerializer(ticket_message, context={"request": request})
+            serializer = TicketMessageSerializer(ticket_message)
             return Response(serializer.data, status=status.HTTP_200_OK)
         except TicketMessage.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)

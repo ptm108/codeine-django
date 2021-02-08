@@ -25,17 +25,24 @@ def ticket_view(request):
 
         # extract query params
         search = request.query_params.get('search', None)
+        status = request.query_params.get('status', None)
 
         if search is not None:
             tickets = tickets.filter(
-                Q(base_user__user__id__contains=search) |
-                Q(description__contains=search) |
-                Q(ticket_status__contains=search) |
-                Q(ticket_type__contains=search)
+                Q(base_user__user__id__icontains=search) |
+                Q(description__icontains=search) |
+                Q(ticket_type__icontains=search)
             )
         # end if
 
-        serializer = TicketSerializer(tickets.all(), many=True, context={"request": request})
+        if status is not None:
+            tickets = tickets.filter(
+                Q(ticket_status__icontains=status)
+            )
+        # end if
+
+
+        serializer = TicketSerializer(tickets.all(), many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
     # end if
 
@@ -46,22 +53,19 @@ def ticket_view(request):
         user = request.user
         data = request.data
 
-        with transaction.atomic():
-            try:
-                ticket = Ticket(
-                    description = data['description'],
-                    ticket_type = data['ticket_type'],
-                    base_user = user
-                )
-                ticket.save()
+        try:
+            ticket = Ticket(
+                description = data['description'],
+                ticket_type = data['ticket_type'],
+                base_user = user
+            )
+            ticket.save()
 
-                serializer = TicketSerializer(ticket)
-
-                return Response(serializer.data, status=status.HTTP_201_CREATED)
-            except (IntegrityError, ValueError, KeyError) as e:
-                print(e)
-                return Response(status=status.HTTP_400_BAD_REQUEST)
-        # end with
+            serializer = TicketSerializer(ticket)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        except (IntegrityError, ValueError, KeyError) as e:
+            print(e)
+            return Response(status=status.HTTP_400_BAD_REQUEST)
     # end if
 # def
 
@@ -74,8 +78,8 @@ def single_ticket_view(request, pk):
     if request.method == 'GET':
         try:
             ticket = Ticket.objects.get(pk=pk)
-
-            return Response(TicketSerializer(ticket, context={"request": request}).data)
+            serializer = TicketSerializer(ticket)
+            return Response(serializer.data)
         except (ObjectDoesNotExist, KeyError, ValueError) as e:
             print(e)
             return Response(status=status.HTTP_400_BAD_REQUEST)
@@ -86,18 +90,15 @@ def single_ticket_view(request, pk):
     if request.method == 'PUT':
         data = request.data
         try:
-            with transaction.atomic():
-                ticket = Ticket.objects.get(pk=pk)
+            ticket = Ticket.objects.get(pk=pk)
 
-                if 'description' in data:
-                    ticket.description = data['description']
-                if 'ticket_type' in data:
-                    ticket.ticket_type = data['ticket_type']
+            if 'description' in data:
+                ticket.description = data['description']
+            if 'ticket_type' in data:
+                ticket.ticket_type = data['ticket_type']
 
-                ticket.save()
-            # end with
-
-            serializer = TicketSerializer(ticket, context={"request": request})
+            ticket.save()
+            serializer = TicketSerializer(ticket)
             return Response(serializer.data, status=status.HTTP_200_OK)
         except Ticket.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
@@ -118,7 +119,7 @@ def single_ticket_view(request, pk):
                 # don't allow pending and resolved tickets to be deleted
                 return Response('Only OPEN tickets can be deleted', status=status.HTTP_400_BAD_REQUEST)
         except Ticket.DoesNotExist:
-            return Response('Ticket DoesNotExist', status=status.HTTP_400_BAD_REQUEST)
+            return Response('Ticket DoesNotExist', status=status.HTTP_404_NOT_FOUND)
     # end if
 # def
 
@@ -136,7 +137,7 @@ def resolve_ticket_view(request, pk):
             ticket.ticket_status = 'RESOLVED'
             ticket.save()
 
-            serializer = TicketSerializer(ticket, context={"request": request})
+            serializer = TicketSerializer(ticket)
             return Response(serializer.data, status=status.HTTP_200_OK)
         except ObjectDoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)

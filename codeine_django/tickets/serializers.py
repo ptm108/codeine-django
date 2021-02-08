@@ -4,6 +4,7 @@ from .models import Ticket, TicketMessage
 
 
 class TicketSerializer(serializers.ModelSerializer):
+    ticket_messages = TicketMessageSerializer(many=True)
     class Meta:
         model = Ticket
         fields = '__all__'
