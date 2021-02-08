@@ -97,10 +97,11 @@ class Member(models.Model):
 
 class ContentProvider(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, unique=True)
-    user = models.OneToOneField(BaseUser, on_delete=models.CASCADE, null=True)
+    user = models.OneToOneField(BaseUser, on_delete=models.CASCADE, null=True, related_name='content_provider')
     company_name = models.CharField(max_length=255)
     job_title = models.CharField(max_length=150)
     bio = models.TextField()
+    consultation_rate = models.DecimalField(max_digits=5, decimal_places=2, default=0.0)
 
     def __str__(self):
         return f'{self.user}'
@@ -110,7 +111,7 @@ class ContentProvider(models.Model):
 
 class IndustryPartner(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, unique=True)
-    user = models.OneToOneField(BaseUser, on_delete=models.CASCADE, null=True)
+    user = models.OneToOneField(BaseUser, on_delete=models.CASCADE, null=True, related_name='industry_parter')
     company_name = models.CharField(max_length=150)
     contact_number = models.CharField(max_length=11)
 

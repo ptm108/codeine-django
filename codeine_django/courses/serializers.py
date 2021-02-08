@@ -1,7 +1,10 @@
 from rest_framework import serializers
 
 from .models import (
-    Section,
+    CourseMaterial,
+    CourseFile,
+    Video,
+    Quiz,
     Chapter,
     Course,
     Enrollment,
@@ -9,25 +12,71 @@ from .models import (
     ShortAnswer,
     MCQ,
     MRQ,
-    Assessment
 )
 
 
-class SectionSerializer(serializers.ModelSerializer):
+class CourseFileSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Section
-        fields = ('id', 'title', 'description', 'video_url', 'google_drive_link')
+        model = CourseFile
+        fields = ('zip_file', 'google_drive_url')
+    # end Meta
+# end class
+
+
+class CourseVideoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Video
+        fields = ('video_url')
+    # end Meta
+# end class
+
+
+class QuizSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Quiz
+        fields = ('id', 'passing_grade', 'course', 'chapter')
+    # end Meta
+# end class
+
+
+class PublicCourseMaterialSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CourseMaterial
+        fields = ('id', 'title', 'description')
+    # end Meta
+# end class
+
+
+class CourseMaterialSerializer(serializers.ModelSerializer):
+    course_file = CourseFileSerializer()
+    video = CourseVideoSerializer()
+    quiz = QuizSerializer()
+
+    class Meta:
+        model = CourseMaterial
+        fields = ('id', 'title', 'description', 'material_type', 'course_file', 'video', 'quiz', 'order')
     # end Meta
 # end class
 
 
 class ChapterSerializer(serializers.ModelSerializer):
-    sections = SectionSerializer(many=True)
+    # course_materials = CourseMaterialSerializer(many=True)
+    course_materials = serializers.SerializerMethodField('get_course_materials')
 
     class Meta:
         model = Chapter
-        fields = ('id', 'title', 'overview', 'sections')
-        # end Meta
+        fields = ('id', 'title', 'overview', 'course_materials', 'order')
+    # end Meta
+
+    def get_course_materials(self, obj):
+        if (self.context.get('public')):
+            print(obj.course_materials)
+            return PublicCourseMaterialSerializer(obj.course_materials, many=True).data
+        else:
+            return CourseMaterialSerializer(obj.course_materials, many=True).data
+        # end if-else
+    # end def
+
 # end class
 
 
@@ -42,8 +91,8 @@ class CourseSerializer(serializers.ModelSerializer):
 
     def get_thumbnail_url(self, obj):
         request = self.context.get("request")
-        if obj.profile_photo and hasattr(obj.profile_photo, 'url'):
-            return request.build_absolute_uri(obj.profile_photo.url)
+        if obj.thumbnail and hasattr(obj.thumbnail, 'url'):
+            return request.build_absolute_uri(obj.thumbnail.url)
         # end if
     # end def
 # end class
@@ -95,14 +144,4 @@ class QuestionSerializer(serializers.ModelSerializer):
         model = Question
         fields = ('title', 'subtitle',)
     # end class
-# end class
-
-
-class AssessmentSerializer(serializers.ModelSerializer):
-    questions = QuestionSerializer(many=True)
-
-    class Meta:
-        model = Assessment
-        fields = ('id', 'passing_grade', 'course', 'questions')
-    # end Meta
 # end class
