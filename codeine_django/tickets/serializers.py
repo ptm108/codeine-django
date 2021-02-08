@@ -3,17 +3,19 @@ from rest_framework import serializers
 from .models import Ticket, TicketMessage
 
 
-class TicketSerializer(serializers.ModelSerializer):
-    ticket_messages = TicketMessageSerializer(many=True)
+class TicketMessageSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Ticket
+        model = TicketMessage
         fields = '__all__'
     # end Meta
 # end class
 
-class TicketMessageSerializer(serializers.ModelSerializer):
+
+class TicketSerializer(serializers.ModelSerializer):
+    ticket_messages = TicketMessageSerializer(many=True)
+
     class Meta:
-        model = TicketMessage
+        model = Ticket
         fields = '__all__'
     # end Meta
 # end class
