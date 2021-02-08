@@ -50,7 +50,7 @@ class PaymentTransaction(models.Model):
     payment_amount = models.DecimalField(max_digits=5, decimal_places=2, default=0.0)
 
     # enums
-    payment_status = models.TextField(choices=PAYMENT_STATUSES)
+    payment_status = models.TextField(choices=PAYMENT_STATUSES, default='PENDING')
     payment_type = models.TextField(choices=PAYMENT_TYPES)
 
     # ref

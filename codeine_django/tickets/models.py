@@ -11,8 +11,7 @@ class Ticket(models.Model):
     TICKET_STATUSES = (
         ('OPEN', 'Open'),
         ('PENDING', 'Pending'),
-        ('RESOLVED', 'Completed'),
-        ('CLOSED', 'Closed')
+        ('RESOLVED', 'Resolved')
     )
 
     TICKET_TYPES = (
@@ -26,18 +25,18 @@ class Ticket(models.Model):
     timestamp = models.DateTimeField(default=timezone.now)
 
     # enums
-    ticket_status = models.TextField(choices=TICKET_STATUSES)
+    ticket_status = models.TextField(choices=TICKET_STATUSES, default='OPEN')
     ticket_type = MultiSelectField(choices=TICKET_TYPES)
 
     # ref
-    base_user = models.ForeignKey('common.BaseUser', on_delete=models.SET_NULL, related_name='cp_consultation_slots', null=True, blank=True)
+    base_user = models.ForeignKey('common.BaseUser', on_delete=models.SET_NULL, related_name='tickets', null=True, blank=True)
 
     def __str__(self):
         return f'Ticket: {self.id}, Status: {self.ticket_status}, Type: {self.ticket_type}'
     # end def
 
     class Meta:
-        ordering = ['timestamp', 'ticket_status', 'ticket_type']
+        ordering = ['-timestamp', 'ticket_status', 'ticket_type']
     #end class
 # end class
 
@@ -49,13 +48,13 @@ class TicketMessage(models.Model):
 
     # ref
     base_user = models.ForeignKey('common.BaseUser', on_delete=models.SET_NULL, related_name='ticket_messages', null=True, blank=True)
-    ticket = models.ForeignKey('tickets.Ticket', on_delete=models.SET_NULL, related_name='ticket_messages', null=True, blank=True)
+    ticket = models.ForeignKey('tickets.Ticket', on_delete=models.CASCADE, related_name='ticket_messages', null=True, blank=True)
 
     def __str__(self):
         return f'Ticket Message {self.id} for {self.ticket.id} from {self.base_user.id}'
     # end def
 
     class Meta:
-        ordering = ['timestamp']
+        ordering = ['-timestamp']
     #end class
 # end class
