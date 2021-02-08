@@ -13,6 +13,8 @@ from rest_framework.permissions import (
     IsAuthenticatedOrReadOnly,
     IsAdminUser,
 )
+from .permissions import (IsIndustryPartnerOrReadOnly,)
+
 from .models import BaseUser, IndustryPartner, CodeineAdmin
 from .serializers import IndustryPartnerSerializer
 
@@ -66,7 +68,7 @@ def industry_partner_view(request):
 # end def
 
 @api_view(['GET', 'PUT', 'DELETE', 'PATCH'])
-@permission_classes((IsAuthenticatedOrReadOnly,))
+@permission_classes((IsIndustryPartnerOrReadOnly,))
 @parser_classes((MultiPartParser, FormParser, JSONParser))
 def single_industry_partner_view(request, pk):
     '''
