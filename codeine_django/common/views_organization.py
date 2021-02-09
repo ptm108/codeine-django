@@ -19,13 +19,14 @@ def single_organization_view(request, pk):
         try:
             user = request.user
             partner = Partner.objects.get(user=user)
+            data = request.data
 
-            organization = Organization.objects.filter(partners__contains=partner).get(pk=pk)
+            organization = Organization.objects.filter(partners=partner).get(pk=pk)
 
             if 'organization_name' in data:
-                user.organization_name = data['organization_name']
+                organization.organization_name = data['organization_name']
             if 'organization_photo' in data:
-                user.organization_photo = data['organization_photo']
+                organization.organization_photo = data['organization_photo']
             # end ifs
             organization.save()
 
