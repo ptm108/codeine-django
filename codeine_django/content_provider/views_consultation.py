@@ -13,7 +13,7 @@ from rest_framework.permissions import (
     IsAuthenticatedOrReadOnly,
 )
 from .models import ConsultationSlot
-from common.models import ContentProvider
+from common.models import Partner
 from .serializers import ConsultationSlotSerializer
 from datetime import datetime, timedelta
 
@@ -26,7 +26,7 @@ def consultation_slot_view(request):
     '''
     if request.method == 'POST':
         user = request.user
-        content_provider = ContentProvider.objects.get(user=user)
+        partner = Partner.objects.get(user=user)
         data = request.data
 
         # if (datetime.strptime(data['end_time']) > datetime.strptime(data['start_time'])):
@@ -40,7 +40,7 @@ def consultation_slot_view(request):
                     start_time = data['start_time'],
                     end_time = data['end_time'],
                     meeting_link = data['meeting_link'],
-                    content_provider = content_provider
+                    partner = partner
                 )
 
                 consultation_slot.save()
@@ -66,7 +66,7 @@ def consultation_slot_view(request):
 
         if search is not None:
             consultation_slots = consultation_slots.filter(
-                Q(content_provider__user__id__contains=search) |
+                Q(partner__user__id__contains=search) |
                 Q(member__user__id__contains=search)
             )
         # end if
@@ -147,7 +147,7 @@ def single_consultation_slot_view(request, pk):
 @permission_classes((IsAuthenticated,))
 def confirm_consultation_slot(request, pk):
     '''
-    Content Provider confirms a consultation slot
+    Partner confirms a consultation slot
     '''
     if request.method == 'PATCH':
         data = request.data
@@ -155,10 +155,10 @@ def confirm_consultation_slot(request, pk):
             consultation_slot = ConsultationSlot.objects.get(pk=pk)
 
             user = request.user
-            content_provider = consultation_slot.content_provider
+            partner = consultation_slot.partner
 
             # assert requesting content provider is confirming their own consultation slots
-            if content_provider.user != user:
+            if partner.user != user:
                 return Response(status=status.HTTP_400_BAD_REQUEST)
             # end if
 
@@ -186,10 +186,10 @@ def reject_consultation_slot(request, pk):
             consultation_slot = ConsultationSlot.objects.get(pk=pk)
 
             user = request.user
-            content_provider = consultation_slot.content_provider
+            partner = consultation_slot.partner
 
             # assert requesting content provider is rejecting their own consultation slots
-            if content_provider.user != user:
+            if partner.user != user:
                 return Response(status=status.HTTP_400_BAD_REQUEST)
             # end if
 

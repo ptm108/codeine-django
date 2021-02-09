@@ -18,8 +18,8 @@ class ConsultationSlot(models.Model):
     is_rejected = models.BooleanField(default=False)
 
     # ref
-    content_provider = models.ForeignKey('common.ContentProvider', on_delete=models.SET_NULL, related_name='cp_consultation_slots', null=True, blank=True)
-    member = models.ForeignKey('common.Member', on_delete=models.SET_NULL, related_name='member_consultation_slots', null=True, blank=True)
+    partner = models.ForeignKey('common.Partner', on_delete=models.SET_NULL, related_name='consultation_slots', null=True, blank=True)
+    member = models.ForeignKey('common.Member', on_delete=models.SET_NULL, related_name='consultation_slots', null=True, blank=True)
 
     def __str__(self):
         return f'Consultation slot: {self.id}'
