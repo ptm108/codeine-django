@@ -4,7 +4,7 @@ from .models import ConsultationSlot, PaymentTransaction
 
 
 class ConsultationSlotAdmin(admin.ModelAdmin):
-    list_display = ('id', 'start_date', 'start_time', 'end_date', 'end_time', 'meeting_link', 'is_confirmed', 'is_rejected', 'partner', 'member')
+    list_display = ('id', 'start_time', 'end_time', 'meeting_link', 'is_confirmed', 'is_rejected', 'partner', 'member')
 # end class
 
 
