@@ -15,7 +15,7 @@ class OrganizationSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Organization
-        fields = ('organization_name', 'organization_photo',)
+        fields = ('id', 'organization_name', 'organization_photo',)
     # end Meta
 # end if
 
