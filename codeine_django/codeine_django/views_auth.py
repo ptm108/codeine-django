@@ -19,6 +19,10 @@ def authenticate_user(request):
         data = request.data
         user = authenticate(**data)
 
+        if user is None:
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
+        # end if
+
         # get JWT
         token = RefreshToken.for_user(user)
 
