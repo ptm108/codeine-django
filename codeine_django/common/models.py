@@ -118,6 +118,7 @@ class Partner(models.Model):
     job_title = models.CharField(max_length=150, null=True, default='', blank=True)
     bio = models.TextField(null=True, default='', blank=True)
     consultation_rate = models.DecimalField(max_digits=5, decimal_places=2, default=0.0)
+    org_admin = models.BooleanField(default=False)
 
     organization = models.ForeignKey('Organization', on_delete=models.CASCADE, related_name='partners', null=True, default=None, blank=True)
 
