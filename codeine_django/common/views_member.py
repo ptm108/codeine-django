@@ -14,6 +14,7 @@ from rest_framework.permissions import (
 )
 from .models import BaseUser, Member
 from .serializers import MemberSerializer, NestedBaseUserSerializer
+from .permissions import IsMemberOnly, IsMemberOrAdminOrReadOnly
 
 
 @api_view(['GET', 'POST'])
@@ -33,7 +34,7 @@ def member_view(request):
                 member = Member(user=user)
                 member.save()
 
-                serializer = MemberSerializer(member, context={"request": request})
+                serializer = NestedBaseUserSerializer(user, context={"request": request})
 
                 return Response(serializer.data, status=status.HTTP_201_CREATED)
             except (IntegrityError, ValueError, KeyError) as e:
@@ -43,7 +44,7 @@ def member_view(request):
     # end if
 
     '''
-    Get all members
+    Get all active members
     '''
     if request.method == 'GET':
         # extract query params
@@ -66,7 +67,7 @@ def member_view(request):
 
 
 @api_view(['GET', 'PUT', 'DELETE'])
-@permission_classes((IsAuthenticatedOrReadOnly,))
+@permission_classes((IsMemberOrAdminOrReadOnly,))
 @parser_classes((MultiPartParser, FormParser))
 def single_member_view(request, pk):
     '''
@@ -88,19 +89,17 @@ def single_member_view(request, pk):
     if request.method == 'PUT':
         data = request.data
         try:
-            with transaction.atomic():
-                user = request.user
+            user = BaseUser.objects.get(pk=pk)
 
-                if 'first_name' in data:
-                    user.first_name = data['first_name']
-                if 'last_name' in data:
-                    user.last_name = data['last_name']
-                if 'email' in data:
-                    user.email = data['email']
-                if 'profile_photo' in data:
-                    user.profile_photo = data['profile_photo']
-                user.save()
-            # end with
+            if 'first_name' in data:
+                user.first_name = data['first_name']
+            if 'last_name' in data:
+                user.last_name = data['last_name']
+            if 'email' in data:
+                user.email = data['email']
+            if 'profile_photo' in data:
+                user.profile_photo = data['profile_photo']
+            user.save()
 
             return Response(NestedBaseUserSerializer(user, context={"request": request}).data, status=status.HTTP_200_OK)
         except Member.DoesNotExist:
@@ -115,8 +114,9 @@ def single_member_view(request, pk):
     '''
     if request.method == 'DELETE':
         try:
-            user = request.user
+            user = BaseUser.objects.get(pk=pk)
             member = Member.objects.get(user=user)
+            
             user.is_active = False  # mark as deleted
             user.save()
 
@@ -128,7 +128,7 @@ def single_member_view(request, pk):
 
 
 @api_view(['PATCH'])
-@permission_classes((IsAuthenticated,))
+@permission_classes((IsMemberOnly,))
 def member_change_password_view(request, pk):
     '''
     Updates member's password
@@ -166,7 +166,7 @@ def activate_member_view(request, pk):
     '''
     if request.method == 'POST':
         try:
-            user = request.user
+            user = BaseUser.objects.get(pk=pk)
             member = Member.objects.get(user=user)
 
             user.is_active = True

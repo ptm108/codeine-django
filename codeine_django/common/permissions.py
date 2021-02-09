@@ -15,6 +15,7 @@ class IsPartnerOnly(BasePermission):
 
 # end class
 
+
 class IsPartnerOrReadOnly(BasePermission):
     '''
     View level check for unsafe methods
@@ -30,6 +31,24 @@ class IsPartnerOrReadOnly(BasePermission):
         return False
     # end def
 # end class
+
+
+class IsPartnerOrAdminOrReadOnly(BasePermission):
+    '''
+    View level check for unsafe methods
+    Check if requesting user is a Partner
+    '''
+
+    def has_permission(self, request, view):
+        if request.method in SAFE_METHODS:
+            return True
+        if request.user.is_authenticated and (hasattr(request.user, 'partner') or request.user.is_admin):
+            return True
+        # end ifs
+        return False
+    # end def
+# end class
+
 
 class IsMemberOnly(BasePermission):
     '''
@@ -56,6 +75,24 @@ class IsMemberOrReadOnly(BasePermission):
         if request.method in SAFE_METHODS:
             return True
         if request.user.is_authenticated and hasattr(request.user, 'member'):
+            return True
+        # end ifs
+        return False
+    # end def
+# end class
+
+
+class IsMemberOrAdminOrReadOnly(BasePermission):
+
+    '''
+    View level check for unsafe methods
+    Check if requesting user is a Member
+    '''
+
+    def has_permission(self, request, view):
+        if request.method in SAFE_METHODS:
+            return True
+        if request.user.is_authenticated and (hasattr(request.user, 'member') or request.user.is_admin):
             return True
         # end ifs
         return False
