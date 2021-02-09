@@ -1,1 +1,305 @@
-{"_type":"export","__export_format":4,"__export_date":"2021-02-09T04:33:50.222Z","__export_source":"insomnia.desktop.app:v2020.5.2","resources":[{"_id":"req_29b0fb32ed6b4743b3c9e8f1cc7c4960","parentId":"fld_21964ff115904bf49e74c41ecb066aa9","modified":1612344006865,"created":1612343742650,"url":"http://localhost:8000/contentProvider/consultations/4d905139-284e-44e0-8f8f-45efe57e76ff/confirm","name":"Confirm consultation slot","description":"","method":"PATCH","body":{},"parameters":[],"headers":[],"authentication":{"type":"bearer","token":"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNjEyMzQ0MTQ3LCJqdGkiOiIzNGZlZGUyZTc0YzQ0N2RiYWI0MWEwN2NkNTViNDMyYyIsInVzZXJfaWQiOiIzNGM2YWIwNS0yYTQ4LTQyZmQtYTQwNy0yNDJhMTExZWE3MGMifQ.hcadFacl3gU_0ugHTaVr3UJHFPFNLP_Hz1ycyp1OWCw","prefix":"Bearer "},"metaSortKey":-1612343742650,"isPrivate":false,"settingStoreCookies":true,"settingSendCookies":true,"settingDisableRenderRequestBody":false,"settingEncodeUrl":true,"settingRebuildPath":true,"settingFollowRedirects":"global","_type":"request"},{"_id":"fld_21964ff115904bf49e74c41ecb066aa9","parentId":"wrk_cbbd210767614c2e8e4987892ebd66e0","modified":1612340472069,"created":1612340472069,"name":"Consultation APIs","description":"","environment":{},"environmentPropertyOrder":null,"metaSortKey":-1612340472069,"_type":"request_group"},{"_id":"wrk_cbbd210767614c2e8e4987892ebd66e0","parentId":null,"modified":1611567484341,"created":1611567484341,"name":"IS4103","description":"","scope":null,"_type":"workspace"},{"_id":"req_176c4d1bf90c468d89952a38905d6e27","parentId":"fld_21964ff115904bf49e74c41ecb066aa9","modified":1612344003355,"created":1612344003355,"url":"http://localhost:8000/contentProvider/consultations/4d905139-284e-44e0-8f8f-45efe57e76ff/reject","name":"Reject consultation slot","description":"","method":"PATCH","body":{},"parameters":[],"headers":[],"authentication":{"type":"bearer","token":"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNjEyMzQ0MTQ3LCJqdGkiOiIzNGZlZGUyZTc0YzQ0N2RiYWI0MWEwN2NkNTViNDMyYyIsInVzZXJfaWQiOiIzNGM2YWIwNS0yYTQ4LTQyZmQtYTQwNy0yNDJhMTExZWE3MGMifQ.hcadFacl3gU_0ugHTaVr3UJHFPFNLP_Hz1ycyp1OWCw","prefix":"Bearer "},"metaSortKey":-1612343482717,"isPrivate":false,"settingStoreCookies":true,"settingSendCookies":true,"settingDisableRenderRequestBody":false,"settingEncodeUrl":true,"settingRebuildPath":true,"settingFollowRedirects":"global","_type":"request"},{"_id":"req_2f9732101dc14786b15172d2e7e74616","parentId":"fld_21964ff115904bf49e74c41ecb066aa9","modified":1612845203739,"created":1612343222784,"url":"http://localhost:8000/contentProvider/consultations/f330484c-e01c-47b1-a6ba-2135c99712f3","name":"Edit consultation slot","description":"","method":"PUT","body":{"mimeType":"application/json","text":" {\n    \"start_time\": \"2021-03-09T04:29:50Z\",\n    \"end_time\": \"2021-03-09T04:29:57Z\",\n    \"meeting_link\": \"zoom.us\"\n }\n"},"parameters":[],"headers":[{"name":"Content-Type","value":"application/json","id":"pair_403b72e191044a70b1a8b411f159722e"}],"authentication":{"type":"bearer","token":"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNjEyODUyMjY5LCJqdGkiOiIzZDk1MDIxZjFhZDE0MjQwODgyNjA5MzFkOTEzMDY5ZiIsInVzZXJfaWQiOiI4MTM5ZGRiMi1jYTkwLTQzYjAtYjBkNC01YzE0ZmNjNjJjNjQifQ.vVMXeH1idKs2AvUlaUZOnaHgXckVDcOlDW4wpOFgbbE","prefix":"Bearer "},"metaSortKey":-1612343222784,"isPrivate":false,"settingStoreCookies":true,"settingSendCookies":true,"settingDisableRenderRequestBody":false,"settingEncodeUrl":true,"settingRebuildPath":true,"settingFollowRedirects":"global","_type":"request"},{"_id":"req_89901dcd37614e1496fd2f9b5dcc6da0","parentId":"fld_21964ff115904bf49e74c41ecb066aa9","modified":1612345668852,"created":1612344028493,"url":"http://localhost:8000/contentProvider/consultations/940800df-f04a-41a0-ad45-d3fdc6c3401f","name":"Delete consultation slot","description":"","method":"DELETE","body":{"mimeType":"application/json","text":""},"parameters":[],"headers":[{"name":"Content-Type","value":"application/json","id":"pair_403b72e191044a70b1a8b411f159722e"}],"authentication":{"type":"bearer","token":"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNjEyMzUyNjQxLCJqdGkiOiIzZmZlNzNiYjc3YWQ0NDI2YjM2MmEyOGVkZTM5ZmQxOCIsInVzZXJfaWQiOiIzNGM2YWIwNS0yYTQ4LTQyZmQtYTQwNy0yNDJhMTExZWE3MGMifQ.k2y542bsMFVQpTcbWZ7ivG-bq0B8xYHtnM8ZrfVUx9E","prefix":"Bearer "},"metaSortKey":-1612342993039.25,"isPrivate":false,"settingStoreCookies":true,"settingSendCookies":true,"settingDisableRenderRequestBody":false,"settingEncodeUrl":true,"settingRebuildPath":true,"settingFollowRedirects":"global","_type":"request"},{"_id":"req_f67f7337e20542d0845a2322e10854a0","parentId":"fld_21964ff115904bf49e74c41ecb066aa9","modified":1612845014167,"created":1612343306155,"url":"http://localhost:8000/contentProvider/consultations/4d905139-284e-44e0-8f8f-45efe57e76ff","name":"Get consultation slot","description":"","method":"GET","body":{},"parameters":[],"headers":[],"authentication":{"type":"bearer","token":"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNjEyNTk1NjAyLCJqdGkiOiI0MmNkMWQ3NThmMzE0ZmY2ODNmYzRhZTBkNjdlZTg3MiIsInVzZXJfaWQiOiI4YTVmMDBkYi02MWU3LTRmODMtODhmOC1hNjJmN2U4MmU1YmMifQ.ajNx9XFGaQOO-PQw0SVwnARU45lDNkjszMLcOEuFvyw","prefix":"Bearer "},"metaSortKey":-1612342763294.5,"isPrivate":false,"settingStoreCookies":true,"settingSendCookies":true,"settingDisableRenderRequestBody":false,"settingEncodeUrl":true,"settingRebuildPath":true,"settingFollowRedirects":"global","_type":"request"},{"_id":"req_6fbd6a144a924c4dbfd1b17f44cb4e7d","parentId":"fld_21964ff115904bf49e74c41ecb066aa9","modified":1612845032724,"created":1612342303804,"url":"http://localhost:8000/contentProvider/consultations","name":"Get all consultations","description":"","method":"GET","body":{},"parameters":[],"headers":[],"authentication":{"type":"bearer","prefix":"Bearer ","token":"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNjEyODUyMjIwLCJqdGkiOiI3Y2UzMTk3YmUxNWQ0NGYyOTJlZWYyNmVlOTIzMzQ0OSIsInVzZXJfaWQiOiJlMmJlMmI4OS04MWU0LTRlMmYtYTk0Mi03NzNjYjZhYzc1MmMifQ.ByIzOcSdkWHI79kEPC-o-ZvezFZt-L-CiB2GgkIlgMw"},"metaSortKey":-1612342303805,"isPrivate":false,"settingStoreCookies":true,"settingSendCookies":true,"settingDisableRenderRequestBody":false,"settingEncodeUrl":true,"settingRebuildPath":true,"settingFollowRedirects":"global","_type":"request"},{"_id":"req_5647904605264c93afc9a1926eee8951","parentId":"fld_21964ff115904bf49e74c41ecb066aa9","modified":1612845094386,"created":1612340487818,"url":"http://localhost:8000/contentProvider/consultations","name":"Create consultation","description":"","method":"POST","body":{"mimeType":"application/json","text":" {\n    \"start_time\": \"2021-03-09T04:29:50Z\",\n    \"end_time\": \"2021-03-09T04:29:57Z\",\n    \"meeting_link\": \"zoom.us\"\n }\n"},"parameters":[],"headers":[{"name":"Content-Type","value":"application/json","id":"pair_f0e97e5754f3467ba817dc60bb28f9a8"}],"authentication":{"type":"bearer","token":"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNjEyODUyMjY5LCJqdGkiOiIzZDk1MDIxZjFhZDE0MjQwODgyNjA5MzFkOTEzMDY5ZiIsInVzZXJfaWQiOiI4MTM5ZGRiMi1jYTkwLTQzYjAtYjBkNC01YzE0ZmNjNjJjNjQifQ.vVMXeH1idKs2AvUlaUZOnaHgXckVDcOlDW4wpOFgbbE","prefix":"Bearer "},"metaSortKey":-1612340487818,"isPrivate":false,"settingStoreCookies":true,"settingSendCookies":true,"settingDisableRenderRequestBody":false,"settingEncodeUrl":true,"settingRebuildPath":true,"settingFollowRedirects":"global","_type":"request"},{"_id":"req_18c8c8c7017240b7b8e588c763df35de","parentId":"fld_21964ff115904bf49e74c41ecb066aa9","modified":1612588576852,"created":1612345822905,"url":"http://localhost:8000/auth/contentProviders/64198995-fff3-408f-8c79-a4c5d5b18fca/updateConsultationRate","name":"Edit Consultation Rate","description":"","method":"PATCH","body":{"mimeType":"application/json","text":"{\n\t\"consultation_rate\": \"123.00\"\n}"},"parameters":[],"headers":[{"name":"Content-Type","value":"application/json","id":"pair_9cfa2fe50c4a4ac5a8f6f03600cb9e33"}],"authentication":{"type":"bearer","token":"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNjEyNTk1NzA0LCJqdGkiOiI4NGJiNWViYTM1NjY0NjA5ODA1Zjk2YmZiM2FiNGY4NSIsInVzZXJfaWQiOiI4YTVmMDBkYi02MWU3LTRmODMtODhmOC1hNjJmN2U4MmU1YmMifQ.hfXf_NMbxWK4rGd3D02QwCaGhUDQkzCxFDo2Yz4dgFY","prefix":"Bearer "},"metaSortKey":-1612340487768,"isPrivate":false,"settingStoreCookies":true,"settingSendCookies":true,"settingDisableRenderRequestBody":false,"settingEncodeUrl":true,"settingRebuildPath":true,"settingFollowRedirects":"global","_type":"request"},{"_id":"env_0b4de101c02d8488bebadc28e436a02c7ef9847b","parentId":"wrk_cbbd210767614c2e8e4987892ebd66e0","modified":1611567484397,"created":1611567484397,"name":"Base Environment","data":{},"dataPropertyOrder":null,"color":null,"isPrivate":false,"metaSortKey":1611567484397,"_type":"environment"},{"_id":"jar_0b4de101c02d8488bebadc28e436a02c7ef9847b","parentId":"wrk_cbbd210767614c2e8e4987892ebd66e0","modified":1611567484398,"created":1611567484398,"name":"Default Jar","cookies":[],"_type":"cookie_jar"},{"_id":"spc_943dd4fb42eb42c58a940f9659310ee7","parentId":"wrk_cbbd210767614c2e8e4987892ebd66e0","modified":1611567484351,"created":1611567484351,"fileName":"IS4103","contents":"","contentType":"yaml","_type":"api_spec"},{"_id":"env_f2f8947a3cbb4eb49f748bb4af87f958","parentId":"env_0b4de101c02d8488bebadc28e436a02c7ef9847b","modified":1611568976513,"created":1611568611399,"name":"Development","data":{"url":"http://localhost:8000"},"dataPropertyOrder":{"&":["url"]},"color":null,"isPrivate":false,"metaSortKey":1611568611399,"_type":"environment"}]}
+{
+  "_type": "export",
+  "__export_format": 4,
+  "__export_date": "2021-02-09T04:33:50.222Z",
+  "__export_source": "insomnia.desktop.app:v2020.5.2",
+  "resources": [
+    {
+      "_id": "req_29b0fb32ed6b4743b3c9e8f1cc7c4960",
+      "parentId": "fld_21964ff115904bf49e74c41ecb066aa9",
+      "modified": 1612344006865,
+      "created": 1612343742650,
+      "url": "http://localhost:8000/contentProvider/consultations/4d905139-284e-44e0-8f8f-45efe57e76ff/confirm",
+      "name": "Confirm consultation slot",
+      "description": "",
+      "method": "PATCH",
+      "body": {},
+      "parameters": [],
+      "headers": [],
+      "authentication": {
+        "type": "bearer",
+        "token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNjEyMzQ0MTQ3LCJqdGkiOiIzNGZlZGUyZTc0YzQ0N2RiYWI0MWEwN2NkNTViNDMyYyIsInVzZXJfaWQiOiIzNGM2YWIwNS0yYTQ4LTQyZmQtYTQwNy0yNDJhMTExZWE3MGMifQ.hcadFacl3gU_0ugHTaVr3UJHFPFNLP_Hz1ycyp1OWCw",
+        "prefix": "Bearer "
+      },
+      "metaSortKey": -1612343742650,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "_type": "request"
+    },
+    {
+      "_id": "fld_21964ff115904bf49e74c41ecb066aa9",
+      "parentId": "wrk_cbbd210767614c2e8e4987892ebd66e0",
+      "modified": 1612340472069,
+      "created": 1612340472069,
+      "name": "Consultation APIs",
+      "description": "",
+      "environment": {},
+      "environmentPropertyOrder": null,
+      "metaSortKey": -1612340472069,
+      "_type": "request_group"
+    },
+    {
+      "_id": "wrk_cbbd210767614c2e8e4987892ebd66e0",
+      "parentId": null,
+      "modified": 1611567484341,
+      "created": 1611567484341,
+      "name": "IS4103",
+      "description": "",
+      "scope": null,
+      "_type": "workspace"
+    },
+    {
+      "_id": "req_176c4d1bf90c468d89952a38905d6e27",
+      "parentId": "fld_21964ff115904bf49e74c41ecb066aa9",
+      "modified": 1612344003355,
+      "created": 1612344003355,
+      "url": "http://localhost:8000/contentProvider/consultations/4d905139-284e-44e0-8f8f-45efe57e76ff/reject",
+      "name": "Reject consultation slot",
+      "description": "",
+      "method": "PATCH",
+      "body": {},
+      "parameters": [],
+      "headers": [],
+      "authentication": {
+        "type": "bearer",
+        "token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNjEyMzQ0MTQ3LCJqdGkiOiIzNGZlZGUyZTc0YzQ0N2RiYWI0MWEwN2NkNTViNDMyYyIsInVzZXJfaWQiOiIzNGM2YWIwNS0yYTQ4LTQyZmQtYTQwNy0yNDJhMTExZWE3MGMifQ.hcadFacl3gU_0ugHTaVr3UJHFPFNLP_Hz1ycyp1OWCw",
+        "prefix": "Bearer "
+      },
+      "metaSortKey": -1612343482717,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "_type": "request"
+    },
+    {
+      "_id": "req_2f9732101dc14786b15172d2e7e74616",
+      "parentId": "fld_21964ff115904bf49e74c41ecb066aa9",
+      "modified": 1612845203739,
+      "created": 1612343222784,
+      "url": "http://localhost:8000/contentProvider/consultations/f330484c-e01c-47b1-a6ba-2135c99712f3",
+      "name": "Edit consultation slot",
+      "description": "",
+      "method": "PUT",
+      "body": {
+        "mimeType": "application/json",
+        "text": " {\n    \"start_time\": \"2021-03-09T04:29:50Z\",\n    \"end_time\": \"2021-03-09T04:29:57Z\",\n    \"meeting_link\": \"zoom.us\"\n }\n"
+      },
+      "parameters": [],
+      "headers": [
+        { "name": "Content-Type", "value": "application/json", "id": "pair_403b72e191044a70b1a8b411f159722e" }
+      ],
+      "authentication": {
+        "type": "bearer",
+        "token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNjEyODUyMjY5LCJqdGkiOiIzZDk1MDIxZjFhZDE0MjQwODgyNjA5MzFkOTEzMDY5ZiIsInVzZXJfaWQiOiI4MTM5ZGRiMi1jYTkwLTQzYjAtYjBkNC01YzE0ZmNjNjJjNjQifQ.vVMXeH1idKs2AvUlaUZOnaHgXckVDcOlDW4wpOFgbbE",
+        "prefix": "Bearer "
+      },
+      "metaSortKey": -1612343222784,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "_type": "request"
+    },
+    {
+      "_id": "req_89901dcd37614e1496fd2f9b5dcc6da0",
+      "parentId": "fld_21964ff115904bf49e74c41ecb066aa9",
+      "modified": 1612345668852,
+      "created": 1612344028493,
+      "url": "http://localhost:8000/contentProvider/consultations/940800df-f04a-41a0-ad45-d3fdc6c3401f",
+      "name": "Delete consultation slot",
+      "description": "",
+      "method": "DELETE",
+      "body": { "mimeType": "application/json", "text": "" },
+      "parameters": [],
+      "headers": [
+        { "name": "Content-Type", "value": "application/json", "id": "pair_403b72e191044a70b1a8b411f159722e" }
+      ],
+      "authentication": {
+        "type": "bearer",
+        "token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNjEyMzUyNjQxLCJqdGkiOiIzZmZlNzNiYjc3YWQ0NDI2YjM2MmEyOGVkZTM5ZmQxOCIsInVzZXJfaWQiOiIzNGM2YWIwNS0yYTQ4LTQyZmQtYTQwNy0yNDJhMTExZWE3MGMifQ.k2y542bsMFVQpTcbWZ7ivG-bq0B8xYHtnM8ZrfVUx9E",
+        "prefix": "Bearer "
+      },
+      "metaSortKey": -1612342993039.25,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "_type": "request"
+    },
+    {
+      "_id": "req_f67f7337e20542d0845a2322e10854a0",
+      "parentId": "fld_21964ff115904bf49e74c41ecb066aa9",
+      "modified": 1612845014167,
+      "created": 1612343306155,
+      "url": "http://localhost:8000/contentProvider/consultations/4d905139-284e-44e0-8f8f-45efe57e76ff",
+      "name": "Get consultation slot",
+      "description": "",
+      "method": "GET",
+      "body": {},
+      "parameters": [],
+      "headers": [],
+      "authentication": {
+        "type": "bearer",
+        "token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNjEyNTk1NjAyLCJqdGkiOiI0MmNkMWQ3NThmMzE0ZmY2ODNmYzRhZTBkNjdlZTg3MiIsInVzZXJfaWQiOiI4YTVmMDBkYi02MWU3LTRmODMtODhmOC1hNjJmN2U4MmU1YmMifQ.ajNx9XFGaQOO-PQw0SVwnARU45lDNkjszMLcOEuFvyw",
+        "prefix": "Bearer "
+      },
+      "metaSortKey": -1612342763294.5,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "_type": "request"
+    },
+    {
+      "_id": "req_6fbd6a144a924c4dbfd1b17f44cb4e7d",
+      "parentId": "fld_21964ff115904bf49e74c41ecb066aa9",
+      "modified": 1612845032724,
+      "created": 1612342303804,
+      "url": "http://localhost:8000/contentProvider/consultations",
+      "name": "Get all consultations",
+      "description": "",
+      "method": "GET",
+      "body": {},
+      "parameters": [],
+      "headers": [],
+      "authentication": {
+        "type": "bearer",
+        "prefix": "Bearer ",
+        "token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNjEyODUyMjIwLCJqdGkiOiI3Y2UzMTk3YmUxNWQ0NGYyOTJlZWYyNmVlOTIzMzQ0OSIsInVzZXJfaWQiOiJlMmJlMmI4OS04MWU0LTRlMmYtYTk0Mi03NzNjYjZhYzc1MmMifQ.ByIzOcSdkWHI79kEPC-o-ZvezFZt-L-CiB2GgkIlgMw"
+      },
+      "metaSortKey": -1612342303805,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "_type": "request"
+    },
+    {
+      "_id": "req_5647904605264c93afc9a1926eee8951",
+      "parentId": "fld_21964ff115904bf49e74c41ecb066aa9",
+      "modified": 1612845094386,
+      "created": 1612340487818,
+      "url": "http://localhost:8000/contentProvider/consultations",
+      "name": "Create consultation",
+      "description": "",
+      "method": "POST",
+      "body": {
+        "mimeType": "application/json",
+        "text": " {\n    \"start_time\": \"2021-03-09T04:29:50Z\",\n    \"end_time\": \"2021-03-09T04:29:57Z\",\n    \"meeting_link\": \"zoom.us\"\n }\n"
+      },
+      "parameters": [],
+      "headers": [
+        { "name": "Content-Type", "value": "application/json", "id": "pair_f0e97e5754f3467ba817dc60bb28f9a8" }
+      ],
+      "authentication": {
+        "type": "bearer",
+        "token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNjEyODUyMjY5LCJqdGkiOiIzZDk1MDIxZjFhZDE0MjQwODgyNjA5MzFkOTEzMDY5ZiIsInVzZXJfaWQiOiI4MTM5ZGRiMi1jYTkwLTQzYjAtYjBkNC01YzE0ZmNjNjJjNjQifQ.vVMXeH1idKs2AvUlaUZOnaHgXckVDcOlDW4wpOFgbbE",
+        "prefix": "Bearer "
+      },
+      "metaSortKey": -1612340487818,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "_type": "request"
+    },
+    {
+      "_id": "req_18c8c8c7017240b7b8e588c763df35de",
+      "parentId": "fld_21964ff115904bf49e74c41ecb066aa9",
+      "modified": 1612588576852,
+      "created": 1612345822905,
+      "url": "http://localhost:8000/auth/contentProviders/64198995-fff3-408f-8c79-a4c5d5b18fca/updateConsultationRate",
+      "name": "Edit Consultation Rate",
+      "description": "",
+      "method": "PATCH",
+      "body": { "mimeType": "application/json", "text": "{\n\t\"consultation_rate\": \"123.00\"\n}" },
+      "parameters": [],
+      "headers": [
+        { "name": "Content-Type", "value": "application/json", "id": "pair_9cfa2fe50c4a4ac5a8f6f03600cb9e33" }
+      ],
+      "authentication": {
+        "type": "bearer",
+        "token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNjEyNTk1NzA0LCJqdGkiOiI4NGJiNWViYTM1NjY0NjA5ODA1Zjk2YmZiM2FiNGY4NSIsInVzZXJfaWQiOiI4YTVmMDBkYi02MWU3LTRmODMtODhmOC1hNjJmN2U4MmU1YmMifQ.hfXf_NMbxWK4rGd3D02QwCaGhUDQkzCxFDo2Yz4dgFY",
+        "prefix": "Bearer "
+      },
+      "metaSortKey": -1612340487768,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "_type": "request"
+    },
+    {
+      "_id": "env_0b4de101c02d8488bebadc28e436a02c7ef9847b",
+      "parentId": "wrk_cbbd210767614c2e8e4987892ebd66e0",
+      "modified": 1611567484397,
+      "created": 1611567484397,
+      "name": "Base Environment",
+      "data": {},
+      "dataPropertyOrder": null,
+      "color": null,
+      "isPrivate": false,
+      "metaSortKey": 1611567484397,
+      "_type": "environment"
+    },
+    {
+      "_id": "jar_0b4de101c02d8488bebadc28e436a02c7ef9847b",
+      "parentId": "wrk_cbbd210767614c2e8e4987892ebd66e0",
+      "modified": 1611567484398,
+      "created": 1611567484398,
+      "name": "Default Jar",
+      "cookies": [],
+      "_type": "cookie_jar"
+    },
+    {
+      "_id": "spc_943dd4fb42eb42c58a940f9659310ee7",
+      "parentId": "wrk_cbbd210767614c2e8e4987892ebd66e0",
+      "modified": 1611567484351,
+      "created": 1611567484351,
+      "fileName": "IS4103",
+      "contents": "",
+      "contentType": "yaml",
+      "_type": "api_spec"
+    },
+    {
+      "_id": "env_f2f8947a3cbb4eb49f748bb4af87f958",
+      "parentId": "env_0b4de101c02d8488bebadc28e436a02c7ef9847b",
+      "modified": 1611568976513,
+      "created": 1611568611399,
+      "name": "Development",
+      "data": { "url": "http://localhost:8000" },
+      "dataPropertyOrder": { "&": ["url"] },
+      "color": null,
+      "isPrivate": false,
+      "metaSortKey": 1611568611399,
+      "_type": "environment"
+    }
+  ]
+}
