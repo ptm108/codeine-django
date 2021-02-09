@@ -78,15 +78,10 @@ class PartnerInline(admin.StackedInline):
     verbose_name_plural = 'Members'
 # end class
 
-class OrganizationInline(admin.StackedInline):
-    model = Organization
-    can_delete = False
-# end class 
-
 
 class UserAdmin(BaseUserAdmin):
     # Vendor and Customer inline
-    inlines = (MemberInline, PartnerInline, OrganizationInline,)
+    inlines = (MemberInline, PartnerInline,)
 
     # The forms to add and change user instances
     form = UserChangeForm
