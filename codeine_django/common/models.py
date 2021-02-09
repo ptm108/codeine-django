@@ -103,7 +103,7 @@ class Member(models.Model):
 
 class Organization(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, unique=True)
-    organization_name = models.CharField(max_length=255)
+    organization_name = models.CharField(max_length=255, unique=True)
     organization_photo = models.ImageField(upload_to=org_directory_path, max_length=100, blank=True, null=True, default=None)
 
     def __str__(self):
