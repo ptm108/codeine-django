@@ -85,6 +85,7 @@ class BaseUser(AbstractBaseUser, PermissionsMixin):
     def is_staff(self):
         return self.is_admin
     # end def
+
 # end class
 
 

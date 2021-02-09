@@ -29,14 +29,23 @@ class NestedPartnerSerializer(serializers.ModelSerializer):
     # end Meta
 # end class
 
+class NestedMemberSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Member
+        fields = ('id',)
+    # end Meta
+# end class
+
 
 class NestedBaseUserSerializer(serializers.ModelSerializer):
     partner = NestedPartnerSerializer()
+    member = NestedMemberSerializer()
     profile_photo = serializers.SerializerMethodField('get_profile_photo_url')
 
     class Meta:
         model = BaseUser
         fields = (
+            'id',
             'email',
             'is_admin',
             'is_active',
@@ -64,8 +73,16 @@ class BaseUserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = BaseUser
-        fields = ('email', 'is_active', 'date_joined', 'profile_photo', 'first_name', 'last_name')
+        fields = ('id', 'email', 'is_active', 'date_joined', 'profile_photo', 'first_name', 'last_name')
     # end Meta
+
+    def get_profile_photo_url(self, obj):
+        request = self.context.get("request")
+        if obj.profile_photo and hasattr(obj.profile_photo, 'url'):
+            return request.build_absolute_uri(obj.profile_photo.url)
+        # end if
+    # end def
+
 # end class
 
 
