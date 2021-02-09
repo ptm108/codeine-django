@@ -101,8 +101,8 @@ class Member(models.Model):
 class Partner(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, unique=True)
     user = models.OneToOneField(BaseUser, on_delete=models.CASCADE, null=True, related_name='partner')
-    job_title = models.CharField(max_length=150)
-    bio = models.TextField()
+    job_title = models.CharField(max_length=150, null=True, default='', blank=True)
+    bio = models.TextField(null=True, default='', blank=True)
     consultation_rate = models.DecimalField(max_digits=5, decimal_places=2, default=0.0)
 
     def __str__(self):
