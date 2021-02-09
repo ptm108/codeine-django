@@ -78,7 +78,7 @@ class PartnerInline(admin.StackedInline):
     verbose_name_plural = 'Members'
 # end class
 
-class Organization(admin.StackedInline):
+class OrganizationInline(admin.StackedInline):
     model = Organization
     can_delete = False
 # end class 
