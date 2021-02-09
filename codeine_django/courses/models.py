@@ -81,7 +81,7 @@ class Course(models.Model):
     certificate = models.TextField(null=True, default=None, blank=True)
 
     # provider ref
-    content_provider = models.ForeignKey('common.ContentProvider', on_delete=models.SET_NULL, related_name='courses', null=True)
+    partner = models.ForeignKey('common.Partner', on_delete=models.SET_NULL, related_name='courses', null=True)
 
     # rating, updated by trigger
     rating = models.DecimalField(max_digits=3, decimal_places=2, default=0)

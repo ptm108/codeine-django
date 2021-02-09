@@ -7,12 +7,12 @@ from rest_framework.permissions import IsAdminUser
 from .models import Course, Chapter
 from .serializers import CourseSerializer, ChapterSerializer
 
-from common.models import ContentProvider
-from common.permissions import IsContentProviderOnly, IsContentProviderOrReadOnly
+from common.models import Partner
+from common.permissions import IsPartnerOnly, IsPartnerOrReadOnly
 
 
 @api_view(['GET', 'POST'])
-@permission_classes((IsContentProviderOnly,))
+@permission_classes((IsPartnerOnly,))
 def chapter_view(request, pk):
     '''
     Get all chapters under Course(pk=pk)
@@ -20,12 +20,12 @@ def chapter_view(request, pk):
     if request.method == 'GET':
         try:
             user = request.user
-            content_provider = ContentProvider.objects.get(user=user)
+            partner = Partner.objects.get(user=user)
 
             course = Course.objects.get(pk=pk)
 
             # check if content provider is owner of course
-            if course.content_provider != content_provider:
+            if course.partner != partner:
                 return Response(status=status.HTTP_400_BAD_REQUEST)
             # end if
 
@@ -47,12 +47,12 @@ def chapter_view(request, pk):
     if request.method == 'POST':
         try:
             user = request.user
-            content_provider = ContentProvider.objects.get(user=user)
+            partner = Partner.objects.get(user=user)
 
             course = Course.objects.get(pk=pk)
 
             # check if content provider is owner of course
-            if course.content_provider != content_provider:
+            if course.partner != partner:
                 return Response(status=status.HTTP_400_BAD_REQUEST)
             # end if
 
@@ -80,7 +80,7 @@ def chapter_view(request, pk):
 
 
 @api_view(['GET', 'PUT', 'DELETE'])
-@permission_classes((IsContentProviderOnly,))
+@permission_classes((IsPartnerOnly,))
 def single_chapter_view(request, pk, chapter_id):
     '''
     GET a single chapter in a course 
@@ -104,12 +104,12 @@ def single_chapter_view(request, pk, chapter_id):
     if request.method == 'PUT':
         try:
             user = request.user
-            content_provider = ContentProvider.objects.get(user=user)
+            partner = Partner.objects.get(user=user)
 
             course = Course.objects.get(pk=pk)
 
             # check if content provider is owner of course
-            if course.content_provider != content_provider:
+            if course.partner != partner:
                 return Response(status=status.HTTP_400_BAD_REQUEST)
             # end if
 
@@ -137,12 +137,12 @@ def single_chapter_view(request, pk, chapter_id):
     if request.method == 'DELETE':
         try:
             user = request.user
-            content_provider = ContentProvider.objects.get(user=user)
+            partner = Partner.objects.get(user=user)
 
             course = Course.objects.get(pk=pk)
 
             # check if content provider is owner of course
-            if course.content_provider != content_provider:
+            if course.partner != partner:
                 return Response(status=status.HTTP_400_BAD_REQUEST)
             # end if
 
@@ -160,7 +160,7 @@ def single_chapter_view(request, pk, chapter_id):
 
 
 @api_view(['PATCH'])
-@permission_classes((IsContentProviderOnly,))
+@permission_classes((IsPartnerOnly,))
 def order_chapter_view(request, pk):
     '''
     Updates order of chapters by array of chapter ids
@@ -168,12 +168,12 @@ def order_chapter_view(request, pk):
     if request.method == 'PATCH':
         try:
             user = request.user
-            content_provider = ContentProvider.objects.get(user=user)
+            partner = Partner.objects.get(user=user)
 
             course = Course.objects.get(pk=pk)
 
             # check if content provider is owner of course
-            if course.content_provider != content_provider:
+            if course.partner != partner:
                 return Response(status=status.HTTP_400_BAD_REQUEST)
             # end if
 
