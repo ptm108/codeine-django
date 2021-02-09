@@ -12,6 +12,9 @@ def user_directory_path(instance, filename):
     return 'user_{0}/{1}'.format(instance.id, filename)
 # end def
 
+def org_directory_path(instance, filename):
+    return 'org_{0}/{1}'.format(instance.id, filename)
+# end def
 
 class CustomUserManager(BaseUserManager):
     """
@@ -94,11 +97,9 @@ class Member(models.Model):
     # end def
 # end class
 
-
-class ContentProvider(models.Model):
+class Partner(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, unique=True)
-    user = models.OneToOneField(BaseUser, on_delete=models.CASCADE, null=True, related_name='content_provider')
-    company_name = models.CharField(max_length=255)
+    user = models.OneToOneField(BaseUser, on_delete=models.CASCADE, null=True, related_name='partner')
     job_title = models.CharField(max_length=150)
     bio = models.TextField()
     consultation_rate = models.DecimalField(max_digits=5, decimal_places=2, default=0.0)
@@ -108,24 +109,12 @@ class ContentProvider(models.Model):
     # end def
 # end class
 
-
-class IndustryPartner(models.Model):
+class Organization(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, unique=True)
-    user = models.OneToOneField(BaseUser, on_delete=models.CASCADE, null=True, related_name='industry_parter')
-    company_name = models.CharField(max_length=150)
-    contact_number = models.CharField(max_length=11)
+    organization_name = models.CharField(max_length=255)
+    organization_photo = models.ImageField(upload_to=org_directory_path, max_length=100, blank=True, null=True, default=None)
 
     def __str__(self):
-        return f'{self.user}'
-    # end def
-# end class
-
-
-class CodeineAdmin(models.Model):
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, unique=True)
-    user = models.OneToOneField(BaseUser, on_delete=models.CASCADE, null=True)
-
-    def __str__(self):
-        return f'{self.user}'
+        return self.organization_name
     # end def
 # end class
