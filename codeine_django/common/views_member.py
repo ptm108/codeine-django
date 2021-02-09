@@ -91,7 +91,7 @@ def single_member_view(request, pk):
         try:
             user = BaseUser.objects.get(pk=pk)
 
-            if request.user != user:
+            if request.user != user or not user.is_admin:
                 return Response(status=status.HTTP_401_UNAUTHORIZED)
             # end if 
 
@@ -121,7 +121,7 @@ def single_member_view(request, pk):
             user = BaseUser.objects.get(pk=pk)
             member = Member.objects.get(user=user)
 
-            if request.user != user:
+            if request.user != user or not user.is_admin:
                 return Response(status=status.HTTP_401_UNAUTHORIZED)
             # end if 
             
