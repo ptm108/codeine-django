@@ -1,7 +1,7 @@
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.views import TokenObtainPairView
 
-from common.serializers import BaseUserSerializer
+from common.serializers import NestedBaseUserSerializer
 
 
 class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
@@ -10,7 +10,7 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
         token = super().get_token(user)
 
         # Add custom claims
-        token['user'] = BaseUserSerializer(user).data
+        token['user'] = NestedBaseUserSerializer(user).data
 
         return token
     # end def

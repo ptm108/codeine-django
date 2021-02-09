@@ -1,13 +1,52 @@
 from rest_framework import serializers
 
-from .models import Member, BaseUser 
+from .models import Member, BaseUser, Partner, Organization
 
 
-class BaseUserSerializer(serializers.ModelSerializer):
+class OrganizationSerializer(serializers.ModelSerializer):
+    organization_photo = serializers.SerializerMethodField('get_organization_photo_url')
+
+    def get_organization_photo_url(self, obj):
+        request = self.context.get("request")
+        if obj.organization_photo and hasattr(obj.organization_photo, 'url'):
+            return request.build_absolute_uri(obj.organization_photo.url)
+        # end if
+    # end def
+
+    class Meta:
+        model = Organization
+        fields = ('organization_name', 'organization_photo',)
+    # end Meta
+# end if
+
+
+class NestedPartnerSerializer(serializers.ModelSerializer):
+    organization = OrganizationSerializer()
+
+    class Meta:
+        model = Partner
+        fields = ('job_title', 'bio', 'consultation_rate', 'organization')
+    # end Meta
+# end class
+
+
+class NestedBaseUserSerializer(serializers.ModelSerializer):
+    partner = NestedPartnerSerializer()
     profile_photo = serializers.SerializerMethodField('get_profile_photo_url')
+
     class Meta:
         model = BaseUser
-        fields = ('email', 'is_active', 'date_joined', 'profile_photo', 'first_name', 'last_name')
+        fields = (
+            'email',
+            'is_admin',
+            'is_active',
+            'date_joined',
+            'profile_photo',
+            'first_name',
+            'last_name',
+            'member',
+            'partner',
+        )
     # end Meta
 
     def get_profile_photo_url(self, obj):
@@ -16,7 +55,19 @@ class BaseUserSerializer(serializers.ModelSerializer):
             return request.build_absolute_uri(obj.profile_photo.url)
         # end if
     # end def
+
 # end class
+
+
+class BaseUserSerializer(serializers.ModelSerializer):
+    profile_photo = serializers.SerializerMethodField('get_profile_photo_url')
+
+    class Meta:
+        model = BaseUser
+        fields = ('email', 'is_active', 'date_joined', 'profile_photo', 'first_name', 'last_name')
+    # end Meta
+# end class
+
 
 class MemberSerializer(serializers.ModelSerializer):
     user = BaseUserSerializer()
