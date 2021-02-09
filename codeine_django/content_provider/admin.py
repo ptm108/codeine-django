@@ -19,7 +19,8 @@ class PaymentTransactionInline(admin.StackedInline):
 
 
 class ConsultationSlotAdmin(admin.ModelAdmin):
-    list_display = ('id', 'start_date', 'start_time', 'end_date', 'end_time', 'meeting_link', 'is_confirmed', 'is_rejected', 'content_provider', 'member')
+    list_display = ('id', 'start_time', 'end_time', 'meeting_link', 'is_confirmed', 'is_rejected', 'content_provider', 'member')
+    # list_display = ('id', 'start_date', 'start_time', 'end_date', 'end_time', 'meeting_link', 'is_confirmed', 'is_rejected', 'content_provider', 'member')
 # end class
 
 

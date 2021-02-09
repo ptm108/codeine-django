@@ -35,8 +35,8 @@ def consultation_slot_view(request):
         with transaction.atomic():
             try:
                 consultation_slot = ConsultationSlot(
-                    start_date = data['start_date'],
-                    end_date = data['end_date'],
+                    # start_date = data['start_date'],
+                    # end_date = data['end_date'],
                     start_time = data['start_time'],
                     end_time = data['end_time'],
                     meeting_link = data['meeting_link'],

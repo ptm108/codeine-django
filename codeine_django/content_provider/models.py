@@ -9,10 +9,10 @@ import uuid
 # Create your models here.
 class ConsultationSlot(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, unique=True)
-    start_date = models.DateField()
-    end_date = models.DateField()
-    start_time = models.TimeField()
-    end_time = models.TimeField()
+    # start_date = models.DateField()
+    # end_date = models.DateField()
+    start_time = models.DateTimeField()
+    end_time = models.DateTimeField()
     meeting_link = models.TextField(default='')
     is_confirmed = models.BooleanField(default=False)
     is_rejected = models.BooleanField(default=False)
@@ -26,7 +26,8 @@ class ConsultationSlot(models.Model):
     # end def
 
     class Meta:
-        ordering = ['start_date', 'start_time', 'end_date', 'end_time']
+        ordering = ['start_time', 'end_time']
+        # ordering = ['start_date', 'start_time', 'end_date', 'end_time']
     #end class
 # end class
 
