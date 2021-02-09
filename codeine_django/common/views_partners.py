@@ -3,25 +3,25 @@ from django.db.utils import IntegrityError
 from django.core.exceptions import ValidationError, ObjectDoesNotExist
 from django.db.models import Q
 from rest_framework import status
+from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes, parser_classes
 from rest_framework.parsers import MultiPartParser, FormParser
-from rest_framework.response import Response
 
 from rest_framework.permissions import (
     IsAuthenticated,
     AllowAny,
     IsAuthenticatedOrReadOnly,
 )
-from .models import BaseUser, Member
-from .serializers import MemberSerializer, NestedBaseUserSerializer
-from .permissions import IsMemberOnly, IsMemberOrAdminOrReadOnly
+from .models import BaseUser, Partner, Organization
+from .serializers import NestedBaseUserSerializer
+from .permissions import IsPartnerOnly, IsPartnerOrAdminOrReadOnly
 
 
 @api_view(['GET', 'POST'])
 @permission_classes((AllowAny,))
-def member_view(request):
+def partner_view(request):
     '''
-    Creates a new member
+    Creates a new Partner
     '''
     if request.method == 'POST':
         data = request.data
@@ -31,11 +31,22 @@ def member_view(request):
                 user = BaseUser.objects.create_user(data['email'], data['password'], first_name=data['first_name'], last_name=data['last_name'])
                 user.save()
 
-                member = Member(user=user)
-                member.save()
+                organization = None
+                org_admin = False
+                if 'organization_name' in data:
+                    try:
+                        organization = Organization.objects.get(organization_name=data['organization_name'])
+                    except Organization.DoesNotExist:
+                        organization = Organization(organization_name=data['organization_name'])
+                        organization.save()
+                        org_admin = True
+                    # end try-except
+                # end if
+
+                partner = Partner(user=user, organization=organization, org_admin=org_admin)
+                partner.save()
 
                 serializer = NestedBaseUserSerializer(user, context={"request": request})
-
                 return Response(serializer.data, status=status.HTTP_201_CREATED)
             except (IntegrityError, ValueError, KeyError) as e:
                 print(e)
@@ -44,13 +55,13 @@ def member_view(request):
     # end if
 
     '''
-    Get all active members
+    Get all active Partners
     '''
     if request.method == 'GET':
         # extract query params
         search = request.query_params.get('search', None)
 
-        users = BaseUser.objects.exclude(member__isnull=True).exclude(is_active=False)
+        users = BaseUser.objects.exclude(partner__isnull=True).exclude(is_active=False)
 
         if search is not None:
             users = users.filter(
@@ -67,11 +78,11 @@ def member_view(request):
 
 
 @api_view(['GET', 'PUT', 'DELETE'])
-@permission_classes((IsMemberOrAdminOrReadOnly,))
+@permission_classes((IsPartnerOrAdminOrReadOnly,))
 @parser_classes((MultiPartParser, FormParser))
-def single_member_view(request, pk):
+def single_partner_view(request, pk):
     '''
-    Gets a member by primary key/ id
+    Gets a partner by primary key/ id
     '''
     if request.method == 'GET':
         try:
@@ -84,47 +95,66 @@ def single_member_view(request, pk):
     # end if
 
     '''
-    Updates a member
+    Updates a partner
     '''
     if request.method == 'PUT':
         data = request.data
-        try:
-            user = BaseUser.objects.get(pk=pk)
 
-            if request.user != user or not user.is_admin:
-                return Response(status=status.HTTP_401_UNAUTHORIZED)
-            # end if 
+        with transaction.atomic():
+            try:
+                user = BaseUser.objects.get(pk=pk)
+                partner = Partner.objects.get(user=user)
 
-            if 'first_name' in data:
-                user.first_name = data['first_name']
-            if 'last_name' in data:
-                user.last_name = data['last_name']
-            if 'email' in data:
-                user.email = data['email']
-            if 'profile_photo' in data:
-                user.profile_photo = data['profile_photo']
-            user.save()
+                if (request.user != user and not partner.org_admin) or not user.is_admin:
+                    return Response(status=status.HTTP_401_UNAUTHORIZED)
+                # end if
 
-            return Response(NestedBaseUserSerializer(user, context={"request": request}).data, status=status.HTTP_200_OK)
-        except Member.DoesNotExist:
-            return Response(status=status.HTTP_404_NOT_FOUND)
-        except (KeyError, ValueError) as e:
-            return Response(status=status.HTTP_400_BAD_REQUEST)
-        # end try-except
+                if 'first_name' in data:
+                    user.first_name = data['first_name']
+                if 'last_name' in data:
+                    user.last_name = data['last_name']
+                if 'email' in data:
+                    user.email = data['email']
+                if 'profile_photo' in data:
+                    user.profile_photo = data['profile_photo']
+                # end ifs
+                user.save()
+
+                partner = Partner.objects.get(user=user)
+
+                if 'job_title' in data:
+                    partner.job_title = data['job_title']
+                if 'bio' in data:
+                    partner.bio = data['bio']
+                if 'consultation_rate' in data:
+                    partner.consultation_rate = data['consultation_rate']
+                if 'org_admin' in data:
+                    partner.org_admin = data['org_admin']
+                # end ifs
+                partner.save()
+
+                return Response(NestedBaseUserSerializer(user, context={"request": request}).data, status=status.HTTP_200_OK)
+            except Member.DoesNotExist:
+                return Response(status=status.HTTP_404_NOT_FOUND)
+            except (KeyError, ValueError, IntegrityError) as e:
+                return Response(status=status.HTTP_400_BAD_REQUEST)
+            # end try-except
+        # end with
+
     # end if
 
     '''
-    Deletes a member
+    Inactivates a partner
     '''
     if request.method == 'DELETE':
         try:
             user = BaseUser.objects.get(pk=pk)
-            member = Member.objects.get(user=user)
+            partner = Partner.objects.get(user=user)
 
-            if request.user != user or not user.is_admin:
+            if (request.user != user and not partner.org_admin) or not user.is_admin:
                 return Response(status=status.HTTP_401_UNAUTHORIZED)
-            # end if 
-            
+            # end if
+
             user.is_active = False  # mark as deleted
             user.save()
 
@@ -136,10 +166,11 @@ def single_member_view(request, pk):
 
 
 @api_view(['PATCH'])
-@permission_classes((IsMemberOnly,))
-def member_change_password_view(request, pk):
+@permission_classes((IsPartnerOnly,))
+def partner_change_password_view(request, pk):
     '''
-    Updates member's password
+    Updates partner's password
+    Only owner can update
     '''
     if request.method == 'PATCH':
         data = request.data
@@ -168,14 +199,14 @@ def member_change_password_view(request, pk):
 
 @api_view(['POST'])
 @permission_classes((AllowAny,))
-def activate_member_view(request, pk):
+def activate_partner_view(request, pk):
     '''
-    Activates member
+    Activates partner
     '''
     if request.method == 'POST':
         try:
             user = BaseUser.objects.get(pk=pk)
-            member = Member.objects.get(user=user)
+            partner = Partner.objects.get(user=user)
 
             user.is_active = True
             user.save()

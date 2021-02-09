@@ -18,13 +18,13 @@ import json
 
 from .models import Course
 from .serializers import CourseSerializer
-from common.models import ContentProvider
-from common.permissions import IsContentProviderOrReadOnly, IsContentProviderOnly
+from common.models import Partner
+from common.permissions import IsPartnerOrReadOnly, IsPartnerOnly
 
 
 
 @api_view(['GET', 'POST'])
-@permission_classes((IsContentProviderOrReadOnly,))
+@permission_classes((IsPartnerOrReadOnly,))
 def course_view(request):
     '''
     Get/ Search all courses
@@ -49,9 +49,9 @@ def course_view(request):
                     Q(description__icontains=search) |
                     Q(coding_languages__icontains=search) |
                     Q(categories__icontains=search) |
-                    Q(content_provider__company_name__icontains=search) |
-                    Q(content_provider__user__first_name__icontains=search) |
-                    Q(content_provider__user__last_name__icontains=search)
+                    Q(partner__company_name__icontains=search) |
+                    Q(partner__user__first_name__icontains=search) |
+                    Q(partner__user__last_name__icontains=search)
                 )
             # end if
 
@@ -86,7 +86,7 @@ def course_view(request):
     if request.method == 'POST':
         try:
             user = request.user
-            content_provider = ContentProvider.objects.get(user=user)
+            partner = Partner.objects.get(user=user)
             data = request.data
 
             # print(type(json.loads(data['list'])))
@@ -103,7 +103,7 @@ def course_view(request):
                 categories=json.loads(data['categories']),
                 price=data['price'],
                 exp_points=data['exp_points'],
-                content_provider=content_provider
+                partner=partner
             )
             course.save()
 
@@ -117,7 +117,7 @@ def course_view(request):
 
 
 @api_view(['GET', 'PUT', 'DELETE'])
-@permission_classes((IsContentProviderOrReadOnly,))
+@permission_classes((IsPartnerOrReadOnly,))
 def single_course_view(request, pk):
     '''
     Get single course details
@@ -137,12 +137,12 @@ def single_course_view(request, pk):
     if request.method == 'PUT':
         try:
             user = request.user
-            content_provider = ContentProvider.objects.get(user=user)
+            partner = Partner.objects.get(user=user)
 
             course = Course.objects.get(pk=pk)
 
             # check if content provider is owner of course
-            if course.content_provider != content_provider:
+            if course.partner != partner:
                 return Response(status=status.HTTP_400_BAD_REQUEST)
             # end if
 
@@ -176,12 +176,12 @@ def single_course_view(request, pk):
     if request.method == 'DELETE':
         try:
             user = request.user
-            content_provider = ContentProvider.objects.get(user=user)
+            partner = Partner.objects.get(user=user)
 
             course = Course.objects.get(pk=pk)
 
             # check if content provider is owner of course
-            if course.content_provider != content_provider:
+            if course.partner != partner:
                 return Response(status=status.HTTP_400_BAD_REQUEST)
             # end if
 
@@ -196,7 +196,7 @@ def single_course_view(request, pk):
 # end def
 
 @api_view(['PATCH'])
-@permission_classes((IsContentProviderOnly,))
+@permission_classes((IsPartnerOnly,))
 def publish_course_view(request, pk):
     '''
     Publish course
@@ -204,12 +204,12 @@ def publish_course_view(request, pk):
     if request.method == 'PATCH':
         try:
             user = request.user
-            content_provider = ContentProvider.objects.get(user=user)
+            partner = Partner.objects.get(user=user)
 
             course = Course.objects.get(pk=pk)
 
             # check if content provider is owner of course
-            if course.content_provider != content_provider:
+            if course.partner != partner:
                 return Response(status=status.HTTP_400_BAD_REQUEST)
             # end if
 
@@ -225,7 +225,7 @@ def publish_course_view(request, pk):
 # end def
 
 @api_view(['PATCH'])
-@permission_classes((IsContentProviderOnly,))
+@permission_classes((IsPartnerOnly,))
 def unpublish_course_view(request, pk):
     '''
     Publish course
@@ -233,12 +233,12 @@ def unpublish_course_view(request, pk):
     if request.method == 'PATCH':
         try:
             user = request.user
-            content_provider = ContentProvider.objects.get(user=user)
+            partner = Partner.objects.get(user=user)
 
             course = Course.objects.get(pk=pk)
 
             # check if content provider is owner of course
-            if course.content_provider != content_provider:
+            if course.partner != partner:
                 return Response(status=status.HTTP_400_BAD_REQUEST)
             # end if
 

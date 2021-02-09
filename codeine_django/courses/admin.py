@@ -10,7 +10,7 @@ class CourseAdmin(admin.ModelAdmin):
         'is_published',
         'is_available',
         'is_deleted',
-        'content_provider',
+        'partner',
         'rating',
         'exp_points',
     )

@@ -36,7 +36,7 @@ AUTH_USER_MODEL = "common.BaseUser"
 
 INSTALLED_APPS = [
     'common',
-    'content_provider',
+    'consultations',
     'courses',
     'tickets',
     'corsheaders',

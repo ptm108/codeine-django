@@ -4,7 +4,7 @@ from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.contrib.auth.forms import ReadOnlyPasswordHashField
 from django.core.exceptions import ValidationError
 
-from .models import BaseUser, Member, ContentProvider, IndustryPartner, CodeineAdmin
+from .models import BaseUser, Member, Partner, Organization
 
 
 class UserCreationForm(forms.ModelForm):
@@ -72,31 +72,16 @@ class MemberInline(admin.StackedInline):
     verbose_name_plural = 'Members'
 # end class
 
-
-class ContentProviderInline(admin.StackedInline):
-    model = ContentProvider
+class PartnerInline(admin.StackedInline):
+    model = Member
     can_delete = False
     verbose_name_plural = 'Members'
-# end class
-
-
-class IndustryPartnerInline(admin.StackedInline):
-    model = IndustryPartner
-    can_delete = False
-    verbose_name_plural = 'Members'
-# end class
-
-
-class CodeineAdminInline(admin.StackedInline):
-    model = CodeineAdmin
-    can_delete = False
-    verbose_name_plural = 'Admins'
 # end class
 
 
 class UserAdmin(BaseUserAdmin):
     # Vendor and Customer inline
-    inlines = (MemberInline, ContentProviderInline, IndustryPartnerInline, CodeineAdminInline)
+    inlines = (MemberInline, PartnerInline,)
 
     # The forms to add and change user instances
     form = UserChangeForm
@@ -130,22 +115,17 @@ class MemberAdmin(admin.ModelAdmin):
     list_display = ('id', 'user')
 # end class
 
-
-class ContentProviderAdmin(admin.ModelAdmin):
-    list_display = ('id', 'user', 'company_name', 'job_title')
-# end class
-
-
-class IndustryPartnerAdmin(admin.ModelAdmin):
-    list_display = ('id', 'user', 'company_name', 'contact_number')
-# end class
-
-class CodeineAdminAdmin(admin.ModelAdmin):
+class PartnerAdmin(admin.ModelAdmin):
     list_display = ('id', 'user')
 # end class
 
+class OrganizationAdmin(admin.ModelAdmin):
+    list_display = ('id', 'organization_name')
+# end class
+
+
 admin.site.register(BaseUser, UserAdmin)
 admin.site.register(Member, MemberAdmin)
-admin.site.register(ContentProvider, ContentProviderAdmin)
-admin.site.register(IndustryPartner, IndustryPartnerAdmin)
-admin.site.register(CodeineAdmin, CodeineAdminAdmin)
+admin.site.register(Partner, PartnerAdmin)
+admin.site.register(Organization, OrganizationAdmin)
+
