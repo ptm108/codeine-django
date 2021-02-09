@@ -3,9 +3,9 @@ from django.db.utils import IntegrityError
 from django.core.exceptions import ValidationError, ObjectDoesNotExist
 from django.db.models import Q
 from rest_framework import status
-from rest_framework.decorators import api_view, permission_classes, parser_classes, renderer_classes
-from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.response import Response
+from rest_framework.decorators import api_view, permission_classes, parser_classes
+from rest_framework.parsers import MultiPartParser, FormParser
 
 from rest_framework.permissions import (
     IsAuthenticated,
@@ -32,16 +32,18 @@ def partner_view(request):
                 user.save()
 
                 organization = None
+                org_admin = False
                 if 'organization_name' in data:
                     try:
                         organization = Organization.objects.get(organization_name=data['organization_name'])
                     except Organization.DoesNotExist:
                         organization = Organization(organization_name=data['organization_name'])
                         organization.save()
+                        org_admin = True
                     # end try-except
                 # end if
 
-                partner = Partner(user=user, organization=organization)
+                partner = Partner(user=user, organization=organization, org_admin=org_admin)
                 partner.save()
 
                 serializer = NestedBaseUserSerializer(user, context={"request": request})
@@ -97,10 +99,15 @@ def single_partner_view(request, pk):
     '''
     if request.method == 'PUT':
         data = request.data
-        
+
         with transaction.atomic():
             try:
                 user = BaseUser.objects.get(pk=pk)
+                partner = Partner.objects.get(user=user)
+
+                if request.user != user and not partner.org_admin:
+                    return Response(status=status.HTTP_401_UNAUTHORIZED)
+                # end if
 
                 if 'first_name' in data:
                     user.first_name = data['first_name']
@@ -121,6 +128,8 @@ def single_partner_view(request, pk):
                     partner.bio = data['bio']
                 if 'consultation_rate' in data:
                     partner.consultation_rate = data['consultation_rate']
+                if 'org_admin' in data:
+                    partner.org_admin = data['org_admin']
                 # end ifs
                 partner.save()
 
@@ -141,7 +150,11 @@ def single_partner_view(request, pk):
         try:
             user = BaseUser.objects.get(pk=pk)
             partner = Partner.objects.get(user=user)
-            
+
+            if request.user != user and not partner.org_admin:
+                return Response(status=status.HTTP_401_UNAUTHORIZED)
+            # end if
+
             user.is_active = False  # mark as deleted
             user.save()
 
@@ -157,6 +170,7 @@ def single_partner_view(request, pk):
 def partner_change_password_view(request, pk):
     '''
     Updates partner's password
+    Only owner can update
     '''
     if request.method == 'PATCH':
         data = request.data

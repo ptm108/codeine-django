@@ -3,7 +3,7 @@ from django.db.utils import IntegrityError
 from django.core.exceptions import ValidationError, ObjectDoesNotExist
 from django.db.models import Q
 from rest_framework import status
-from rest_framework.decorators import api_view, permission_classes, parser_classes, renderer_classes
+from rest_framework.decorators import api_view, permission_classes, parser_classes
 from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.response import Response
 
@@ -91,6 +91,10 @@ def single_member_view(request, pk):
         try:
             user = BaseUser.objects.get(pk=pk)
 
+            if request.user != user:
+                return Response(status=status.HTTP_401_UNAUTHORIZED)
+            # end if 
+
             if 'first_name' in data:
                 user.first_name = data['first_name']
             if 'last_name' in data:
@@ -116,6 +120,10 @@ def single_member_view(request, pk):
         try:
             user = BaseUser.objects.get(pk=pk)
             member = Member.objects.get(user=user)
+
+            if request.user != user:
+                return Response(status=status.HTTP_401_UNAUTHORIZED)
+            # end if 
             
             user.is_active = False  # mark as deleted
             user.save()
