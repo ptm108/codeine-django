@@ -33,13 +33,13 @@ urlpatterns = [
     path('auth/', include('common.urls'), name='Common infra end points'),
 
     # content provider endpoints
-    path('consultations/', include('consultations.urls'), name='Consultation end points'),
+    path('consultations', include('consultations.urls'), name='Consultation end points'),
 
     # courses endpoints
     path('courses', include('courses.urls'), name='Courses endpoints'),
 
     # tickets endpoints
-    path('tickets/', include('tickets.urls'), name='Tickets endpoints')
+    path('tickets', include('tickets.urls'), name='Tickets endpoints')
 ]
 
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
