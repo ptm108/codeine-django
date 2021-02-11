@@ -10,21 +10,21 @@ class Article(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, unique=True)
     title = models.CharField(max_length=255)
     content = models.TextField()
-    date_created = models.DateTimeField(default=timezone.now)
-    date_edited = models.DateTimeField(default=timezone.now)
+    date_created = models.DateTimeField(auto_now_add=True)
+    date_edited = models.DateTimeField(auto_now=True)
     category = models.JSONField()
-    is_published = models.BooleanField(default=False)
-    is_activated = models.BooleanField(default=False)
+    is_published = models.BooleanField(default=True)
+    is_activated = models.BooleanField(default=True)
 
     # ref
-    base_user = models.ForeignKey('common.BaseUser', on_delete=models.SET_NULL, related_name='articles', null=True, blank=True)
+    member = models.ForeignKey('common.Member', on_delete=models.CASCADE, related_name='articles', null=False, blank=True)
 
     def __str__(self):
         return f'Article: {self.id}, Title: {self.title}'
     # end def
 
     class Meta:
-        ordering = ['title', '-date_edited']
+        ordering = ['-date_edited']
     #end class
 # end class
 
@@ -34,8 +34,8 @@ class ArticleComment(models.Model):
     timestamp = models.DateTimeField(default=timezone.now)
 
     # ref
-    base_user = models.ForeignKey('common.BaseUser', on_delete=models.SET_NULL, related_name='article_comments', null=True, blank=True)
-    article = models.ForeignKey('community.Article', on_delete=models.CASCADE, related_name='article_comments', null=True, blank=True)
+    base_user = models.ForeignKey('common.BaseUser', on_delete=models.SET_NULL, related_name='article_comments')
+    article = models.ForeignKey('community.Article', on_delete=models.CASCADE, related_name='article_comments')
 
     def __str__(self):
         return f'Article comment {self.id} for {self.article.id} from {self.base_user.id}'
