@@ -233,4 +233,34 @@ def order_material_view(request, chapter_id):
         # end try-except
     # end if
 
-# end def   
+# end def 
+
+@api_view(['DELETE'])
+@permission_classes((IsPartnerOnly,))
+def delete_material_view(request, material_id):
+    user = request.user
+
+    '''
+    Delete Course Material by id
+    '''
+    if request.method == 'DELETE':
+        try:
+            partner = user.partner
+
+            # check if chapter is under a course under the current partner
+            course_material = CourseMaterial.objects.filter(chapter__course__partner=partner).get(pk=material_id)
+            course = course_material.chapter.course
+            
+            course_material.delete()
+
+            serializer = CourseSerializer(course, context={'request': request, 'public': False})
+
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except ObjectDoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        except TypeError:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+        # end try-except
+    # end if
+
+# end def  
