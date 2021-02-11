@@ -7,7 +7,7 @@ from rest_framework.response import Response
 from rest_framework.parsers import MultiPartParser, FormParser
 
 from .models import Chapter, CourseMaterial, CourseFile, Video
-from .serializers import CourseSerializer
+from .serializers import CourseSerializer, CourseMaterialSerializer
 
 from common.permissions import IsPartnerOnly, IsPartnerOrReadOnly
 
@@ -87,8 +87,8 @@ def update_file_view(request, material_id):
                     return Response('No file uploaded', status=status.HTTP_400_BAD_REQUEST)
                 # end if
 
-                course_material.title=data['title']
-                course_material.description=data['description']
+                course_material.title = data['title']
+                course_material.description = data['description']
                 course_material.save()
 
                 course_file = course_material.course_file
@@ -158,6 +158,7 @@ def video_views(request, chapter_id):
     # end if
 # end def
 
+
 @api_view(['PUT'])
 @permission_classes((IsPartnerOnly,))
 def update_video_view(request, material_id):
@@ -180,8 +181,8 @@ def update_video_view(request, material_id):
                     return Response('No video uploaded', status=status.HTTP_400_BAD_REQUEST)
                 # end if
 
-                course_material.title=data['title']
-                course_material.description=data['description']
+                course_material.title = data['title']
+                course_material.description = data['description']
                 course_material.save()
 
                 course_file = course_material.video
@@ -200,6 +201,7 @@ def update_video_view(request, material_id):
         # end with
     # end if
 # end def
+
 
 @api_view(['PATCH'])
 @permission_classes((IsPartnerOnly,))
@@ -233,12 +235,34 @@ def order_material_view(request, chapter_id):
         # end try-except
     # end if
 
-# end def 
+# end def
 
-@api_view(['DELETE'])
+
+@api_view(['GET', 'DELETE'])
 @permission_classes((IsPartnerOnly,))
-def delete_material_view(request, material_id):
+def single_material_view(request, material_id):
     user = request.user
+
+    '''
+    Get course material by id
+    '''
+    if request.method == 'GET':
+        try:
+            partner = user.partner
+
+            # check if chapter is under a course under the current partner
+            course_material = CourseMaterial.objects.filter(chapter__course__partner=partner).get(pk=material_id)
+
+            serializer = CourseMaterialSerializer(course_material, context={'request': request})
+
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except ObjectDoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        except TypeError:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+        # end try-except
+
+    # end if
 
     '''
     Delete Course Material by id
@@ -250,7 +274,7 @@ def delete_material_view(request, material_id):
             # check if chapter is under a course under the current partner
             course_material = CourseMaterial.objects.filter(chapter__course__partner=partner).get(pk=material_id)
             course = course_material.chapter.course
-            
+
             course_material.delete()
 
             serializer = CourseSerializer(course, context={'request': request, 'public': False})
@@ -262,5 +286,4 @@ def delete_material_view(request, material_id):
             return Response(status=status.HTTP_400_BAD_REQUEST)
         # end try-except
     # end if
-
-# end def  
+# end def
