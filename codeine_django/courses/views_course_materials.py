@@ -294,7 +294,7 @@ def single_material_view(request, material_id):
 def quiz_views(request, chapter_id):
     user = request.user
     data = request.data
-    
+
     '''
     Creates a new chapter quiz, returns a empty quiz object
     '''
@@ -318,6 +318,7 @@ def quiz_views(request, chapter_id):
 
                 quiz = Quiz(
                     course_material=course_material,
+                    instructions=data['instructions'],
                     passing_marks=data['passing_marks']
                 )
                 quiz.save()
@@ -335,12 +336,13 @@ def quiz_views(request, chapter_id):
     # end if
 # end def
 
+
 @api_view(['PUT'])
 @permission_classes((IsPartnerOnly,))
 def update_quiz_view(request, material_id):
     user = request.user
     data = request.data
-    
+
     '''
     Updates a new chapter quiz, returns a empty quiz object
     '''
@@ -358,7 +360,8 @@ def update_quiz_view(request, material_id):
                 course_material.description = data['description']
                 course_material.save()
 
-                quiz.passing_marks=data['passing_marks']
+                quiz.passing_marks = data['passing_marks']
+                quiz.instructions = data['instructions']
                 quiz.save()
 
                 serializer = CourseMaterialSerializer(course_material)

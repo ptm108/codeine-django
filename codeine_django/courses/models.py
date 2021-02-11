@@ -170,6 +170,7 @@ class CourseReview(models.Model):
 class Quiz(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, unique=True)
     passing_marks = models.PositiveIntegerField(default=None, null=True, blank=True)
+    instructions = models.TextField(default='')
 
     # extends course material
     course_material = models.OneToOneField('CourseMaterial', on_delete=models.CASCADE)
