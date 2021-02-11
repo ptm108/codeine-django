@@ -292,7 +292,7 @@ def assessment_view(request, course_id):
 # end def
 
 
-@api_view(['PUT'])
+@api_view(['PUT', 'DELETE'])
 @permission_classes((IsPartnerOnly,))
 def single_assessment_view(request, course_id, assessment_id):
     user = request.user
@@ -322,5 +322,27 @@ def single_assessment_view(request, course_id, assessment_id):
                 return Response(status=status.HTTP_400_BAD_REQUEST)
             # end try-except
         # end with
+    # end if
+
+    '''
+    Deletes assessment
+    '''
+    if request.method == 'DELETE':
+        try:
+            partner = user.partner
+
+            # check if chapter is under a course under the current partner
+            quiz = Quiz.objects.filter(course__partner=partner).get(pk=assessment_id)
+
+            quiz.delete()
+
+            serializer = QuizSerializer(quiz)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except ObjectDoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        except (ValueError, IntegrityError, KeyError) as e:
+            print(e)
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+        # end try-except
     # end if
 # end def
