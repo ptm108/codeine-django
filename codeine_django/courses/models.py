@@ -13,7 +13,7 @@ def image_directory_path(instance, filename):
 
 
 def zipfile_directory_path(instance, filename):
-    return 'course_{0}/{1}'.format(instance.id, filename)
+    return 'course_{0}/chapter_{1}/{2}'.format(instance.course_material.chapter.course.id, instance.course_material.chapter.id, filename)
 # end def
 
 

@@ -16,10 +16,19 @@ from .models import (
 
 
 class CourseFileSerializer(serializers.ModelSerializer):
+    zip_file = serializers.SerializerMethodField('get_zip_file_url')
+
     class Meta:
         model = CourseFile
         fields = ('zip_file', 'google_drive_url')
     # end Meta
+
+    def get_zip_file_url(self, obj):
+        request = self.context.get("request")
+        if obj.zip_file and hasattr(obj.zip_file, 'url'):
+            return request.build_absolute_uri(obj.zip_file.url)
+        # end if
+    # end def
 # end class
 
 
@@ -73,7 +82,7 @@ class ChapterSerializer(serializers.ModelSerializer):
             print(obj.course_materials)
             return PublicCourseMaterialSerializer(obj.course_materials, many=True).data
         else:
-            return CourseMaterialSerializer(obj.course_materials, many=True).data
+            return CourseMaterialSerializer(obj.course_materials, many=True, context={'request': self.context.get('request')}).data
         # end if-else
     # end def
 
