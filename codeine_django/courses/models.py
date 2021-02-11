@@ -120,7 +120,7 @@ class CourseMaterial(models.Model):
     order = models.PositiveSmallIntegerField()
     timestamp = models.DateTimeField(auto_now_add=True)
 
-    chapter = models.ForeignKey('Chapter', on_delete=models.CASCADE, related_name='course_materials')
+    chapter = models.ForeignKey('Chapter', on_delete=models.CASCADE, related_name='course_materials', null=True, blank=True)
 
     class Meta:
         ordering = ['order']
@@ -169,14 +169,13 @@ class CourseReview(models.Model):
 
 class Quiz(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, unique=True)
-    passing_grade = models.DecimalField(max_digits=5, decimal_places=2)
+    passing_marks = models.PositiveIntegerField(default=None, null=True, blank=True)
 
     # extends course material
     course_material = models.OneToOneField('CourseMaterial', on_delete=models.CASCADE)
 
     # either mapped to chapter or course
     course = models.OneToOneField('Course',  on_delete=models.CASCADE, related_name='quiz', null=True, blank=True)
-    chapter = models.OneToOneField('Chapter',  on_delete=models.CASCADE, related_name='quiz', null=True, blank=True)
 # end class
 
 
