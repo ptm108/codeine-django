@@ -172,10 +172,8 @@ class Quiz(models.Model):
     passing_marks = models.PositiveIntegerField(default=None, null=True, blank=True)
     instructions = models.TextField(default='')
 
-    # extends course material
-    course_material = models.OneToOneField('CourseMaterial', on_delete=models.CASCADE)
-
-    # either mapped to chapter or course
+    # extends course material or mapped to course
+    course_material = models.OneToOneField('CourseMaterial', on_delete=models.CASCADE, null=True, blank=True)
     course = models.OneToOneField('Course',  on_delete=models.CASCADE, related_name='quiz', null=True, blank=True)
 # end class
 
