@@ -86,7 +86,7 @@ class QuizSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Quiz
-        fields = ('passing_marks', 'course', 'questions',)
+        fields = ('id', 'passing_marks', 'course', 'questions', 'instructions',)
     # end Meta
 # end class
 
@@ -134,6 +134,7 @@ class ChapterSerializer(serializers.ModelSerializer):
 
 class CourseSerializer(serializers.ModelSerializer):
     chapters = ChapterSerializer(many=True)
+    assessment = QuizSerializer()
     thumbnail = serializers.SerializerMethodField('get_thumbnail_url')
 
     class Meta:
