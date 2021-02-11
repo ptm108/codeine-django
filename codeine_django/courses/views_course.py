@@ -5,7 +5,6 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import Q
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
-from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 from rest_framework.permissions import (
@@ -49,7 +48,7 @@ def course_view(request):
                     Q(description__icontains=search) |
                     Q(coding_languages__icontains=search) |
                     Q(categories__icontains=search) |
-                    Q(partner__company_name__icontains=search) |
+                    Q(partner__organization__organization_name__icontains=search) |
                     Q(partner__user__first_name__icontains=search) |
                     Q(partner__user__last_name__icontains=search)
                 )
