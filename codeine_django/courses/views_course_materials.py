@@ -6,8 +6,8 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.parsers import MultiPartParser, FormParser
 
-from .models import Chapter, CourseMaterial, CourseFile, Video
-from .serializers import CourseSerializer, CourseMaterialSerializer
+from .models import Chapter, CourseMaterial, CourseFile, Video, Quiz
+from .serializers import CourseSerializer, CourseMaterialSerializer, QuizSerializer
 
 from common.permissions import IsPartnerOnly, IsPartnerOrReadOnly
 
@@ -285,5 +285,90 @@ def single_material_view(request, material_id):
         except TypeError:
             return Response(status=status.HTTP_400_BAD_REQUEST)
         # end try-except
+    # end if
+# end def
+
+
+@api_view(['POST'])
+@permission_classes((IsPartnerOnly,))
+def quiz_views(request, chapter_id):
+    user = request.user
+    data = request.data
+    
+    '''
+    Creates a new chapter quiz, returns a empty quiz object
+    '''
+    if request.method == 'POST':
+        with transaction.atomic():
+            try:
+                partner = user.partner
+
+                # check if chapter is under a course under the current partner
+                chapter = Chapter.objects.filter(course__partner=partner).get(pk=chapter_id)
+                course = chapter.course
+
+                course_material = CourseMaterial(
+                    title=data['title'],
+                    description=data['description'],
+                    material_type='QUIZ',
+                    order=chapter.course_materials.count(),
+                    chapter=chapter
+                )
+                course_material.save()
+
+                quiz = Quiz(
+                    course_material=course_material,
+                    passing_marks=data['passing_marks']
+                )
+                quiz.save()
+
+                serializer = CourseMaterialSerializer(course_material)
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
+            except ObjectDoesNotExist:
+                return Response(status=status.HTTP_404_NOT_FOUND)
+            except (ValueError, IntegrityError, KeyError) as e:
+                print(e)
+                return Response(status=status.HTTP_400_BAD_REQUEST)
+            # end try-except
+        # end with
+
+    # end if
+# end def
+
+@api_view(['PUT'])
+@permission_classes((IsPartnerOnly,))
+def update_quiz_view(request, material_id):
+    user = request.user
+    data = request.data
+    
+    '''
+    Updates a new chapter quiz, returns a empty quiz object
+    '''
+    if request.method == 'PUT':
+        with transaction.atomic():
+            try:
+                partner = user.partner
+
+                # check if chapter is under a course under the current partner
+                course_material = CourseMaterial.objects.filter(chapter__course__partner=partner).get(pk=material_id)
+                course = course_material.chapter.course
+                quiz = course_material.quiz
+
+                course_material.title = data['title']
+                course_material.description = data['description']
+                course_material.save()
+
+                quiz.passing_marks=data['passing_marks']
+                quiz.save()
+
+                serializer = CourseMaterialSerializer(course_material)
+                return Response(serializer.data, status=status.HTTP_200_OK)
+            except ObjectDoesNotExist:
+                return Response(status=status.HTTP_404_NOT_FOUND)
+            except (ValueError, IntegrityError, KeyError) as e:
+                print(e)
+                return Response(status=status.HTTP_400_BAD_REQUEST)
+            # end try-except
+        # end with
     # end if
 # end def

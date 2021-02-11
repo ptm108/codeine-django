@@ -86,7 +86,7 @@ class QuizSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Quiz
-        fields = ('id', 'passing_marks', 'course', 'questions',)
+        fields = ('passing_marks', 'course', 'questions',)
     # end Meta
 # end class
 
@@ -94,7 +94,7 @@ class QuizSerializer(serializers.ModelSerializer):
 class PublicCourseMaterialSerializer(serializers.ModelSerializer):
     class Meta:
         model = CourseMaterial
-        fields = ('id', 'title', 'description', 'order',)
+        fields = ('id', 'title', 'description', 'order', 'material_type',)
     # end Meta
 # end class
 
