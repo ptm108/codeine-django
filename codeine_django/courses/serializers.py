@@ -14,6 +14,47 @@ from .models import (
     MRQ,
 )
 
+# Assessment related
+
+
+class ShortAnswerSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = ShortAnswer
+        fields = ('question', 'marks', 'keywords')
+    # end class
+# end class
+
+
+class MCQSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = MCQ
+        fields = ('question', 'marks', 'options', 'correct_answer')
+    # end class
+# end class
+
+
+class MRQAnswerSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = MRQ
+        fields = ('question', 'marks', 'options', 'correct_answer')
+    # end class
+# end class
+
+
+class QuestionSerializer(serializers.ModelSerializer):
+    shortanswer = ShortAnswerSerializer()
+    mcq = MCQSerializer()
+    mrq = MRQAnswerSerializer()
+
+    class Meta:
+        model = Question
+        fields = ('title', 'subtitle', 'shortanswer', 'mcq', 'mrq',)
+    # end class
+# end class
+
 
 class CourseFileSerializer(serializers.ModelSerializer):
     zip_file = serializers.SerializerMethodField('get_zip_file_url')
@@ -41,9 +82,11 @@ class CourseVideoSerializer(serializers.ModelSerializer):
 
 
 class QuizSerializer(serializers.ModelSerializer):
+    questions = QuestionSerializer(many=True)
+
     class Meta:
         model = Quiz
-        fields = ('id', 'passing_grade', 'course', 'chapter',)
+        fields = ('id', 'passing_marks', 'course', 'questions',)
     # end Meta
 # end class
 
@@ -51,7 +94,7 @@ class QuizSerializer(serializers.ModelSerializer):
 class PublicCourseMaterialSerializer(serializers.ModelSerializer):
     class Meta:
         model = CourseMaterial
-        fields = ('id', 'title', 'description')
+        fields = ('id', 'title', 'description', 'order',)
     # end Meta
 # end class
 
@@ -112,45 +155,4 @@ class EnrollmentSerializer(serializers.ModelSerializer):
         model = Enrollment
         fields = '__all__'
     # end Meta
-# end class
-
-
-# Assessment related
-
-class ShortAnswerSerializer(serializers.ModelSerializer):
-
-    class Meta:
-        model = ShortAnswer
-        fields = ('question', 'marks', 'keywords')
-    # end class
-# end class
-
-
-class MCQSerializer(serializers.ModelSerializer):
-
-    class Meta:
-        model = MCQ
-        fields = ('question', 'marks', 'options', 'correct_answer')
-    # end class
-# end class
-
-
-class MRQAnswerSerializer(serializers.ModelSerializer):
-
-    class Meta:
-        model = MRQ
-        fields = ('question', 'marks', 'options', 'correct_answer')
-    # end class
-# end class
-
-
-class QuestionSerializer(serializers.ModelSerializer):
-    shortanswer = ShortAnswerSerializer()
-    mcq = MCQSerializer()
-    mrq = MRQAnswerSerializer()
-
-    class Meta:
-        model = Question
-        fields = ('title', 'subtitle',)
-    # end class
 # end class
