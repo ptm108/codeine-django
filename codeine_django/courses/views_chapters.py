@@ -182,7 +182,7 @@ def order_chapter_view(request, pk):
                 Chapter.objects.filter(pk=chapter_id).update(order=index)
             # end for
 
-            serializer = CourseSerializer(course, context={'request': request, 'public': True})
+            serializer = CourseSerializer(course, context={'request': request, 'public': False})
 
             return Response(serializer.data, status=status.HTTP_200_OK)
         except ObjectDoesNotExist:
