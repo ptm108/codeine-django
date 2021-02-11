@@ -130,7 +130,7 @@ class CourseMaterial(models.Model):
 
 class CourseFile(models.Model):
     course_material = models.OneToOneField('CourseMaterial', on_delete=models.CASCADE, related_name='course_file')
-    zip_file = models.FileField(upload_to=zipfile_directory_path, max_length=100, null=True, blank=True)
+    zip_file = models.FileField(upload_to=zipfile_directory_path, max_length=255, null=True, blank=True)
     google_drive_url = models.TextField(null=True, default='', blank=True)
 # end class
 
