@@ -13,7 +13,7 @@ def image_directory_path(instance, filename):
 
 
 def zipfile_directory_path(instance, filename):
-    return 'course_{0}/{1}'.format(instance.id, filename)
+    return 'course_{0}/chapter_{1}/{2}'.format(instance.course_material.chapter.course.id, instance.course_material.chapter.id, filename)
 # end def
 
 
@@ -120,7 +120,7 @@ class CourseMaterial(models.Model):
     order = models.PositiveSmallIntegerField()
     timestamp = models.DateTimeField(auto_now_add=True)
 
-    chapter = models.ForeignKey('Chapter', on_delete=models.CASCADE, related_name='course_materials')
+    chapter = models.ForeignKey('Chapter', on_delete=models.CASCADE, related_name='course_materials', null=True, blank=True)
 
     class Meta:
         ordering = ['order']
@@ -130,14 +130,14 @@ class CourseMaterial(models.Model):
 
 class CourseFile(models.Model):
     course_material = models.OneToOneField('CourseMaterial', on_delete=models.CASCADE, related_name='course_file')
-    zip_file = models.FileField(upload_to=zipfile_directory_path, max_length=100, null=True, blank=True)
+    zip_file = models.FileField(upload_to=zipfile_directory_path, max_length=255, null=True, blank=True)
     google_drive_url = models.TextField(null=True, default='', blank=True)
 # end class
 
 
 class Video(models.Model):
     course_material = models.OneToOneField('CourseMaterial', on_delete=models.CASCADE, related_name='video')
-    video_url = models.TextField()
+    video_url = models.URLField()
 # end class
 
 
@@ -169,14 +169,12 @@ class CourseReview(models.Model):
 
 class Quiz(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, unique=True)
-    passing_grade = models.DecimalField(max_digits=5, decimal_places=2)
+    passing_marks = models.PositiveIntegerField(default=None, null=True, blank=True)
+    instructions = models.TextField(default='')
 
-    # extends course material
-    course_material = models.OneToOneField('CourseMaterial', on_delete=models.CASCADE)
-
-    # either mapped to chapter or course
-    course = models.OneToOneField('Course',  on_delete=models.CASCADE, related_name='quiz', null=True, blank=True)
-    chapter = models.OneToOneField('Chapter',  on_delete=models.CASCADE, related_name='quiz', null=True, blank=True)
+    # extends course material or mapped to course
+    course_material = models.OneToOneField('CourseMaterial', on_delete=models.CASCADE, null=True, blank=True)
+    course = models.OneToOneField('Course',  on_delete=models.CASCADE, related_name='assessment', null=True, blank=True)
 # end class
 
 
