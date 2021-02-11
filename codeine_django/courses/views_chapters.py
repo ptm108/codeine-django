@@ -184,7 +184,7 @@ def order_chapter_view(request, pk):
 
             serializer = CourseSerializer(course, context={'request': request, 'public': True})
 
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
+            return Response(serializer.data, status=status.HTTP_200_OK)
         except ObjectDoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
         except TypeError:
