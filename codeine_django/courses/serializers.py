@@ -20,7 +20,7 @@ class CourseFileSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = CourseFile
-        fields = ('zip_file', 'google_drive_url')
+        fields = ('zip_file', 'google_drive_url',)
     # end Meta
 
     def get_zip_file_url(self, obj):
@@ -35,7 +35,7 @@ class CourseFileSerializer(serializers.ModelSerializer):
 class CourseVideoSerializer(serializers.ModelSerializer):
     class Meta:
         model = Video
-        fields = ('video_url')
+        fields = ('video_url',)
     # end Meta
 # end class
 
@@ -43,7 +43,7 @@ class CourseVideoSerializer(serializers.ModelSerializer):
 class QuizSerializer(serializers.ModelSerializer):
     class Meta:
         model = Quiz
-        fields = ('id', 'passing_grade', 'course', 'chapter')
+        fields = ('id', 'passing_grade', 'course', 'chapter',)
     # end Meta
 # end class
 
