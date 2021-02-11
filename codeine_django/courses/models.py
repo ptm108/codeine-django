@@ -137,7 +137,7 @@ class CourseFile(models.Model):
 
 class Video(models.Model):
     course_material = models.OneToOneField('CourseMaterial', on_delete=models.CASCADE, related_name='video')
-    video_url = models.TextField()
+    video_url = models.URLField()
 # end class
 
 
