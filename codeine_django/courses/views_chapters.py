@@ -2,7 +2,6 @@ from django.core.exceptions import ObjectDoesNotExist
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework import status
 from rest_framework.response import Response
-from rest_framework.permissions import IsAdminUser
 
 from .models import Course, Chapter
 from .serializers import CourseSerializer, ChapterSerializer
@@ -183,9 +182,9 @@ def order_chapter_view(request, pk):
                 Chapter.objects.filter(pk=chapter_id).update(order=index)
             # end for
 
-            serializer = CourseSerializer(course, context={'request': request, 'public': True})
+            serializer = CourseSerializer(course, context={'request': request, 'public': False})
 
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
+            return Response(serializer.data, status=status.HTTP_200_OK)
         except ObjectDoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
         except TypeError:

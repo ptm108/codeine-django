@@ -14,27 +14,79 @@ from .models import (
     MRQ,
 )
 
+# Assessment related
+
+
+class ShortAnswerSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = ShortAnswer
+        fields = ('marks', 'keywords')
+    # end class
+# end class
+
+
+class MCQSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = MCQ
+        fields = ('marks', 'options', 'correct_answer')
+    # end class
+# end class
+
+
+class MRQAnswerSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = MRQ
+        fields = ('marks', 'options', 'correct_answer')
+    # end class
+# end class
+
+
+class QuestionSerializer(serializers.ModelSerializer):
+    shortanswer = ShortAnswerSerializer()
+    mcq = MCQSerializer()
+    mrq = MRQAnswerSerializer()
+
+    class Meta:
+        model = Question
+        fields = ('id' ,'title', 'subtitle', 'shortanswer', 'mcq', 'mrq', 'order',)
+    # end class
+# end class
+
 
 class CourseFileSerializer(serializers.ModelSerializer):
+    zip_file = serializers.SerializerMethodField('get_zip_file_url')
+
     class Meta:
         model = CourseFile
-        fields = ('zip_file', 'google_drive_url')
+        fields = ('zip_file', 'google_drive_url',)
     # end Meta
+
+    def get_zip_file_url(self, obj):
+        request = self.context.get("request")
+        if obj.zip_file and hasattr(obj.zip_file, 'url'):
+            return request.build_absolute_uri(obj.zip_file.url)
+        # end if
+    # end def
 # end class
 
 
 class CourseVideoSerializer(serializers.ModelSerializer):
     class Meta:
         model = Video
-        fields = ('video_url')
+        fields = ('video_url',)
     # end Meta
 # end class
 
 
 class QuizSerializer(serializers.ModelSerializer):
+    questions = QuestionSerializer(many=True)
+
     class Meta:
         model = Quiz
-        fields = ('id', 'passing_grade', 'course', 'chapter')
+        fields = ('id', 'passing_marks', 'course', 'questions', 'instructions',)
     # end Meta
 # end class
 
@@ -42,7 +94,7 @@ class QuizSerializer(serializers.ModelSerializer):
 class PublicCourseMaterialSerializer(serializers.ModelSerializer):
     class Meta:
         model = CourseMaterial
-        fields = ('id', 'title', 'description')
+        fields = ('id', 'title', 'description', 'order', 'material_type',)
     # end Meta
 # end class
 
@@ -73,7 +125,7 @@ class ChapterSerializer(serializers.ModelSerializer):
             print(obj.course_materials)
             return PublicCourseMaterialSerializer(obj.course_materials, many=True).data
         else:
-            return CourseMaterialSerializer(obj.course_materials, many=True).data
+            return CourseMaterialSerializer(obj.course_materials, many=True, context={'request': self.context.get('request')}).data
         # end if-else
     # end def
 
@@ -82,6 +134,7 @@ class ChapterSerializer(serializers.ModelSerializer):
 
 class CourseSerializer(serializers.ModelSerializer):
     chapters = ChapterSerializer(many=True)
+    assessment = QuizSerializer()
     thumbnail = serializers.SerializerMethodField('get_thumbnail_url')
 
     class Meta:
@@ -103,45 +156,4 @@ class EnrollmentSerializer(serializers.ModelSerializer):
         model = Enrollment
         fields = '__all__'
     # end Meta
-# end class
-
-
-# Assessment related
-
-class ShortAnswerSerializer(serializers.ModelSerializer):
-
-    class Meta:
-        model = ShortAnswer
-        fields = ('question', 'marks', 'keywords')
-    # end class
-# end class
-
-
-class MCQSerializer(serializers.ModelSerializer):
-
-    class Meta:
-        model = MCQ
-        fields = ('question', 'marks', 'options', 'correct_answer')
-    # end class
-# end class
-
-
-class MRQAnswerSerializer(serializers.ModelSerializer):
-
-    class Meta:
-        model = MRQ
-        fields = ('question', 'marks', 'options', 'correct_answer')
-    # end class
-# end class
-
-
-class QuestionSerializer(serializers.ModelSerializer):
-    shortanswer = ShortAnswerSerializer()
-    mcq = MCQSerializer()
-    mrq = MRQAnswerSerializer()
-
-    class Meta:
-        model = Question
-        fields = ('title', 'subtitle',)
-    # end class
 # end class

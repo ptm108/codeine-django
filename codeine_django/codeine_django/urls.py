@@ -37,6 +37,9 @@ urlpatterns = [
 
     # courses endpoints
     path('courses', include('courses.urls'), name='Courses endpoints'),
+    path('chapters', include('courses.urls_chapters'), name='Chapter endpoints'),
+    path('materials', include('courses.urls_course_materials'), name='Course Materials endpoints'),
+    path('quiz', include('courses.urls_quiz'), name='Quiz and question endpoints'),
 
     # tickets endpoints
     path('tickets/', include('tickets.urls'), name='Tickets endpoints')
