@@ -12,7 +12,7 @@ class AchievementRequirementSerializer(serializers.ModelSerializer):
 # end class
 
 class AchievementSerializer(serializers.ModelSerializer):
-    requirements = AchievementRequirementSerializer(many=True)
+    achievement_requirements = AchievementRequirementSerializer(many=True)
     badge = serializers.SerializerMethodField('get_badge_url')
 
     class Meta:

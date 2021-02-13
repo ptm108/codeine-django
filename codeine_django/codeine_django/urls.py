@@ -42,7 +42,11 @@ urlpatterns = [
     path('quiz', include('courses.urls_quiz'), name='Quiz and question endpoints'),
 
     # tickets endpoints
-    path('tickets/', include('tickets.urls'), name='Tickets endpoints')
+    path('tickets/', include('tickets.urls'), name='Tickets endpoints'), 
+
+    # achievements endpoints
+    path('achievements', include('achievements.urls'), name='Achievements endpoints'), 
+    # path('achievement-requirements', include('achievements.urls_achievement_reqirements'), name='Achievement Requirements endpoints'), 
 ]
 
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
