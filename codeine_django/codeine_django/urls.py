@@ -41,7 +41,10 @@ urlpatterns = [
     path('materials', include('courses.urls_course_materials'), name='Course Materials endpoints'),
 
     # tickets endpoints
-    path('tickets', include('tickets.urls'), name='Tickets endpoints')
+    path('tickets', include('tickets.urls'), name='Tickets endpoints'),
+
+    # article endpoints
+    path('articles', include('community.urls'), name='Article endpoints')
 ]
 
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

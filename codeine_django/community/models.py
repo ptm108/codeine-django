@@ -17,7 +17,7 @@ class Article(models.Model):
     is_activated = models.BooleanField(default=True)
 
     # ref
-    member = models.ForeignKey('common.Member', on_delete=models.CASCADE, related_name='articles', null=False, blank=True)
+    member = models.ForeignKey('common.Member', on_delete=models.CASCADE, related_name='articles')
 
     def __str__(self):
         return f'Article: {self.id}, Title: {self.title}'
@@ -34,11 +34,12 @@ class ArticleComment(models.Model):
     timestamp = models.DateTimeField(default=timezone.now)
 
     # ref
-    base_user = models.ForeignKey('common.BaseUser', on_delete=models.SET_NULL, related_name='article_comments')
+    member = models.ForeignKey('common.Member', on_delete=models.CASCADE, related_name='article_comments')
     article = models.ForeignKey('community.Article', on_delete=models.CASCADE, related_name='article_comments')
+    parent_comment = models.ForeignKey('community.ArticleComment', on_delete=models.SET_NULL, related_name='replies', null=True, blank=True)
 
     def __str__(self):
-        return f'Article comment {self.id} for {self.article.id} from {self.base_user.id}'
+        return f'Article comment {self.id} for {self.article.id} from {self.member.user.id}'
     # end def
 
     class Meta:

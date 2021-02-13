@@ -18,12 +18,12 @@ class ArticleCommentInline(admin.StackedInline):
 
 
 class ArticleAdmin(admin.ModelAdmin):
-    list_display = ('id', 'title', 'content', 'date_created', 'date_edited', 'is_published', 'is_activated', 'base_user')
+    list_display = ('id', 'title', 'content', 'date_created', 'date_edited', 'is_published', 'is_activated', 'member')
 # end class
 
 
 class ArticleCommentAdmin(admin.ModelAdmin):
-    list_display = ('id', 'comment', 'timestamp', 'base_user', 'article')
+    list_display = ('id', 'comment', 'timestamp', 'member', 'article')
 # end class
 
 admin.site.register(Article, ArticleAdmin)
