@@ -46,7 +46,6 @@ urlpatterns = [
 
     # achievements endpoints
     path('achievements', include('achievements.urls'), name='Achievements endpoints'), 
-    # path('achievement-requirements', include('achievements.urls_achievement_reqirements'), name='Achievement Requirements endpoints'), 
 ]
 
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

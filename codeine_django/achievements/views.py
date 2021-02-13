@@ -60,3 +60,23 @@ def achievement_view(request):
         # end try-except
     # end if
 # end def
+
+@api_view(['GET', 'PATCH', 'DELETE'])
+@permission_classes((IsAdminUser,))
+@parser_classes((MultiPartParser, FormParser))
+def single_achievement_view(request, pk):
+
+    '''
+    Get Achievement by ID
+    '''
+    if request.method == 'GET':
+        try:
+            achievement = Achievement.objects.get(pk=pk)
+
+            serializer = AchievementSerializer(achievement, context={"request": request})
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except (ValueError) as e:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+        # end try-except
+    # end if
+# end def
