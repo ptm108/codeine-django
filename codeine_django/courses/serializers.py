@@ -21,7 +21,7 @@ class ShortAnswerSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = ShortAnswer
-        fields = ('question', 'marks', 'keywords')
+        fields = ('marks', 'keywords')
     # end class
 # end class
 
@@ -30,7 +30,7 @@ class MCQSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = MCQ
-        fields = ('question', 'marks', 'options', 'correct_answer')
+        fields = ('marks', 'options', 'correct_answer')
     # end class
 # end class
 
@@ -39,7 +39,7 @@ class MRQAnswerSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = MRQ
-        fields = ('question', 'marks', 'options', 'correct_answer')
+        fields = ('marks', 'options', 'correct_answer')
     # end class
 # end class
 
@@ -51,7 +51,7 @@ class QuestionSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Question
-        fields = ('title', 'subtitle', 'shortanswer', 'mcq', 'mrq',)
+        fields = ('id' ,'title', 'subtitle', 'shortanswer', 'mcq', 'mrq', 'order',)
     # end class
 # end class
 

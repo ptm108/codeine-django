@@ -182,9 +182,14 @@ class Question(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, unique=True)
     title = models.TextField()
     subtitle = models.TextField(null=True, default='', blank=True)
+    order = models.PositiveSmallIntegerField()
 
     # ref to Assessment
     quiz = models.ForeignKey('Quiz', on_delete=models.CASCADE, null=True, blank=True, related_name='questions')
+
+    class Meta:
+        ordering = ['order']
+    # end Meta
 # end class
 
 
