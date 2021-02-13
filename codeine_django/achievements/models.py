@@ -32,12 +32,6 @@ class AchievementRequirement(models.Model):
         ('RUBY', 'Ruby'),
     )
 
-    LANGUAGES = (
-        ('ENG', 'English'),
-        ('MAN', 'Mandarin'),
-        ('FRE', 'French'),
-    )
-
     CATEGORIES = (
         ('SEC', 'Security'),
         ('DB', 'Database Administration'),
