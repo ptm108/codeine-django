@@ -104,4 +104,20 @@ def single_achievement_view(request, pk):
             return Response(status=status.HTTP_400_BAD_REQUEST)
         # end try-except
     # end if
+
+    '''
+    Delete an Achievement
+    '''
+    if request.method == 'DELETE':
+        try:
+            achievement = Achievement.objects.get(pk=pk)
+            achievement.is_deleted= True
+            achievement.save() 
+
+            serializer = AchievementSerializer(achievement, context={"request": request})
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except ObjectDoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        # end try-except
+    # end if
 # end def
