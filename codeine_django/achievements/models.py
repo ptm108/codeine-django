@@ -42,8 +42,8 @@ class AchievementRequirement(models.Model):
     )
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, unique=True)
-    category = choices=CODING_LANGUAGES
-    coding_languages = choices=CATEGORIES
+    category = models.CharField(max_length=255, choices=CODING_LANGUAGES)
+    coding_languages = models.CharField(max_length=255, choices=CATEGORIES)
     experience_point = models.PositiveIntegerField()
 
     achievement = models.ForeignKey('Achievement', on_delete=models.CASCADE, related_name='achievement_requirements')
