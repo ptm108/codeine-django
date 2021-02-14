@@ -53,3 +53,61 @@ def achievement_requirement_view(request, pk):
     # end if
 # end def
 
+@api_view(['GET', 'PATCH', 'DELETE'])
+@permission_classes((IsAdminUser,))
+def single_achievement_requirement_view(request, pk, req_id):
+
+    '''
+    Get Achievement Requirement by ID
+    '''
+    if request.method == 'GET':
+        try:
+            requirement = AchievementRequirement.objects.get(pk=req_id)
+
+            serializer = AchievementRequirementSerializer(requirement, context={"request": request})
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except (ValueError) as e:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+        # end try-except
+    # end if
+
+    '''
+    Update an Achievement Requirement
+    '''
+    if request.method == 'PATCH':
+        try:
+            requirement = AchievementRequirement.objects.get(pk=req_id)
+            data = request.data
+
+            if 'category' in data:
+                requirement.category=data['category']
+            if 'coding_languages' in data:
+                requirement.coding_languages = data['coding_languages']
+            if 'experience_point' in data:
+                requirement.experience_point=data['experience_point']
+
+            requirement.save() 
+
+            serializer = AchievementRequirementSerializer(requirement, context={"request": request})
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except ObjectDoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        except (KeyError, ValueError) as e:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+        # end try-except
+    # end if
+
+    '''
+    Delete an Achievement
+    '''
+    if request.method == 'DELETE':
+        try:
+            requirement = AchievementRequirement.objects.get(pk=req_id)
+
+            requirement.delete()
+            return Response(status=status.HTTP_200_OK)
+        except ObjectDoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        # end try-except
+    # end if
+# end def

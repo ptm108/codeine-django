@@ -9,5 +9,5 @@ urlpatterns = [
 
     # achievement requirement views
     path('/<slug:pk>/requirements', views_requirement.achievement_requirement_view, name='Get All by Achievement/Create Achievement Requirement'),
-
+    path('/<slug:pk>/requirements/<slug:req_id>', views_requirement.single_achievement_requirement_view, name='Read/Update/Delete Achievement Requirement'),
 ]
