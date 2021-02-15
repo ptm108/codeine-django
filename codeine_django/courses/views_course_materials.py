@@ -95,7 +95,7 @@ def update_file_view(request, material_id):
                 course_material.save()
 
                 course_file = course_material.course_file
-                if 'zipfile' in data:
+                if 'zip_file' in data:
                     course_file.zip_file = data['zip_file']
                 if 'google_drive_url' in data:
                     course_file.google_drive_url = data['google_drive_url']
