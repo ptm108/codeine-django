@@ -33,7 +33,7 @@ urlpatterns = [
     path('auth/', include('common.urls'), name='Common infra end points'),
 
     # content provider endpoints
-    path('consultations/', include('consultations.urls'), name='Consultation end points'),
+    path('consultations', include('consultations.urls'), name='Consultation end points'),
 
     # courses endpoints
     path('courses', include('courses.urls'), name='Courses endpoints'),
@@ -42,7 +42,10 @@ urlpatterns = [
     path('quiz', include('courses.urls_quiz'), name='Quiz and question endpoints'),
 
     # tickets endpoints
-    path('tickets/', include('tickets.urls'), name='Tickets endpoints')
+    path('tickets', include('tickets.urls'), name='Tickets endpoints'),
+
+    # article endpoints
+    path('articles', include('community.urls'), name='Article endpoints')
 ]
 
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
