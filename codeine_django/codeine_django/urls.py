@@ -42,7 +42,10 @@ urlpatterns = [
     path('quiz', include('courses.urls_quiz'), name='Quiz and question endpoints'),
 
     # tickets endpoints
-    path('tickets', include('tickets.urls'), name='Tickets endpoints'),
+    path('tickets/', include('tickets.urls'), name='Tickets endpoints'), 
+
+    # achievements endpoints
+    path('achievements', include('achievements.urls'), name='Achievements endpoints'), 
 
     # article endpoints
     path('articles', include('community.urls'), name='Article endpoints')
