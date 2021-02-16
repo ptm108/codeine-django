@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'courses',
     'tickets',
     'achievements',
+    'community',
     'corsheaders',
     'django.contrib.admin',
     'django.contrib.auth',

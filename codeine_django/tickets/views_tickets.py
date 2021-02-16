@@ -25,7 +25,7 @@ def ticket_view(request):
 
         # extract query params
         search = request.query_params.get('search', None)
-        status = request.query_params.get('status', None)
+        ticket_status = request.query_params.get('ticket_status', None)
 
         if search is not None:
             tickets = tickets.filter(
@@ -35,9 +35,9 @@ def ticket_view(request):
             )
         # end if
 
-        if status is not None:
+        if ticket_status is not None:
             tickets = tickets.filter(
-                Q(ticket_status__icontains=status)
+                Q(ticket_status__icontains=ticket_status)
             )
         # end if
 

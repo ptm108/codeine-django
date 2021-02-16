@@ -151,12 +151,14 @@ def single_course_view(request, pk):
             course.requirements = json.loads(data['requirements'])
             course.description = data['description']
             course.introduction_video_url = data['introduction_video_url']
-            course.thumbnail = data['thumbnail']
             course.coding_languages = json.loads(data['coding_languages'])
             course.languages = json.loads(data['languages'])
             course.categories = json.loads(data['categories'])
             course.price = data['price']
             course.exp_points = int(data['exp_points'])
+            if 'thumbnail' in data:
+                course.thumbnail = data['thumbnail']
+            # end if
             course.save()  # save course
 
             return Response(CourseSerializer(course, context={'request': request}).data, status=status.HTTP_200_OK)

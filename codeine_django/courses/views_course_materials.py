@@ -47,7 +47,7 @@ def file_views(request, chapter_id):
                 course_file = CourseFile(
                     course_material=course_material,
                     zip_file=data['zip_file'] if 'zip_file' in data else None,
-                    google_drive_url=data['googe_drive_url'] if 'google_drive_url' in data else None
+                    google_drive_url=data['google_drive_url'] if 'google_drive_url' in data else None
                 )
                 course_file.save()
 
@@ -87,13 +87,19 @@ def update_file_view(request, material_id):
                     return Response('No file uploaded', status=status.HTTP_400_BAD_REQUEST)
                 # end if
 
-                course_material.title = data['title']
-                course_material.description = data['description']
+                if 'title' in data:
+                    course_material.title = data['title']
+                if 'description' in data:
+                    course_material.description = data['description']
+                # end ifs
                 course_material.save()
 
                 course_file = course_material.course_file
-                course_file.zip_file = data['zip_file'] if 'zip_file' in data else None
-                course_file.google_drive_url = data['google_drive_url'] if 'google_drive_url' in data else None
+                if 'zip_file' in data:
+                    course_file.zip_file = data['zip_file']
+                if 'google_drive_url' in data:
+                    course_file.google_drive_url = data['google_drive_url']
+                # end ifs
                 course_file.save()
 
                 serializer = CourseSerializer(course, context={'request': request, 'public': False})
@@ -181,12 +187,17 @@ def update_video_view(request, material_id):
                     return Response('No video uploaded', status=status.HTTP_400_BAD_REQUEST)
                 # end if
 
-                course_material.title = data['title']
-                course_material.description = data['description']
+                if 'title' in data:
+                    course_material.title = data['title']
+                if 'description' in data:
+                    course_material.description = data['description']
+                # end ifs
                 course_material.save()
 
                 course_file = course_material.video
-                course_file.video_url = data['video_url']
+                if 'video_url' in data:
+                    course_file.video_url = data['video_url']
+                # end if
                 course_file.save()
 
                 serializer = CourseSerializer(course, context={'request': request, 'public': False})
@@ -356,12 +367,18 @@ def update_quiz_view(request, material_id):
                 course = course_material.chapter.course
                 quiz = course_material.quiz
 
-                course_material.title = data['title']
-                course_material.description = data['description']
+                if 'title' in data:
+                    course_material.title = data['title']
+                if 'description' in data:
+                    course_material.description = data['description']
+                # end ifs
                 course_material.save()
 
-                quiz.passing_marks = data['passing_marks']
-                quiz.instructions = data['instructions']
+                if 'passing_marks' in data: 
+                    quiz.passing_marks = data['passing_marks']
+                if 'instructions' in data:
+                    quiz.instructions = data['instructions']
+                # end ifs
                 quiz.save()
 
                 serializer = CourseMaterialSerializer(course_material)
