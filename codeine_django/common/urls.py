@@ -20,5 +20,5 @@ urlpatterns = [
 
     # admin user views
     path('admins', views_admin.admin_view, name='Get all/Search Admin Users'),
-
+    path('admins/<slug:pk>', views_admin.single_admin_view, name='Read/Update/Change PW/Delete Admin User'),
 ]
