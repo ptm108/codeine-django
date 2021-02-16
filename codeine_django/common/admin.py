@@ -4,7 +4,7 @@ from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.contrib.auth.forms import ReadOnlyPasswordHashField
 from django.core.exceptions import ValidationError
 
-from .models import BaseUser, Member, ContentProvider, IndustryPartner
+from .models import BaseUser, Member, Partner, Organization
 
 
 class UserCreationForm(forms.ModelForm):
@@ -72,16 +72,8 @@ class MemberInline(admin.StackedInline):
     verbose_name_plural = 'Members'
 # end class
 
-
-class ContentProviderInline(admin.StackedInline):
-    model = ContentProvider
-    can_delete = False
-    verbose_name_plural = 'Members'
-# end class
-
-
-class IndustryPartnerInline(admin.StackedInline):
-    model = IndustryPartner
+class PartnerInline(admin.StackedInline):
+    model = Member
     can_delete = False
     verbose_name_plural = 'Members'
 # end class
@@ -89,7 +81,7 @@ class IndustryPartnerInline(admin.StackedInline):
 
 class UserAdmin(BaseUserAdmin):
     # Vendor and Customer inline
-    inlines = (MemberInline, ContentProviderInline, IndustryPartnerInline)
+    inlines = (MemberInline, PartnerInline,)
 
     # The forms to add and change user instances
     form = UserChangeForm
@@ -123,18 +115,17 @@ class MemberAdmin(admin.ModelAdmin):
     list_display = ('id', 'user')
 # end class
 
-
-class ContentProviderAdmin(admin.ModelAdmin):
-    list_display = ('id', 'user', 'company_name', 'job_title')
+class PartnerAdmin(admin.ModelAdmin):
+    list_display = ('id', 'user')
 # end class
 
-
-class IndustryPartnerAdmin(admin.ModelAdmin):
-    list_display = ('id', 'user', 'company_name', 'contact_number')
+class OrganizationAdmin(admin.ModelAdmin):
+    list_display = ('id', 'organization_name')
 # end class
 
 
 admin.site.register(BaseUser, UserAdmin)
 admin.site.register(Member, MemberAdmin)
-admin.site.register(ContentProvider, ContentProviderAdmin)
-admin.site.register(IndustryPartner, IndustryPartnerAdmin)
+admin.site.register(Partner, PartnerAdmin)
+admin.site.register(Organization, OrganizationAdmin)
+

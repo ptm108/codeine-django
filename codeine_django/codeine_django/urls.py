@@ -17,21 +17,39 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import include, path
-from rest_framework_simplejwt.views import (
-    TokenObtainPairView,
-    TokenRefreshView,
-)
+from rest_framework_simplejwt.views import TokenRefreshView
+
+from .views_auth import authenticate_user
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api-auth/', include('rest_framework.urls')),
 
     # auth end points
-    path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('api/token/', authenticate_user, name='token_obtain_pair'),
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
 
     # common infra endpoints
-    path('auth/', include('common.urls'), name='Common infra end points')
-] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+    path('auth/', include('common.urls'), name='Common infra end points'),
 
+    # content provider endpoints
+    path('consultations', include('consultations.urls'), name='Consultation end points'),
+
+    # courses endpoints
+    path('courses', include('courses.urls'), name='Courses endpoints'),
+    path('chapters', include('courses.urls_chapters'), name='Chapter endpoints'),
+    path('materials', include('courses.urls_course_materials'), name='Course Materials endpoints'),
+    path('quiz', include('courses.urls_quiz'), name='Quiz and question endpoints'),
+
+    # tickets endpoints
+    path('tickets/', include('tickets.urls'), name='Tickets endpoints'), 
+
+    # achievements endpoints
+    path('achievements', include('achievements.urls'), name='Achievements endpoints'), 
+
+    # article endpoints
+    path('articles', include('community.urls'), name='Article endpoints')
+]
+
+urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
