@@ -151,14 +151,15 @@ def single_partner_view(request, pk):
             user = BaseUser.objects.get(pk=pk)
             partner = Partner.objects.get(user=user)
 
-            if (request.user != user and not partner.org_admin) or not user.is_admin:
+            if (request.user == user and partner.org_admin) or (request.user == user and not partner.organization) or request.user.is_admin:
+                user.is_active = False  # mark as deleted
+                user.save()
+
+                return Response(status=status.HTTP_200_OK)
+            else:
                 return Response(status=status.HTTP_401_UNAUTHORIZED)
-            # end if
-
-            user.is_active = False  # mark as deleted
-            user.save()
-
-            return Response(status=status.HTTP_200_OK)
+            # end if-else
+            
         except Member.DoesNotExist:
             return Response(status=status.HTTP_400_BAD_REQUEST)
     # end if
