@@ -8,7 +8,7 @@ import uuid
 
 
 def image_directory_path(instance, filename):
-    return 'course_{0}/image_{1}'.format(instance.id, filename)
+    return 'achievement_{0}/image_{1}'.format(instance.id, filename)
 # end def
 
 class Achievement(models.Model):

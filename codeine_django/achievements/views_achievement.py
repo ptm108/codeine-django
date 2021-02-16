@@ -90,6 +90,7 @@ def single_achievement_view(request, pk):
                 achievement.title = data['title']
             if 'badge' in data:
                 achievement.badge=data['badge']
+            # end if
 
             achievement.save() 
 
@@ -108,7 +109,7 @@ def single_achievement_view(request, pk):
     if request.method == 'DELETE':
         try:
             achievement = Achievement.objects.get(pk=pk)
-            achievement.is_deleted= True
+            achievement.is_deleted = True
             achievement.save() 
 
             serializer = AchievementSerializer(achievement, context={"request": request})

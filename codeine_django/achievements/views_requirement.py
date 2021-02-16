@@ -85,6 +85,7 @@ def single_achievement_requirement_view(request, pk, req_id):
                 requirement.coding_languages = data['coding_languages']
             if 'experience_point' in data:
                 requirement.experience_point=data['experience_point']
+            # end if 
 
             requirement.save() 
 
