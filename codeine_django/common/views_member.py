@@ -44,14 +44,17 @@ def member_view(request):
     # end if
 
     '''
-    Get all active members
+    Get all members
     '''
     if request.method == 'GET':
         # extract query params
         search = request.query_params.get('search', None)
+        is_active = request.query_params.get('is_active', None)
 
-        users = BaseUser.objects.exclude(member__isnull=True).exclude(is_active=False)
+        users = BaseUser.objects.exclude(member__isnull=True)
 
+        if is_active is not None:
+            users = users.exclude(is_active=False)
         if search is not None:
             users = users.filter(
                 Q(first_name__icontains=search) |
@@ -129,7 +132,7 @@ def single_member_view(request, pk):
             else:
                 return Response(status=status.HTTP_401_UNAUTHORIZED)
             # end if-else
-            
+
         except Member.DoesNotExist:
             return Response(status=status.HTTP_400_BAD_REQUEST)
     # end if
