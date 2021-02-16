@@ -55,13 +55,17 @@ def partner_view(request):
     # end if
 
     '''
-    Get all active Partners
+    Get all Partners
     '''
     if request.method == 'GET':
         # extract query params
         search = request.query_params.get('search', None)
+        is_active = request.query_params.get('is_active', None)
 
-        users = BaseUser.objects.exclude(partner__isnull=True).exclude(is_active=False)
+        users = BaseUser.objects.exclude(partner__isnull=True)
+
+        if is_active is not None: 
+            users = users.exclude(is_active=False)
 
         if search is not None:
             users = users.filter(
