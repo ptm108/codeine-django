@@ -121,14 +121,15 @@ def single_member_view(request, pk):
             user = BaseUser.objects.get(pk=pk)
             member = Member.objects.get(user=user)
 
-            if request.user != user or not user.is_admin:
-                return Response(status=status.HTTP_401_UNAUTHORIZED)
-            # end if 
-            
-            user.is_active = False  # mark as deleted
-            user.save()
+            if request.user == user or request.user.is_admin:
+                user.is_active = False  # mark as deleted
+                user.save()
 
-            return Response(status=status.HTTP_200_OK)
+                return Response(status=status.HTTP_200_OK)
+            else:
+                return Response(status=status.HTTP_401_UNAUTHORIZED)
+            # end if-else
+            
         except Member.DoesNotExist:
             return Response(status=status.HTTP_400_BAD_REQUEST)
     # end if
