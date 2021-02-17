@@ -14,7 +14,7 @@ class ArticleCommentSerializer(serializers.ModelSerializer):
 
 class ArticleSerializer(serializers.ModelSerializer):
     top_level_comments = serializers.SerializerMethodField('get_top_level_comments')
-
+    engagements = serializers.SerializerMethodField('get_engagements')
     class Meta:
         model = Article
         fields = '__all__'
@@ -23,6 +23,11 @@ class ArticleSerializer(serializers.ModelSerializer):
     def get_top_level_comments(self, obj):
         top_level_comments = ArticleComment.objects.filter(parent_comment=None, article=obj)
         return ArticleCommentSerializer(top_level_comments, many=True).data
+    # end def
+
+    def get_engagements(self, obj):
+        engagements = Engagement.objects.filter(article=obj)
+        return EngagementSerializer(engagements, many=True).data
     # end def
 # end class
 
@@ -34,6 +39,7 @@ class EngagementSerializer(serializers.ModelSerializer):
         fields = '__all__'
     # end Meta
 # end class
+
 
 
 class CodeReviewCommentSerializer(serializers.ModelSerializer):

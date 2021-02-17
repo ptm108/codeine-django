@@ -44,7 +44,6 @@ def article_comment_view(request, article_id):
     if request.method == 'POST':
         user = request.user
         data = request.data
-        member = Member.objects.get(user=user)
         article = Article.objects.get(pk=article_id)
         parent_comment = None
         if 'parent_comment_id' in data:
@@ -53,7 +52,7 @@ def article_comment_view(request, article_id):
         try:
             article_comment = ArticleComment(
                 comment = data['comment'],
-                member = member,
+                user = user,
                 article = article,
                 parent_comment = parent_comment
             )
