@@ -164,6 +164,7 @@ class CourseSerializer(serializers.ModelSerializer):
     thumbnail = serializers.SerializerMethodField('get_thumbnail_url')
     partner = serializers.SerializerMethodField('get_base_user')
     assessment = QuizSerializer()
+    is_member_enrolled = serializers.SerializerMethodField('get_member_enrolled')
 
     class Meta:
         model = Course
@@ -181,6 +182,10 @@ class CourseSerializer(serializers.ModelSerializer):
         request = self.context.get("request")
         return NestedBaseUserSerializer(obj.partner.user, context={'request': request}).data
     # end def
+
+    def get_member_enrolled(self, obj):
+        return self.context.get("member_enrolled")
+    # end def
 # end class
 
 
@@ -188,5 +193,15 @@ class EnrollmentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Enrollment
         fields = ('progress', 'course', 'member')
+    # end Meta
+# end class
+
+
+class NestedEnrollmentSerializer(serializers.ModelSerializer):
+    course = CourseSerializer()
+
+    class Meta:
+        model = Enrollment
+        fields = ('progress', 'member', 'course')
     # end Meta
 # end class
