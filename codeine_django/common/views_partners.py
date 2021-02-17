@@ -51,17 +51,23 @@ def partner_view(request):
             except (IntegrityError, ValueError, KeyError) as e:
                 print(e)
                 return Response(status=status.HTTP_400_BAD_REQUEST)
+            # end try-except
         # end with
     # end if
 
     '''
-    Get all active Partners
+    Get all Partners
     '''
     if request.method == 'GET':
         # extract query params
         search = request.query_params.get('search', None)
+        is_active = request.query_params.get('is_active', None)
 
-        users = BaseUser.objects.exclude(partner__isnull=True).exclude(is_active=False)
+        users = BaseUser.objects.exclude(partner__isnull=True)
+
+        if is_active is not None: 
+            users = users.exclude(is_active=False)
+        # end if
 
         if search is not None:
             users = users.filter(
@@ -92,6 +98,7 @@ def single_partner_view(request, pk):
         except (ObjectDoesNotExist, KeyError, ValueError) as e:
             print(e)
             return Response(status=status.HTTP_400_BAD_REQUEST)
+        # end try-except
     # end if
 
     '''
@@ -140,7 +147,6 @@ def single_partner_view(request, pk):
                 return Response(status=status.HTTP_400_BAD_REQUEST)
             # end try-except
         # end with
-
     # end if
 
     '''
@@ -151,7 +157,7 @@ def single_partner_view(request, pk):
             user = BaseUser.objects.get(pk=pk)
             partner = Partner.objects.get(user=user)
 
-            if (request.user != user and not partner.org_admin) or not user.is_admin:
+            if request.user != user and (not partner.org_admin or not request.user.is_admin):
                 return Response(status=status.HTTP_401_UNAUTHORIZED)
             # end if
 
@@ -159,6 +165,7 @@ def single_partner_view(request, pk):
             user.save()
 
             return Response(status=status.HTTP_200_OK)
+        
         except Member.DoesNotExist:
             return Response(status=status.HTTP_400_BAD_REQUEST)
     # end if
