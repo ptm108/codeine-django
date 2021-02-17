@@ -117,7 +117,7 @@ def single_course_view(request, pk):
     if request.method == 'GET':
         try:
             course = Course.objects.get(pk=pk)
-            return Response(CourseSerializer(course, context={'request': request}).data, status=status.HTTP_200_OK)
+            return Response(CourseSerializer(course, context={'request': request, 'public': True}).data, status=status.HTTP_200_OK)
         except Course.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
         # end try-except

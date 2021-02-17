@@ -20,29 +20,54 @@ from common.serializers import NestedBaseUserSerializer
 
 
 class ShortAnswerSerializer(serializers.ModelSerializer):
+    keywords = serializers.SerializerMethodField('get_keywords')
 
     class Meta:
         model = ShortAnswer
         fields = ('marks', 'keywords')
     # end class
+
+    def get_keywords(self, obj):
+        if self.context.get('public'):
+            return None
+        else:
+            return obj.keywords
+    # end def
 # end class
 
 
 class MCQSerializer(serializers.ModelSerializer):
+    correct_answer = serializers.SerializerMethodField('get_correct_answer')
 
     class Meta:
         model = MCQ
         fields = ('marks', 'options', 'correct_answer')
     # end class
+    # end class
+
+    def get_correct_answer(self, obj):
+        if self.context.get('public'):
+            return None
+        else:
+            return obj.correct_answer
+    # end def
 # end class
 
 
 class MRQAnswerSerializer(serializers.ModelSerializer):
+    correct_answer = serializers.SerializerMethodField('get_correct_answer')
 
     class Meta:
         model = MRQ
         fields = ('marks', 'options', 'correct_answer')
     # end class
+
+    def get_correct_answer(self, obj):
+        if self.context.get('public'):
+            return None
+        else:
+            return obj.correct_answer
+    # end def
 # end class
 
 
@@ -136,9 +161,9 @@ class ChapterSerializer(serializers.ModelSerializer):
 
 class CourseSerializer(serializers.ModelSerializer):
     chapters = ChapterSerializer(many=True)
-    assessment = QuizSerializer()
     thumbnail = serializers.SerializerMethodField('get_thumbnail_url')
     partner = serializers.SerializerMethodField('get_base_user')
+    assessment = QuizSerializer()
 
     class Meta:
         model = Course
