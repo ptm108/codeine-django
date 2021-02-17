@@ -16,7 +16,7 @@ import json
 
 from .models import Course, Quiz, Enrollment
 from .serializers import CourseSerializer, QuizSerializer
-from common.models import Partner, Member
+from common.models import Partner, Member, BaseUser
 
 
 @api_view(['GET'])
@@ -50,8 +50,8 @@ def course_view(request):
                     Q(partner__user__last_name__icontains=search)
                 )
             if partner_id is not None:
-                partner = Partner.objects.get(pk=partner_id)
-                courses = courses.filter(partner=partner) # get partner courses
+                user = BaseUser.objects.get(pk=partner_id)
+                courses = courses.filter(partner=user.partner) # get partner courses
             if date_sort is not None:
                 courses = courses.order_by(date_sort)
             if rating_sort is not None:
@@ -68,8 +68,8 @@ def course_view(request):
             return paginator.get_paginated_response(serializer.data)
         except (ValueError) as e:
             return Response(status=status.HTTP_400_BAD_REQUEST)
-        except Partner.DoesNotExist:
-            return Response('Invalid partner id', status=status.HTTP_404_NOT_FOUND)
+        except ObjectDoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
         # end try-except
     # end if
   # end def
