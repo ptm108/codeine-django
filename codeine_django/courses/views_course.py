@@ -33,7 +33,6 @@ def course_view(request):
             # extract query params
             search = request.query_params.get('search', None)
             date_sort = request.query_params.get('sortDate', None)
-            price_sort = request.query_params.get('sortPrice', None)
             rating_sort = request.query_params.get('sortRating', None)
 
             # get pagination params from request, default is (10, 1)
@@ -55,10 +54,6 @@ def course_view(request):
 
             if date_sort is not None:
                 courses = courses.order_by(date_sort)
-            # end if
-
-            if price_sort is not None:
-                courses = courses.order_by(price_sort)
             # end if
 
             if rating_sort is not None:
@@ -99,7 +94,6 @@ def course_view(request):
                 coding_languages=json.loads(data['coding_languages']),
                 languages=json.loads(data['languages']),
                 categories=json.loads(data['categories']),
-                price=data['price'],
                 exp_points=data['exp_points'],
                 partner=partner
             )
@@ -154,7 +148,6 @@ def single_course_view(request, pk):
             course.coding_languages = json.loads(data['coding_languages'])
             course.languages = json.loads(data['languages'])
             course.categories = json.loads(data['categories'])
-            course.price = data['price']
             course.exp_points = int(data['exp_points'])
             if 'thumbnail' in data:
                 course.thumbnail = data['thumbnail']
