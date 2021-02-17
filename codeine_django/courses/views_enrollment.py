@@ -41,7 +41,7 @@ def course_enrollment_views(request, course_id):
         except Member.DoesNotExist:
             return Response("Invalid member", status=status.HTTP_404_NOT_FOUND)
         except Course.DoesNotExist:
-            return Response("Invalid member", status=status.HTTP_404_NOT_FOUND)
+            return Response("Invalid course", status=status.HTTP_404_NOT_FOUND)
         # end try-except
     # end if
 
@@ -61,7 +61,7 @@ def course_enrollment_views(request, course_id):
             serializer = EnrollmentSerializer(enrollment)
             return Response(serializer.data, status=status.HTTP_200_OK)
         except ObjectDoesNotExist:
-            return Response("Invalid member", status=status.HTTP_404_NOT_FOUND)
+            return Response(status=status.HTTP_404_NOT_FOUND)
         # end try-except
     # end if
 # end def
