@@ -21,10 +21,10 @@ def authenticate_user(request):
         user = authenticate(**data)
 
         if user is None:
-            user = BaseUser.objects.get(email=data['email'])
+            user = BaseUser.objects.filter(email=data['email']).first()
 
             # check user password
-            if not user.check_password(data['password']):
+            if not user or not user.check_password(data['password']):
                 return Response(status=status.HTTP_401_UNAUTHORIZED)
             # end if
 
