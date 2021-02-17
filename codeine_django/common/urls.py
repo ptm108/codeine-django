@@ -1,6 +1,6 @@
 from django.urls import path
 
-from . import views_member, views_partners, views_organization
+from . import views_member, views_partners, views_organization, views_admin
 
 urlpatterns = [
     # members views
@@ -17,4 +17,8 @@ urlpatterns = [
 
     # update organization
     path('organizations/<slug:pk>', views_organization.single_organization_view, name='Update organization detail'),
+
+    # admin user views
+    path('admins', views_admin.admin_view, name='Get all/Search Admin Users'),
+    path('admins/<slug:pk>', views_admin.single_admin_view, name='Read/Update/Change PW/Delete Admin User'),
 ]
