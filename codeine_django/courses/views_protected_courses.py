@@ -85,16 +85,7 @@ def single_course_view(request, course_id):
     if request.method == 'GET':
         try:
             course = Course.objects.get(pk=course_id)
-
-            member = Member.objects.filter(user=user).first()
-            
-            if member is None: 
-                serializer = CourseSerializer(course, context={'request': request})
-                return Response(serializer.data, status=status.HTTP_200_OK)
-            # end if
-
-            enrollment = Enrollment.objects.filter(member=member).filter(course=course)
-            serializer = CourseSerializer(course, context={'request': request, 'member_enrolled': enrollment.exists()})
+            serializer = CourseSerializer(course, context={'request': request})
 
             return Response(serializer.data, status=status.HTTP_200_OK)
         except Course.DoesNotExist:

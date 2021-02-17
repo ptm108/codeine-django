@@ -1,3 +1,4 @@
+from django.contrib.auth.models import AnonymousUser
 from rest_framework import serializers
 
 from .models import (
@@ -14,6 +15,7 @@ from .models import (
     MRQ,
 )
 
+from common.models import Member
 from common.serializers import NestedBaseUserSerializer
 
 # Assessment related
@@ -184,7 +186,22 @@ class CourseSerializer(serializers.ModelSerializer):
     # end def
 
     def get_member_enrolled(self, obj):
-        return self.context.get("member_enrolled")
+        request = self.context.get("request")
+        user = request.user
+
+        if (type(user) == AnonymousUser):
+            return None
+        # end if
+
+        member = Member.objects.filter(user=user).first()
+        print(obj)
+
+        if member is None:
+            return member
+        else:
+            enrollment = Enrollment.objects.filter(member=member).filter(course=obj)
+            return enrollment.exists()
+        # end if-else
     # end def
 # end class
 
