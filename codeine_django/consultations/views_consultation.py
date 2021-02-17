@@ -66,8 +66,8 @@ def consultation_slot_view(request):
 
         if search is not None:
             consultation_slots = consultation_slots.filter(
-                Q(partner__user__id__contains=search) |
-                Q(member__user__id__contains=search)
+                Q(partner__user__id__exact=search) |
+                Q(member__user__id__exact=search)
             )
         # end if
 

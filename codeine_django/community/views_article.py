@@ -29,7 +29,7 @@ def article_view(request):
 
         if search is not None:
             articles = articles.filter(
-                Q(member__user__id__icontains=search) |
+                Q(member__user__id__exact=search) |
                 Q(title__icontains=search) |
                 Q(content__icontains=search) |
                 Q(category__icontains=search)
