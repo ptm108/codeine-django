@@ -61,7 +61,7 @@ def member_view(request):
                 Q(last_name__icontains=search) |
                 Q(email__icontains=search)
             )
-        # end if
+        # end ifs
 
         serializer = NestedBaseUserSerializer(users.all(), many=True, context={"request": request})
         return Response(serializer.data, status=status.HTTP_200_OK)
@@ -84,6 +84,7 @@ def single_member_view(request, pk):
         except (ObjectDoesNotExist, KeyError, ValueError) as e:
             print(e)
             return Response(status=status.HTTP_400_BAD_REQUEST)
+        # end try-except
     # end if
 
     '''
@@ -106,6 +107,7 @@ def single_member_view(request, pk):
                 user.email = data['email']
             if 'profile_photo' in data:
                 user.profile_photo = data['profile_photo']
+            # end ifs
             user.save()
 
             return Response(NestedBaseUserSerializer(user, context={"request": request}).data, status=status.HTTP_200_OK)
@@ -124,17 +126,18 @@ def single_member_view(request, pk):
             user = BaseUser.objects.get(pk=pk)
             member = Member.objects.get(user=user)
 
-            if request.user == user or request.user.is_admin:
-                user.is_active = False  # mark as deleted
-                user.save()
-
-                return Response(status=status.HTTP_200_OK)
-            else:
+            if request.user != user and not request.user.is_admin:
                 return Response(status=status.HTTP_401_UNAUTHORIZED)
-            # end if-else
+            # end if
+
+            user.is_active = False  # mark as deleted
+            user.save()
+
+            return Response(status=status.HTTP_200_OK)
 
         except Member.DoesNotExist:
             return Response(status=status.HTTP_400_BAD_REQUEST)
+        # end try-except
     # end if
 # end def
 

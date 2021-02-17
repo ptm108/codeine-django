@@ -73,6 +73,7 @@ def single_admin_view(request, pk):
                 user.email = data['email']
             if 'profile_photo' in data:
                 user.profile_photo = data['profile_photo']
+            # end ifs
             user.save()
 
             serializer = NestedBaseUserSerializer(user, context={"request": request})
