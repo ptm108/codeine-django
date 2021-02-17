@@ -14,6 +14,8 @@ from .models import (
     MRQ,
 )
 
+from common.serializers import NestedBaseUserSerializer
+
 # Assessment related
 
 
@@ -51,7 +53,7 @@ class QuestionSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Question
-        fields = ('id' ,'title', 'subtitle', 'shortanswer', 'mcq', 'mrq', 'order',)
+        fields = ('id', 'title', 'subtitle', 'shortanswer', 'mcq', 'mrq', 'order',)
     # end class
 # end class
 
@@ -136,6 +138,7 @@ class CourseSerializer(serializers.ModelSerializer):
     chapters = ChapterSerializer(many=True)
     assessment = QuizSerializer()
     thumbnail = serializers.SerializerMethodField('get_thumbnail_url')
+    partner = serializers.SerializerMethodField('get_base_user')
 
     class Meta:
         model = Course
@@ -147,6 +150,11 @@ class CourseSerializer(serializers.ModelSerializer):
         if obj.thumbnail and hasattr(obj.thumbnail, 'url'):
             return request.build_absolute_uri(obj.thumbnail.url)
         # end if
+    # end def
+
+    def get_base_user(self, obj):
+        request = self.context.get("request")
+        return NestedBaseUserSerializer(obj.partner.user, context={'request': request}).data
     # end def
 # end class
 
