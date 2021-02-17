@@ -26,8 +26,8 @@ def course_enrollment_views(request, course_id):
             member = Member.objects.get(user=user)
             course = Course.objects.get(pk=course_id)
 
-            enrollment = Enrollment.objects.filter(course=course).get(member=member)
-            if enrollment is not None:  # already enrolled
+            enrollment = Enrollment.objects.filter(course=course).filter(member=member)
+            if enrollment.exists():  # already enrolled
                 return Response(status=status.HTTP_409_CONFLICT)
             # end if
 
