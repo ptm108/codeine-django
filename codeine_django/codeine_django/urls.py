@@ -48,7 +48,10 @@ urlpatterns = [
     path('achievements', include('achievements.urls'), name='Achievements endpoints'), 
 
     # article endpoints
-    path('articles', include('community.urls'), name='Article endpoints')
+    path('articles', include('community.urls_articles'), name='Article endpoints'),
+
+    # code review endpoints
+    path('code-reviews', include('community.urls_code_reviews'), name='Code Review endpoints')
 ]
 
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

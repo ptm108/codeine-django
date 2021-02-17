@@ -55,7 +55,7 @@ class CodeReviewSerializer(serializers.ModelSerializer):
     top_level_comments = serializers.SerializerMethodField('get_top_level_comments')
 
     class Meta:
-        model = Article
+        model = CodeReview
         fields = '__all__'
     # end Meta
 
