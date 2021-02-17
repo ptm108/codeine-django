@@ -62,6 +62,7 @@ def code_review_view(request):
         except (IntegrityError, ValueError, KeyError) as e:
             print(e)
             return Response(status=status.HTTP_400_BAD_REQUEST)
+        # end try-except
     # end if
 # def
 
@@ -79,6 +80,7 @@ def single_code_review_view(request, pk):
         except (ObjectDoesNotExist, KeyError, ValueError) as e:
             print(e)
             return Response(status=status.HTTP_400_BAD_REQUEST)
+        # end try-except
     # end if
     '''
     Update title, code, coding_languages, categories
@@ -118,5 +120,6 @@ def single_code_review_view(request, pk):
             return Response(status=status.HTTP_200_OK)
         except CodeReview.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
+        # end try-except
     # end if
 # def

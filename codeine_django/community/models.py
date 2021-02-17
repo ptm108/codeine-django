@@ -103,5 +103,5 @@ class CodeReviewComment(models.Model):
 
     class Meta:
         ordering = ['-timestamp']
-    #end class
+    # end class
 #end class

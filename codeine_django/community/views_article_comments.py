@@ -63,6 +63,7 @@ def article_comment_view(request, article_id):
         except (IntegrityError, ValueError, KeyError) as e:
             print(e)
             return Response(status=status.HTTP_400_BAD_REQUEST)
+        # end try-except
     # end if
 # def
 
@@ -80,6 +81,7 @@ def single_article_comment_view(request, article_id, pk):
         except (ObjectDoesNotExist, KeyError, ValueError) as e:
             print(e)
             return Response(status=status.HTTP_400_BAD_REQUEST)
+        # end try-except
     # end if
     '''
     Update comment
@@ -111,5 +113,6 @@ def single_article_comment_view(request, article_id, pk):
             return Response(status=status.HTTP_200_OK)
         except ArticleComment.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
+        # end try-except
     # end if
 # def
