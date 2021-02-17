@@ -74,12 +74,6 @@ class Course(models.Model):
     is_available = models.BooleanField(default=True)
     is_deleted = models.BooleanField(default=False)
 
-    # price in cents
-    price = models.PositiveIntegerField()
-
-    # cert in html
-    certificate = models.TextField(null=True, default=None, blank=True)
-
     # provider ref
     partner = models.ForeignKey('common.Partner', on_delete=models.SET_NULL, related_name='courses', null=True)
 

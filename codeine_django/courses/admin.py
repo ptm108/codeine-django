@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Course, Chapter, CourseMaterial, Video, CourseFile, Quiz
+from .models import Course, Chapter, CourseMaterial, Video, CourseFile, Quiz, Question, ShortAnswer, MCQ, MRQ, Enrollment
 
 
 class CourseAdmin(admin.ModelAdmin):
@@ -58,8 +58,75 @@ class VideoAdmin(admin.ModelAdmin):
 # end class
 
 
+class QuizAdmin(admin.ModelAdmin):
+    list_display = (
+        'id',
+        'passing_marks',
+        'instructions',
+        'course_material',
+        'course',
+    )
+# end class
+
+
+class QuestionAdmin(admin.ModelAdmin):
+    list_display = (
+        'id',
+        'title',
+        'subtitle',
+        'order',
+        'quiz',
+    )
+# end class
+
+
+class ShortAnswerAdmin(admin.ModelAdmin):
+    list_display = (
+        'question',
+        'marks',
+        'keywords',
+    )
+# end class
+
+
+class MCQAdmin(admin.ModelAdmin):
+    list_display = (
+        'question',
+        'marks',
+        'options',
+        'correct_answer',
+    )
+# end class
+
+
+class MRQAdmin(admin.ModelAdmin):
+    list_display = (
+        'question',
+        'marks',
+        'options',
+        'correct_answer',
+    )
+# end class
+
+
+class EnrollmentAdmin(admin.ModelAdmin):
+    list_display = (
+        'date_created',
+        'progress',
+        'course',
+        'member',
+    )
+# end class
+
+
 admin.site.register(Course, CourseAdmin)
 admin.site.register(Chapter, ChapterAdmin)
 admin.site.register(CourseMaterial, CourseMaterialAdmin)
 admin.site.register(CourseFile, CourseFileAdmin)
 admin.site.register(Video, VideoAdmin)
+admin.site.register(Quiz, QuizAdmin)
+admin.site.register(Question, QuestionAdmin)
+admin.site.register(ShortAnswer, ShortAnswerAdmin)
+admin.site.register(MCQ, MCQAdmin)
+admin.site.register(MRQ, MRQAdmin)
+admin.site.register(Enrollment, EnrollmentAdmin)

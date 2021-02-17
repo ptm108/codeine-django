@@ -10,55 +10,58 @@ from rest_framework.permissions import (
     IsAuthenticated,
     IsAdminUser,
 )
-from .models import Article, ArticleComment
-from .serializers import ArticleCommentSerializer
+from .models import CodeReview, CodeReviewComment
+from .serializers import CodeReviewCommentSerializer
 from common.models import Member
 
 # Create your views here.
 @api_view(['GET', 'POST'])
 @permission_classes((IsAuthenticated,))
-def article_comment_view(request, article_id):
+def code_review_comment_view(request, code_review_id):
     '''
-    Retrieves all article comments
+    Retrieves all code review comments
     '''
     if request.method == 'GET':
-        article = Article.objects.get(pk=article_id)
-        article_comments = ArticleComment.objects.filter(article=article)
+        code_review = CodeReview.objects.get(pk=code_review_id)
+        code_review_comments = CodeReviewComment.objects.filter(code_review=code_review)
         
         # extract query params
         search = request.query_params.get('search', None)
 
         if search is not None:
-            article_comments = article_comments.filter(
-                Q(comment__icontains=search)
+            code_review_comments = code_review_comments.filter(
+                Q(highlighted_code__icontains=search) |
+                Q(comment__icontains=search) |
+                Q(user__id__icontains=search) |
+                Q(code_review__id__icontains=search)
             )
         # end if
 
-        serializer = ArticleCommentSerializer(article_comments.all(), many=True)
+        serializer = CodeReviewCommentSerializer(code_review_comments.all(), many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
     # end if
 
     '''
-    Creates a new article comment
+    Creates a new code review comment
     '''
     if request.method == 'POST':
         user = request.user
         data = request.data
-        article = Article.objects.get(pk=article_id)
+        code_review = CodeReview.objects.get(pk=code_review_id)
         parent_comment = None
         if 'parent_comment_id' in data:
-            parent_comment = ArticleComment.objects.get(pk=data['parent_comment_id'])
+            parent_comment = CodeReviewComment.objects.get(pk=data['parent_comment_id'])
 
         try:
-            article_comment = ArticleComment(
+            code_review_comment = CodeReviewComment(
+                highlighted_code = data['highlighted_code'],
                 comment = data['comment'],
                 user = user,
-                article = article,
+                code_review = code_review,
                 parent_comment = parent_comment
             )
-            article_comment.save()
-
-            serializer = ArticleCommentSerializer(article_comment)
+            code_review_comment.save()
+            serializer = CodeReviewCommentSerializer(code_review_comment)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         except (IntegrityError, ValueError, KeyError) as e:
             print(e)
@@ -69,49 +72,50 @@ def article_comment_view(request, article_id):
 
 @api_view(['GET', 'PUT', 'DELETE'])
 @permission_classes((IsAuthenticated,))
-def single_article_comment_view(request, article_id, pk):
+def single_code_review_comment_view(request, code_review_id, pk):
     '''
-    Get an article comment by primary key/ id
+    Get an code review comment by primary key/ id
     '''
     if request.method == 'GET':
         try:
-            article_comment = ArticleComment.objects.get(pk=pk)
-            serializer = ArticleCommentSerializer(article_comment)
+            code_review_comment = CodeReviewComment.objects.get(pk=pk)
+            serializer = CodeReviewCommentSerializer(code_review_comment)
             return Response(serializer.data)
         except (ObjectDoesNotExist, KeyError, ValueError) as e:
             print(e)
             return Response(status=status.HTTP_400_BAD_REQUEST)
-        # end try-except
     # end if
     '''
-    Update comment
+    Update code review comment
     '''
     if request.method == 'PUT':
         data = request.data
         try:
-            article_comment = ArticleComment.objects.get(pk=pk)
+            code_review_comment = CodeReviewComment.objects.get(pk=pk)
 
+            if 'highlighted_code' in data:
+                code_review_comment.highlighted_code = data['highlighted_code']
             if 'comment' in data:
-                article_comment.comment = data['comment']
+                code_review_comment.comment = data['comment']
 
-            article_comment.save()
-            serializer = ArticleCommentSerializer(article_comment)
+            code_review_comment.save()
+            serializer = CodeReviewCommentSerializer(code_review_comment)
             return Response(serializer.data, status=status.HTTP_200_OK)
-        except ArticleComment.DoesNotExist:
+        except CodeReviewComment.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
         except (KeyError, ValueError) as e:
             return Response(status=status.HTTP_400_BAD_REQUEST)
         # end try-except
     # end if
     '''
-    Deletes an article comment
+    Deletes code review comment
     '''
     if request.method == 'DELETE':
         try:
-            article_comment = ArticleComment.objects.get(pk=pk)
-            article_comment.delete()
+            code_review_comment = CodeReviewComment.objects.get(pk=pk)
+            code_review_comment.delete()
             return Response(status=status.HTTP_200_OK)
-        except ArticleComment.DoesNotExist:
+        except CodeReviewComment.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
         # end try-except
     # end if
