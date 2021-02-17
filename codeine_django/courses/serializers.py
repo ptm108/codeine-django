@@ -122,7 +122,7 @@ class ChapterSerializer(serializers.ModelSerializer):
 
     def get_course_materials(self, obj):
         if (self.context.get('public')):
-            print(obj.course_materials)
+            # print(obj.course_materials)
             return PublicCourseMaterialSerializer(obj.course_materials, many=True).data
         else:
             return CourseMaterialSerializer(obj.course_materials, many=True, context={'request': self.context.get('request')}).data
