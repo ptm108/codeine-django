@@ -13,15 +13,15 @@ from common.models import Member
 from common.permissions import IsMemberOnly
 
 
-@api_view(['POST'])
+@api_view(['POST', 'DELETE'])
 @permission_classes((IsMemberOnly,))
 def course_enrollment_views(request, course_id):
+    user = request.user
     '''
     Enrolls a member in a course
     Creates a new Enrollment
     '''
     if request.method == 'POST':
-        user = request.user
         try:
             member = Member.objects.get(user=user)
             course = Course.objects.get(pk=course_id)
@@ -39,6 +39,26 @@ def course_enrollment_views(request, course_id):
         except Member.DoesNotExist:
             return Response("Invalid member", status=status.HTTP_404_NOT_FOUND)
         except Course.DoesNotExist:
+            return Response("Invalid member", status=status.HTTP_404_NOT_FOUND)
+        # end try-except
+    # end if
+
+    '''
+    Un-enroll member from course
+    Deletes course from enrollment object
+    '''
+    if request.method == 'DELETE':
+        try:
+            member = Member.objects.get(user=user)
+            course = Course.objects.get(pk=course_id)
+
+            enrollment = Enrollment.objects.filter(course=course).get(member=member)
+            enrollment.course = None
+            enrollment.save()
+
+            serializer = EnrollmentSerializer(enrollment)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except ObjectDoesNotExist:
             return Response("Invalid member", status=status.HTTP_404_NOT_FOUND)
         # end try-except
     # end if
