@@ -12,7 +12,6 @@ class CourseAdmin(admin.ModelAdmin):
         'is_deleted',
         'partner',
         'rating',
-        'exp_points',
     )
 # end class
 
@@ -25,6 +24,7 @@ class ChapterAdmin(admin.ModelAdmin):
         'order',
         'course',
         'timestamp',
+        'exp_points',
     )
 # end class
 

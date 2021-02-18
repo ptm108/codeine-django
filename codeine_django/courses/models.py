@@ -79,9 +79,6 @@ class Course(models.Model):
 
     # rating, updated by trigger
     rating = models.DecimalField(max_digits=3, decimal_places=2, default=0)
-
-    # experience points - set by content_provider
-    exp_points = models.PositiveIntegerField(default=0)
 # end class
 
 
@@ -93,6 +90,9 @@ class Chapter(models.Model):
     timestamp = models.DateTimeField(auto_now_add=True)
 
     course = models.ForeignKey('Course', on_delete=models.CASCADE, related_name='chapters')
+
+    # experience points - set by content_provider
+    exp_points = models.PositiveIntegerField(default=100)
 
     class Meta:
         ordering = ['order']
