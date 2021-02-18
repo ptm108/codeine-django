@@ -70,3 +70,85 @@ def industry_project_view(request):
         # end try-except
     # end if
 # end def
+
+@api_view(['GET', 'PATCH', 'DELETE', 'POST'])
+@permission_classes((IsPartnerOrReadOnly,))
+def single_industry_project_view(request, pk):
+
+    '''
+    Get Industry Project by ID
+    '''
+    if request.method == 'GET':
+        try:
+            industry_project = IndustryProject.objects.get(pk=pk)
+
+            serializer = IndustryProjectSerializer(industry_project, context={"request": request})
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except (ValueError) as e:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+        # end try-except
+    # end if
+
+    '''
+    Update a Industry Project
+    '''
+    if request.method == 'PATCH':
+        try:
+            industry_project = IndustryProject.objects.get(pk=pk)
+            data = request.data
+
+            if 'title' in data:
+                industry_project.title = data['title']
+            if 'description' in data:
+                industry_project.description=data['description']
+            if 'start_date' in data:
+                industry_project.start_date=data['start_date']
+            if 'end_date' in data:
+                industry_project.end_date=data['end_date']
+            if 'application_date' in data:
+                industry_project.application_deadline=data['application_deadline'] 
+            # end ifs
+            
+            industry_project.save() 
+
+            serializer = IndustryProjectSerializer(industry_project, context={"request": request})
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except ObjectDoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        except (KeyError, ValueError) as e:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+        # end try-except
+    # end if
+
+    '''
+    Delete a Industry Project
+    '''
+    if request.method == 'DELETE':
+        try:
+            industry_project = IndustryProject.objects.get(pk=pk)
+            industry_project.is_available = False
+            industry_project.save() 
+
+            serializer = IndustryProjectSerializer(industry_project, context={"request": request})
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except ObjectDoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        # end try-except
+    # end if
+
+    '''
+    Make a Industry Project available
+    '''
+    if request.method == 'POST':
+        try:
+            industry_project = IndustryProject.objects.get(pk=pk)
+            industry_project.is_available = True
+            industry_project.save() 
+
+            serializer = IndustryProjectSerializer(industry_project, context={"request": request})
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except ObjectDoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        # end try-except
+    # end if
+# end def
