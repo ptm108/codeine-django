@@ -229,9 +229,10 @@ class NestedEnrollmentSerializer(serializers.ModelSerializer):
 class QuizAnswerSerializer(serializers.ModelSerializer):
     class Meta:
         model = QuizAnswer
-        fields = '__all__'
+        fields = ('response', 'responses', 'quiz_result', 'question')
     # end Meta
 # end class
+
 
 class QuizResultSerializer(serializers.ModelSerializer):
     quiz_answers = QuizAnswerSerializer(many=True)
