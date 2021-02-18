@@ -33,7 +33,8 @@ def quiz_view(request, quiz_id):
 
             serializer = QuizSerializer(quiz)
             return Response(serializer.data, status=status.HTTP_200_OK)
-        except ObjectDoesNotExist:
+        except ObjectDoesNotExist as e:
+            print(e)
             return Response(status=status.HTTP_404_NOT_FOUND)
         except (ValueError, IntegrityError, KeyError) as e:
             print(e)
@@ -208,6 +209,7 @@ def single_question_view(request, quiz_id, question_id):
     # end if
 # end def
 
+
 @api_view(['PATCH'])
 @permission_classes((IsPartnerOnly,))
 def order_question_view(request, quiz_id):
@@ -242,4 +244,3 @@ def order_question_view(request, quiz_id):
         # end try-except
     # end if
 # end def
-
