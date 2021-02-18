@@ -123,7 +123,7 @@ def single_chapter_view(request, pk, chapter_id):
 
             serializer = ChapterSerializer(chapter, context={'public': True})
 
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
+            return Response(serializer.data, status=status.HTTP_200_OK)
         except ObjectDoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
         except (ValueError, KeyError) as e:
