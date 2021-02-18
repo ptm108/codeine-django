@@ -74,20 +74,11 @@ class Course(models.Model):
     is_available = models.BooleanField(default=True)
     is_deleted = models.BooleanField(default=False)
 
-    # price in cents
-    price = models.PositiveIntegerField()
-
-    # cert in html
-    certificate = models.TextField(null=True, default=None, blank=True)
-
     # provider ref
     partner = models.ForeignKey('common.Partner', on_delete=models.SET_NULL, related_name='courses', null=True)
 
     # rating, updated by trigger
     rating = models.DecimalField(max_digits=3, decimal_places=2, default=0)
-
-    # experience points - set by content_provider
-    exp_points = models.PositiveIntegerField(default=0)
 # end class
 
 
@@ -99,6 +90,9 @@ class Chapter(models.Model):
     timestamp = models.DateTimeField(auto_now_add=True)
 
     course = models.ForeignKey('Course', on_delete=models.CASCADE, related_name='chapters')
+
+    # experience points - set by content_provider
+    exp_points = models.PositiveIntegerField(default=100)
 
     class Meta:
         ordering = ['order']
@@ -144,6 +138,7 @@ class Video(models.Model):
 class Enrollment(models.Model):
     date_created = models.DateTimeField(auto_now_add=True)
     progress = models.DecimalField(max_digits=5, decimal_places=2)
+    chapters_done = models.JSONField(default=list)  # list of chapters done
 
     # ref for course
     course = models.ForeignKey('Course', on_delete=models.SET_NULL, null=True, related_name='enrollments')

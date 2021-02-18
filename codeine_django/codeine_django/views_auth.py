@@ -6,6 +6,7 @@ from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 
+from common.models import BaseUser
 from common.serializers import NestedBaseUserSerializer
 
 
@@ -20,7 +21,14 @@ def authenticate_user(request):
         user = authenticate(**data)
 
         if user is None:
-            return Response(status=status.HTTP_401_UNAUTHORIZED)
+            user = BaseUser.objects.filter(email=data['email']).first()
+
+            # check user password
+            if not user or not user.check_password(data['password']):
+                return Response(status=status.HTTP_401_UNAUTHORIZED)
+            # end if
+
+            return Response(NestedBaseUserSerializer(user, context={'request': request}).data, status=status.HTTP_403_FORBIDDEN)
         # end if
 
         # get JWT
