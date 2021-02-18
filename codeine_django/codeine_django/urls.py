@@ -40,6 +40,10 @@ urlpatterns = [
     path('chapters', include('courses.urls_chapters'), name='Chapter endpoints'),
     path('materials', include('courses.urls_course_materials'), name='Course Materials endpoints'),
     path('quiz', include('courses.urls_quiz'), name='Quiz and question endpoints'),
+    path('privateCourses', include('courses.urls_protected_courses'), name='Private courses endpoints'),
+
+    # enrollment endpoints
+    path('enrollments', include('courses.urls_enrollments'), name='Get/Search Enrollments'),
 
     # tickets endpoints
     path('tickets/', include('tickets.urls'), name='Tickets endpoints'), 
@@ -52,6 +56,9 @@ urlpatterns = [
 
     # industry projects endpoints
     path('industryProjects', include('industryProjects.urls'), name='Industry Projects endpoints'),
+
+    # code review endpoints
+    path('code-reviews', include('community.urls_code_reviews'), name='Code Review endpoints')
 ]
 
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
