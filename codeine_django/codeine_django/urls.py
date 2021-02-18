@@ -39,17 +39,20 @@ urlpatterns = [
     path('courses', include('courses.urls'), name='Courses endpoints'),
     path('chapters', include('courses.urls_chapters'), name='Chapter endpoints'),
     path('materials', include('courses.urls_course_materials'), name='Course Materials endpoints'),
-    path('quiz', include('courses.urls_quiz'), name='Quiz and question endpoints'),
     path('privateCourses', include('courses.urls_protected_courses'), name='Private courses endpoints'),
+
+    # quiz endpoints
+    path('quiz', include('courses.urls_quiz'), name='Quiz and question endpoints'),
+    path('quizResults', include('courses.urls_quiz_results'), name='QuizResult endpoints'),
 
     # enrollment endpoints
     path('enrollments', include('courses.urls_enrollments'), name='Get/Search Enrollments'),
 
     # tickets endpoints
-    path('tickets/', include('tickets.urls'), name='Tickets endpoints'), 
+    path('tickets/', include('tickets.urls'), name='Tickets endpoints'),
 
     # achievements endpoints
-    path('achievements', include('achievements.urls'), name='Achievements endpoints'), 
+    path('achievements', include('achievements.urls'), name='Achievements endpoints'),
 
     # article endpoints
     path('articles', include('community.urls_articles'), name='Article endpoints'),

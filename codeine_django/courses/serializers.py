@@ -13,6 +13,8 @@ from .models import (
     ShortAnswer,
     MCQ,
     MRQ,
+    QuizResult,
+    QuizAnswer,
 )
 
 from common.models import Member
@@ -220,5 +222,23 @@ class NestedEnrollmentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Enrollment
         fields = ('progress', 'member', 'course', 'chapters_done')
+    # end Meta
+# end class
+
+
+class QuizAnswerSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = QuizAnswer
+        fields = ('response', 'responses', 'quiz_result', 'question')
+    # end Meta
+# end class
+
+
+class QuizResultSerializer(serializers.ModelSerializer):
+    quiz_answers = QuizAnswerSerializer(many=True)
+
+    class Meta:
+        model = QuizResult
+        fields = '__all__'
     # end Meta
 # end class
