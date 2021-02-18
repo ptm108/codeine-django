@@ -213,8 +213,10 @@ class MRQ(models.Model):
 
 class QuizResult(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, unique=True)
-    total_marks = models.PositiveIntegerField()
+    date_created = models.DateTimeField(auto_now_add=True)
+    total_marks = models.PositiveIntegerField(default=0)
     passed = models.BooleanField(default=False)
+    submitted = models.BooleanField(default=False)
 
     # member who took assessment
     member = models.ForeignKey('common.Member', on_delete=models.CASCADE, related_name='quiz_results')
