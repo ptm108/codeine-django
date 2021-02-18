@@ -16,6 +16,7 @@ class ConsultationSlot(models.Model):
     meeting_link = models.TextField(default='')
     is_confirmed = models.BooleanField(default=False)
     is_rejected = models.BooleanField(default=False)
+    is_cancelled = models.BooleanField(default=False)
 
     # ref
     partner = models.ForeignKey('common.Partner', on_delete=models.SET_NULL, related_name='consultation_slots', null=True, blank=True)
