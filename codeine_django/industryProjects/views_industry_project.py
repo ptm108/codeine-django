@@ -105,7 +105,7 @@ def single_industry_project_view(request, pk):
                 industry_project.start_date=data['start_date']
             if 'end_date' in data:
                 industry_project.end_date=data['end_date']
-            if 'application_date' in data:
+            if 'application_deadline' in data:
                 industry_project.application_deadline=data['application_deadline'] 
             # end ifs
             

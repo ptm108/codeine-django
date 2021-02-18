@@ -7,6 +7,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from common.models import Member
 from common.permissions import IsPartnerOrReadOnly, IsMemberOrReadOnly
+from datetime import date
 
 @api_view(['GET', 'POST'])
 @permission_classes((IsMemberOrReadOnly,))
@@ -36,6 +37,17 @@ def application_view(request, pk):
             user = request.user
             member = Member.objects.get(user=user)
             industry_project = IndustryProject.objects.get(pk=pk)
+            
+            application = IndustryProjectApplication.objects.filter(member=member).filter(industry_project=industry_project).filter(is_rejected=False)
+
+            if application.exists(): # already applied
+                return Response("Member has already applied for this Industry Project", status=status.HTTP_409_CONFLICT)
+            # end if
+
+            today = date.today()
+            if industry_project.application_deadline < today:  # application deadline has past
+                return Response("The application deadline has past", status=status.HTTP_409_CONFLICT)
+            # end if
 
             application = IndustryProjectApplication(     
                 member = member,
@@ -52,7 +64,7 @@ def application_view(request, pk):
     # end if
 # end def
 
-@api_view(['GET', 'POST', 'DELETE'])
+@api_view(['GET', 'PATCH', 'DELETE'])
 @permission_classes((IsPartnerOrReadOnly,))
 def single_application_view(request, pk, app_id):
 
@@ -75,7 +87,7 @@ def single_application_view(request, pk, app_id):
     '''
     Partner accepts Member / Update Application
     '''
-    if request.method == 'POST':
+    if request.method == 'PATCH':
         try:
             application = IndustryProjectApplication.objects.get(pk=app_id)
             application.is_accepted = True
@@ -92,14 +104,17 @@ def single_application_view(request, pk, app_id):
     # end if
 
     '''
-    Delete an Application
+    Partner rejects an Application
     '''
     if request.method == 'DELETE':
         try:
             application = IndustryProjectApplication.objects.get(pk=app_id)
-            application.delete()
+            application.is_rejected = True
 
-            return Response(status=status.HTTP_200_OK)
+            application.save() 
+
+            serializer = IndustryProjectApplicationSerializer(application, context={"request": request})
+            return Response(serializer.data, status=status.HTTP_200_OK)
         except ObjectDoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
         # end try-except
