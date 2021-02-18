@@ -10,7 +10,7 @@ class ConsultationSlotSerializer(serializers.ModelSerializer):
     # end Meta
 # end class
 
-class PaymentTransactionSlotSerializer(serializers.ModelSerializer):
+class PaymentTransactionSerializer(serializers.ModelSerializer):
     class Meta:
         model = PaymentTransaction
         fields = '__all__'
