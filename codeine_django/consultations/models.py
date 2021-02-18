@@ -11,6 +11,7 @@ class ConsultationSlot(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, unique=True)
     # start_date = models.DateField()
     # end_date = models.DateField()
+    title = models.CharField(max_length=255)
     start_time = models.DateTimeField()
     end_time = models.DateTimeField()
     meeting_link = models.TextField(default='')
