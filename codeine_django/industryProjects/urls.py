@@ -1,6 +1,8 @@
 from django.urls import path
 
+from . import views
+
 urlpatterns = [
-    # order views
-    # path('', views, name='Get all/Search Courses, Create Course'),
+    # industry projects views
+    path('', views.industry_project_view, name='Get all/Search/Create Industry Projects'),
 ]
