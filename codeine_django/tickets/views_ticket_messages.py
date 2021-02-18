@@ -28,8 +28,8 @@ def ticket_message_view(request):
 
         if search is not None:
             ticket_messages = ticket_messages.filter(
-                Q(base_user__user__id__icontains=search) |
-                Q(ticket__id__icontains=search) |
+                Q(base_user__user__id__exact=search) |
+                Q(ticket__id__exact=search) |
                 Q(message__icontains=search)
             )
         # end if

@@ -13,6 +13,8 @@ from .models import (
     ShortAnswer,
     MCQ,
     MRQ,
+    QuizResult,
+    QuizAnswer,
 )
 
 from common.models import Member
@@ -146,7 +148,7 @@ class ChapterSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Chapter
-        fields = ('id', 'title', 'overview', 'course_materials', 'order')
+        fields = ('id', 'title', 'overview', 'course_materials', 'order', 'exp_points')
     # end Meta
 
     def get_course_materials(self, obj):
@@ -209,7 +211,7 @@ class CourseSerializer(serializers.ModelSerializer):
 class EnrollmentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Enrollment
-        fields = ('progress', 'course', 'member')
+        fields = ('progress', 'course', 'member', 'chapters_done')
     # end Meta
 # end class
 
@@ -219,6 +221,24 @@ class NestedEnrollmentSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Enrollment
-        fields = ('progress', 'member', 'course')
+        fields = ('progress', 'member', 'course', 'chapters_done')
+    # end Meta
+# end class
+
+
+class QuizAnswerSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = QuizAnswer
+        fields = ('response', 'responses', 'quiz_result', 'question')
+    # end Meta
+# end class
+
+
+class QuizResultSerializer(serializers.ModelSerializer):
+    quiz_answers = QuizAnswerSerializer(many=True)
+
+    class Meta:
+        model = QuizResult
+        fields = '__all__'
     # end Meta
 # end class

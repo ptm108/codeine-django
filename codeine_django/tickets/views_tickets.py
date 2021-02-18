@@ -29,7 +29,7 @@ def ticket_view(request):
 
         if search is not None:
             tickets = tickets.filter(
-                Q(base_user__user__id__icontains=search) |
+                Q(base_user__user__id__exact=search) |
                 Q(description__icontains=search) |
                 Q(ticket_type__icontains=search)
             )

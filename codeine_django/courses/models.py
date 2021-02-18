@@ -79,9 +79,6 @@ class Course(models.Model):
 
     # rating, updated by trigger
     rating = models.DecimalField(max_digits=3, decimal_places=2, default=0)
-
-    # experience points - set by content_provider
-    exp_points = models.PositiveIntegerField(default=0)
 # end class
 
 
@@ -93,6 +90,9 @@ class Chapter(models.Model):
     timestamp = models.DateTimeField(auto_now_add=True)
 
     course = models.ForeignKey('Course', on_delete=models.CASCADE, related_name='chapters')
+
+    # experience points - set by content_provider
+    exp_points = models.PositiveIntegerField(default=100)
 
     class Meta:
         ordering = ['order']
@@ -138,6 +138,7 @@ class Video(models.Model):
 class Enrollment(models.Model):
     date_created = models.DateTimeField(auto_now_add=True)
     progress = models.DecimalField(max_digits=5, decimal_places=2)
+    chapters_done = models.JSONField(default=list)  # list of chapters done
 
     # ref for course
     course = models.ForeignKey('Course', on_delete=models.SET_NULL, null=True, related_name='enrollments')
@@ -212,8 +213,10 @@ class MRQ(models.Model):
 
 class QuizResult(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, unique=True)
-    total_marks = models.PositiveIntegerField()
+    date_created = models.DateTimeField(auto_now_add=True)
+    score = models.DecimalField(max_digits=5, decimal_places=2, default=0)
     passed = models.BooleanField(default=False)
+    submitted = models.BooleanField(default=False)
 
     # member who took assessment
     member = models.ForeignKey('common.Member', on_delete=models.CASCADE, related_name='quiz_results')
@@ -225,7 +228,7 @@ class QuizResult(models.Model):
 
 class QuizAnswer(models.Model):
     # parent assessment result
-    quiz_result = models.ForeignKey('Quiz', on_delete=models.CASCADE, related_name='quiz_answers')
+    quiz_result = models.ForeignKey('QuizResult', on_delete=models.CASCADE, related_name='quiz_answers')
 
     # ref to question
     question = models.ForeignKey('Question', on_delete=models.SET_NULL, null=True, related_name='quiz_answers')
