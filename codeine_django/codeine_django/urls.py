@@ -48,7 +48,10 @@ urlpatterns = [
     path('achievements', include('achievements.urls'), name='Achievements endpoints'), 
 
     # article endpoints
-    path('articles', include('community.urls'), name='Article endpoints')
+    path('articles', include('community.urls'), name='Article endpoints'),
+
+    # industry projects endpoints
+    path('industryProjects', include('industryProjects.urls'), name='Industry Projects endpoints'),
 ]
 
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
