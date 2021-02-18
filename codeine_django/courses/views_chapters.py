@@ -61,6 +61,7 @@ def chapter_view(request, pk):
                 title=data['title'],
                 overview=data['overview'],
                 order=int(data['order']),
+                exp_points=int(data['exp_points']),
                 course=course
             )
             chapter.save()
@@ -117,6 +118,7 @@ def single_chapter_view(request, pk, chapter_id):
 
             chapter.title = data['title']
             chapter.overview = data['overview']
+            chapter.exp_points = int(data['exp_points'])
             chapter.save()
 
             serializer = ChapterSerializer(chapter, context={'public': True})
