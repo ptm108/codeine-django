@@ -123,7 +123,7 @@ class QuizResultAdmin(admin.ModelAdmin):
     list_display = (
         'id',
         'date_created',
-        'total_marks',
+        'score',
         'passed',
         'submitted',
         'member',
