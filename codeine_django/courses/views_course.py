@@ -7,11 +7,7 @@ from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
-from rest_framework.permissions import (
-    IsAuthenticated,
-    AllowAny,
-    IsAuthenticatedOrReadOnly,
-)
+from rest_framework.permissions import IsAdminUser
 
 import json
 
@@ -204,7 +200,7 @@ def publish_course_view(request, pk):
 
             # check if content provider is owner of course
             if course.partner != partner:
-                return Response(status=status.HTTP_400_BAD_REQUEST)
+                return Response(status=status.HTTP_403_FORBIDDEN)
             # end if
 
             course.is_published = True
@@ -234,7 +230,7 @@ def unpublish_course_view(request, pk):
 
             # check if content provider is owner of course
             if course.partner != partner:
-                return Response(status=status.HTTP_400_BAD_REQUEST)
+                return Response(status=status.HTTP_403_FORBIDDEN)
             # end if
 
             course.is_published = False
@@ -338,6 +334,48 @@ def single_assessment_view(request, course_id, assessment_id):
         except (ValueError, IntegrityError, KeyError) as e:
             print(e)
             return Response(status=status.HTTP_400_BAD_REQUEST)
+        # end try-except
+    # end if
+# end def
+
+
+@api_view(['PATCH'])
+@permission_classes((IsAdminUser,))
+def activate_course_view(request, course_id):
+    '''
+    Admin activate course
+    '''
+    if request.method == 'PATCH':
+        try:
+            course = Course.objects.get(pk=course_id)
+
+            course.is_available = True
+            course.save()
+
+            return Response(CourseSerializer(course, context={'request': request}).data, status=status.HTTP_200_OK)
+        except ObjectDoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        # end try-except
+    # end if
+# end def
+
+
+@api_view(['PATCH'])
+@permission_classes((IsAdminUser,))
+def deactivate_course_view(request, course_id):
+    '''
+    Admin deactivate course
+    '''
+    if request.method == 'PATCH':
+        try:
+            course = Course.objects.get(pk=course_id)
+
+            course.is_available = False
+            course.save()
+
+            return Response(CourseSerializer(course, context={'request': request}).data, status=status.HTTP_200_OK)
+        except ObjectDoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
         # end try-except
     # end if
 # end def
