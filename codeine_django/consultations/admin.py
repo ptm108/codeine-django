@@ -9,7 +9,7 @@ class ConsultationSlotAdmin(admin.ModelAdmin):
 
 
 class PaymentTransactionAdmin(admin.ModelAdmin):
-    list_display = ('id', 'timestamp', 'payment_amount', 'payment_status', 'payment_type', 'consultation_slot', 'enrollment')
+    list_display = ('id', 'timestamp', 'payment_amount', 'payment_status', 'payment_type', 'consultation_slot', 'partner')
 # end class
 
 admin.site.register(ConsultationSlot, ConsultationSlotAdmin)

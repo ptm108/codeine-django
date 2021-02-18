@@ -58,7 +58,8 @@ class PaymentTransaction(models.Model):
 
     # ref
     consultation_slot = models.OneToOneField('ConsultationSlot', on_delete=models.DO_NOTHING, related_name="transaction", null=True, blank=True)
-    enrollment = models.OneToOneField('courses.Enrollment', on_delete=models.DO_NOTHING, related_name="transaction", null=True, blank=True)
+    partner = models.OneToOneField('common.Partner', on_delete=models.DO_NOTHING, related_name="transaction", null=True, blank=True)
+    # enrollment = models.OneToOneField('courses.Enrollment', on_delete=models.DO_NOTHING, related_name="transaction", null=True, blank=True)
 
     def __str__(self):
         return f'Payment of {self.payment_amount} using {self.payment_type}, status: {self.payment_status}'

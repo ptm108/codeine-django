@@ -32,8 +32,8 @@ urlpatterns = [
     # common infra endpoints
     path('auth/', include('common.urls'), name='Common infra end points'),
 
-    # content provider endpoints
-    path('consultations', include('consultations.urls'), name='Consultation end points'),
+    # consultation endpoints
+    path('consultations', include('consultations.urls_consultations'), name='Consultation end points'),
 
     # courses endpoints
     path('courses', include('courses.urls'), name='Courses endpoints'),
