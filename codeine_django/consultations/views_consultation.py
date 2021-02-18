@@ -38,6 +38,7 @@ def consultation_slot_view(request):
                 consultation_slot = ConsultationSlot(
                     # start_date = data['start_date'],
                     # end_date = data['end_date'],
+                    title = data['title'],
                     start_time = data['start_time'],
                     end_time = data['end_time'],
                     meeting_link = data['meeting_link'],
@@ -111,6 +112,8 @@ def single_consultation_slot_view(request, pk):
                     return Response(status=status.HTTP_401_UNAUTHORIZED)
                 # end if
 
+                if 'title' in data:
+                    consultation_slot.title = data['title']
                 if 'start_date' in data:
                     consultation_slot.start_date = data['start_date']
                 if 'end_date' in data:
@@ -253,6 +256,7 @@ def cancel_consultation_slot(request, pk):
             with transaction.atomic():
                 try:
                     new_consultation_slot = ConsultationSlot(
+                        title = consultation_slot.title,
                         start_time = consultation_slot.start_time,
                         end_time = consultation_slot.end_time,
                         meeting_link = consultation_slot.meeting_link,
