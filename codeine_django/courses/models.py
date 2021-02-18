@@ -228,7 +228,7 @@ class QuizResult(models.Model):
 
 class QuizAnswer(models.Model):
     # parent assessment result
-    quiz_result = models.ForeignKey('Quiz', on_delete=models.CASCADE, related_name='quiz_answers')
+    quiz_result = models.ForeignKey('QuizResult', on_delete=models.CASCADE, related_name='quiz_answers')
 
     # ref to question
     question = models.ForeignKey('Question', on_delete=models.SET_NULL, null=True, related_name='quiz_answers')
