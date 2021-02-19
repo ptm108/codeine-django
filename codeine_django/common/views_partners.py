@@ -157,7 +157,7 @@ def single_partner_view(request, pk):
             user = BaseUser.objects.get(pk=pk)
             partner = Partner.objects.get(user=user)
 
-            if request.user != user and (not partner.org_admin or not request.user.is_admin):
+            if request.user != user and not partner.org_admin and not request.user.is_admin:
                 return Response(status=status.HTTP_401_UNAUTHORIZED)
             # end if
 
