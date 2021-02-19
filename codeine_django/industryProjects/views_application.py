@@ -85,13 +85,19 @@ def single_application_view(request, pk, app_id):
     # end if
 
     '''
-    Partner accepts Member / Update Application
+    Partner accepts/reject Member
     '''
     if request.method == 'PATCH':
         try:
             application = IndustryProjectApplication.objects.get(pk=app_id)
-            application.is_accepted = True
-                        
+
+            data = request.data
+            if 'is_accepted' in data:
+                application.is_accepted = True
+            if 'is_rejected' in data:
+                application.is_rejected = True
+            # end ifs
+                                    
             application.save() 
 
             serializer = IndustryProjectApplicationSerializer(application, context={"request": request})
@@ -100,23 +106,6 @@ def single_application_view(request, pk, app_id):
             return Response(status=status.HTTP_404_NOT_FOUND)
         except (KeyError, ValueError) as e:
             return Response(status=status.HTTP_400_BAD_REQUEST)
-        # end try-except
-    # end if
-
-    '''
-    Partner rejects an Application
-    '''
-    if request.method == 'DELETE':
-        try:
-            application = IndustryProjectApplication.objects.get(pk=app_id)
-            application.is_rejected = True
-
-            application.save() 
-
-            serializer = IndustryProjectApplicationSerializer(application, context={"request": request})
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        except ObjectDoesNotExist:
-            return Response(status=status.HTTP_404_NOT_FOUND)
         # end try-except
     # end if
 # end def
