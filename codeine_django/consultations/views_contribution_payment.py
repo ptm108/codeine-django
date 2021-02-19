@@ -15,6 +15,66 @@ from .serializers import PaymentTransactionSerializer
 
 @api_view(['GET', 'POST'])
 @permission_classes((IsMemberOrReadOnly,))
+def consultation_payment_transaction_view(request, pk):
+    '''
+    Creates a new payment transaction for a consultation
+    '''
+    if request.method == 'POST':
+        user = request.user
+        member = Member.objects.get(user=user)
+        consultation_slot = ConsultationSlot.objects.get(id=pk)
+        partner = consultation_slot.partner
+        data = request.data
+
+        with transaction.atomic():
+            try:
+                payment_transaction = ConsultationSlot(
+                    payment_amount = data['payment_amount'],
+                    payment_status = data['payment_status'],
+                    payment_type = data['payment_type'],
+                    consultation_slot = consultation_slot,
+                    partner = partner
+                )
+
+                payment_transaction.save()
+
+                serializer = PaymentTransactionSerializer(
+                    payment_transaction, context={"request": request})
+
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
+            except (IntegrityError, ValueError, KeyError) as e:
+                print(e)
+                return Response(status=status.HTTP_400_BAD_REQUEST)
+        # end with
+    # end if
+
+    '''
+    Get all payment transactions
+    '''
+    if request.method == 'GET':
+        # extract query params
+        search = request.query_params.get('search', None)
+
+        payment_transactions = PaymentTransaction.objects
+
+        if search is not None:
+            payment_transactions = payment_transactions.filter(
+                Q(payment_amount__icontains=search) |
+                Q(payment_status__icontains=search) |
+                Q(payment_type__icontains=search) |
+                Q(consultation_slot_id__icontains=search) |
+                Q(partner_id__icontains=search)
+            )
+        # end if
+
+        serializer = PaymentTransactionSerializer(
+            payment_transactions.all(), many=True, context={"request": request})
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    # end if
+# end def
+
+@api_view(['GET', 'POST'])
+@permission_classes((IsMemberOrReadOnly,))
 def payment_transaction_view(request, consultation_slot_id):
     '''
     Creates a new payment transaction

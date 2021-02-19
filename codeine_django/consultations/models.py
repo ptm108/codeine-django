@@ -15,13 +15,15 @@ class ConsultationSlot(models.Model):
     start_time = models.DateTimeField()
     end_time = models.DateTimeField()
     meeting_link = models.TextField(default='')
-    is_confirmed = models.BooleanField(default=False)
-    is_rejected = models.BooleanField(default=False)
+    # is_confirmed = models.BooleanField(default=False)
+    # is_rejected = models.BooleanField(default=False)
     is_cancelled = models.BooleanField(default=False)
+    price_per_pax = models.DecimalField(max_digits=5, decimal_places=2, default=0.0)
+    max_members = models.IntegerField()
 
     # ref
     partner = models.ForeignKey('common.Partner', on_delete=models.SET_NULL, related_name='consultation_slots', null=True, blank=True)
-    member = models.ForeignKey('common.Member', on_delete=models.SET_NULL, related_name='consultation_slots', null=True, blank=True)
+    # member = models.ForeignKey('common.Member', on_delete=models.SET_NULL, related_name='consultation_slots', null=True, blank=True)
 
     def __str__(self):
         return f'Consultation slot: {self.id}'
@@ -69,3 +71,37 @@ class PaymentTransaction(models.Model):
         ordering = ['timestamp']
     #end class
 # end class
+
+class ConsultationPayment(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, unique=True)
+    payment_transaction = models.OneToOneField(PaymentTransaction, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return f'{self.payment_transaction}'
+    # end def
+# end class
+
+class ContributionPayment(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, unique=True)
+    payment_transaction = models.OneToOneField(PaymentTransaction, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return f'{self.payment_transaction}'
+    # end def
+# end class
+
+class ConsultationApplication(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, unique=True)
+    is_cancelled = models.BooleanField(default=False)
+    is_rejected = models.BooleanField(default=False)
+
+    # ref
+    member = models.ForeignKey('common.Member', on_delete=models.SET_NULL, related_name='consultation_applications', null=True, blank=True)
+    consultation_slot = models.ForeignKey(ConsultationSlot, on_delete=models.SET_NULL, related_name='consultation_applications', null=True, blank=True)
+    consultation_payment = models.OneToOneField(ConsultationPayment, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return f'{self.payment_transaction}'
+    # end def
+# end class
+

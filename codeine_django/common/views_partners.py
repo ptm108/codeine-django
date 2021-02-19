@@ -133,8 +133,8 @@ def single_partner_view(request, pk):
                     partner.job_title = data['job_title']
                 if 'bio' in data:
                     partner.bio = data['bio']
-                if 'consultation_rate' in data:
-                    partner.consultation_rate = data['consultation_rate']
+                # if 'consultation_rate' in data:
+                #     partner.consultation_rate = data['consultation_rate']
                 if 'org_admin' in data:
                     partner.org_admin = data['org_admin']
                 # end ifs
