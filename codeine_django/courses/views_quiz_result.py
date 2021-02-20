@@ -129,7 +129,7 @@ def sumbit_quiz_result_view(request, quiz_result_id):
                 # evaluate short answer questions
                 try:
                     keywords = question.shortanswer.keywords
-                    responses = answer.responses.split(' ')
+                    responses = answer.response.split(' ')
                     responses = [response for response in responses if response in keywords]
 
                     score += len(responses) / len(keywords) * question.shortanswer.marks
