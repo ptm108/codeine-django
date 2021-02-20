@@ -168,7 +168,7 @@ def sumbit_quiz_result_view(request, quiz_result_id):
         except ObjectDoesNotExist as e:
             print(e)
             return Response(status=status.HTTP_404_NOT_FOUND)
-        except (KeyError, ValueError, ValidationError) as e:
+        except (KeyError, ValueError, ValidationError, AttributeError) as e:
             print(e)
             return Response(status=status.HTTP_400_BAD_REQUEST)
         # end try-except
