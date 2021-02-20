@@ -25,6 +25,11 @@ def consultation_payment_view(request, consultation_application_id):
         consultation_application = ConsultationApplication.objects.get(pk=consultation_application_id)
         data = request.data
 
+        # assert requesting member is payment for their own slot
+        if member != consultation_application.member:
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
+        # end if
+
         with transaction.atomic():
             try:
                 payment_transaction = PaymentTransaction(
