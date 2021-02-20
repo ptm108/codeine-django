@@ -40,7 +40,8 @@ def quiz_result_views(request, quiz_id):
                 Q(submitted=False)
             ).first()
             if quiz_result is not None:
-                return Response(QuizResultSerializer(quiz_result).data, status=status.HTTP_304_NOT_MODIFIED)
+                print(quiz_result)
+                return Response(QuizResultSerializer(quiz_result).data, status=status.HTTP_202_ACCEPTED)
             # end if
 
             quiz_result = QuizResult(member=member, quiz=quiz)
