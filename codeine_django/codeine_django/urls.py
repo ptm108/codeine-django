@@ -34,7 +34,7 @@ urlpatterns = [
 
     # consultation endpoints
     path('consultations', include('consultations.urls_consultations'), name='Consultation end points'),
-    path('payments', include('consultations.urls_contribution_payments'), name='Contributions end points'),
+    # path('payments', include('consultations.urls_contribution_payments'), name='Contributions end points'),
 
     # courses endpoints
     path('courses', include('courses.urls'), name='Courses endpoints'),

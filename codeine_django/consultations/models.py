@@ -35,6 +35,19 @@ class ConsultationSlot(models.Model):
     #end class
 # end class
 
+class ConsultationApplication(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, unique=True)
+    is_cancelled = models.BooleanField(default=False)
+    is_rejected = models.BooleanField(default=False)
+
+    # ref
+    member = models.ForeignKey('common.Member', on_delete=models.SET_NULL, related_name='consultation_applications', null=True, blank=True)
+    consultation_slot = models.ForeignKey(ConsultationSlot, on_delete=models.SET_NULL, related_name='consultation_applications', null=True, blank=True)
+
+    def __str__(self):
+        return f'Application for {self.consultation_slot}'
+    # end def
+# end class
 
 class PaymentTransaction(models.Model):
     PAYMENT_STATUSES = (
@@ -58,11 +71,6 @@ class PaymentTransaction(models.Model):
     payment_status = models.TextField(choices=PAYMENT_STATUSES, default='PENDING')
     payment_type = models.TextField(choices=PAYMENT_TYPES)
 
-    # ref
-    consultation_slot = models.OneToOneField('ConsultationSlot', on_delete=models.DO_NOTHING, related_name="transaction", null=True, blank=True)
-    partner = models.OneToOneField('common.Partner', on_delete=models.DO_NOTHING, related_name="transaction", null=True, blank=True)
-    # enrollment = models.OneToOneField('courses.Enrollment', on_delete=models.DO_NOTHING, related_name="transaction", null=True, blank=True)
-
     def __str__(self):
         return f'Payment of {self.payment_amount} using {self.payment_type}, status: {self.payment_status}'
     # end def
@@ -75,33 +83,20 @@ class PaymentTransaction(models.Model):
 class ConsultationPayment(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, unique=True)
     payment_transaction = models.OneToOneField(PaymentTransaction, on_delete=models.CASCADE)
+    
+    # ref
+    consultation_application = models.ForeignKey(ConsultationApplication, on_delete=models.SET_NULL, related_name='consultation_payment', null=True, blank=True)
 
     def __str__(self):
-        return f'{self.payment_transaction}'
+        return f'{self.payment_transaction} for {self.consultation_application}'
     # end def
 # end class
 
 class ContributionPayment(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, unique=True)
     payment_transaction = models.OneToOneField(PaymentTransaction, on_delete=models.CASCADE)
-
+    
     def __str__(self):
         return f'{self.payment_transaction}'
     # end def
 # end class
-
-class ConsultationApplication(models.Model):
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, unique=True)
-    is_cancelled = models.BooleanField(default=False)
-    is_rejected = models.BooleanField(default=False)
-
-    # ref
-    member = models.ForeignKey('common.Member', on_delete=models.SET_NULL, related_name='consultation_applications', null=True, blank=True)
-    consultation_slot = models.ForeignKey(ConsultationSlot, on_delete=models.SET_NULL, related_name='consultation_applications', null=True, blank=True)
-    consultation_payment = models.OneToOneField(ConsultationPayment, on_delete=models.CASCADE)
-
-    def __str__(self):
-        return f'{self.payment_transaction}'
-    # end def
-# end class
-
