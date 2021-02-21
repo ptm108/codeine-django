@@ -16,4 +16,5 @@ urlpatterns = [
 
     # consultation payment transaction views
     path('/application/<slug:consultation_application_id>/payment', views_consultation_payment.consultation_payment_view, name='Create/Get all/Search Payment Transaction for a Consultation Application'),
+    path('/payment/<slug:pk>/update', views_consultation_payment.update_consultation_payment_status, name='Update Payment Transaction Status'),
 ]

@@ -8,7 +8,7 @@ from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
 from rest_framework.response import Response
 
 from common.models import Member
-from common.permissions import IsMemberOrReadOnly
+from common.permissions import IsMemberOrReadOnly, IsMemberOrAdminOrReadOnly
 from .models import PaymentTransaction, ConsultationPayment, ConsultationApplication
 from .serializers import ConsultationPaymentSerializer
 
@@ -67,5 +67,31 @@ def consultation_payment_view(request, consultation_application_id):
         serializer = ConsultationPaymentSerializer(
             consultation_payment, context={"request": request})
         return Response(serializer.data, status=status.HTTP_200_OK)
+    # end if
+# end def
+
+@api_view(['PATCH'])
+@permission_classes((IsMemberOrAdminOrReadOnly,))
+def update_consultation_payment_status(request, pk):
+    '''
+    Update consultation payment status
+    '''
+    if request.method == 'PATCH':
+        data = request.data
+        try:
+            consultation_payment = ConsultationPayment.objects.get(pk=pk)
+
+            if 'payment_status' in data:
+                consultation_payment.payment_transaction.payment_status = data['payment_status']
+            # end if
+
+            consultation_payment.save()
+
+            serializer = ConsultationPaymentSerializer(
+                consultation_payment, context={"request": request})
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except ObjectDoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        # end try-except
     # end if
 # end def
