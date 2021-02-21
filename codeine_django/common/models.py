@@ -126,3 +126,36 @@ class Partner(models.Model):
         return f'{self.user}'
     # end def
 # end class
+
+
+class PaymentTransaction(models.Model):
+    PAYMENT_STATUSES = (
+        ('PENDING_COMPLETION', 'Pending Completion'),
+        ('PENDING_REFUND', 'Pending Refund'),
+        ('COMPLETED', 'Completed'),
+        ('REFUNDED', 'Refunded'),
+        ('FAILED', 'Failed')
+    )
+
+    PAYMENT_TYPES = (
+        ('VISA', 'Visa'),
+        ('MASTER', 'Mastercard'),
+        ('AMEX', 'American Express')
+    )
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, unique=True)
+    timestamp = models.DateTimeField(auto_now_add=True)
+    payment_amount = models.DecimalField(max_digits=5, decimal_places=2, default=0.0)
+
+    # enums
+    payment_status = models.TextField(choices=PAYMENT_STATUSES, default='PENDING')
+    payment_type = models.TextField(choices=PAYMENT_TYPES)
+
+    def __str__(self):
+        return f'Payment of {self.payment_amount} using {self.payment_type}, status: {self.payment_status}'
+    # end def
+
+    class Meta:
+        ordering = ['timestamp']
+    #end class
+# end class
