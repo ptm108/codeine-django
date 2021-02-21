@@ -12,7 +12,7 @@ from rest_framework.permissions import (
     AllowAny,
     IsAuthenticatedOrReadOnly,
 )
-from .models import ConsultationSlot
+from .models import ConsultationSlot, ConsultationApplication
 from common.models import Partner, Member
 from common.permissions import IsMemberOnly, IsPartnerOnly, IsPartnerOrReadOnly
 from .serializers import ConsultationSlotSerializer
@@ -178,6 +178,13 @@ def cancel_consultation_slot(request, pk):
 
             consultation_slot.is_cancelled = True
             consultation_slot.save()
+
+            # reject all consultation applications
+            consultation_applications = ConsultationApplication.objects.filter(consultation_slot=consultation_slot)
+            for application in consultation_applications:
+                application.is_rejected = True
+                application.save()
+            # end for
 
             serializer = ConsultationSlotSerializer(
                 consultation_slot, context={"request": request})

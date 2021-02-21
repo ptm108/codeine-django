@@ -87,7 +87,7 @@ class ConsultationPayment(models.Model):
     payment_transaction = models.OneToOneField(PaymentTransaction, on_delete=models.CASCADE)
     
     # ref
-    consultation_application = models.ForeignKey(ConsultationApplication, on_delete=models.SET_NULL, related_name='consultation_payment', null=True, blank=True)
+    consultation_application = models.ForeignKey(ConsultationApplication, on_delete=models.SET_NULL, related_name='consultation_payments', null=True, blank=True)
 
     def __str__(self):
         return f'{self.payment_transaction} for {self.consultation_application}'
