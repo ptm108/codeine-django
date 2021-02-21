@@ -8,8 +8,8 @@ from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
 from rest_framework.response import Response
 
 from .models import ConsultationApplication, ConsultationSlot
-from common.models import Member
-from common.permissions import IsMemberOnly, IsMemberOrReadOnly
+from common.models import Member, Partner
+from common.permissions import IsMemberOnly, IsMemberOrReadOnly, IsPartnerOnly
 from .serializers import ConsultationApplicationSerializer
 
 
@@ -146,3 +146,36 @@ def cancel_consultation_application(request, pk):
         # end try-except
     # end if
 # end def
+
+@api_view(['GET'])
+@permission_classes((IsPartnerOnly,))
+@parser_classes((MultiPartParser, FormParser, JSONParser))
+def partner_consultation_application_view(request):
+    '''
+    Partner Get/ Search consultation applications
+    '''
+    if request.method == 'GET':
+        try:
+            user = request.user
+            partner = Partner.objects.get(user=user)
+            consultation_slots = ConsultationSlot.objects.filter(partner=partner)
+            consultation_applications = ConsultationApplication.objects.filter(consultation_slot__in=consultation_slots)
+            
+            search = request.query_params.get('search', None)
+            if search is not None:
+                consultation_applications = consultation_applications.filter(
+                    Q(consultation_slot__title__icontains=search) |
+                    Q(member__user__first_name__icontains=search) |
+                    Q(member__user__last_name__icontains=search)
+                )
+            # end if
+
+            serializer = ConsultationApplicationSerializer(
+                consultation_applications.all(), many=True, context={"request": request})
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except (ObjectDoesNotExist, KeyError, ValueError) as e:
+            print(e)
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+        # end try-except
+    # end if
+#end def
