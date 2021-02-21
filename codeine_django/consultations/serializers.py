@@ -44,6 +44,7 @@ class ConsultationPaymentSerializer(serializers.ModelSerializer):
 # end class
 
 class ConsultationApplicationSerializer(serializers.ModelSerializer):
+    
     class Meta:
         model = ConsultationApplication
         fields = '__all__'

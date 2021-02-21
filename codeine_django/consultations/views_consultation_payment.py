@@ -30,6 +30,17 @@ def consultation_payment_view(request, consultation_application_id):
             return Response(status=status.HTTP_401_UNAUTHORIZED)
         # end if
 
+        prev_payments = ConsultationPayment.objects.filter(
+            Q(consultation_application=consultation_application) &
+            (Q(payment_transaction__payment_status='PENDING') |
+            Q(payment_transaction__payment_status='COMPLETED'))
+        )
+
+        # check if application already has a payment, and is not failed
+        if prev_payments.count() > 0:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+        # end if
+
         with transaction.atomic():
             try:
                 payment_transaction = PaymentTransaction(
@@ -56,16 +67,16 @@ def consultation_payment_view(request, consultation_application_id):
     # end if
 
     '''
-    Get consultation payment for a consultation application
+    Get consultation payments for a consultation application
     '''
     if request.method == 'GET':
         # extract query params
         consultation_application = ConsultationApplication.objects.get(pk=consultation_application_id)
 
-        consultation_payment = ConsultationPayment.objects.filter(consultation_application=consultation_application)
+        consultation_payments = ConsultationPayment.objects.filter(consultation_application=consultation_application)
 
         serializer = ConsultationPaymentSerializer(
-            consultation_payment, context={"request": request})
+            consultation_payments.all(), many=True, context={"request": request})
         return Response(serializer.data, status=status.HTTP_200_OK)
     # end if
 # end def
@@ -84,7 +95,7 @@ def update_consultation_payment_status(request, pk):
             if 'payment_status' in data:
                 consultation_payment.payment_transaction.payment_status = data['payment_status']
             # end if
-
+            consultation_payment.payment_transaction.save()
             consultation_payment.save()
 
             serializer = ConsultationPaymentSerializer(

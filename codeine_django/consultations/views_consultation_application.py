@@ -26,6 +26,30 @@ def consultation_application_view(request, consultation_slot_id):
 
         consultation_slot = ConsultationSlot.objects.get(pk=consultation_slot_id)
 
+        # check if consultation is cancelled
+        if consultation_slot.is_cancelled is True:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+        # end if            
+
+        prev_applications = ConsultationApplication.objects.filter(
+            Q(consultation_slot=consultation_slot) &
+            Q(is_cancelled=False)
+        )
+
+        # check if consultation already has maxed out the number of slots
+        if prev_applications.count() >= consultation_slot.max_members:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+        # end if
+
+        prev_applications = prev_applications.filter(
+            Q(member=member)
+        )
+
+        # check if member has already has a non-cancelled slot
+        if prev_applications.count() > 0:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+        # end if
+
         with transaction.atomic():
             try:
                 consultation_application = ConsultationApplication(
@@ -53,13 +77,11 @@ def consultation_application_view(request, consultation_slot_id):
         # extract query params
         member_id = request.query_params.get('member_id', None)
 
-        consultation_applications = ConsultationApplication.objects
-
         consultation_slot = ConsultationSlot.objects.get(pk=consultation_slot_id)
-        consultation_applications.filter(consultation_slot=consultation_slot)
+        consultation_applications = ConsultationApplication.objects.filter(consultation_slot=consultation_slot)
         
         if member_id is not None:
-            consultation_slots = consultation_slots.filter(
+            consultation_applications = consultation_applications.filter(
                 Q(member__user__id__exact=member_id)
             )
         # end if
