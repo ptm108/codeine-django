@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Course, Chapter, CourseMaterial, Video, CourseFile, Quiz, Question, ShortAnswer, MCQ, MRQ, Enrollment, QuizResult, QuizAnswer
+from .models import Course, Chapter, CourseMaterial, Video, CourseFile, Quiz, Question, ShortAnswer, MCQ, MRQ, Enrollment, QuizResult, QuizAnswer, CourseReview
 
 
 class CourseAdmin(admin.ModelAdmin):
@@ -142,6 +142,17 @@ class QuizAnswerAdmin(admin.ModelAdmin):
 # end class
 
 
+class CourseReviewAdmin(admin.ModelAdmin):
+    list_display = (
+        'rating',
+        'description',
+        'timestamp',
+        'course',
+        'member'
+    )
+# end class
+
+
 admin.site.register(Course, CourseAdmin)
 admin.site.register(Chapter, ChapterAdmin)
 admin.site.register(CourseMaterial, CourseMaterialAdmin)
@@ -155,3 +166,4 @@ admin.site.register(MRQ, MRQAdmin)
 admin.site.register(Enrollment, EnrollmentAdmin)
 admin.site.register(QuizResult, QuizResultAdmin)
 admin.site.register(QuizAnswer, QuizAnswerAdmin)
+admin.site.register(CourseReview, CourseReviewAdmin)

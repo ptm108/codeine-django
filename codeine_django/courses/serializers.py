@@ -15,10 +15,11 @@ from .models import (
     MRQ,
     QuizResult,
     QuizAnswer,
+    CourseReview
 )
 
 from common.models import Member
-from common.serializers import NestedBaseUserSerializer
+from common.serializers import NestedBaseUserSerializer, MemberSerializer
 
 # Assessment related
 
@@ -239,6 +240,14 @@ class QuizResultSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = QuizResult
+        fields = '__all__'
+    # end Meta
+# end class
+
+
+class CourseReviewSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CourseReview
         fields = '__all__'
     # end Meta
 # end class

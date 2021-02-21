@@ -76,7 +76,7 @@ def single_article_view(request, pk):
         try:
             article = Article.objects.get(pk=pk)
             serializer = ArticleSerializer(article)
-            return Response(serializer.data)
+            return Response(serializer.data, status=status.HTTP_200_OK)
         except (ObjectDoesNotExist, KeyError, ValueError) as e:
             print(e)
             return Response(status=status.HTTP_400_BAD_REQUEST)

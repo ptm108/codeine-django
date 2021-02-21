@@ -77,7 +77,7 @@ def single_article_comment_view(request, article_id, pk):
         try:
             article_comment = ArticleComment.objects.get(pk=pk)
             serializer = ArticleCommentSerializer(article_comment)
-            return Response(serializer.data)
+            return Response(serializer.data, status=status.HTTP_200_OK)
         except (ObjectDoesNotExist, KeyError, ValueError) as e:
             print(e)
             return Response(status=status.HTTP_400_BAD_REQUEST)
