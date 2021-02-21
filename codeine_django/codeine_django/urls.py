@@ -32,8 +32,9 @@ urlpatterns = [
     # common infra endpoints
     path('auth/', include('common.urls'), name='Common infra end points'),
 
-    # content provider endpoints
-    path('consultations', include('consultations.urls'), name='Consultation end points'),
+    # consultation endpoints
+    path('consultations', include('consultations.urls_consultations'), name='Consultation end points'),
+    # path('payments', include('consultations.urls_contribution_payments'), name='Contributions end points'),
 
     # courses endpoints
     path('courses', include('courses.urls'), name='Courses endpoints'),
@@ -49,7 +50,7 @@ urlpatterns = [
     path('enrollments', include('courses.urls_enrollments'), name='Get/Search Enrollments'),
 
     # tickets endpoints
-    path('tickets/', include('tickets.urls'), name='Tickets endpoints'),
+    path('tickets', include('tickets.urls'), name='Tickets endpoints'),
 
     # achievements endpoints
     path('achievements', include('achievements.urls'), name='Achievements endpoints'),

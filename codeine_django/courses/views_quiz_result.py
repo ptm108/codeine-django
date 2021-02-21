@@ -40,7 +40,8 @@ def quiz_result_views(request, quiz_id):
                 Q(submitted=False)
             ).first()
             if quiz_result is not None:
-                return Response(status=status.HTTP_409_CONFLICT)
+                print(quiz_result)
+                return Response(QuizResultSerializer(quiz_result).data, status=status.HTTP_202_ACCEPTED)
             # end if
 
             quiz_result = QuizResult(member=member, quiz=quiz)
@@ -151,7 +152,7 @@ def sumbit_quiz_result_view(request, quiz_result_id):
                     correct_answer = question.mrq.correct_answer
                     responses = [response for response in answer.responses if response in correct_answer]
 
-                    score += len(responses) / len(keywords) * question.mrq.marks
+                    score += len(responses) / len(correct_answer) * question.mrq.marks
                 except MRQ.DoesNotExist:
                     pass
                 # end try-except
@@ -168,7 +169,7 @@ def sumbit_quiz_result_view(request, quiz_result_id):
         except ObjectDoesNotExist as e:
             print(e)
             return Response(status=status.HTTP_404_NOT_FOUND)
-        except (KeyError, ValueError, ValidationError) as e:
+        except (KeyError, ValueError, ValidationError, AttributeError) as e:
             print(e)
             return Response(status=status.HTTP_400_BAD_REQUEST)
         # end try-except

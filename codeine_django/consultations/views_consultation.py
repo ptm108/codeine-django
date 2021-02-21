@@ -42,6 +42,10 @@ def consultation_slot_view(request):
                     start_time = data['start_time'],
                     end_time = data['end_time'],
                     meeting_link = data['meeting_link'],
+                    price_per_pax = data['price_per_pax'],
+                    max_members = data['max_members'],
+                    r_rule = data['r_rule'],
+                    is_all_day = data['is_all_day'],
                     partner = partner
                 )
 
@@ -54,6 +58,7 @@ def consultation_slot_view(request):
             except (IntegrityError, ValueError, KeyError) as e:
                 print(e)
                 return Response(status=status.HTTP_400_BAD_REQUEST)
+            # end try-except
         # end with
     # end if
 
@@ -63,13 +68,19 @@ def consultation_slot_view(request):
     if request.method == 'GET':
         # extract query params
         search = request.query_params.get('search', None)
+        partner_id = request.query_params.get('partner_id', None)
 
         consultation_slots = ConsultationSlot.objects
 
         if search is not None:
             consultation_slots = consultation_slots.filter(
-                Q(partner__user__id__exact=search) |
-                Q(member__user__id__exact=search)
+                Q(title__icontains=search)
+            )
+        # end if
+
+        if partner_id is not None:
+            consultation_slots = consultation_slots.filter(
+                Q(partner__user__id__exact=partner_id)
             )
         # end if
 
@@ -124,6 +135,15 @@ def single_consultation_slot_view(request, pk):
                     consultation_slot.end_time = data['end_time']
                 if 'meeting_link' in data:
                     consultation_slot.meeting_link = data['meeting_link']
+                if 'price_per_pax' in data:
+                    consultation_slot.price_per_pax = data['price_per_pax']
+                if 'max_members' in data:
+                    consultation_slot.max_members = data['max_members']
+                if 'r_rule' in data:
+                    consultation_slot.r_rule = data['r_rule']
+                if 'is_all_day' in data:
+                    consultation_slot.is_all_day = data['is_all_day']
+
                 consultation_slot.save()
             # end with
 
@@ -135,65 +155,13 @@ def single_consultation_slot_view(request, pk):
             return Response(status=status.HTTP_400_BAD_REQUEST)
         # end try-except
     # end if
-
-    '''
-    Deletes a consultation slot
-    '''
-    if request.method == 'DELETE':
-        try:
-            consultation_slot = ConsultationSlot.objects.get(pk=pk)
-            if consultation_slot.is_confirmed is True or consultation_slot.is_cancelled is True or consultation_slot.is_rejected is True:
-                return Response(status=status.HTTP_400_BAD_REQUEST)
-            else:
-                consultation_slot.delete()
-                return Response(status=status.HTTP_200_OK)
-        except ConsultationSlot.DoesNotExist:
-            return Response(status=status.HTTP_400_BAD_REQUEST)
-    # end if
-# end def
-
-
-@api_view(['PATCH'])
-@permission_classes((IsPartnerOnly,))
-def confirm_consultation_slot(request, pk):
-    '''
-    Partner confirms a consultation slot
-    '''
-    if request.method == 'PATCH':
-        data = request.data
-        try:
-            consultation_slot = ConsultationSlot.objects.get(pk=pk)
-
-            user = request.user
-            partner = consultation_slot.partner
-
-            # assert requesting partner is confirming their own consultation slots
-            if partner.user != user:
-                return Response(status=status.HTTP_401_UNAUTHORIZED)
-            # end if
-
-            # assert that slot is not already cancelled or rejected
-            if consultation_slot.is_cancelled or consultation_slot.is_rejected:
-                return Response(status=status.HTTP_400_BAD_REQUEST)
-            # end if
-
-            consultation_slot.is_confirmed = True
-            consultation_slot.save()
-
-            serializer = ConsultationSlotSerializer(
-                consultation_slot, context={"request": request})
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        except ObjectDoesNotExist:
-            return Response(status=status.HTTP_404_NOT_FOUND)
-        # end try-except
-    # end if
 # end def
 
 @api_view(['PATCH'])
 @permission_classes((IsPartnerOnly,))
-def reject_consultation_slot(request, pk):
+def cancel_consultation_slot(request, pk):
     '''
-    Partner rejects a consultation slot
+    Partner cancels consultation slot
     '''
     if request.method == 'PATCH':
         data = request.data
@@ -208,102 +176,7 @@ def reject_consultation_slot(request, pk):
                 return Response(status=status.HTTP_401_UNAUTHORIZED)
             # end if
 
-            consultation_slot.is_rejected = True
-            consultation_slot.save()
-
-            serializer = ConsultationSlotSerializer(
-                consultation_slot, context={"request": request})
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        except ObjectDoesNotExist:
-            return Response(status=status.HTTP_404_NOT_FOUND)
-        # end try-except
-    # end if
-# end def
-
-@api_view(['PATCH'])
-@permission_classes((IsMemberOnly,))
-def cancel_consultation_slot(request, pk):
-    '''
-    Member cancels a consultation slot
-    '''
-    if request.method == 'PATCH':
-        data = request.data
-        try:
-            consultation_slot = ConsultationSlot.objects.get(pk=pk)
-
-            user = request.user
-            # assert that consultation slot already has member
-            if consultation_slot.member is None:
-                return Response(status=status.HTTP_400_BAD_REQUEST)
-            # end if
-
-            member = consultation_slot.member
-
-            # assert requesting member is cancelling their own consultation slots
-            if member.user != user:
-                return Response(status=status.HTTP_401_UNAUTHORIZED)
-            # end if
-
-            # assert that slot is not already cancelled or rejected
-            if consultation_slot.is_cancelled or consultation_slot.is_rejected:
-                return Response(status=status.HTTP_400_BAD_REQUEST)
-            # end if
-
             consultation_slot.is_cancelled = True
-            consultation_slot.save()
-
-            # create another consultation entity with the same details and empty member slot
-            with transaction.atomic():
-                try:
-                    new_consultation_slot = ConsultationSlot(
-                        title = consultation_slot.title,
-                        start_time = consultation_slot.start_time,
-                        end_time = consultation_slot.end_time,
-                        meeting_link = consultation_slot.meeting_link,
-                        partner = consultation_slot.partner
-                    )
-                    new_consultation_slot.save()
-                except(IntegrityError, ValueError, KeyError) as e:
-                    print(e)
-                    return Response(status=status.HTTP_400_BAD_REQUEST)
-                # end try-except
-            # end with
-
-            serializer = ConsultationSlotSerializer(
-                consultation_slot, context={"request": request})
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        except ObjectDoesNotExist:
-            return Response(status=status.HTTP_404_NOT_FOUND)
-        # end try-except
-    # end if
-# end def
-
-@api_view(['PATCH'])
-@permission_classes((IsMemberOnly,))
-def apply_consultation_slot(request, pk):
-    '''
-    Member applies for a consultation slot
-    '''
-    if request.method == 'PATCH':
-        data = request.data
-        try:
-            consultation_slot = ConsultationSlot.objects.get(pk=pk)
-
-            user = request.user
-
-            # assert that slot has no member
-            if consultation_slot.member is not None:
-                return Response(status=status.HTTP_400_BAD_REQUEST)
-            # end if
-            
-            # assert that slot is not already cancelled or rejected
-            if consultation_slot.is_cancelled or consultation_slot.is_rejected:
-                return Response(status=status.HTTP_400_BAD_REQUEST)
-            # end if
-
-            member = Member.objects.get(user=user)
-
-            consultation_slot.member = member
             consultation_slot.save()
 
             serializer = ConsultationSlotSerializer(

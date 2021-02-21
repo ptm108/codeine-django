@@ -95,7 +95,7 @@ def single_member_view(request, pk):
         try:
             user = BaseUser.objects.get(pk=pk)
 
-            if request.user != user or not user.is_admin:
+            if request.user != user and not request.user.is_admin:
                 return Response(status=status.HTTP_401_UNAUTHORIZED)
             # end if 
 
