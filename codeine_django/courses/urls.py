@@ -1,6 +1,6 @@
 from django.urls import path
 
-from . import views_course, views_chapters, views_course_materials, views_enrollment
+from . import views_course, views_chapters, views_course_materials, views_enrollment, views_course_review
 
 urlpatterns = [
     # order views
@@ -22,4 +22,8 @@ urlpatterns = [
 
     # enrollment views
     path('/<slug:course_id>/enrollments', views_enrollment.course_enrollment_views, name='Enroll/Unenroll member'),
+
+    # course review views
+    path('/<slug:course_id>/reviews', views_course_review.course_review_views, name='Get all/Search Course Reviews, Create Course Review'),
+    path('/<slug:course_id>/reviews/<slug:review_id>', views_course_review.single_course_review_view, name='Get/Update/Delete Course Review'),
 ]
