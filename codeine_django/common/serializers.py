@@ -25,7 +25,8 @@ class NestedPartnerSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Partner
-        fields = ('job_title', 'bio', 'consultation_rate', 'organization')
+        fields = ('job_title', 'bio', 'organization')
+        # fields = ('job_title', 'bio', 'consultation_rate', 'organization')
     # end Meta
 # end class
 
