@@ -4,7 +4,7 @@ from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.contrib.auth.forms import ReadOnlyPasswordHashField
 from django.core.exceptions import ValidationError
 
-from .models import BaseUser, Member, Partner, Organization
+from .models import BaseUser, Member, Partner, Organization, PaymentTransaction
 
 
 class UserCreationForm(forms.ModelForm):
@@ -115,12 +115,19 @@ class MemberAdmin(admin.ModelAdmin):
     list_display = ('id', 'user')
 # end class
 
+
 class PartnerAdmin(admin.ModelAdmin):
     list_display = ('id', 'user')
 # end class
 
+
 class OrganizationAdmin(admin.ModelAdmin):
     list_display = ('id', 'organization_name')
+# end class
+
+
+class PaymentTransactionAdmin(admin.ModelAdmin):
+    list_display = ('id', 'timestamp', 'payment_amount', 'payment_status', 'payment_type')
 # end class
 
 
@@ -128,4 +135,4 @@ admin.site.register(BaseUser, UserAdmin)
 admin.site.register(Member, MemberAdmin)
 admin.site.register(Partner, PartnerAdmin)
 admin.site.register(Organization, OrganizationAdmin)
-
+admin.site.register(PaymentTransaction, PaymentTransactionAdmin)

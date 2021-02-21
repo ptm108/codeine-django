@@ -7,9 +7,9 @@ from rest_framework.decorators import api_view, permission_classes, parser_class
 from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
 from rest_framework.response import Response
 
-from common.models import Member
+from common.models import PaymentTransaction, Member
 from common.permissions import IsMemberOrReadOnly, IsMemberOrAdminOrReadOnly
-from .models import PaymentTransaction, ConsultationPayment, ConsultationApplication
+from .models import ConsultationPayment, ConsultationApplication
 from .serializers import ConsultationPaymentSerializer
 
 
