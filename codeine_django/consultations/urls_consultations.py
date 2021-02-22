@@ -14,6 +14,7 @@ urlpatterns = [
     path('/application/<slug:pk>', views_consultation_application.single_consultation_application_view, name='Get consultation application by id'),
     path('/application/<slug:pk>/cancel', views_consultation_application.cancel_consultation_application, name='Member cancels consultation application'),
     path('/partner/applications', views_consultation_application.partner_consultation_application_view, name='Partner Get/ Search consultation applications'),
+    path('/member/applications', views_consultation_application.member_consultation_application_view, name='Member Get/ Search consultation applications'),
 
     # consultation payment transaction views
     path('/application/<slug:consultation_application_id>/payment', views_consultation_payment.consultation_payment_view, name='Create/Get all/Search Consultation Payment Transaction for a Consultation Application'),

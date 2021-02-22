@@ -13,6 +13,7 @@ urlpatterns = [
     path('/application/<slug:pk>', views_event_application.single_event_application_view, name='Get event application by id'),
     path('/application/<slug:pk>/cancel', views_event_application.cancel_event_application, name='Member cancels event application'),
     path('/organization/applications', views_event_application.partner_event_application_view, name='Partner Get/ Search event applications for their own organization'),
+    path('/member/applications', views_event_application.member_event_application_view, name='Member Get/ Search consultation applications'),
 
     # event payment transaction views
     path('/application/<slug:event_application_id>/payment', views_event_payment.event_payment_view, name='Create/Get all/Search Event Transactions for a Event Application'),
