@@ -1,3 +1,4 @@
+from django.shortcuts import render
 from django.db import transaction
 from django.db.utils import IntegrityError
 from django.core.exceptions import ValidationError, ObjectDoesNotExist
@@ -7,31 +8,31 @@ from rest_framework.decorators import api_view, permission_classes, parser_class
 from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
 from rest_framework.response import Response
 
-from common.models import PaymentTransaction, Member
+from common.models import Member, PaymentTransaction
 from common.permissions import IsMemberOrReadOnly, IsMemberOrAdminOrReadOnly
-from .models import ConsultationPayment, ConsultationApplication
-from .serializers import ConsultationPaymentSerializer
+from .models import EventPayment, EventApplication
+from .serializers import EventPaymentSerializer
 
-
+# Create your views here.
 @api_view(['GET', 'POST'])
 @permission_classes((IsMemberOrReadOnly,))
-def consultation_payment_view(request, consultation_application_id):
+def event_payment_view(request, event_application_id):
     '''
-    Creates a new payment transaction for a consultation
+    Creates a new payment transaction for an event application
     '''
     if request.method == 'POST':
         user = request.user
         member = Member.objects.get(user=user)
-        consultation_application = ConsultationApplication.objects.get(pk=consultation_application_id)
+        event_application = EventApplication.objects.get(pk=event_application_id)
         data = request.data
 
         # assert requesting member is paying for their own slot
-        if member != consultation_application.member:
+        if member != event_application.member:
             return Response(status=status.HTTP_401_UNAUTHORIZED)
         # end if
 
-        prev_payments = ConsultationPayment.objects.filter(
-            Q(consultation_application=consultation_application) &
+        prev_payments = EventPayment.objects.filter(
+            Q(event_application=event_application) &
             (Q(payment_transaction__payment_status='PENDING_COMPLETION') |
             Q(payment_transaction__payment_status='COMPLETED'))
         )
@@ -49,14 +50,14 @@ def consultation_payment_view(request, consultation_application_id):
                 )
                 payment_transaction.save()
 
-                consultation_payment = ConsultationPayment(
+                event_payment = EventPayment(
                     payment_transaction = payment_transaction,
-                    consultation_application = consultation_application
+                    event_application = event_application
                 )
-                consultation_payment.save()
+                event_payment.save()
 
-                serializer = ConsultationPaymentSerializer(
-                    consultation_payment, context={"request": request})
+                serializer = EventPaymentSerializer(
+                    event_payment, context={"request": request})
 
                 return Response(serializer.data, status=status.HTTP_201_CREATED)
             except (IntegrityError, ValueError, KeyError) as e:
@@ -67,16 +68,16 @@ def consultation_payment_view(request, consultation_application_id):
     # end if
 
     '''
-    Get consultation payments for a consultation application
+    Get event payments for an event application
     '''
     if request.method == 'GET':
         # extract query params
-        consultation_application = ConsultationApplication.objects.get(pk=consultation_application_id)
+        event_application = EventApplication.objects.get(pk=event_application_id)
 
-        consultation_payments = ConsultationPayment.objects.filter(consultation_application=consultation_application)
+        event_payments = EventPayment.objects.filter(event_application=event_application)
 
-        serializer = ConsultationPaymentSerializer(
-            consultation_payments.all(), many=True, context={"request": request})
+        serializer = EventPaymentSerializer(
+            event_payments.all(), many=True, context={"request": request})
         return Response(serializer.data, status=status.HTTP_200_OK)
     # end if
 # end def
@@ -84,15 +85,15 @@ def consultation_payment_view(request, consultation_application_id):
 @api_view(['GET'])
 @permission_classes((IsMemberOrReadOnly,))
 @parser_classes((MultiPartParser, FormParser, JSONParser))
-def single_consultation_payment_view(request, pk):
+def single_event_payment_view(request, pk):
     '''
-    Gets a consultation payment by primary key/ id
+    Gets an event payment by primary key/ id
     '''
     if request.method == 'GET':
         try:
-            consultation_payment = ConsultationPayment.objects.get(pk=pk)
+            event_payment = EventPayment.objects.get(pk=pk)
 
-            return Response(ConsultationPaymentSerializer(consultation_payment, context={"request": request}).data)
+            return Response(EventPaymentSerializer(event_payment, context={"request": request}).data)
         except (ObjectDoesNotExist, KeyError, ValueError) as e:
             print(e)
             return Response(status=status.HTTP_400_BAD_REQUEST)
@@ -101,23 +102,23 @@ def single_consultation_payment_view(request, pk):
 
 @api_view(['PATCH'])
 @permission_classes((IsMemberOrAdminOrReadOnly,))
-def update_consultation_payment_status(request, pk):
+def update_event_payment_status(request, pk):
     '''
-    Update consultation payment status
+    Update event payment status
     '''
     if request.method == 'PATCH':
         data = request.data
         try:
-            consultation_payment = ConsultationPayment.objects.get(pk=pk)
+            event_payment = EventPayment.objects.get(pk=pk)
 
             if 'payment_status' in data:
-                consultation_payment.payment_transaction.payment_status = data['payment_status']
+                event_payment.payment_transaction.payment_status = data['payment_status']
             # end if
-            consultation_payment.payment_transaction.save()
-            consultation_payment.save()
+            event_payment.payment_transaction.save()
+            event_payment.save()
 
-            serializer = ConsultationPaymentSerializer(
-                consultation_payment, context={"request": request})
+            serializer = EventPaymentSerializer(
+                event_payment, context={"request": request})
             return Response(serializer.data, status=status.HTTP_200_OK)
         except ObjectDoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)

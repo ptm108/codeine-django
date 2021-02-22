@@ -44,8 +44,8 @@ def consultation_slot_view(request):
                     meeting_link = data['meeting_link'],
                     price_per_pax = data['price_per_pax'],
                     max_members = data['max_members'],
-                    r_rule = data['r_rule'],
-                    is_all_day = data['is_all_day'],
+                    # r_rule = data['r_rule'],
+                    # is_all_day = data['is_all_day'],
                     partner = partner
                 )
 
@@ -69,18 +69,27 @@ def consultation_slot_view(request):
         # extract query params
         search = request.query_params.get('search', None)
         partner_id = request.query_params.get('partner_id', None)
+        is_cancelled = request.query_params.get('is_cancelled', None)
 
         consultation_slots = ConsultationSlot.objects
 
         if search is not None:
             consultation_slots = consultation_slots.filter(
-                Q(title__icontains=search)
+                Q(title__icontains=search) |
+                Q(partner__user__first_name__icontains=search) |
+                Q(partner__user__last_name__icontains=search)
             )
         # end if
 
         if partner_id is not None:
             consultation_slots = consultation_slots.filter(
                 Q(partner__user__id__exact=partner_id)
+            )
+        # end if
+
+        if is_cancelled is not None:
+            consultation_slots = consultation_slots.filter(
+                Q(is_cancelled=is_cancelled)
             )
         # end if
 
@@ -139,10 +148,10 @@ def single_consultation_slot_view(request, pk):
                     consultation_slot.price_per_pax = data['price_per_pax']
                 if 'max_members' in data:
                     consultation_slot.max_members = data['max_members']
-                if 'r_rule' in data:
-                    consultation_slot.r_rule = data['r_rule']
-                if 'is_all_day' in data:
-                    consultation_slot.is_all_day = data['is_all_day']
+                # if 'r_rule' in data:
+                #     consultation_slot.r_rule = data['r_rule']
+                # if 'is_all_day' in data:
+                #     consultation_slot.is_all_day = data['is_all_day']
 
                 consultation_slot.save()
             # end with
@@ -164,7 +173,6 @@ def cancel_consultation_slot(request, pk):
     Partner cancels consultation slot
     '''
     if request.method == 'PATCH':
-        data = request.data
         try:
             consultation_slot = ConsultationSlot.objects.get(pk=pk)
 
