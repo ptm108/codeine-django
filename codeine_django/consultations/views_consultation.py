@@ -75,7 +75,9 @@ def consultation_slot_view(request):
 
         if search is not None:
             consultation_slots = consultation_slots.filter(
-                Q(title__icontains=search)
+                Q(title__icontains=search) |
+                Q(partner__user__first_name__icontains=search) |
+                Q(partner__user__last_name__icontains=search)
             )
         # end if
 
@@ -171,7 +173,6 @@ def cancel_consultation_slot(request, pk):
     Partner cancels consultation slot
     '''
     if request.method == 'PATCH':
-        data = request.data
         try:
             consultation_slot = ConsultationSlot.objects.get(pk=pk)
 

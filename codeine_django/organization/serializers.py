@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from django.db.models import Q
 
-from .models import ContributionPayment
+from .models import ContributionPayment, Event
 from common.serializers import PaymentTransactionSerializer, OrganizationSerializer, PartnerSerializer
 from common.models import Organization
 
@@ -31,3 +31,19 @@ class ContributionPaymentSerializer(serializers.ModelSerializer):
         return PartnerSerializer(made_by).data
     # end def
 # end class
+
+
+class EventSerializer(serializers.ModelSerializer):
+    organization = serializers.SerializerMethodField('get_organization')
+
+    class Meta:
+        model = Event
+        fields = '__all__'
+    # end Meta
+
+    def get_organization(self, obj):
+        organization = obj.organization
+        return OrganizationSerializer(organization).data
+    # end def
+# end class
+

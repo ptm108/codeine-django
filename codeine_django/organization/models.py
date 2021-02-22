@@ -12,8 +12,6 @@ class Event(models.Model):
     is_cancelled = models.BooleanField(default=False)
     price_per_pax = models.DecimalField(max_digits=5, decimal_places=2, default=0.0)
     max_members = models.IntegerField()
-    r_rule = models.TextField(null=True, blank=True)
-    is_all_day = models.BooleanField(default=False)
     
     # ref
     organization = models.ForeignKey('common.Organization', on_delete=models.SET_NULL, related_name='events', null=True, blank=True)
