@@ -179,3 +179,33 @@ def partner_consultation_application_view(request):
         # end try-except
     # end if
 #end def
+
+@api_view(['GET'])
+@permission_classes((IsMemberOnly,))
+@parser_classes((MultiPartParser, FormParser, JSONParser))
+def member_consultation_application_view(request):
+    '''
+    Member Get/ Search consultation applications
+    '''
+    if request.method == 'GET':
+        try:
+            user = request.user
+            member = Member.objects.get(user=user)
+            consultation_applications = ConsultationApplication.objects.filter(member=member)
+            
+            search = request.query_params.get('search', None)
+            if search is not None:
+                consultation_applications = consultation_applications.filter(
+                    Q(consultation_slot__title__icontains=search)
+                )
+            # end if
+
+            serializer = ConsultationApplicationSerializer(
+                consultation_applications.all(), many=True, context={"request": request})
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except (ObjectDoesNotExist, KeyError, ValueError) as e:
+            print(e)
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+        # end try-except
+    # end if
+#end def

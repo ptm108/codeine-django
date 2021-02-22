@@ -72,7 +72,7 @@ def event_application_view(request, event_id):
     # end if
 
     '''
-    Get consultation applications for this consultation slot
+    Get event applications for this event 
     '''
     if request.method == 'GET':
         # extract query params
@@ -124,7 +124,7 @@ def cancel_event_application(request, pk):
             user = request.user
             member = event_application.member
 
-            # assert requesting member is cancelling their own consultation slots
+            # assert requesting member is cancelling their own event application
             if member.user != user:
                 return Response(status=status.HTTP_401_UNAUTHORIZED)
             # end if
@@ -171,6 +171,36 @@ def partner_event_application_view(request):
                     Q(event__title__icontains=search) |
                     Q(member__user__first_name__icontains=search) |
                     Q(member__user__last_name__icontains=search)
+                )
+            # end if
+
+            serializer = EventApplicationSerializer(
+                event_applications.all(), many=True, context={"request": request})
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except (ObjectDoesNotExist, KeyError, ValueError) as e:
+            print(e)
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+        # end try-except
+    # end if
+#end def
+
+@api_view(['GET'])
+@permission_classes((IsMemberOnly,))
+@parser_classes((MultiPartParser, FormParser, JSONParser))
+def member_event_application_view(request):
+    '''
+    Member Get/ Search event applications
+    '''
+    if request.method == 'GET':
+        try:
+            user = request.user
+            member = Member.objects.get(user=user)
+            event_applications = EventApplication.objects.filter(member=member)
+            
+            search = request.query_params.get('search', None)
+            if search is not None:
+                event_applications = event_applications.filter(
+                    Q(event__title__icontains=search)
                 )
             # end if
 

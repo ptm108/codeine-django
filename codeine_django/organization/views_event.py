@@ -179,7 +179,7 @@ def cancel_event(request, pk):
                 return Response(status=status.HTTP_401_UNAUTHORIZED)
             # end if
 
-            # assert requesting partner is rejecting their own consultation slots
+            # assert requesting partner is rejecting their own event
             if partner.user != user:
                 return Response(status=status.HTTP_401_UNAUTHORIZED)
             # end if
@@ -187,7 +187,7 @@ def cancel_event(request, pk):
             event.is_cancelled = True
             event.save()
 
-            # reject all consultation applications
+            # reject all event applications
             event_applications = EventApplication.objects.filter(event=event)
             for application in event_applications:
                 application.is_rejected = True
