@@ -8,7 +8,7 @@ from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
 from rest_framework.response import Response
 
 from common.models import Partner, Organization
-from common.permissions import IsMemberOnly, IsPartnerOnly, IsPartnerOrReadOnly
+from common.permissions import IsPartnerOnly, IsPartnerOrReadOnly
 from .models import Event, EventApplication
 from .serializers import EventSerializer
 

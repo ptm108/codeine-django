@@ -1,8 +1,8 @@
 from rest_framework import serializers
 from django.db.models import Q
 
-from .models import ContributionPayment, Event
-from common.serializers import PaymentTransactionSerializer, OrganizationSerializer, PartnerSerializer
+from .models import ContributionPayment, Event, EventApplication
+from common.serializers import PaymentTransactionSerializer, OrganizationSerializer, PartnerSerializer, NestedBaseUserSerializer
 from common.models import Organization
 
 
@@ -44,6 +44,31 @@ class EventSerializer(serializers.ModelSerializer):
     def get_organization(self, obj):
         organization = obj.organization
         return OrganizationSerializer(organization).data
+    # end def
+# end class
+
+
+class EventApplicationSerializer(serializers.ModelSerializer):
+    member = serializers.SerializerMethodField('get_member_base_user')
+    event = serializers.SerializerMethodField('get_event')
+
+    class Meta:
+        model = EventApplication
+        fields = '__all__'
+    # end Meta
+
+    def get_member_base_user(self, obj):
+        if obj.member is None:
+            return None
+        else:
+            request = self.context.get("request")
+            return NestedBaseUserSerializer(obj.member.user, context={'request': request}).data
+        # end if-else
+    # end def
+
+    def get_event(self, obj):
+        event = obj.event
+        return EventSerializer(event).data
     # end def
 # end class
 
