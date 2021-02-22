@@ -246,8 +246,19 @@ class QuizResultSerializer(serializers.ModelSerializer):
 
 
 class CourseReviewSerializer(serializers.ModelSerializer):
+    member = serializers.SerializerMethodField('get_base_user')
+    course_id = serializers.SerializerMethodField('get_course_id')
+
     class Meta:
         model = CourseReview
         fields = '__all__'
     # end Meta
+
+    def get_base_user(self, obj):
+        return NestedBaseUserSerializer(obj.member.user).data
+    # end def
+
+    def get_course_id(self, obj):
+        return obj.course.id
+    # end def
 # end class
