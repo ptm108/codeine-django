@@ -97,6 +97,16 @@ class MemberSerializer(serializers.ModelSerializer):
 # end class
 
 
+class PartnerSerializer(serializers.ModelSerializer):
+    user = BaseUserSerializer()
+    
+    class Meta:
+        model = Member
+        fields = '__all__'
+    # end Meta
+# end class
+
+
 class PaymentTransactionSerializer(serializers.ModelSerializer):
     class Meta:
         model = PaymentTransaction

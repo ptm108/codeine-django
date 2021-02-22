@@ -19,7 +19,7 @@ class EventPaymentAdmin(admin.ModelAdmin):
 
 
 class ContributionPaymentAdmin(admin.ModelAdmin):
-    list_display = ('id', 'payment_transaction', 'organization')
+    list_display = ('id', 'payment_transaction', 'organization', 'made_by')
 # end class
 
 admin.site.register(Event, EventAdmin)

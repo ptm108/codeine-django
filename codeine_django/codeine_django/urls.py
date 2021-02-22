@@ -62,7 +62,11 @@ urlpatterns = [
     path('industryProjects', include('industryProjects.urls'), name='Industry Projects endpoints'),
 
     # code review endpoints
-    path('code-reviews', include('community.urls_code_reviews'), name='Code Review endpoints')
+    path('code-reviews', include('community.urls_code_reviews'), name='Code Review endpoints'),
+
+    # organization end points
+    path('events', include('organization.urls_events'), name='Event endpoints'),
+    path('contributions', include('organization.urls_contribution_payments'), name='Contribution endpoints')
 ]
 
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

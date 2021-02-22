@@ -25,7 +25,7 @@ def consultation_payment_view(request, consultation_application_id):
         consultation_application = ConsultationApplication.objects.get(pk=consultation_application_id)
         data = request.data
 
-        # assert requesting member is payment for their own slot
+        # assert requesting member is paying for their own slot
         if member != consultation_application.member:
             return Response(status=status.HTTP_401_UNAUTHORIZED)
         # end if
@@ -78,6 +78,50 @@ def consultation_payment_view(request, consultation_application_id):
         serializer = ConsultationPaymentSerializer(
             consultation_payments.all(), many=True, context={"request": request})
         return Response(serializer.data, status=status.HTTP_200_OK)
+    # end if
+# end def
+
+@api_view(['GET'])
+@permission_classes((IsMemberOrReadOnly,))
+@parser_classes((MultiPartParser, FormParser, JSONParser))
+def single_consultation_payment_view(request, pk):
+    '''
+    Gets a consultation payment by primary key/ id
+    '''
+    if request.method == 'GET':
+        try:
+            consultation_payment = ConsultationPayment.objects.get(pk=pk)
+
+            return Response(ConsultationPaymentSerializer(consultation_payment, context={"request": request}).data)
+        except (ObjectDoesNotExist, KeyError, ValueError) as e:
+            print(e)
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+    # end if
+#end def
+
+@api_view(['PATCH'])
+@permission_classes((IsMemberOrAdminOrReadOnly,))
+def update_consultation_payment_status(request, pk):
+    '''
+    Update consultation payment status
+    '''
+    if request.method == 'PATCH':
+        data = request.data
+        try:
+            consultation_payment = ConsultationPayment.objects.get(pk=pk)
+
+            if 'payment_status' in data:
+                consultation_payment.payment_transaction.payment_status = data['payment_status']
+            # end if
+            consultation_payment.payment_transaction.save()
+            consultation_payment.save()
+
+            serializer = ConsultationPaymentSerializer(
+                consultation_payment, context={"request": request})
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except ObjectDoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        # end try-except
     # end if
 # end def
 

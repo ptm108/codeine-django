@@ -62,6 +62,7 @@ class ContributionPayment(models.Model):
     
     # ref
     organization = models.ForeignKey('common.Organization', on_delete=models.SET_NULL, related_name='contribution_payments', null=True, blank=True)
+    made_by = models.ForeignKey('common.Partner', on_delete=models.SET_NULL, related_name='contributions_made', null=True, blank=True)
 
     def __str__(self):
         return f'{self.payment_transaction}'
