@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from django.db.models import Q
 
-from .models import ContributionPayment, Event, EventApplication
+from .models import ContributionPayment, Event, EventApplication, EventPayment
 from common.serializers import PaymentTransactionSerializer, OrganizationSerializer, PartnerSerializer, NestedBaseUserSerializer
 from common.models import Organization
 
@@ -72,3 +72,11 @@ class EventApplicationSerializer(serializers.ModelSerializer):
     # end def
 # end class
 
+class EventPaymentSerializer(serializers.ModelSerializer):
+    payment_transaction = PaymentTransactionSerializer()
+
+    class Meta:
+        model = EventPayment
+        fields = '__all__'
+    # end Meta
+# end class

@@ -32,7 +32,7 @@ def consultation_payment_view(request, consultation_application_id):
 
         prev_payments = ConsultationPayment.objects.filter(
             Q(consultation_application=consultation_application) &
-            (Q(payment_transaction__payment_status='PENDING') |
+            (Q(payment_transaction__payment_status='PENDING_COMPLETION') |
             Q(payment_transaction__payment_status='COMPLETED'))
         )
 
@@ -98,32 +98,6 @@ def single_consultation_payment_view(request, pk):
             return Response(status=status.HTTP_400_BAD_REQUEST)
     # end if
 #end def
-
-@api_view(['PATCH'])
-@permission_classes((IsMemberOrAdminOrReadOnly,))
-def update_consultation_payment_status(request, pk):
-    '''
-    Update consultation payment status
-    '''
-    if request.method == 'PATCH':
-        data = request.data
-        try:
-            consultation_payment = ConsultationPayment.objects.get(pk=pk)
-
-            if 'payment_status' in data:
-                consultation_payment.payment_transaction.payment_status = data['payment_status']
-            # end if
-            consultation_payment.payment_transaction.save()
-            consultation_payment.save()
-
-            serializer = ConsultationPaymentSerializer(
-                consultation_payment, context={"request": request})
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        except ObjectDoesNotExist:
-            return Response(status=status.HTTP_404_NOT_FOUND)
-        # end try-except
-    # end if
-# end def
 
 @api_view(['PATCH'])
 @permission_classes((IsMemberOrAdminOrReadOnly,))
