@@ -269,6 +269,8 @@ class CourseReviewSerializer(serializers.ModelSerializer):
 class NestedCourseCommentSerializer(serializers.ModelSerializer):
     user = NestedBaseUserSerializer()
     replies = serializers.SerializerMethodField()
+    likes = serializers.SerializerMethodField()
+    current_member_liked = serializers.SerializerMethodField()
 
     class Meta:
         model = CourseComment
@@ -283,14 +285,42 @@ class NestedCourseCommentSerializer(serializers.ModelSerializer):
             return CourseCommentSerializer(obj.replies, many=True, context={'request': request}).data
         # end if else 
     # end def
+
+    def get_likes(self, obj):
+        return CourseCommentEngagement.objects.filter(comment=obj).count()
+    # end def
+
+    def get_current_member_liked(self, obj):
+        request = self.context.get("request")
+
+        if hasattr(request.user, 'member'):
+            member = request.user.member
+            return CourseCommentEngagement.objects.filter(member=member).exists()
+        # end if
+    # end def
 # end class
 
 
 class CourseCommentSerializer(serializers.ModelSerializer):
     user = NestedBaseUserSerializer()
+    likes = serializers.SerializerMethodField()
+    current_member_liked = serializers.SerializerMethodField()
 
     class Meta:
         model = CourseComment
         fields = '__all__'
     # end class
+
+    def get_likes(self, obj):
+        return CourseCommentEngagement.objects.filter(comment=obj).count()
+    # end def
+
+    def get_current_member_liked(self, obj):
+        request = self.context.get("request")
+
+        if hasattr(request.user, 'member'):
+            member = request.user.member
+            return CourseCommentEngagement.objects.filter(member=member).exists()
+        # end if
+    # end def
 # end class

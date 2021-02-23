@@ -163,7 +163,7 @@ def pin_comment_view(request, comment_id):
 @permission_classes((IsPartnerOnly,))
 def unpin_comment_view(request, comment_id):
     '''
-    Pins comment
+    Unpins comment
     '''
     if request.method == 'PATCH':
         user = request.user
