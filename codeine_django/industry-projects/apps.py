@@ -2,6 +2,6 @@ from django.apps import AppConfig
 
 
 class IndustryProjectsConfig(AppConfig):
-    name = 'industryProjects'
+    name = 'industry-projects'
 
 # end class
