@@ -194,7 +194,10 @@ def partner_consultation_application_view(request):
         try:
             user = request.user
             partner = Partner.objects.get(user=user)
-            consultation_slots = ConsultationSlot.objects.filter(partner=partner)
+            consultation_slots = ConsultationSlot.objects.filter(
+                Q(partner=partner) &
+                Q(is_cancelled=False)
+            )
             consultation_applications = ConsultationApplication.objects.filter(consultation_slot__in=consultation_slots)
             
             search = request.query_params.get('search', None)
