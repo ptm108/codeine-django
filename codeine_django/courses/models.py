@@ -240,6 +240,7 @@ class QuizAnswer(models.Model):
 
 class CourseComment(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, unique=True)
+    display_id = models.PositiveIntegerField()
     comment = models.TextField()
     timestamp = models.DateTimeField(auto_now_add=True)
     time_edited = models.DateTimeField(default=None, null=True, blank=True)
