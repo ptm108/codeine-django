@@ -79,6 +79,9 @@ class Course(models.Model):
 
     # rating, updated by trigger
     rating = models.DecimalField(max_digits=3, decimal_places=2, default=0)
+
+    # experience points
+    exp_points = models.PositiveIntegerField()
 # end class
 
 
@@ -112,8 +115,6 @@ class CourseMaterial(models.Model):
     timestamp = models.DateTimeField(auto_now_add=True)
 
     chapter = models.ForeignKey('Chapter', on_delete=models.CASCADE, related_name='course_materials', null=True, blank=True)
-
-    exp_points = models.PositiveIntegerField()
 
     class Meta:
         ordering = ['order']
