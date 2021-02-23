@@ -15,6 +15,7 @@ from rest_framework.permissions import (
 from .models import BaseUser, Member
 from .serializers import MemberSerializer, NestedBaseUserSerializer
 from .permissions import IsMemberOnly, IsMemberOrAdminOrReadOnly
+import json
 
 
 @api_view(['GET', 'POST'])
@@ -54,7 +55,8 @@ def member_view(request):
         users = BaseUser.objects.exclude(member__isnull=True)
 
         if is_active is not None:
-            users = users.exclude(is_active=False)
+            active = json.loads(is_active.lower())
+            users = users.filter(is_active=active)
         if search is not None:
             users = users.filter(
                 Q(first_name__icontains=search) |
