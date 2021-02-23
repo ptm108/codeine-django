@@ -8,11 +8,11 @@ from rest_framework.permissions import AllowAny
 
 from .models import CourseComment, CourseCommentEngagement, CourseMaterial
 from .serializers import NestedCourseCommentSerializer, CourseCommentSerializer
-from common.permissions import IsMemberOrPartnerOnly, IsMemberOnly, IsPartnerOnly
+from common.permissions import IsMemberOrPartnerOnly, IsMemberOnly, IsPartnerOnly, IsMemberOrPartnerOrReadOnly
 
 
-@api_view(['POST'])
-@permission_classes((IsMemberOrPartnerOnly,))
+@api_view(['POST', 'GET'])
+@permission_classes((IsMemberOrPartnerOrReadOnly,))
 def course_comments_view(request, material_id):
     user = request.user
 
@@ -24,7 +24,8 @@ def course_comments_view(request, material_id):
         data = request.data
         try:
             material = CourseMaterial.objects.get(pk=material_id)
-            course_comment = CourseComment(comment=data['comment'], course_material=material, user=user)
+            comment_count = CourseComment.objects.filter(course_material=material).count()
+            course_comment = CourseComment(comment=data['comment'], course_material=material, user=user, display_id=comment_count + 1)
 
             if 'reply_to' in data:
                 course_comment.reply_to = CourseComment.objects.get(pk=data['reply_to'])
@@ -38,11 +39,26 @@ def course_comments_view(request, material_id):
             return Response(status=status.HTTP_400_BAD_REQUEST)
         # end try-except
     # end if
+
+    ''' 
+    Gets first 2 levels of comments under course material
+    '''
+    if request.method == 'GET':
+        try:
+            material = CourseMaterial.objects.get(pk=material_id)
+
+            serializer = NestedCourseCommentSerializer(course_comment, context={'request': request})
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        except (ValueError, KeyError, IntegrityError) as e:
+            print(e)
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+        # end try-except
+    # end if
 # end def
 
 
-@api_view(['GET'])
-@permission_classes((AllowAny,))
+@api_view(['GET', 'DELETE', 'PATCH'])
+@permission_classes((IsMemberOrPartnerOrReadOnly,))
 def single_course_comment_view(request, material_id, comment_id):
     '''
     Get Comment by ID
@@ -51,6 +67,60 @@ def single_course_comment_view(request, material_id, comment_id):
         try:
             material = CourseMaterial.objects.get(pk=material_id)
             course_comment = CourseComment.objects.filter(course_material=material).get(pk=comment_id)
+
+            serializer = NestedCourseCommentSerializer(course_comment, context={'request': request, 'recursive': True})
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except (ValueError, KeyError, IntegrityError) as e:
+            print(e)
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+        except ObjectDoesNotExist as e:
+            print(e)
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        # end try-except
+    # end if
+
+    '''
+    Delete Comment by ID
+    removes user, changes comment to deleted
+    '''
+    if request.method == 'DELETE':
+        user = request.user
+        try:
+            material = CourseMaterial.objects.get(pk=material_id)
+            course_comment = CourseComment.objects.filter(course_material=material).get(pk=comment_id)
+
+            if course_comment.user != user:
+                return Response(status=status.HTTP_401_UNAUTHORIZED)
+            # end if
+
+            course_comment.user = None
+            course_comment.comment = 'deleted'
+            course_comment.save()
+
+            serializer = NestedCourseCommentSerializer(course_comment, context={'request': request, 'recursive': True})
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except ObjectDoesNotExist as e:
+            print(e)
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        # end try-except
+    # end if
+
+    '''
+    Updates comment by ID
+    '''
+    if request.method == 'PATCH':
+        user = request.user
+        data = request.data
+        try:
+            material = CourseMaterial.objects.get(pk=material_id)
+            course_comment = CourseComment.objects.filter(course_material=material).get(pk=comment_id)
+
+            if course_comment.user != user:
+                return Response(status=status.HTTP_401_UNAUTHORIZED)
+            # end if
+
+            course_comment.comment = data['comment']
+            course_comment.save()
 
             serializer = NestedCourseCommentSerializer(course_comment, context={'request': request, 'recursive': True})
             return Response(serializer.data, status=status.HTTP_200_OK)
