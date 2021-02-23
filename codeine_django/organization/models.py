@@ -57,6 +57,8 @@ class EventPayment(models.Model):
 class ContributionPayment(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, unique=True)
     payment_transaction = models.OneToOneField('common.PaymentTransaction', on_delete=models.CASCADE)
+    month_duration = models.PositiveSmallIntegerField(default=1)
+    expiry_date = models.DateTimeField()
     
     # ref
     organization = models.ForeignKey('common.Organization', on_delete=models.SET_NULL, related_name='contribution_payments', null=True, blank=True)
@@ -65,4 +67,8 @@ class ContributionPayment(models.Model):
     def __str__(self):
         return f'{self.payment_transaction}'
     # end def
+
+    class Meta:
+        ordering = ['-expiry_date']
+    # end Meta
 # end class
