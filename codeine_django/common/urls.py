@@ -16,7 +16,8 @@ urlpatterns = [
     path('partners/<slug:pk>/activate', views_partners.activate_partner_view, name='Activates partner'),
 
     # bank detail views
-    path('bank-details', views_bank_detail.bank_detail_view, name='Create/Get all/Search all active partners'),
+    path('bank-details', views_bank_detail.bank_detail_view, name='Create/Get all/Search all bank details by partner'),
+    path('bank-details/<slug:pk>', views_bank_detail.single_bank_detail_view, name='Read/Update/Delete bank detail'),
 
     # update organization
     path('organizations/<slug:pk>', views_organization.single_organization_view, name='Update organization detail'),
