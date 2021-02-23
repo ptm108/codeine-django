@@ -166,7 +166,7 @@ def sumbit_quiz_result_view(request, quiz_result_id):
                 if score >= quiz.passing_marks:
                     quiz_result.passed = True
 
-                    if hasattr(quiz, 'course'):  # is assessment
+                    if quiz.course is not None:  # is assessment
                         course = quiz.course
                         enrollment = Enrollment.objects.filter(course=course).get(member=member)
                         enrollment.progress = 100
