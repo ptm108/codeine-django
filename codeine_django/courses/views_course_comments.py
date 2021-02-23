@@ -131,3 +131,56 @@ def single_course_comment_view(request, comment_id):
         # end try-except
     # end if
 # end def
+
+
+@api_view(['PATCH'])
+@permission_classes((IsPartnerOnly,))
+def pin_comment_view(request, comment_id):
+    '''
+    Pins comment
+    '''
+    if request.method == 'PATCH':
+        user = request.user
+        try:
+            course_comment = CourseComment.objects.get(pk=comment_id)
+
+            if course_comment.course_material.chapter.course.partner.user != user:
+                return Response(status=status.HTTP_401_UNAUTHORIZED)
+            # end if
+
+            course_comment.pinned = True
+            course_comment.save()
+
+            serializer = NestedCourseCommentSerializer(course_comment, context={'request': request, 'recursive': True})
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except ObjectDoesNotExist as e:
+            print(e)
+            return Response(status=status.HTTP_404_NOT_FOUND)
+    # end if
+# end def
+
+@api_view(['PATCH'])
+@permission_classes((IsPartnerOnly,))
+def unpin_comment_view(request, comment_id):
+    '''
+    Pins comment
+    '''
+    if request.method == 'PATCH':
+        user = request.user
+        try:
+            course_comment = CourseComment.objects.get(pk=comment_id)
+
+            if course_comment.course_material.chapter.course.partner.user != user:
+                return Response(status=status.HTTP_401_UNAUTHORIZED)
+            # end if
+
+            course_comment.pinned = False
+            course_comment.save()
+
+            serializer = NestedCourseCommentSerializer(course_comment, context={'request': request, 'recursive': True})
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except ObjectDoesNotExist as e:
+            print(e)
+            return Response(status=status.HTTP_404_NOT_FOUND)
+    # end if
+# end def
