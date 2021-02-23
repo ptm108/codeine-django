@@ -149,7 +149,7 @@ class ChapterSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Chapter
-        fields = ('id', 'title', 'overview', 'course_materials', 'order', 'exp_points')
+        fields = ('id', 'title', 'overview', 'course_materials', 'order')
     # end Meta
 
     def get_course_materials(self, obj):
@@ -212,7 +212,7 @@ class CourseSerializer(serializers.ModelSerializer):
 class EnrollmentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Enrollment
-        fields = ('progress', 'course', 'member', 'chapters_done')
+        fields = ('progress', 'course', 'member', 'materials_done')
     # end Meta
 # end class
 

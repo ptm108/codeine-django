@@ -5,13 +5,6 @@ from .models import ConsultationSlot, ConsultationPayment, ConsultationApplicati
 from common.serializers import NestedBaseUserSerializer, MemberSerializer, PaymentTransactionSerializer
 from common.models import Member
 
-class NestedConsultationSlotSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = ConsultationSlot
-        fields = '__all__'
-    # end Meta
-# end class
-
 
 class NestedConsultationApplicationSerializer(serializers.ModelSerializer):
     member = serializers.SerializerMethodField('get_member_base_user')
@@ -28,6 +21,25 @@ class NestedConsultationApplicationSerializer(serializers.ModelSerializer):
             request = self.context.get("request")
             return NestedBaseUserSerializer(obj.member.user, context={'request': request}).data
         # end if-else
+    # end def
+# end class
+
+
+class NestedConsultationSlotSerializer(serializers.ModelSerializer):
+    number_of_signups = serializers.SerializerMethodField('get_number_of_signups')
+
+    class Meta:
+        model = ConsultationSlot
+        fields = '__all__'
+    # end Meta
+
+    def get_number_of_signups(self, obj):
+        confirmed_signups = ConsultationApplication.objects.filter(
+            Q(consultation_slot=obj) &
+            Q(is_cancelled=False) &
+            Q(is_rejected=False)
+        )
+        return confirmed_signups.count()
     # end def
 # end class
 
