@@ -10,6 +10,5 @@ urlpatterns = [
     path('/<slug:material_id>', views_course_materials.single_material_view, name='Get/Delete Material'),
 
     # course material comment views
-    path('/<slug:material_id>/comments', views_course_comments.course_comments_view, name='Create/Get all comments under material'),
-    path('/<slug:material_id>/comments/<slug:comment_id>', views_course_comments.single_course_comment_view, name='Create/Get all comments under material'),
+    path('/<slug:material_id>/course-comments', views_course_comments.course_comments_view, name='Create/Get all comments under material'),
 ]

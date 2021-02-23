@@ -46,8 +46,9 @@ def course_comments_view(request, material_id):
     if request.method == 'GET':
         try:
             material = CourseMaterial.objects.get(pk=material_id)
+            course_comments = CourseComment.objects.filter(course_material=material).filter(reply_to=None).all()
 
-            serializer = NestedCourseCommentSerializer(course_comment, context={'request': request})
+            serializer = NestedCourseCommentSerializer(course_comments, many=True, context={'request': request})
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         except (ValueError, KeyError, IntegrityError) as e:
             print(e)
@@ -59,14 +60,13 @@ def course_comments_view(request, material_id):
 
 @api_view(['GET', 'DELETE', 'PATCH'])
 @permission_classes((IsMemberOrPartnerOrReadOnly,))
-def single_course_comment_view(request, material_id, comment_id):
+def single_course_comment_view(request, comment_id):
     '''
     Get Comment by ID
     '''
     if request.method == 'GET':
         try:
-            material = CourseMaterial.objects.get(pk=material_id)
-            course_comment = CourseComment.objects.filter(course_material=material).get(pk=comment_id)
+            course_comment = CourseComment.objects.get(pk=comment_id)
 
             serializer = NestedCourseCommentSerializer(course_comment, context={'request': request, 'recursive': True})
             return Response(serializer.data, status=status.HTTP_200_OK)
@@ -86,8 +86,7 @@ def single_course_comment_view(request, material_id, comment_id):
     if request.method == 'DELETE':
         user = request.user
         try:
-            material = CourseMaterial.objects.get(pk=material_id)
-            course_comment = CourseComment.objects.filter(course_material=material).get(pk=comment_id)
+            course_comment = CourseComment.objects.get(pk=comment_id)
 
             if course_comment.user != user:
                 return Response(status=status.HTTP_401_UNAUTHORIZED)
@@ -112,8 +111,7 @@ def single_course_comment_view(request, material_id, comment_id):
         user = request.user
         data = request.data
         try:
-            material = CourseMaterial.objects.get(pk=material_id)
-            course_comment = CourseComment.objects.filter(course_material=material).get(pk=comment_id)
+            course_comment = CourseComment.objects.get(pk=comment_id)
 
             if course_comment.user != user:
                 return Response(status=status.HTTP_401_UNAUTHORIZED)
