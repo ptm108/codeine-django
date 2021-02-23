@@ -34,7 +34,7 @@ class Migration(migrations.Migration):
                 ('id', models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True, serialize=False, unique=True)),
                 ('is_accepted', models.BooleanField(default=False)),
                 ('is_rejected', models.BooleanField(default=False)),
-                ('industry_project', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='industry_project_applications', to='industryProjects.industryproject')),
+                ('industry_project', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='industry_project_applications', to='industry-projects.industryproject')),
                 ('member', models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='industry_project_applications', to='common.member')),
             ],
         ),

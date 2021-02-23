@@ -41,7 +41,7 @@ INSTALLED_APPS = [
     'tickets',
     'achievements',
     'community',
-    'industryProjects',
+    'industry-projects',
     'organization',
     'corsheaders',
     'django.contrib.admin',
