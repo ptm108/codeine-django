@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from .models import Member, BaseUser, Partner, Organization, PaymentTransaction
+from .models import Member, BaseUser, Partner, Organization, PaymentTransaction, BankDetail
 
 
 class OrganizationSerializer(serializers.ModelSerializer):
@@ -110,6 +110,13 @@ class PartnerSerializer(serializers.ModelSerializer):
 class PaymentTransactionSerializer(serializers.ModelSerializer):
     class Meta:
         model = PaymentTransaction
+        fields = '__all__'
+    # end Meta
+# end class
+
+class BankDetailSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = BankDetail
         fields = '__all__'
     # end Meta
 # end class

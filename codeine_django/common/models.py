@@ -160,7 +160,7 @@ class PaymentTransaction(models.Model):
     #end class
 # end class
 
-class BankDetails(models.Model):
+class BankDetail(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, unique=True)
     bank_account = models.CharField(max_length=50)
     bank_name = models.CharField(max_length=255)
