@@ -5,7 +5,7 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 
-from .models import Course, Enrollment, Chapter
+from .models import Course, Enrollment, Chapter, CourseMaterial
 from .serializers import EnrollmentSerializer, NestedEnrollmentSerializer
 from common.models import Member, Partner
 from common.permissions import IsMemberOnly
@@ -65,31 +65,24 @@ def course_enrollment_views(request, course_id):
     Update member's progress by list of chapters done
     '''
     if request.method == 'PATCH':
-        data = request.data
         try:
             member = Member.objects.get(user=user)
             course = Course.objects.get(pk=course_id)
 
-            chapters_done = data
-            chapters = [str(chapter.id) for chapter in course.chapters.all()]
+            materials_done = request.data
+            materials = [str(course_material.id) for course_material in CourseMaterial.objects.filter(chapter__course=course).all()]
 
-            total_points = Chapter.objects.filter(course=course).aggregate(Sum('exp_points'))['exp_points__sum']
-            curr_points = 0
-
-            for chapter_id in chapters_done:
+            for material_id in materials_done:
                 # chapter id not found in course
-                if chapter_id not in chapters:
+                if material_id not in materials:
                     return Response(status=status.HTTP_400_BAD_REQUEST)
                 # end if
-
-                chapter = Chapter.objects.get(pk=chapter_id)
-                curr_points += float(chapter.exp_points)
             # end for
 
             # update enrollment
             enrollment = Enrollment.objects.filter(course=course).get(member=member)
-            enrollment.chapters_done = chapters_done
-            enrollment.progress = curr_points / total_points * 90
+            enrollment.materials_done = materials_done
+            enrollment.progress = len(materials_done) / len(materials) * 90
             enrollment.save()
 
             serializer = EnrollmentSerializer(enrollment)
