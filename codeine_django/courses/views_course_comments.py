@@ -184,3 +184,54 @@ def unpin_comment_view(request, comment_id):
             return Response(status=status.HTTP_404_NOT_FOUND)
     # end if
 # end def
+
+@api_view(['POST', 'DELETE'])
+@permission_classes((IsMemberOnly,))
+def comment_engagement_view(request, comment_id):
+    '''
+    Likes a comment
+    '''
+    if request.method == 'POST':
+        user = request.user
+        try:
+            course_comment = CourseComment.objects.get(pk=comment_id)
+            member = user.member
+
+            if CourseCommentEngagement.objects.filter(comment=course_comment).filter(member=member).exists():
+                return Response(NestedCourseCommentSerializer(course_comment, context={'request': request, 'recursive': True}).data, status=status.HTTP_409_CONFLICT)
+            # end if 
+
+            engagement = CourseCommentEngagement(
+                comment=course_comment,
+                member=member
+            )
+            engagement.save()
+
+            serializer = NestedCourseCommentSerializer(course_comment, context={'request': request, 'recursive': True})
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except ObjectDoesNotExist as e:
+            print(e)
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        # end try-except
+    # end if
+
+    '''
+    Unlike a comment
+    '''
+    if request.method == 'DELETE':
+        user = request.user
+        try:
+            course_comment = CourseComment.objects.get(pk=comment_id)
+            member = user.member
+
+            engagement = CourseCommentEngagement.objects.filter(comment=course_comment).get(member=member)
+            engagement.delete()
+            
+            serializer = NestedCourseCommentSerializer(course_comment, context={'request': request, 'recursive': True})
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except ObjectDoesNotExist as e:
+            print(e)
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        # end try-except
+    # end if 
+# end def
