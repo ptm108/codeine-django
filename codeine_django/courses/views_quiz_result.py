@@ -6,7 +6,7 @@ from rest_framework.decorators import api_view, permission_classes, parser_class
 from rest_framework import status
 from rest_framework.response import Response
 
-from .models import Quiz, QuizResult, QuizAnswer, Enrollment, Question, ShortAnswer, MRQ, MCQ
+from .models import Quiz, QuizResult, QuizAnswer, Enrollment, Question, ShortAnswer, MRQ, MCQ, CourseMaterial
 from .serializers import QuizResultSerializer
 from common.models import Member, Partner
 from common.permissions import IsMemberOnly
@@ -120,7 +120,6 @@ def sumbit_quiz_result_view(request, quiz_result_id):
 
             quiz = quiz_result.quiz
 
-
             with transaction.atomic():
                 total_marks = ShortAnswer.objects.filter(question__quiz=quiz).aggregate(Sum('marks'))['marks__sum'] if ShortAnswer.objects.filter(question__quiz=quiz).exists() else 0
                 total_marks += MRQ.objects.filter(question__quiz=quiz).aggregate(Sum('marks'))['marks__sum'] if MRQ.objects.filter(question__quiz=quiz).exists() else 0
@@ -163,17 +162,28 @@ def sumbit_quiz_result_view(request, quiz_result_id):
 
                 quiz_result.score = score
                 quiz_result.submitted = True
+
                 if score >= quiz.passing_marks:
                     quiz_result.passed = True
+
+                    if hasattr(quiz, 'course'):  # is assessment
+                        course = quiz.course
+                        enrollment = Enrollment.objects.filter(course=course).get(member=member)
+                        enrollment.progress = 100
+                        enrollment.save()
+                    elif hasattr(quiz, 'course_material'):
+                        course_material = quiz.course_material
+                        course = course_material.chapter.course
+                        enrollment = Enrollment.objects.filter(course=course).get(member=member)
+
+                        materials = [str(course_material.id) for course_material in CourseMaterial.objects.filter(chapter__course=course).all()]
+                        enrollment.materials_done = enrollment.materials_done.push(str(course_material.id))
+                        enrollment.progress = len(enrollment.materials_done) / len(materials) * 90
+                        enrollment.save()
+                    # end if-else
+                    
                 # end if
                 quiz_result.save()
-
-                if hasattr(quiz, 'course'):
-                    course = quiz.course
-                    enrollment = Enrollment.objects.filter(course=course).get(member=member)
-                    enrollment.progress = 100
-                    enrollment.save()
-                # end if
             # end with
 
             return Response(QuizResultSerializer(quiz_result).data, status=status.HTTP_200_OK)
