@@ -15,7 +15,9 @@ from .models import (
     MRQ,
     QuizResult,
     QuizAnswer,
-    CourseReview
+    CourseReview,
+    CourseComment,
+    CourseCommentEngagement
 )
 
 from common.models import Member
@@ -261,4 +263,34 @@ class CourseReviewSerializer(serializers.ModelSerializer):
     def get_course_id(self, obj):
         return obj.course.id
     # end def
+# end class
+
+
+class NestedCourseCommentSerializer(serializers.ModelSerializer):
+    user = NestedBaseUserSerializer()
+    replies = serializers.SerializerMethodField()
+
+    class Meta:
+        model = CourseComment
+        fields = '__all__'
+    # end Meta
+
+    def get_replies(self, obj):
+        request = self.context.get("request")
+        if self.context.get("recursive"):
+            return NestedCourseCommentSerializer(many=True, context={'request': request}).data
+        else:
+            return CourseCommentSerializer(many=True, context={'request': request}).data
+        # end if else 
+    # end def
+# end class
+
+
+class CourseCommentSerializer(serializers.ModelSerializer):
+    user = NestedBaseUserSerializer()
+
+    class Meta:
+        model = CourseComment
+        fields = '__all__'
+    # end class
 # end class
