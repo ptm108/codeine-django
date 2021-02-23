@@ -24,7 +24,6 @@ class ChapterAdmin(admin.ModelAdmin):
         'order',
         'course',
         'timestamp',
-        'exp_points',
     )
 # end class
 
