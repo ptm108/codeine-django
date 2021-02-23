@@ -278,9 +278,9 @@ class NestedCourseCommentSerializer(serializers.ModelSerializer):
     def get_replies(self, obj):
         request = self.context.get("request")
         if self.context.get("recursive"):
-            return NestedCourseCommentSerializer(many=True, context={'request': request}).data
+            return NestedCourseCommentSerializer(obj.replies, many=True, context={'request': request}).data
         else:
-            return CourseCommentSerializer(many=True, context={'request': request}).data
+            return CourseCommentSerializer(obj.replies, many=True, context={'request': request}).data
         # end if else 
     # end def
 # end class
