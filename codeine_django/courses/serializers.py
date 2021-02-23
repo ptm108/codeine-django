@@ -224,7 +224,7 @@ class NestedEnrollmentSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Enrollment
-        fields = ('progress', 'member', 'course', 'chapters_done')
+        fields = ('progress', 'member', 'course', 'materials_done')
     # end Meta
 # end class
 
