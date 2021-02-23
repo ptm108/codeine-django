@@ -171,17 +171,8 @@ def sumbit_quiz_result_view(request, quiz_result_id):
                         enrollment = Enrollment.objects.filter(course=course).get(member=member)
                         enrollment.progress = 100
                         enrollment.save()
-                    elif hasattr(quiz, 'course_material'):
-                        course_material = quiz.course_material
-                        course = course_material.chapter.course
-                        enrollment = Enrollment.objects.filter(course=course).get(member=member)
+                    # end if
 
-                        materials = [str(course_material.id) for course_material in CourseMaterial.objects.filter(chapter__course=course).all()]
-                        enrollment.materials_done = enrollment.materials_done.push(str(course_material.id))
-                        enrollment.progress = len(enrollment.materials_done) / len(materials) * 90
-                        enrollment.save()
-                    # end if-else
-                    
                 # end if
                 quiz_result.save()
             # end with
