@@ -266,11 +266,20 @@ class CourseReviewSerializer(serializers.ModelSerializer):
 # end class
 
 
+class ParentCourseCommentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CourseComment
+        fields = ('id', 'display_id')
+    # end Meta
+# end class
+
+
 class NestedCourseCommentSerializer(serializers.ModelSerializer):
     user = NestedBaseUserSerializer()
     replies = serializers.SerializerMethodField()
     likes = serializers.SerializerMethodField()
     current_member_liked = serializers.SerializerMethodField()
+    reply_to = ParentCourseCommentSerializer()
 
     class Meta:
         model = CourseComment
@@ -283,7 +292,7 @@ class NestedCourseCommentSerializer(serializers.ModelSerializer):
             return NestedCourseCommentSerializer(obj.replies, many=True, context={'request': request}).data
         else:
             return CourseCommentSerializer(obj.replies, many=True, context={'request': request}).data
-        # end if else 
+        # end if else
     # end def
 
     def get_likes(self, obj):
@@ -305,6 +314,7 @@ class CourseCommentSerializer(serializers.ModelSerializer):
     user = NestedBaseUserSerializer()
     likes = serializers.SerializerMethodField()
     current_member_liked = serializers.SerializerMethodField()
+    reply_to = ParentCourseCommentSerializer()
 
     class Meta:
         model = CourseComment
