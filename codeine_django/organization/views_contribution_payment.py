@@ -1,11 +1,14 @@
 from django.db import transaction
 from django.db.utils import IntegrityError
-from django.core.exceptions import ValidationError, ObjectDoesNotExist
 from django.db.models import Q
+from django.utils import timezone
+from django.core.exceptions import ValidationError, ObjectDoesNotExist
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes, parser_classes, renderer_classes
 from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
 from rest_framework.response import Response
+
+from datetime import datetime
 
 from common.models import PaymentTransaction, Partner, Organization
 from common.permissions import IsPartnerOnly
@@ -25,22 +28,40 @@ def contribution_payment_view(request):
         partner = Partner.objects.get(user=user)
         organization = partner.organization
 
-        if organization is None:
-            return Response(status=status.HTTP_400_BAD_REQUEST)
-        # end if
-
         with transaction.atomic():
             try:
+                month_duration = int(data['month_duration'])
                 payment_transaction = PaymentTransaction(
-                    payment_amount = data['payment_amount'],
-                    payment_type = data['payment_type']
+                    payment_amount=float(data['contribution']) * month_duration,
+                    payment_type=data['payment_type']
                 )
                 payment_transaction.save()
 
+                # get today's date or last contribution expiry date
+                now = datetime.now()
+                contribution = ContributionPayment.objects.filter(Q(made_by=partner) | Q(organization=organization)).first()
+
+                if contribution is not None:
+                    now = contribution.expiry_date
+                    month_duration -= 1
+                # end if
+
+                year = now.year
+                month = now.month + month_duration + 1  # first of the next month
+
+                if month > 12:
+                    month = month % 12 + 1
+                    year += 1
+                # end if
+
+                expiry_date = timezone.make_aware(datetime(year, month, 1))
+
                 contribution_payment = ContributionPayment(
-                    payment_transaction = payment_transaction,
-                    organization = organization,
-                    made_by = partner
+                    payment_transaction=payment_transaction,
+                    organization=organization,
+                    made_by=partner,
+                    expiry_date=expiry_date,
+                    month_duration=month_duration
                 )
                 contribution_payment.save()
 
@@ -56,28 +77,32 @@ def contribution_payment_view(request):
     # end if
 
     '''
-    Get contribution payments for the partner's organization
+    Get contribution payments for the partner or organization
     '''
     if request.method == 'GET':
         user = request.user
         partner = Partner.objects.get(user=user)
         organization = partner.organization
 
-        if organization is None:
-            return Response(status=status.HTTP_400_BAD_REQUEST)
+        latest = request.query_params.get('latest', None)
+        payment_status = request.query_params.get('payment_status', None)
+
+        contribution_payments = ContributionPayment.objects.filter(Q(made_by=partner) | Q(organization=organization))
+
+        if latest is not None:
+            return Response(ContributionPaymentSerializer(contribution_payments.first()).data, status=status.HTTP_200_OK)
+        if payment_status is not None:
+            contribution_payments = contribution_payments.filter(payment_transaction__payment_status=payment_status)
         # end if
 
-        contribution_payments = ContributionPayment.objects.filter(organization=organization)
-
-        serializer = ContributionPaymentSerializer(
-            contribution_payments.all(), many=True, context={"request": request})
+        serializer = ContributionPaymentSerializer(contribution_payments.all(), many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
     # end if
 # end def
 
+
 @api_view(['GET'])
 @permission_classes((IsPartnerOnly,))
-@parser_classes((MultiPartParser, FormParser, JSONParser))
 def single_contribution_payment_view(request, pk):
     '''
     Gets a contribution payment by primary key/ id
@@ -90,7 +115,8 @@ def single_contribution_payment_view(request, pk):
             print(e)
             return Response(status=status.HTTP_400_BAD_REQUEST)
     # end if
-#end def
+# end def
+
 
 @api_view(['PATCH'])
 @permission_classes((IsPartnerOnly,))
