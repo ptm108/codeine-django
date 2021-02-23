@@ -113,6 +113,8 @@ class CourseMaterial(models.Model):
 
     chapter = models.ForeignKey('Chapter', on_delete=models.CASCADE, related_name='course_materials', null=True, blank=True)
 
+    exp_points = models.PositiveIntegerField()
+
     class Meta:
         ordering = ['order']
     # end Meta
