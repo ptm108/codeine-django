@@ -236,3 +236,20 @@ class QuizAnswer(models.Model):
     response = models.TextField(null=True, blank=True)
     responses = models.JSONField(null=True, blank=True)
 # end class
+
+
+class CourseComment(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, unique=True)
+    comment = models.TextField()
+    timestamp = models.DateTimeField(auto_now_add=True)
+    time_edited = models.DateTimeField(default=None, null=True, blank=True)
+
+    # ref to course through course material
+    course_material = models.ForeignKey('CourseMaterial', on_delete=models.CASCADE, related_name='course_comments')
+
+    # member comment
+    member = models.ForeignKey('common.Member', on_delete=models.SET_NULL, null=True, blank=True, related_name='course_comments')
+
+    # partner comment
+    partner = models.ForeignKey('common.Partner', on_delete=models.SET_NULL, null=True, blank=True, related_name='course_comments')
+# end class
