@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from .models import Member, BaseUser, Partner, Organization, PaymentTransaction
+from .models import Member, BaseUser, Partner, Organization, PaymentTransaction, BankDetail
 
 
 class OrganizationSerializer(serializers.ModelSerializer):
@@ -112,4 +112,17 @@ class PaymentTransactionSerializer(serializers.ModelSerializer):
         model = PaymentTransaction
         fields = '__all__'
     # end Meta
+# end class
+
+class BankDetailSerializer(serializers.ModelSerializer):
+    partner = serializers.SerializerMethodField('get_base_user')
+    class Meta:
+        model = BankDetail
+        fields = '__all__'
+    # end Meta
+
+    def get_base_user(self, obj):
+        request = self.context.get("request")
+        return NestedBaseUserSerializer(obj.partner.user, context={'request': request}).data
+    # end def
 # end class

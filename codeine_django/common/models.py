@@ -159,3 +159,14 @@ class PaymentTransaction(models.Model):
         ordering = ['timestamp']
     #end class
 # end class
+
+class BankDetail(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, unique=True)
+    bank_account = models.CharField(max_length=50)
+    bank_name = models.CharField(max_length=255)
+    swift_code = models.CharField(max_length=20)
+    bank_country = models.CharField(max_length=255)
+    bank_address = models.CharField(max_length=255)
+
+    partner = models.ForeignKey('Partner', on_delete=models.CASCADE, related_name='bank_details')
+# end class
