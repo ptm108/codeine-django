@@ -40,7 +40,7 @@ urlpatterns = [
     path('courses', include('courses.urls'), name='Courses endpoints'),
     path('chapters', include('courses.urls_chapters'), name='Chapter endpoints'),
     path('materials', include('courses.urls_course_materials'), name='Course Materials endpoints'),
-    path('privateCourses', include('courses.urls_protected_courses'), name='Private courses endpoints'),
+    path('private-courses', include('courses.urls_protected_courses'), name='Private courses endpoints'),
     path('course-comments', include('courses.urls_course_comments'), name='Course Comment endpoints'),
     
     # quiz endpoints
