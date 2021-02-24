@@ -5,9 +5,10 @@ from django.db.models import Q, Sum
 from rest_framework.decorators import api_view, permission_classes, parser_classes
 from rest_framework import status
 from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated
 
 from .models import Quiz, QuizResult, QuizAnswer, Enrollment, Question, ShortAnswer, MRQ, MCQ, CourseMaterial
-from .serializers import QuizResultSerializer
+from .serializers import QuizResultSerializer, NestedQuizResultSerializer
 from common.models import Member, Partner
 from common.permissions import IsMemberOnly
 
@@ -66,10 +67,39 @@ def quiz_result_views(request, quiz_id):
 # end def
 
 
-@api_view(['PUT'])
-@permission_classes((IsMemberOnly,))
+@api_view(['PUT', 'GET'])
+@permission_classes((IsAuthenticated,))
 def update_quiz_result_view(request, quiz_result_id):
     user = request.user
+
+    '''
+    Get QuizResult by id
+    '''
+    if request.method == 'GET':
+        try:
+            member = Member.objects.filter(user=user).first()
+            partner = Partner.objects.filter(user=user).first()
+
+            quiz_results = QuizResult.objects
+
+            if member is not None:
+                quiz_results = quiz_results.filter(member=member)
+            elif partner is not None:
+                quiz_results = quiz_results.filter(
+                    Q(quiz__course__partner=partner) |
+                    Q(quiz__course_material__chapter__course__partner=partner)
+                )
+            # end if-else
+
+            quiz_result = quiz_results.get(pk=quiz_result_id)
+
+            serializer = NestedQuizResultSerializer(quiz_result, context={'request': request})
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except ObjectDoesNotExist as e:
+            print(e)
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        # end try-except
+    # end if
 
     '''
     Updates responses in QuizResult
@@ -94,6 +124,8 @@ def update_quiz_result_view(request, quiz_result_id):
             quiz_answer.save()
 
             return Response(QuizResultSerializer(quiz_result).data, status=status.HTTP_200_OK)
+        except Member.DoesNotExist:
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
         except ObjectDoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
         except (KeyError, ValidationError) as e:
@@ -185,6 +217,49 @@ def sumbit_quiz_result_view(request, quiz_result_id):
         except (KeyError, ValueError, ValidationError, AttributeError) as e:
             print(e)
             return Response(status=status.HTTP_400_BAD_REQUEST)
+        # end try-except
+    # end if
+# end def
+
+
+@api_view(['GET'])
+@permission_classes((IsAuthenticated,))
+def get_quiz_results(request):
+    user = request.user
+
+    '''
+    Gets all quizzes by requesting user type
+    '''
+    if request.method == 'GET':
+        try:
+            member = Member.objects.filter(user=user).first()
+            partner = Partner.objects.filter(user=user).first()
+
+            quiz_results = QuizResult.objects
+
+            if member is not None:
+                quiz_results = quiz_results.filter(member=member)
+            elif partner is not None:
+                quiz_results = quiz_results.filter(
+                    Q(quiz__course__partner=partner) |
+                    Q(quiz__course_material__chapter__course__partner=partner)
+                )
+            # end if-else
+
+            # query params
+            course_id = request.query_params.get('course_id', None)
+            if course_id is not None:
+                quiz_results = quiz_results.filter(
+                    Q(quiz__course__id=course_id) |
+                    Q(quiz__course_material__chapter__course__id=course_id)
+                )
+            # end if
+
+            serializer = NestedQuizResultSerializer(quiz_results.all(), many=True, context={'request': request})
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except ObjectDoesNotExist as e:
+            print(e)
+            return Response(status=status.HTTP_404_NOT_FOUND)
         # end try-except
     # end if
 # end def
