@@ -48,3 +48,9 @@ class AchievementRequirement(models.Model):
 
     achievement = models.ForeignKey('Achievement', on_delete=models.CASCADE, related_name='achievement_requirements')
 # end class
+
+class MemberAchievement(models.Model):
+    achievement = models.ForeignKey('Achievement', on_delete=models.CASCADE, related_name='members_achievements')
+    member = models.ForeignKey('common.Member', on_delete=models.CASCADE, related_name='achievements')
+    timestamp = models.DateTimeField(auto_now_add=True)
+# end class
