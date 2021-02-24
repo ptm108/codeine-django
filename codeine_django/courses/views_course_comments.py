@@ -159,6 +159,7 @@ def pin_comment_view(request, comment_id):
     # end if
 # end def
 
+
 @api_view(['PATCH'])
 @permission_classes((IsPartnerOnly,))
 def unpin_comment_view(request, comment_id):
@@ -185,6 +186,7 @@ def unpin_comment_view(request, comment_id):
     # end if
 # end def
 
+
 @api_view(['POST', 'DELETE'])
 @permission_classes((IsMemberOnly,))
 def comment_engagement_view(request, comment_id):
@@ -199,13 +201,14 @@ def comment_engagement_view(request, comment_id):
 
             if CourseCommentEngagement.objects.filter(comment=course_comment).filter(member=member).exists():
                 return Response(NestedCourseCommentSerializer(course_comment, context={'request': request, 'recursive': True}).data, status=status.HTTP_409_CONFLICT)
-            # end if 
+            # end if
 
             engagement = CourseCommentEngagement(
                 comment=course_comment,
                 member=member
             )
             engagement.save()
+            course_comment.save()
 
             serializer = NestedCourseCommentSerializer(course_comment, context={'request': request, 'recursive': True})
             return Response(serializer.data, status=status.HTTP_200_OK)
@@ -226,12 +229,13 @@ def comment_engagement_view(request, comment_id):
 
             engagement = CourseCommentEngagement.objects.filter(comment=course_comment).get(member=member)
             engagement.delete()
-            
+            course_comment.save()
+
             serializer = NestedCourseCommentSerializer(course_comment, context={'request': request, 'recursive': True})
             return Response(serializer.data, status=status.HTTP_200_OK)
         except ObjectDoesNotExist as e:
             print(e)
             return Response(status=status.HTTP_404_NOT_FOUND)
         # end try-except
-    # end if 
+    # end if
 # end def
