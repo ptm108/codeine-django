@@ -13,3 +13,12 @@ def aggregate_ratings(sender, instance, **kwargs):
     course.rating = reviews.aggregate(Avg('rating'))['rating__avg']
     course.save()
 # end def
+
+# @receiver(post_save, sender=CourseReview)
+# def aggregate_ratings(sender, instance, **kwargs):
+#     course = instance.course
+#     reviews = CourseReview.objects.filter(course=course)
+
+#     course.rating = reviews.aggregate(Avg('rating'))['rating__avg']
+#     course.save()
+# # end def
