@@ -13,6 +13,7 @@ urlpatterns = [
     path('/<slug:consultation_slot_id>/apply', views_consultation_application.consultation_application_view, name='Member Create/ Get/ Search Consultation Applications for a single consultation slot'),
     path('/application/<slug:pk>', views_consultation_application.single_consultation_application_view, name='Get consultation application by id'),
     path('/application/<slug:pk>/cancel', views_consultation_application.cancel_consultation_application, name='Member cancels consultation application'),
+    path('/application/<slug:pk>/reject', views_consultation_application.reject_consultation_application, name='Partner rejects consultation application'),
     path('/partner/applications', views_consultation_application.partner_consultation_application_view, name='Partner Get/ Search consultation applications'),
     path('/member/applications', views_consultation_application.member_consultation_application_view, name='Member Get/ Search consultation applications'),
 

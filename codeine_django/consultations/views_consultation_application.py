@@ -147,6 +147,42 @@ def cancel_consultation_application(request, pk):
     # end if
 # end def
 
+@api_view(['PATCH'])
+@permission_classes((IsPartnerOnly,))
+def reject_consultation_application(request, pk):
+    '''
+    Partner rejects consultation appplication
+    '''
+    if request.method == 'PATCH':
+        data = request.data
+        try:
+            consultation_application = ConsultationApplication.objects.get(pk=pk)
+
+            user = request.user
+            partner = consultation_application.consultation_slot.partner
+
+            # assert requesting partner is rejecting applications for their own consultation slots
+            if partner.user != user:
+                return Response(status=status.HTTP_401_UNAUTHORIZED)
+            # end if
+
+            # assert that slot is not already cancelled or rejected
+            if consultation_application.is_cancelled or consultation_application.is_rejected:
+                return Response(status=status.HTTP_400_BAD_REQUEST)
+            # end if
+
+            consultation_application.is_rejected = True
+            consultation_application.save()
+
+            serializer = ConsultationApplicationSerializer(
+                consultation_application, context={"request": request})
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except ObjectDoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        # end try-except
+    # end if
+# end def
+
 @api_view(['GET'])
 @permission_classes((IsPartnerOnly,))
 @parser_classes((MultiPartParser, FormParser, JSONParser))
@@ -158,7 +194,10 @@ def partner_consultation_application_view(request):
         try:
             user = request.user
             partner = Partner.objects.get(user=user)
-            consultation_slots = ConsultationSlot.objects.filter(partner=partner)
+            consultation_slots = ConsultationSlot.objects.filter(
+                Q(partner=partner) &
+                Q(is_cancelled=False)
+            )
             consultation_applications = ConsultationApplication.objects.filter(consultation_slot__in=consultation_slots)
             
             search = request.query_params.get('search', None)

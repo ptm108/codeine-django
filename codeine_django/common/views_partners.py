@@ -15,6 +15,7 @@ from rest_framework.permissions import (
 from .models import BaseUser, Partner, Organization
 from .serializers import NestedBaseUserSerializer
 from .permissions import IsPartnerOnly, IsPartnerOrAdminOrReadOnly
+import json
 
 
 @api_view(['GET', 'POST'])
@@ -66,16 +67,15 @@ def partner_view(request):
         users = BaseUser.objects.exclude(partner__isnull=True)
 
         if is_active is not None:
-            users = users.exclude(is_active=False)
-        # end if
-
+            active = json.loads(is_active.lower())
+            users = users.filter(is_active=active)
         if search is not None:
             users = users.filter(
                 Q(first_name__icontains=search) |
                 Q(last_name__icontains=search) |
                 Q(email__icontains=search)
             )
-        # end if
+        # end ifs
 
         serializer = NestedBaseUserSerializer(users.all(), many=True, context={"request": request})
         return Response(serializer.data, status=status.HTTP_200_OK)
