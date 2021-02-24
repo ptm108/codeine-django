@@ -1,3 +1,4 @@
+from django.core.exceptions import ObjectDoesNotExist
 from django.db.utils import IntegrityError
 from django.core.exceptions import ValidationError, ObjectDoesNotExist
 from django.db.models import Q
@@ -6,6 +7,7 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from .permissions import (
     IsPartnerOnly,
+    IsPartnerOrReadOnly
 )
 from .models import BankDetail, Partner
 from .serializers import BankDetailSerializer
@@ -15,31 +17,20 @@ from .serializers import BankDetailSerializer
 def bank_detail_view(request):
 
     '''
-    Get all Bank Details by Partner
+    Get Bank Detail by Partner
     '''
     if request.method == 'GET':
         try:
             user = request.user
             partner = Partner.objects.get(user=user)
-            bank_details = BankDetail.objects.filter(partner=partner)
+            bank_detail = BankDetail.objects.get(partner=partner)
 
-            # extract query params
-            search = request.query_params.get('search', None)
-            
-            if search is not None:
-                bank_details = bank_details.filter(
-                    Q(bank_account__icontains=search), 
-                    Q(bank_name__icontains=search), 
-                    Q(swift_code__icontains=search), 
-                    Q(bank_country__icontains=search), 
-                    Q(bank_address__icontains=search), 
-                )
-            # end if
-
-            serializer = BankDetailSerializer(bank_details.all(), many=True, context={"request": request})
+            serializer = BankDetailSerializer(bank_detail, context={"request": request})
             return Response(serializer.data, status=status.HTTP_200_OK)
         except (ValueError) as e:
             return Response(status=status.HTTP_400_BAD_REQUEST)
+        except ObjectDoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
         # end try-except
     # end if
 
@@ -51,6 +42,12 @@ def bank_detail_view(request):
             data = request.data
             user = request.user
             partner = Partner.objects.get(user=user)
+
+            bank_detail = BankDetail.objects.get(partner=partner)
+
+            if bank_detail: # bank account details is already created
+                return Response("Partner has an existing bank account", status=status.HTTP_409_CONFLICT)
+            # end if
 
             bank_detail = BankDetail(
                 bank_account=data['bank_account'],
@@ -73,7 +70,7 @@ def bank_detail_view(request):
 # end def
 
 @api_view(['GET', 'PATCH', 'DELETE'])
-@permission_classes((IsPartnerOnly,))
+@permission_classes((IsPartnerOrReadOnly,))
 def single_bank_detail_view(request, pk):
 
     '''
