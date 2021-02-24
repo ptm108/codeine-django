@@ -90,19 +90,19 @@ def contribution_payment_view(request):
         contribution_payments = ContributionPayment.objects.filter(Q(made_by=partner) | Q(organization=organization))
 
         if latest is not None:
-            return Response(ContributionPaymentSerializer(contribution_payments.first()).data, status=status.HTTP_200_OK)
+            return Response(ContributionPaymentSerializer(contribution_payments.first(), context={"request": request}).data, status=status.HTTP_200_OK)
         if payment_status is not None:
             contribution_payments = contribution_payments.filter(payment_transaction__payment_status=payment_status)
         # end if
 
-        serializer = ContributionPaymentSerializer(contribution_payments.all(), many=True)
+        serializer = ContributionPaymentSerializer(contribution_payments.all(), context={"request": request}, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
     # end if
 # end def
 
 
-@api_view(['GET'])
-@permission_classes((IsPartnerOnly,))
+@ api_view(['GET'])
+@ permission_classes((IsPartnerOnly,))
 def single_contribution_payment_view(request, pk):
     '''
     Gets a contribution payment by primary key/ id
@@ -118,8 +118,8 @@ def single_contribution_payment_view(request, pk):
 # end def
 
 
-@api_view(['PATCH'])
-@permission_classes((IsPartnerOnly,))
+@ api_view(['PATCH'])
+@ permission_classes((IsPartnerOnly,))
 def update_contribution_payment_view(request, pk):
     '''
     Update contribution payment status
