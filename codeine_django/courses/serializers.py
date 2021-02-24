@@ -346,7 +346,7 @@ class CourseCommentSerializer(serializers.ModelSerializer):
 
         if hasattr(request.user, 'member'):
             member = request.user.member
-            return CourseCommentEngagement.objects.filter(member=member).exists()
+            return CourseCommentEngagement.objects.filter(comment=obj).filter(member=member).exists()
         # end if
     # end def
 # end class
