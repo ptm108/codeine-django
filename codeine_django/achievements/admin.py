@@ -1,6 +1,8 @@
 from django.contrib import admin
 
-from .models import Achievement, AchievementRequirement
+from .models import Achievement, AchievementRequirement, MemberAchievement
+
+
 class AchievementAdmin(admin.ModelAdmin):
     list_display = (
         'id',
@@ -14,11 +16,22 @@ class AchievementAdmin(admin.ModelAdmin):
 class AchievementRequirementAdmin(admin.ModelAdmin):
     list_display = (
         'id',
-        'category', 
+        'category',
         'coding_languages',
         'experience_point',
     )
 # end class
 
+
+class MemberAchievementAdmin(admin.ModelAdmin):
+    list_display = (
+        'timestamp',
+        'achievement',
+        'member',
+    )
+# end class
+
+
 admin.site.register(Achievement, AchievementAdmin)
 admin.site.register(AchievementRequirement, AchievementRequirementAdmin)
+admin.site.register(MemberAchievement, MemberAchievementAdmin)
