@@ -273,7 +273,8 @@ class CourseReviewSerializer(serializers.ModelSerializer):
     # end Meta
 
     def get_base_user(self, obj):
-        return NestedBaseUserSerializer(obj.member.user).data
+        request = self.context.get("request")
+        return NestedBaseUserSerializer(obj.member.user, context={'request': request}).data
     # end def
 
     def get_course_id(self, obj):
