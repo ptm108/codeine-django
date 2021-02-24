@@ -169,6 +169,7 @@ def sumbit_quiz_result_view(request, quiz_result_id):
                     if quiz.course is not None:  # is assessment
                         course = quiz.course
                         enrollment = Enrollment.objects.filter(course=course).get(member=member)
+                        enrollment.materials_done = [str(course_material.id) for course_material in CourseMaterial.objects.filter(chapter__course=course).all()]
                         enrollment.progress = 100
                         enrollment.save()
                     # end if
