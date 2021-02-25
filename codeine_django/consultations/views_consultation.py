@@ -70,7 +70,8 @@ def consultation_slot_view(request):
         search = request.query_params.get('search', None)
         partner_id = request.query_params.get('partner_id', None)
         is_cancelled = request.query_params.get('is_cancelled', None)
-
+        search_date = request.query_params.get('search_date', None)
+        
         consultation_slots = ConsultationSlot.objects
 
         if search is not None:
@@ -90,6 +91,13 @@ def consultation_slot_view(request):
         if is_cancelled is not None:
             consultation_slots = consultation_slots.filter(
                 Q(is_cancelled=is_cancelled)
+            )
+        # end if
+
+        # returns after start time
+        if search_date is not None:
+            consultation_slots = consultation_slots.filter(
+                Q(start_time__gt=search_date)
             )
         # end if
 
