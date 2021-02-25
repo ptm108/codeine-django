@@ -22,4 +22,6 @@ urlpatterns = [
     path('/payment/<slug:pk>', views_consultation_payment.single_consultation_payment_view, name='Get Consultation Payment Transaction by ID'),
     path('/payment/<slug:pk>/update', views_consultation_payment.update_consultation_payment_status, name='Update Consultation Payment Transaction Status'),
     path('/payment/<slug:pk>/refund', views_consultation_payment.refund_consultation_payment_status, name='Refund Consultation Payment Transaction'),
+    path('/partner/payments', views_consultation_payment.partner_consultation_payment_view, name='Get all Consultation Payment Transaction related to partner'),
+    path('/member/payments', views_consultation_payment.member_consultation_payment_view, name='Get all Consultation Payment Transaction related to member'),
 ]

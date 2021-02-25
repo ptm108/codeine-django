@@ -7,9 +7,9 @@ from rest_framework.decorators import api_view, permission_classes, parser_class
 from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
 from rest_framework.response import Response
 
-from common.models import PaymentTransaction, Member
-from common.permissions import IsMemberOrReadOnly, IsMemberOrAdminOrReadOnly
-from .models import ConsultationPayment, ConsultationApplication
+from common.models import PaymentTransaction, Member, Partner
+from common.permissions import IsMemberOnly, IsMemberOrReadOnly, IsMemberOrAdminOrReadOnly, IsPartnerOnly
+from .models import ConsultationPayment, ConsultationApplication, ConsultationSlot
 from .serializers import ConsultationPaymentSerializer
 
 
@@ -163,3 +163,52 @@ def refund_consultation_payment_status(request, pk):
         # end with
     # end if
 # end def
+
+@api_view(['GET'])
+@permission_classes((IsPartnerOnly,))
+@parser_classes((MultiPartParser, FormParser, JSONParser))
+def partner_consultation_payment_view(request):
+    '''
+    Partner Get/ Search consultation payment transactions
+    '''
+    if request.method == 'GET':
+        try:
+            user = request.user
+            partner = Partner.objects.get(user=user)
+            consultation_slots = ConsultationSlot.objects.filter(partner=partner)
+            consultation_applications = ConsultationApplication.objects.filter(consultation_slot__in=consultation_slots)
+            consultation_payments = ConsultationPayment.objects.filter(consultation_application__in=consultation_applications)
+
+            serializer = ConsultationPaymentSerializer(
+                consultation_payments.all(), many=True, context={"request": request})
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except (ObjectDoesNotExist, KeyError, ValueError) as e:
+            print(e)
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+        # end try-except
+    # end if
+#end def
+
+@api_view(['GET'])
+@permission_classes((IsMemberOnly,))
+@parser_classes((MultiPartParser, FormParser, JSONParser))
+def member_consultation_payment_view(request):
+    '''
+    Member Get/ Search consultation payment transactions
+    '''
+    if request.method == 'GET':
+        try:
+            user = request.user
+            member = Member.objects.get(user=user)
+            consultation_applications = ConsultationApplication.objects.filter(member=member)
+            consultation_payments = ConsultationPayment.objects.filter(consultation_application__in=consultation_applications)
+
+            serializer = ConsultationPaymentSerializer(
+                consultation_payments.all(), many=True, context={"request": request})
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except (ObjectDoesNotExist, KeyError, ValueError) as e:
+            print(e)
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+        # end try-except
+    # end if
+#end def
