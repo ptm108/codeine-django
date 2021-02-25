@@ -145,7 +145,7 @@ class PaymentTransaction(models.Model):
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, unique=True)
     timestamp = models.DateTimeField(auto_now_add=True)
-    payment_amount = models.DecimalField(max_digits=5, decimal_places=2, default=0.0)
+    payment_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0.0)
 
     # enums
     payment_status = models.TextField(choices=PAYMENT_STATUSES, default='PENDING_COMPLETION')
