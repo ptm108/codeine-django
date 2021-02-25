@@ -147,9 +147,9 @@ def partner_enrollments_view(request):
         try:
             user = request.user
             partner = Partner.objects.get(user=user)
-            members = Member.objects.filter(enrollments__course__partner=partner)
-            
-            serializer = MemberSerializer(members.all(), many=True, context={"request": request})
+            enrollments = Enrollment.objects.filter(course__partner=partner)
+
+            serializer = EnrollmentSerializer(enrollments.all(), many=True, context={"request": request})
             return Response(serializer.data, status=status.HTTP_200_OK)
         except ObjectDoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
