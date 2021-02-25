@@ -8,7 +8,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import IsAdminUser, AllowAny
 
-from common.utils.member_utils import get_member_stats
+from utils.member_utils import get_member_stats
 
 
 @api_view(['GET', 'POST'])

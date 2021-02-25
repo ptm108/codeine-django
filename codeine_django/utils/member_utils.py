@@ -42,3 +42,23 @@ def get_member_stats(pk):
 
     return stats
 # end def
+
+
+def get_default_member_stats():
+    return {
+        'PY': 0,
+        'JAVA': 0,
+        'JS': 0,
+        'CPP': 0,
+        'CS': 0,
+        'HTML': 0,
+        'CSS': 0,
+        'RUBY': 0,
+        'SEC': 0,
+        'DB': 0,
+        'FE': 0,
+        'BE': 0,
+        'UI': 0,
+        'ML': 0,
+    }
+# end def

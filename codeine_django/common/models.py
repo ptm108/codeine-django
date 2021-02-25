@@ -17,6 +17,24 @@ def org_directory_path(instance, filename):
     return 'org_{0}/{1}'.format(instance.id, filename)
 # end def
 
+def get_default_member_stats():
+    return {
+        'PY': 0,
+        'JAVA': 0,
+        'JS': 0,
+        'CPP': 0,
+        'CS': 0,
+        'HTML': 0,
+        'CSS': 0,
+        'RUBY': 0,
+        'SEC': 0,
+        'DB': 0,
+        'FE': 0,
+        'BE': 0,
+        'UI': 0,
+        'ML': 0,
+    }
+# end def
 
 class CustomUserManager(BaseUserManager):
     """
@@ -94,6 +112,7 @@ class BaseUser(AbstractBaseUser, PermissionsMixin):
 class Member(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, unique=True)
     user = models.OneToOneField(BaseUser, on_delete=models.CASCADE, null=True)
+    stats = models.JSONField(default=get_default_member_stats)
 
     def __str__(self):
         return f'{self.user}'
