@@ -155,7 +155,9 @@ def partner_enrollments_view(request):
             if search is not None:
                 enrollments = enrollments.filter(
                     Q(course__title__icontains=search) |
-                    Q(course__description__icontains=search)
+                    Q(course__description__icontains=search) |
+                    Q(member__user__first_name__icontains=search) |
+                    Q(member__user__last_name__icontains=search)
                 )
             if course_id is not None:
                 enrollments = enrollments.filter(course__id=course_id)
