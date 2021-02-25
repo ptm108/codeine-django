@@ -125,3 +125,41 @@ def update_consultation_payment_status(request, pk):
         # end try-except
     # end if
 # end def
+
+@api_view(['POST'])
+@permission_classes((IsMemberOrReadOnly,))
+def refund_consultation_payment_status(request, pk):
+    '''
+    Refund consultation payment
+    '''
+    if request.method == 'POST':
+        data = request.data
+        
+        with transaction.atomic():
+            try:
+                previous_consultation_payment = ConsultationPayment.objects.get(pk=pk)
+
+                payment_transaction = PaymentTransaction(
+                    payment_amount = previous_consultation_payment.payment_transaction.payment_amount,
+                    payment_type = previous_consultation_payment.payment_transaction.payment_type,
+                    payment_status='REFUNDED'
+                )
+                payment_transaction.save()
+
+                consultation_payment = ConsultationPayment(
+                    payment_transaction = payment_transaction,
+                    consultation_application = previous_consultation_payment.consultation_application
+                )
+                consultation_payment.save()
+
+                serializer = ConsultationPaymentSerializer(
+                    consultation_payment, context={"request": request})
+
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
+            except (IntegrityError, ValueError, KeyError) as e:
+                print(e)
+                return Response(status=status.HTTP_400_BAD_REQUEST)
+            # end try-except
+        # end with
+    # end if
+# end def
