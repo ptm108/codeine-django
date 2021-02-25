@@ -30,10 +30,11 @@ class NestedPartnerSerializer(serializers.ModelSerializer):
     # end Meta
 # end class
 
+
 class NestedMemberSerializer(serializers.ModelSerializer):
     class Meta:
         model = Member
-        fields = ('id',)
+        fields = ('id', 'stats',)
     # end Meta
 # end class
 
@@ -99,7 +100,7 @@ class MemberSerializer(serializers.ModelSerializer):
 
 class PartnerSerializer(serializers.ModelSerializer):
     user = BaseUserSerializer()
-    
+
     class Meta:
         model = Member
         fields = '__all__'
@@ -114,8 +115,10 @@ class PaymentTransactionSerializer(serializers.ModelSerializer):
     # end Meta
 # end class
 
+
 class BankDetailSerializer(serializers.ModelSerializer):
     partner = serializers.SerializerMethodField('get_base_user')
+
     class Meta:
         model = BankDetail
         fields = '__all__'

@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'industry-projects',
     'organization',
     'corsheaders',
+    'utils',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
