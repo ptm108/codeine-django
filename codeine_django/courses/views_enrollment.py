@@ -6,7 +6,7 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 
 from .models import Course, Enrollment, Chapter, CourseMaterial
-from .serializers import EnrollmentSerializer, NestedEnrollmentSerializer
+from .serializers import EnrollmentSerializer, NestedEnrollmentSerializer, MemberEnrollmentSerializer
 from common.models import Member, Partner
 from common.permissions import IsMemberOnly, IsPartnerOnly
 from common.serializers import NestedBaseUserSerializer, MemberSerializer
@@ -149,7 +149,19 @@ def partner_enrollments_view(request):
             partner = Partner.objects.get(user=user)
             enrollments = Enrollment.objects.filter(course__partner=partner)
 
-            serializer = EnrollmentSerializer(enrollments.all(), many=True, context={"request": request})
+            search = request.query_params.get('search', None)
+            course_id = request.query_params.get('courseId', None)
+
+            if search is not None:
+                enrollments = enrollments.filter(
+                    Q(course__title__icontains=search) |
+                    Q(course__description__icontains=search)
+                )
+            if course_id is not None:
+                enrollments = enrollments.filter(course__id=course_id)
+            # end ifs
+
+            serializer = MemberEnrollmentSerializer(enrollments.all(), many=True, context={"request": request})
             return Response(serializer.data, status=status.HTTP_200_OK)
         except ObjectDoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)

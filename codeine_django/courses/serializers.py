@@ -228,6 +228,20 @@ class NestedEnrollmentSerializer(serializers.ModelSerializer):
     # end Meta
 # end class
 
+class MemberEnrollmentSerializer(serializers.ModelSerializer):
+    course = CourseSerializer()
+    member = serializers.SerializerMethodField('get_base_user')
+    class Meta:
+        model = Enrollment
+        fields = ('progress', 'member', 'course', 'materials_done')
+    # end Meta
+
+    def get_base_user(self, obj):
+        request = self.context.get("request")
+        return NestedBaseUserSerializer(obj.member.user, context={'request': request}).data
+    # end def
+# end class
+
 
 class QuizAnswerSerializer(serializers.ModelSerializer):
     class Meta:
