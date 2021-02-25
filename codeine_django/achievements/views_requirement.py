@@ -39,8 +39,7 @@ def achievement_requirement_view(request, pk):
             achievement = Achievement.objects.get(pk=pk)
             requirement = AchievementRequirement(
                 category = data['category'],
-                coding_languages = data['coding_languages'],
-                experience_point = data['experience_point'],
+                stat = data['stat'],
                 achievement=achievement
             )
             requirement.save()
@@ -79,10 +78,8 @@ def single_achievement_requirement_view(request, pk, req_id):
             requirement = AchievementRequirement.objects.get(pk=req_id)
             data = request.data
 
-            if 'category' in data:
-                requirement.category=data['category']
-            if 'coding_languages' in data:
-                requirement.coding_languages = data['coding_languages']
+            if 'stat' in data:
+                requirement.category=data['stat']
             if 'experience_point' in data:
                 requirement.experience_point=data['experience_point']
             # end if 

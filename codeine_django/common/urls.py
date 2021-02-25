@@ -1,6 +1,7 @@
 from django.urls import path
 
 from . import views_member, views_partners, views_organization, views_admin, views_bank_detail
+from achievements import views_achievement
 
 urlpatterns = [
     # members views
@@ -8,6 +9,7 @@ urlpatterns = [
     path('members/<slug:pk>', views_member.single_member_view, name='Read/update/delete for member'),
     path('members/<slug:pk>/change-password', views_member.member_change_password_view, name='Member change password'),
     path('members/<slug:pk>/activate', views_member.activate_member_view, name='Activates member'),
+    path('members/<slug:pk>/achievements', views_achievement.get_member_achievements, name='Get member\'s achievements'),
 
     # partner views
     path('partners', views_partners.partner_view, name='Create/Get all/Search all active partners'),

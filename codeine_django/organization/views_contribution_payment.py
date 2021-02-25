@@ -32,7 +32,7 @@ def contribution_payment_view(request):
             try:
                 month_duration = int(data['month_duration'])
                 payment_transaction = PaymentTransaction(
-                    payment_amount=float(data['contribution']) * month_duration,
+                    payment_amount=(float(data['contribution']) * month_duration),
                     payment_type=data['payment_type']
                 )
                 payment_transaction.save()

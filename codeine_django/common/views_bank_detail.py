@@ -23,8 +23,8 @@ def bank_detail_view(request):
         try:
             user = request.user
             partner = Partner.objects.get(user=user)
-            bank_detail = BankDetail.objects.get(partner=partner)
 
+            bank_detail = BankDetail.objects.get(partner=partner)
             serializer = BankDetailSerializer(bank_detail, context={"request": request})
             return Response(serializer.data, status=status.HTTP_200_OK)
         except (ValueError) as e:
@@ -43,7 +43,7 @@ def bank_detail_view(request):
             user = request.user
             partner = Partner.objects.get(user=user)
 
-            bank_detail = BankDetail.objects.get(partner=partner)
+            bank_detail = BankDetail.objects.filter(partner=partner)
 
             if bank_detail: # bank account details is already created
                 return Response("Partner has an existing bank account", status=status.HTTP_409_CONFLICT)

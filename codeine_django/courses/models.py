@@ -263,4 +263,5 @@ class CourseComment(models.Model):
 class CourseCommentEngagement(models.Model):
     comment = models.ForeignKey('CourseComment', on_delete=models.CASCADE, related_name='engagements')
     member = models.ForeignKey('common.Member', on_delete=models.CASCADE, related_name='+')
+    timestamp = models.DateTimeField(auto_now_add=True)
 # end class 
