@@ -45,7 +45,8 @@ def consultation_payment_view(request, consultation_application_id):
             try:
                 payment_transaction = PaymentTransaction(
                     payment_amount = data['payment_amount'],
-                    payment_type = data['payment_type']
+                    payment_type = data['payment_type'],
+                    payment_status='COMPLETED'
                 )
                 payment_transaction.save()
 
