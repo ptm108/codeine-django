@@ -27,6 +27,7 @@ class NestedConsultationApplicationSerializer(serializers.ModelSerializer):
 
 class NestedConsultationSlotSerializer(serializers.ModelSerializer):
     number_of_signups = serializers.SerializerMethodField('get_number_of_signups')
+    partner_name = serializers.SerializerMethodField('get_partner_name')
 
     class Meta:
         model = ConsultationSlot
@@ -40,6 +41,11 @@ class NestedConsultationSlotSerializer(serializers.ModelSerializer):
             Q(is_rejected=False)
         )
         return confirmed_signups.count()
+    # end def
+
+    def get_partner_name(self, obj):
+        parter_name = obj.partner.user.first_name + ' ' + obj.partner.user.last_name
+        return parter_name
     # end def
 # end class
 
@@ -63,6 +69,7 @@ class ConsultationApplicationSerializer(serializers.ModelSerializer):
     # end def
 
     def get_consultation_slot(self, obj):
+        request = self.context.get("request")
         consultation_slot = obj.consultation_slot
         return NestedConsultationSlotSerializer(consultation_slot).data
     # end def
