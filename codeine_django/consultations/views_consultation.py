@@ -108,7 +108,7 @@ def consultation_slot_view(request):
 # end def
 
 
-@api_view(['GET', 'PUT', 'DELETE'])
+@api_view(['GET', 'PUT'])
 @permission_classes((IsPartnerOrReadOnly,))
 @parser_classes((MultiPartParser, FormParser, JSONParser))
 def single_consultation_slot_view(request, pk):
