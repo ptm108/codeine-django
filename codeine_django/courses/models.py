@@ -79,6 +79,9 @@ class Course(models.Model):
 
     # rating, updated by trigger
     rating = models.DecimalField(max_digits=3, decimal_places=2, default=0)
+
+    # experience points
+    exp_points = models.PositiveIntegerField()
 # end class
 
 
@@ -233,3 +236,31 @@ class QuizAnswer(models.Model):
     response = models.TextField(null=True, blank=True)
     responses = models.JSONField(null=True, blank=True)
 # end class
+
+
+class CourseComment(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, unique=True)
+    display_id = models.PositiveIntegerField()
+    comment = models.TextField()
+    timestamp = models.DateTimeField(auto_now_add=True)
+    time_edited = models.DateTimeField(default=None, null=True, blank=True)
+    pinned = models.BooleanField(default=False)
+
+    # ref to course through course material
+    course_material = models.ForeignKey('CourseMaterial', on_delete=models.CASCADE, related_name='course_comments')
+
+    # member comment
+    user = models.ForeignKey('common.BaseUser', on_delete=models.SET_NULL, null=True, blank=True, related_name='course_comments')
+
+    # replying to comment
+    reply_to = models.ForeignKey('self', on_delete=models.CASCADE, null=True, blank=True, default=None, related_name='replies')
+
+    class Meta: 
+        ordering = ['-pinned']
+    # end Meta
+# end class
+
+class CourseCommentEngagement(models.Model):
+    comment = models.ForeignKey('CourseComment', on_delete=models.CASCADE, related_name='engagements')
+    member = models.ForeignKey('common.Member', on_delete=models.CASCADE, related_name='+')
+# end class 

@@ -14,7 +14,7 @@ urlpatterns = [
     # chapter views
     path('/<slug:pk>/chapters', views_chapters.chapter_view, name='Get all/Search Chapters, Create Chapter'),
     path('/<slug:pk>/chapters/<slug:chapter_id>', views_chapters.single_chapter_view, name='Get/Update/Delete single Chapter'),
-    path('/<slug:pk>/orderChapters', views_chapters.order_chapter_view, name='Order chapters'),
+    path('/<slug:pk>/order-chapters', views_chapters.order_chapter_view, name='Order chapters'),
 
     # final assessment views
     path('/<slug:course_id>/assessments', views_course.assessment_view, name='Create a course assessment'),

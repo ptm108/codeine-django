@@ -244,3 +244,40 @@ def order_question_view(request, quiz_id):
         # end try-except
     # end if
 # end def
+
+@api_view(['GET'])
+@permission_classes((IsPartnerOnly,))
+def all_quiz_view(request):
+    user = request.user
+
+    '''
+    Get Quizzes under Partner
+    '''
+    if request.method == 'GET':
+        try:
+            partner = user.partner
+
+            # check if partner is owner of course/material
+            quiz = Quiz.objects.filter(
+                Q(course__partner=partner) |
+                Q(course_material__chapter__course__partner=partner)
+            )
+
+            course_id = request.query_params.get('course_id', None)
+            if course_id is not None:
+                quiz = quiz.filter(
+                    Q(course__id=course_id) |
+                    Q(course_material__chapter__course__id=course_id)
+                )
+            # end if
+
+            serializer = QuizSerializer(quiz, many=True)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except ObjectDoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        except (ValueError, IntegrityError, KeyError) as e:
+            print(e)
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+        # end try-except
+    # end if
+# end def

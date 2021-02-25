@@ -76,7 +76,7 @@ def course_review_views(request, course_id):
                 course_reviews = course_reviews.filter(member__id=member_id)
             # end if
 
-            serializer = CourseReviewSerializer(course_reviews.all(), many=True, context={"request"})
+            serializer = CourseReviewSerializer(course_reviews.all(), many=True, context={'request': request})
             return Response(serializer.data, status=status.HTTP_200_OK)
         except ObjectDoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
@@ -94,7 +94,7 @@ def single_course_review_view(request, course_id, review_id):
     if request.method == 'GET':
         try:
             course_review = CourseReview.objects.get(pk=review_id)
-            serializer = CourseReviewSerializer(course_review)
+            serializer = CourseReviewSerializer(course_review, context={'request': request})
             return Response(serializer.data, status=status.HTTP_200_OK)
         except CourseReview.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)

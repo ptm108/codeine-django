@@ -9,6 +9,7 @@ from rest_framework.permissions import (
 )
 from .models import BaseUser
 from .serializers import NestedBaseUserSerializer
+import json
 
 
 @api_view(['GET',])
@@ -20,16 +21,20 @@ def admin_view(request):
     if request.method == 'GET':
         # extract query params
         search = request.query_params.get('search', None)
+        is_active = request.query_params.get('is_active', None)
 
         users = BaseUser.objects.exclude(is_admin=False)
 
+        if is_active is not None:
+            active = json.loads(is_active.lower())
+            users = users.filter(is_active=active)
         if search is not None:
             users = users.filter(
                 Q(first_name__icontains=search) |
                 Q(last_name__icontains=search) |
                 Q(email__icontains=search)
             )
-        # end if
+        # end ifs
 
         serializer = NestedBaseUserSerializer(users.all(), many=True, context={"request": request})
         return Response(serializer.data, status=status.HTTP_200_OK)

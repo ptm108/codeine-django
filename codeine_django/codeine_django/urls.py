@@ -40,14 +40,16 @@ urlpatterns = [
     path('courses', include('courses.urls'), name='Courses endpoints'),
     path('chapters', include('courses.urls_chapters'), name='Chapter endpoints'),
     path('materials', include('courses.urls_course_materials'), name='Course Materials endpoints'),
-    path('privateCourses', include('courses.urls_protected_courses'), name='Private courses endpoints'),
-
+    path('private-courses', include('courses.urls_protected_courses'), name='Private courses endpoints'),
+    path('course-comments', include('courses.urls_course_comments'), name='Course Comment endpoints'),
+    
     # quiz endpoints
     path('quiz', include('courses.urls_quiz'), name='Quiz and question endpoints'),
-    path('quizResults', include('courses.urls_quiz_results'), name='QuizResult endpoints'),
+    path('quiz-results', include('courses.urls_quiz_results'), name='QuizResult endpoints'),
 
     # enrollment endpoints
     path('enrollments', include('courses.urls_enrollments'), name='Get/Search Enrollments'),
+    path('enrolled-members', include('courses.urls_enrolled_members'), name='Get Enrolled Members'),
 
     # tickets endpoints
     path('tickets', include('tickets.urls'), name='Tickets endpoints'),

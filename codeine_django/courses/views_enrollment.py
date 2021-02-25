@@ -8,8 +8,8 @@ from rest_framework.permissions import IsAuthenticated
 from .models import Course, Enrollment, Chapter, CourseMaterial
 from .serializers import EnrollmentSerializer, NestedEnrollmentSerializer
 from common.models import Member, Partner
-from common.permissions import IsMemberOnly
-
+from common.permissions import IsMemberOnly, IsPartnerOnly
+from common.serializers import NestedBaseUserSerializer, MemberSerializer
 
 @api_view(['POST', 'DELETE', 'PATCH'])
 @permission_classes((IsMemberOnly,))
@@ -130,6 +130,26 @@ def enrollment_views(request):
             # end if-else
 
             serializer = NestedEnrollmentSerializer(enrollments.all(), many=True, context={'request': request, 'public': True})
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except ObjectDoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        # end try-except
+    # end if
+# end def
+
+@api_view(['GET'])
+@permission_classes((IsPartnerOnly,))
+def partner_enrollments_view(request):
+    '''
+    Partner gets all members that are enrolled in the course
+    '''
+    if request.method == 'GET':
+        try:
+            user = request.user
+            partner = Partner.objects.get(user=user)
+            enrollments = Enrollment.objects.filter(course__partner=partner)
+
+            serializer = EnrollmentSerializer(enrollments.all(), many=True, context={"request": request})
             return Response(serializer.data, status=status.HTTP_200_OK)
         except ObjectDoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
