@@ -33,12 +33,7 @@ def update_stats(sender, instance, **kwargs):
 
         # check through requirements
         for requirement in non_achievement.achievement_requirements.all():
-            if requirement.coding_languages in stats and stats[requirement.coding_languages] < requirement.experience_point:
-                print(requirement)
-                passed = False
-                break
-            # end if
-            if requirement.category in stats and stats[requirement.category] < requirement.experience_point:
+            if requirement.stat in stats and stats[requirement.stat] < requirement.experience_point:
                 print(requirement)
                 passed = False
                 break

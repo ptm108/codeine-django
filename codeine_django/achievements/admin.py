@@ -16,8 +16,7 @@ class AchievementAdmin(admin.ModelAdmin):
 class AchievementRequirementAdmin(admin.ModelAdmin):
     list_display = (
         'id',
-        'category',
-        'coding_languages',
+        'stat',
         'experience_point',
     )
 # end class
