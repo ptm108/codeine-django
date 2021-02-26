@@ -129,3 +129,40 @@ class BankDetailSerializer(serializers.ModelSerializer):
         return NestedBaseUserSerializer(obj.partner.user, context={'request': request}).data
     # end def
 # end class
+
+
+class MemberApplicationSerializer(serializers.ModelSerializer):
+    profile_photo = serializers.SerializerMethodField('get_profile_photo_url')
+    email = serializers.SerializerMethodField('get_email')
+    first_name = serializers.SerializerMethodField('get_first_name')
+    last_name = serializers.SerializerMethodField('get_last_name')
+    base_id = serializers.SerializerMethodField('get_base_user_id')
+
+    class Meta:
+        model = Member
+        fields = ('id', 'base_id', 'email', 'profile_photo', 'first_name', 'last_name')
+    # end Meta
+
+    def get_profile_photo_url(self, obj):
+        request = self.context.get("request")
+        if obj.user.profile_photo and hasattr(obj.user.profile_photo, 'url'):
+            return request.build_absolute_uri(obj.profile_photo.url)
+        # end if
+    # end def
+
+    def get_email(self, obj):
+        return obj.user.email
+    # end def
+
+    def get_first_name(self, obj):
+        return obj.user.first_name
+    # end def
+
+    def get_last_name(self, obj):
+        return obj.user.last_name
+    # end def
+
+    def get_base_user_id(self, obj):
+        return obj.user.id
+    # end def
+# end class

@@ -2,25 +2,22 @@ from rest_framework import serializers
 from django.db.models import Q
 
 from .models import ConsultationSlot, ConsultationPayment, ConsultationApplication
-from common.serializers import NestedBaseUserSerializer, MemberSerializer, PaymentTransactionSerializer
+from common.serializers import NestedBaseUserSerializer, MemberSerializer, PaymentTransactionSerializer, MemberApplicationSerializer
 from common.models import Member
 
 
 class NestedConsultationApplicationSerializer(serializers.ModelSerializer):
-    member = serializers.SerializerMethodField('get_member_base_user')
+    member_name = serializers.SerializerMethodField('get_member_name')
 
     class Meta:
         model = ConsultationApplication
         fields = '__all__'
     # end Meta
 
-    def get_member_base_user(self, obj):
-        if obj.member is None:
-            return None
-        else:
-            request = self.context.get("request")
-            return NestedBaseUserSerializer(obj.member.user, context={'request': request}).data
-        # end if-else
+    def get_member_name(self, obj):
+        member_name = obj.member.user.first_name + \
+            ' ' + obj.member.user.last_name
+        return member_name
     # end def
 # end class
 
@@ -68,7 +65,7 @@ class NestedConsultationPaymentSerializer(serializers.ModelSerializer):
 
 
 class ConsultationApplicationSerializer(serializers.ModelSerializer):
-    member = serializers.SerializerMethodField('get_member_base_user')
+    member = serializers.SerializerMethodField('get_member')
     consultation_slot = serializers.SerializerMethodField(
         'get_consultation_slot')
     consultation_payments = serializers.SerializerMethodField(
@@ -79,12 +76,9 @@ class ConsultationApplicationSerializer(serializers.ModelSerializer):
         fields = '__all__'
     # end Meta
 
-    def get_member_base_user(self, obj):
-        if obj.member is None:
-            return None
-        else:
-            request = self.context.get("request")
-            return NestedBaseUserSerializer(obj.member.user, context={'request': request}).data
+    def get_member(self, obj):
+        request = self.context.get("request")
+        return MemberApplicationSerializer(obj.member, context={'request': request}).data
         # end if-else
     # end def
 
