@@ -84,10 +84,17 @@ def contribution_payment_view(request):
         partner = Partner.objects.get(user=user)
         organization = partner.organization
 
+        contribution_payments = ContributionPayment.objects
+        # if organization is null, return contributions made by that partner
+        if organization is None:
+            contribution_payments = contribution_payments.filter(made_by=partner)
+        else: # organization is not null, return contribtuions made by the organization
+            contribution_payments = contribution_payments.filter(organization=organization)
+
         latest = request.query_params.get('latest', None)
         payment_status = request.query_params.get('payment_status', None)
 
-        contribution_payments = ContributionPayment.objects.filter(Q(made_by=partner) | Q(organization=organization))
+        # contribution_payments = ContributionPayment.objects.filter(Q(made_by=partner) | Q(organization=organization))
 
         if latest is not None:
             return Response(ContributionPaymentSerializer(contribution_payments.first(), context={"request": request}).data, status=status.HTTP_200_OK)
