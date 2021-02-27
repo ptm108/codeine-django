@@ -12,7 +12,7 @@ from .serializers import NestedBaseUserSerializer
 import json
 
 
-@api_view(['GET',])
+@api_view(['GET', ])
 @permission_classes((IsAdminUser,))
 def admin_view(request):
     '''
@@ -41,6 +41,7 @@ def admin_view(request):
     # end if
 # end def
 
+
 @api_view(['GET', 'PUT', 'PATCH', 'DELETE'])
 @permission_classes((IsAdminUser,))
 def single_admin_view(request, pk):
@@ -55,7 +56,7 @@ def single_admin_view(request, pk):
             return Response(serializer.data, status=status.HTTP_200_OK)
         except (ObjectDoesNotExist, KeyError, ValueError) as e:
             return Response(status=status.HTTP_400_BAD_REQUEST)
-        # end try-except 
+        # end try-except
     # end if
 
     '''
@@ -68,7 +69,7 @@ def single_admin_view(request, pk):
 
             if request.user != user:
                 return Response(status=status.HTTP_401_UNAUTHORIZED)
-            # end if 
+            # end if
 
             if 'first_name' in data:
                 user.first_name = data['first_name']
@@ -100,7 +101,7 @@ def single_admin_view(request, pk):
 
             if request.user != user:
                 return Response(status=status.HTTP_401_UNAUTHORIZED)
-            # end if 
+            # end if
 
             # check old password
             if not request.user.check_password(data['old_password']):
@@ -128,13 +129,39 @@ def single_admin_view(request, pk):
 
             if request.user != user:
                 return Response(status=status.HTTP_401_UNAUTHORIZED)
-            # end if 
-            
+            # end if
+
             user.is_active = False  # mark as deleted
             user.save()
 
             return Response(status=status.HTTP_200_OK)
         except ObjectDoesNotExist:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+        # end try-except
+    # end if
+# end def
+
+
+@api_view(['PATCH'])
+@permission_classes((IsAdminUser,))
+def suspend_user_view(request, pk):
+    '''
+    Suspend/Unsuspend user
+    '''
+    if request.method == 'PATCH':
+        try:
+            user = BaseUser.objects.get(pk=pk)
+            data = request.data
+
+            user.is_suspended = data['is_suspended']
+            user.save()
+
+            serializer = NestedBaseUserSerializer(user, context={"request": request})
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except ObjectDoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        except (KeyError, ValueError) as e:
+            print(e)
             return Response(status=status.HTTP_400_BAD_REQUEST)
         # end try-except
     # end if

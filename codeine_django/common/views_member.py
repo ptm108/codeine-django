@@ -12,6 +12,7 @@ from rest_framework.permissions import (
     IsAuthenticated,
     AllowAny,
     IsAuthenticatedOrReadOnly,
+    IsAdminUser
 )
 from .models import BaseUser, Member
 from .serializers import MemberSerializer, NestedBaseUserSerializer
@@ -48,7 +49,7 @@ def member_view(request):
                 )
                 recipient_email = (
                     data['email']
-                )  
+                )
 
                 plain_text_email = render_to_string(
                     'verification.txt', {'name': name, 'url': verification_url}
@@ -62,7 +63,7 @@ def member_view(request):
                     'Welcome to Codeine!',
                     plain_text_email,
                     'Codeine Admin <codeine4103@gmail.com>',
-                    [recipient_email], 
+                    [recipient_email],
                     html_message=html_email,
                 )
 
@@ -130,7 +131,7 @@ def single_member_view(request, pk):
 
             if request.user != user and not request.user.is_admin:
                 return Response(status=status.HTTP_401_UNAUTHORIZED)
-            # end if 
+            # end if
 
             if 'first_name' in data:
                 user.first_name = data['first_name']
@@ -228,6 +229,7 @@ def activate_member_view(request, pk):
     # end if
 # end def
 
+
 @api_view(['POST', 'PATCH'])
 @permission_classes((AllowAny,))
 def reset_member_password_view(request):
@@ -250,7 +252,7 @@ def reset_member_password_view(request):
             )
             recipient_email = (
                 data['email']
-            )  
+            )
 
             plain_text_email = render_to_string(
                 'reset_password.txt', {'name': name, 'url': reset_password_url}
@@ -264,7 +266,7 @@ def reset_member_password_view(request):
                 'Ask and you shall receive... a password reset',
                 plain_text_email,
                 'Codeine Admin <codeine4103@gmail.com>',
-                [recipient_email], 
+                [recipient_email],
                 html_message=html_email,
             )
 
