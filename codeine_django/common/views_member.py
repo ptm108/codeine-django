@@ -15,7 +15,7 @@ from rest_framework.permissions import (
 )
 from .models import BaseUser, Member
 from .serializers import MemberSerializer, NestedBaseUserSerializer
-from .permissions import IsMemberOnly, IsMemberOrAdminOrReadOnly
+from .permissions import IsMemberOnly, IsMemberOrAdminOrReadOnly, IsMemberOrReadOnly
 import json
 import jwt
 import os
@@ -229,7 +229,7 @@ def activate_member_view(request, pk):
 # end def
 
 @api_view(['GET', 'PATCH'])
-@permission_classes((AllowAny,))
+@permission_classes((IsMemberOnly,))
 def reset_member_password_view(request):
     '''
     Sends email with jwt token to reset password
@@ -280,13 +280,12 @@ def reset_member_password_view(request):
     if request.method == 'PATCH':
         try:
             data = request.data
+            user = request.user
 
-            # extract query params
-            token = request.query_params.get('token', None)
-            payload = jwt.decode(jwt=token, key=settings.SECRET_KEY, algorithms=["HS256"])
-            user = BaseUser.objects.get(id=payload['user_id'])
-            print(payload)
-            print(user)
+            # # extract query params
+            # token = request.query_params.get('token', None)
+            # payload = jwt.decode(jwt=token, key=settings.SECRET_KEY, algorithms=["HS256"])
+            # user = BaseUser.objects.get(id=payload['user_id'])
 
             user.set_password(data['reset_password'])
             user.save()
