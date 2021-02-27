@@ -15,7 +15,7 @@ from rest_framework.permissions import (
 )
 from .models import BaseUser, Member
 from .serializers import MemberSerializer, NestedBaseUserSerializer
-from .permissions import IsMemberOnly, IsMemberOrAdminOrReadOnly, IsMemberOrReadOnly
+from .permissions import IsMemberOnly, IsMemberOrAdminOrReadOnly
 import json
 import jwt
 import os
@@ -228,16 +228,17 @@ def activate_member_view(request, pk):
     # end if
 # end def
 
-@api_view(['GET', 'PATCH'])
-@permission_classes((IsMemberOrReadOnly,))
+@api_view(['POST', 'PATCH'])
+@permission_classes((AllowAny,))
 def reset_member_password_view(request):
     '''
     Sends email with jwt token to reset password
     '''
-    if request.method == 'GET':
+    if request.method == 'POST':
 
         try:
             data = request.data
+            print(data)
             email = data['email']
             user = BaseUser.objects.get(email=email)
             name = user.first_name + ' ' + user.last_name
