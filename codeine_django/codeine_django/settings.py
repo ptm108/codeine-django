@@ -91,10 +91,19 @@ CORS_ALLOWED_ORIGINS = [
     "http://127.0.0.1:5000",
 ]
 
+# GMAIL SETTINGS
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_HOST_USER = 'codeine4103@gmail.com'
+EMAIL_HOST_PASSWORD = 'grqjrdcznrtjagju'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+DEFAULT_FROM_EMAIL = 'Codeine Admin <codeine4103@gmail.com>'
+
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [os.path.join(BASE_DIR, "template")],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [

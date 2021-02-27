@@ -10,6 +10,9 @@ urlpatterns = [
     path('members/<slug:pk>/change-password', views_member.member_change_password_view, name='Member change password'),
     path('members/<slug:pk>/activate', views_member.activate_member_view, name='Activates member'),
     path('members/<slug:pk>/achievements', views_achievement.get_member_achievements, name='Get member\'s achievements'),
+    
+    # reset members pw views
+    path('reset-password', views_member.reset_member_password_view, name='get the refresh token/reset member password'),
 
     # partner views
     path('partners', views_partners.partner_view, name='Create/Get all/Search all active partners'),

@@ -6,6 +6,7 @@ from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes, parser_classes
 from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.response import Response
+from rest_framework_simplejwt.tokens import RefreshToken
 
 from rest_framework.permissions import (
     IsAuthenticated,
@@ -16,6 +17,10 @@ from .models import BaseUser, Member
 from .serializers import MemberSerializer, NestedBaseUserSerializer
 from .permissions import IsMemberOnly, IsMemberOrAdminOrReadOnly
 import json
+import jwt
+import os
+from django.template.loader import render_to_string
+from django.core.mail import send_mail
 
 
 @api_view(['GET', 'POST'])
@@ -193,6 +198,53 @@ def activate_member_view(request, pk):
             return Response(serializer.data, status=status.HTTP_200_OK)
         except ObjectDoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
+        # end try-except
+    # end if
+# end def
+
+@api_view(['GET', 'PATCH'])
+@permission_classes((AllowAny,))
+def reset_member_password_view(request):
+    '''
+    Sends email with jwt token to reset password
+    '''
+    if request.method == 'GET':
+
+        try:
+            data = request.data
+            email = data['email']
+            user = BaseUser.objects.get(email=email)
+            name = user.first_name + ' ' + user.last_name
+
+            refresh = RefreshToken.for_user(user)
+
+            reset_password_url = (
+                f'http://localhost:3000/reset-password/?token={refresh}'
+            )
+            recipient_email = (
+                data['email']
+            )  
+
+            plain_text_email = render_to_string(
+                'reset_password.txt', {'name': name, 'url': reset_password_url}
+            )
+
+            html_email = render_to_string(
+                'reset_password.html', {'name': name, 'url': reset_password_url}
+            )
+
+            send_mail(
+                'Title',
+                plain_text_email,
+                'Codeine Admin <codeine4103@gmail.com>',
+                [recipient_email, 'codeine4103@gmail.com'], 
+                html_message=html_email,
+            )
+
+            return Response(status=status.HTTP_200_OK)
+
+        except (IntegrityError, KeyError, ValueError) as e:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
         # end try-except
     # end if
 # end def
