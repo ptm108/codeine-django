@@ -260,7 +260,7 @@ def reset_member_password_view(request):
             )
 
             send_mail(
-                'Title',
+                'Ask and you shall receive... a password reset',
                 plain_text_email,
                 'Codeine Admin <codeine4103@gmail.com>',
                 [recipient_email], 
