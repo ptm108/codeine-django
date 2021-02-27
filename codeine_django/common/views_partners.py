@@ -16,6 +16,8 @@ from .models import BaseUser, Partner, Organization
 from .serializers import NestedBaseUserSerializer
 from .permissions import IsPartnerOnly, IsPartnerOrAdminOrReadOnly
 import json
+from django.template.loader import render_to_string
+from django.core.mail import send_mail
 
 
 @api_view(['GET', 'POST'])
@@ -46,6 +48,31 @@ def partner_view(request):
 
                 partner = Partner(user=user, organization=organization, org_admin=org_admin)
                 partner.save()
+
+                name = user.first_name + ' ' + user.last_name
+
+                verification_url = (
+                    f'http://localhost:3000/verify/{user.id}'
+                )
+                recipient_email = (
+                    data['email']
+                )  
+
+                plain_text_email = render_to_string(
+                    'verification.txt', {'name': name, 'url': verification_url}
+                )
+
+                html_email = render_to_string(
+                    'verification.html', {'name': name, 'url': verification_url}
+                )
+
+                send_mail(
+                    'Title',
+                    plain_text_email,
+                    'Codeine Admin <codeine4103@gmail.com>',
+                    [recipient_email], 
+                    html_message=html_email,
+                )
 
                 serializer = NestedBaseUserSerializer(user, context={"request": request})
                 return Response(serializer.data, status=status.HTTP_201_CREATED)
