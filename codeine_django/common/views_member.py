@@ -229,7 +229,7 @@ def activate_member_view(request, pk):
 # end def
 
 @api_view(['GET', 'PATCH'])
-@permission_classes((IsMemberOnly,))
+@permission_classes((IsMemberOrReadOnly,))
 def reset_member_password_view(request):
     '''
     Sends email with jwt token to reset password
