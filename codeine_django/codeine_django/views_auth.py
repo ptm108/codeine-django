@@ -31,6 +31,10 @@ def authenticate_user(request):
             return Response(NestedBaseUserSerializer(user, context={'request': request}).data, status=status.HTTP_403_FORBIDDEN)
         # end if
 
+        if user.is_suspended:
+            return Response(NestedBaseUserSerializer(user, context={'request': request}).data, status=status.HTTP_403_FORBIDDEN)
+        # end if
+
         # get JWT
         token = RefreshToken.for_user(user)
 
