@@ -8,7 +8,7 @@ from common.models import Member
 
 class NestedConsultationApplicationSerializer(serializers.ModelSerializer):
     member_name = serializers.SerializerMethodField('get_member_name')
-
+    member_base_user_id = serializers.SerializerMethodField('get_member_base_user_id')
     class Meta:
         model = ConsultationApplication
         fields = '__all__'
@@ -18,6 +18,11 @@ class NestedConsultationApplicationSerializer(serializers.ModelSerializer):
         member_name = obj.member.user.first_name + \
             ' ' + obj.member.user.last_name
         return member_name
+    # end def
+
+    def get_member_base_user_id(self, obj):
+        member_base_user_id = obj.member.user.id
+        return member_base_user_id
     # end def
 # end class
 
