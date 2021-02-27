@@ -59,7 +59,7 @@ def member_view(request):
                 )
 
                 send_mail(
-                    'Title',
+                    'Welcome to Codeine!',
                     plain_text_email,
                     'Codeine Admin <codeine4103@gmail.com>',
                     [recipient_email], 
