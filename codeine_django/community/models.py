@@ -31,7 +31,8 @@ class Article(models.Model):
 class ArticleComment(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, unique=True)
     comment = models.TextField()
-    timestamp = models.DateTimeField(default=timezone.now)
+    timestamp = models.DateTimeField(auto_now_add=True)
+    time_edited = models.DateTimeField(default=None, null=True, blank=True)
 
     # ref
     user = models.ForeignKey('common.BaseUser', on_delete=models.CASCADE, related_name='article_comments')
@@ -91,6 +92,7 @@ class CodeReviewComment(models.Model):
     highlighted_code = models.TextField()
     comment = models.TextField()
     timestamp = models.DateTimeField(auto_now_add=True)
+    time_edited = models.DateTimeField(default=None, null=True, blank=True)
 
     # ref
     user = models.ForeignKey('common.BaseUser', on_delete=models.CASCADE, related_name='code_review_comments')
