@@ -141,28 +141,3 @@ def single_admin_view(request, pk):
     # end if
 # end def
 
-
-@api_view(['PATCH'])
-@permission_classes((IsAdminUser,))
-def suspend_user_view(request, pk):
-    '''
-    Suspend/Unsuspend user
-    '''
-    if request.method == 'PATCH':
-        try:
-            user = BaseUser.objects.get(pk=pk)
-            data = request.data
-
-            user.is_suspended = data['is_suspended']
-            user.save()
-
-            serializer = NestedBaseUserSerializer(user, context={"request": request})
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        except ObjectDoesNotExist:
-            return Response(status=status.HTTP_404_NOT_FOUND)
-        except (KeyError, ValueError) as e:
-            print(e)
-            return Response(status=status.HTTP_400_BAD_REQUEST)
-        # end try-except
-    # end if
-# end def

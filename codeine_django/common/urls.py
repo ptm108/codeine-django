@@ -10,7 +10,7 @@ urlpatterns = [
     path('members/<slug:pk>/change-password', views_member.member_change_password_view, name='Member change password'),
     path('members/<slug:pk>/activate', views_member.activate_member_view, name='Activates member'),
     path('members/<slug:pk>/achievements', views_achievement.get_member_achievements, name='Get member\'s achievements'),
-    path('members/<slug:pk>/suspend', views_admin.suspend_user_view, name='Suspend/Unsuspend member'),
+    path('members/<slug:pk>/suspend', views_member.suspend_user_view, name='Suspend/Unsuspend member'),
 
     # reset members pw views
     path('reset-password', views_member.reset_member_password_view, name='get the refresh token/reset member password'),
@@ -20,7 +20,7 @@ urlpatterns = [
     path('partners/<slug:pk>', views_partners.single_partner_view, name='Read/update/delete for partners'),
     path('partners/<slug:pk>/change-password', views_partners.partner_change_password_view, name='Partner change password'),
     path('partners/<slug:pk>/activate', views_partners.activate_partner_view, name='Activates partner'),
-    path('partners/<slug:pk>/suspend', views_admin.suspend_user_view, name='Suspend/Unsuspend partner'),
+    path('partners/<slug:pk>/suspend', views_partners.suspend_user_view, name='Suspend/Unsuspend partner'),
 
     # bank detail views
     path('bank-details', views_bank_detail.bank_detail_view, name='Create/Get bank detail by partner'),
