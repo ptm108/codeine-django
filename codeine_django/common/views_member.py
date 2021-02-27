@@ -21,6 +21,7 @@ import jwt
 import os
 from django.template.loader import render_to_string
 from django.core.mail import send_mail
+from codeine_django import settings
 
 
 @api_view(['GET', 'POST'])
@@ -219,7 +220,7 @@ def reset_member_password_view(request):
             refresh = RefreshToken.for_user(user)
 
             reset_password_url = (
-                f'http://localhost:3000/reset-password/?token={refresh}'
+                f'http://localhost:3000/reset-password/?token={refresh.access_token}'
             )
             recipient_email = (
                 data['email']
@@ -245,6 +246,33 @@ def reset_member_password_view(request):
 
         except (IntegrityError, KeyError, ValueError) as e:
             return Response(status=status.HTTP_400_BAD_REQUEST)
+        # end try-except
+    # end if
+
+    '''
+    Reset member's password
+    '''
+    if request.method == 'PATCH':
+        try:
+            data = request.data
+
+            # extract query params
+            token = request.query_params.get('token', None)
+            payload = jwt.decode(jwt=token, key=settings.SECRET_KEY, algorithms=["HS256"])
+            user = BaseUser.objects.get(id=payload['user_id'])
+            print(payload)
+            print(user)
+
+            user.set_password(data['reset_password'])
+            user.save()
+
+            serializer = NestedBaseUserSerializer(user, context={"request": request})
+            return Response(serializer.data, status=status.HTTP_200_OK)
+
+        except ObjectDoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        except KeyError:
+            return Response('Invalid payload', status=status.HTTP_400_BAD_REQUEST)
         # end try-except
     # end if
 # end def
