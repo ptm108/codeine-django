@@ -7,22 +7,16 @@ from common.models import Member
 
 
 class NestedConsultationApplicationSerializer(serializers.ModelSerializer):
-    member_name = serializers.SerializerMethodField('get_member_name')
-    member_base_user_id = serializers.SerializerMethodField('get_member_base_user_id')
+    member = serializers.SerializerMethodField()
+
     class Meta:
         model = ConsultationApplication
         fields = '__all__'
     # end Meta
 
-    def get_member_name(self, obj):
-        member_name = obj.member.user.first_name + \
-            ' ' + obj.member.user.last_name
-        return member_name
-    # end def
-
-    def get_member_base_user_id(self, obj):
-        member_base_user_id = obj.member.user.id
-        return member_base_user_id
+    def get_member(self, obj):
+        request = self.context.get("request")
+        return NestedBaseUserSerializer(obj.member.user, context={'request': request}).data
     # end def
 # end class
 

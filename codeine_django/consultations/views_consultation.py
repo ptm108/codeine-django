@@ -38,15 +38,15 @@ def consultation_slot_view(request):
                 consultation_slot = ConsultationSlot(
                     # start_date = data['start_date'],
                     # end_date = data['end_date'],
-                    title = data['title'],
-                    start_time = data['start_time'],
-                    end_time = data['end_time'],
-                    meeting_link = data['meeting_link'],
-                    price_per_pax = data['price_per_pax'],
-                    max_members = data['max_members'],
+                    title=data['title'],
+                    start_time=data['start_time'],
+                    end_time=data['end_time'],
+                    meeting_link=data['meeting_link'],
+                    price_per_pax=data['price_per_pax'],
+                    max_members=data['max_members'],
                     # r_rule = data['r_rule'],
                     # is_all_day = data['is_all_day'],
-                    partner = partner
+                    partner=partner
                 )
 
                 consultation_slot.save()
@@ -71,7 +71,7 @@ def consultation_slot_view(request):
         partner_id = request.query_params.get('partner_id', None)
         is_cancelled = request.query_params.get('is_cancelled', None)
         search_date = request.query_params.get('search_date', None)
-        
+
         consultation_slots = ConsultationSlot.objects
 
         if search is not None:
@@ -134,7 +134,7 @@ def single_consultation_slot_view(request, pk):
             with transaction.atomic():
                 consultation_slot = ConsultationSlot.objects.get(pk=pk)
                 partner = consultation_slot.partner
-                user =  request.user
+                user = request.user
                 # assert requesting partner is confirming their own consultation slots
                 if partner.user != user:
                     return Response(status=status.HTTP_401_UNAUTHORIZED)
@@ -173,6 +173,7 @@ def single_consultation_slot_view(request, pk):
         # end try-except
     # end if
 # end def
+
 
 @api_view(['PATCH'])
 @permission_classes((IsPartnerOnly,))
