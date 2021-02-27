@@ -41,6 +41,31 @@ def member_view(request):
                 member = Member(user=user)
                 member.save()
 
+                name = user.first_name + ' ' + user.last_name
+
+                verification_url = (
+                    f'http://localhost:3000/verify/{user.id}'
+                )
+                recipient_email = (
+                    data['email']
+                )  
+
+                plain_text_email = render_to_string(
+                    'verification.txt', {'name': name, 'url': verification_url}
+                )
+
+                html_email = render_to_string(
+                    'verification.html', {'name': name, 'url': verification_url}
+                )
+
+                send_mail(
+                    'Title',
+                    plain_text_email,
+                    'Codeine Admin <codeine4103@gmail.com>',
+                    [recipient_email], 
+                    html_message=html_email,
+                )
+
                 serializer = NestedBaseUserSerializer(user, context={"request": request})
 
                 return Response(serializer.data, status=status.HTTP_201_CREATED)
@@ -238,7 +263,7 @@ def reset_member_password_view(request):
                 'Title',
                 plain_text_email,
                 'Codeine Admin <codeine4103@gmail.com>',
-                [recipient_email, 'codeine4103@gmail.com'], 
+                [recipient_email], 
                 html_message=html_email,
             )
 
