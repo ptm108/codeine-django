@@ -8,7 +8,7 @@ from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
 from rest_framework.response import Response
 
 from common.models import PaymentTransaction, Member, Partner
-from common.permissions import IsMemberOnly, IsMemberOrReadOnly, IsMemberOrAdminOrReadOnly, IsPartnerOnly
+from common.permissions import IsMemberOnly, IsMemberOrReadOnly, IsMemberOrAdminOrReadOnly, IsPartnerOnly, IsMemberOrPartnerOrReadOnly
 from .models import ConsultationPayment, ConsultationApplication, ConsultationSlot
 from .serializers import ConsultationPaymentSerializer
 
@@ -127,7 +127,7 @@ def update_consultation_payment_status(request, pk):
 # end def
 
 @api_view(['POST'])
-@permission_classes((IsMemberOrReadOnly,))
+@permission_classes((IsMemberOrPartnerOrReadOnly,))
 def refund_consultation_payment_status(request, pk):
     '''
     Refund consultation payment
