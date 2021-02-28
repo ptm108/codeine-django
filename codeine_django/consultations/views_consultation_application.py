@@ -2,6 +2,8 @@ from django.db import transaction
 from django.db.utils import IntegrityError
 from django.core.exceptions import ValidationError, ObjectDoesNotExist
 from django.db.models import Q
+from django.utils.timezone import datetime
+
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes, parser_classes, renderer_classes
 from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
@@ -232,6 +234,10 @@ def member_consultation_application_view(request):
             member = Member.objects.get(user=user)
             consultation_applications = ConsultationApplication.objects.filter(member=member)
             
+            # filter out past member's applications
+            future_consultation_slots = ConsultationSlot.objects.filter(start_time__gte=datetime.now())
+            consultation_applications = ConsultationApplication.objects.filter(consultation_slot__in=future_consultation_slots)
+
             search = request.query_params.get('search', None)
             if search is not None:
                 consultation_applications = consultation_applications.filter(
