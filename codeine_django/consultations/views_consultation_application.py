@@ -26,12 +26,13 @@ def consultation_application_view(request, consultation_slot_id):
         member = Member.objects.get(user=user)
         data = request.data
 
-        consultation_slot = ConsultationSlot.objects.get(pk=consultation_slot_id)
+        consultation_slot = ConsultationSlot.objects.get(
+            pk=consultation_slot_id)
 
         # check if consultation is cancelled
         if consultation_slot.is_cancelled is True:
             return Response(status=status.HTTP_400_BAD_REQUEST)
-        # end if            
+        # end if
 
         # do not allow member to apply for ongoing or past consultation slots
         if consultation_slot.start_time <= timezone.now():
@@ -83,9 +84,11 @@ def consultation_application_view(request, consultation_slot_id):
         # extract query params
         member_id = request.query_params.get('member_id', None)
 
-        consultation_slot = ConsultationSlot.objects.get(pk=consultation_slot_id)
-        consultation_applications = ConsultationApplication.objects.filter(consultation_slot=consultation_slot)
-        
+        consultation_slot = ConsultationSlot.objects.get(
+            pk=consultation_slot_id)
+        consultation_applications = ConsultationApplication.objects.filter(
+            consultation_slot=consultation_slot)
+
         if member_id is not None:
             consultation_applications = consultation_applications.filter(
                 Q(member__user__id__exact=member_id)
@@ -108,14 +111,16 @@ def single_consultation_application_view(request, pk):
     '''
     if request.method == 'GET':
         try:
-            consultation_application = ConsultationApplication.objects.get(pk=pk)
+            consultation_application = ConsultationApplication.objects.get(
+                pk=pk)
 
             return Response(ConsultationApplicationSerializer(consultation_application, context={"request": request}).data)
         except (ObjectDoesNotExist, KeyError, ValueError) as e:
             print(e)
             return Response(status=status.HTTP_400_BAD_REQUEST)
     # end if
-#end def
+# end def
+
 
 @api_view(['PATCH'])
 @permission_classes((IsMemberOnly,))
@@ -126,7 +131,8 @@ def cancel_consultation_application(request, pk):
     if request.method == 'PATCH':
         data = request.data
         try:
-            consultation_application = ConsultationApplication.objects.get(pk=pk)
+            consultation_application = ConsultationApplication.objects.get(
+                pk=pk)
 
             user = request.user
             member = consultation_application.member
@@ -157,6 +163,7 @@ def cancel_consultation_application(request, pk):
     # end if
 # end def
 
+
 @api_view(['PATCH'])
 @permission_classes((IsPartnerOnly,))
 def reject_consultation_application(request, pk):
@@ -166,7 +173,8 @@ def reject_consultation_application(request, pk):
     if request.method == 'PATCH':
         data = request.data
         try:
-            consultation_application = ConsultationApplication.objects.get(pk=pk)
+            consultation_application = ConsultationApplication.objects.get(
+                pk=pk)
 
             user = request.user
             partner = consultation_application.consultation_slot.partner
@@ -197,6 +205,7 @@ def reject_consultation_application(request, pk):
     # end if
 # end def
 
+
 @api_view(['GET'])
 @permission_classes((IsPartnerOnly,))
 @parser_classes((MultiPartParser, FormParser, JSONParser))
@@ -210,11 +219,11 @@ def partner_consultation_application_view(request):
             partner = Partner.objects.get(user=user)
             consultation_slots = ConsultationSlot.objects.filter(
                 Q(partner=partner) &
-                Q(is_cancelled=False) &
-                Q(start_time__gte=timezone.now())
+                Q(is_cancelled=False)
             )
-            consultation_applications = ConsultationApplication.objects.filter(consultation_slot__in=consultation_slots)
-            
+            consultation_applications = ConsultationApplication.objects.filter(
+                consultation_slot__in=consultation_slots)
+
             search = request.query_params.get('search', None)
             if search is not None:
                 consultation_applications = consultation_applications.filter(
@@ -222,6 +231,17 @@ def partner_consultation_application_view(request):
                     Q(member__user__first_name__icontains=search) |
                     Q(member__user__last_name__icontains=search)
                 )
+            # end if
+
+            is_upcoming = request.query_params.get('is_upcoming', None)
+            if is_upcoming is not None:
+                if is_upcoming == "True":
+                    # filter out past member's applications
+                    consultation_slots = consultation_slots.filter(
+                        start_time__gte=timezone.now())
+                    consultation_applications = consultation_applications.filter(
+                        consultation_slot__in=consultation_slots)
+                # end if
             # end if
 
             serializer = ConsultationApplicationSerializer(
@@ -232,7 +252,8 @@ def partner_consultation_application_view(request):
             return Response(status=status.HTTP_400_BAD_REQUEST)
         # end try-except
     # end if
-#end def
+# end def
+
 
 @api_view(['GET'])
 @permission_classes((IsMemberOnly,))
@@ -245,17 +266,25 @@ def member_consultation_application_view(request):
         try:
             user = request.user
             member = Member.objects.get(user=user)
-            consultation_applications = ConsultationApplication.objects.filter(member=member)
-            
-            # filter out past member's applications
-            future_consultation_slots = ConsultationSlot.objects.filter(start_time__gte=timezone.now())
-            consultation_applications = ConsultationApplication.objects.filter(consultation_slot__in=future_consultation_slots)
+            consultation_applications = ConsultationApplication.objects.filter(
+                member=member)
 
             search = request.query_params.get('search', None)
             if search is not None:
                 consultation_applications = consultation_applications.filter(
                     Q(consultation_slot__title__icontains=search)
                 )
+            # end if
+
+            is_upcoming = request.query_params.get('is_upcoming', None)
+            if is_upcoming is not None:
+                if is_upcoming == "True":
+                    # filter out past member's applications
+                    consultation_slots = ConsultationSlot.objects.filter(
+                        start_time__gte=timezone.now())
+                    consultation_applications = consultation_applications.filter(
+                        consultation_slot__in=consultation_slots)
+                # end if
             # end if
 
             serializer = ConsultationApplicationSerializer(
@@ -266,4 +295,4 @@ def member_consultation_application_view(request):
             return Response(status=status.HTTP_400_BAD_REQUEST)
         # end try-except
     # end if
-#end def
+# end def
