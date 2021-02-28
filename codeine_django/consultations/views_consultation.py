@@ -111,6 +111,15 @@ def consultation_slot_view(request):
             # end if
         # end if
 
+        # filter out past consultation slots
+        is_past = request.query_params.get('is_past', None)
+        if is_past is not None:
+            if is_past == "True":
+                consultation_slots = consultation_slots.filter(
+                    start_time__lt=timezone.now())
+            # end if
+        # end if
+
         serializer = ConsultationSlotSerializer(
             consultation_slots.all(), many=True, context={"request": request})
         return Response(serializer.data, status=status.HTTP_200_OK)

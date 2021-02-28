@@ -248,9 +248,20 @@ def partner_consultation_application_view(request):
             is_upcoming = request.query_params.get('is_upcoming', None)
             if is_upcoming is not None:
                 if is_upcoming == "True":
-                    # filter out past member's applications
+                    # filter out partner's past applications
                     consultation_slots = consultation_slots.filter(
                         start_time__gte=timezone.now())
+                    consultation_applications = consultation_applications.filter(
+                        consultation_slot__in=consultation_slots)
+                # end if
+            # end if
+
+            is_past = request.query_params.get('is_past', None)
+            if is_past is not None:
+                if is_past == "True":
+                    # get partner's past applications
+                    consultation_slots = consultation_slots.filter(
+                        start_time__lt=timezone.now())
                     consultation_applications = consultation_applications.filter(
                         consultation_slot__in=consultation_slots)
                 # end if
@@ -294,6 +305,17 @@ def member_consultation_application_view(request):
                     # filter out past member's applications
                     consultation_slots = ConsultationSlot.objects.filter(
                         start_time__gte=timezone.now())
+                    consultation_applications = consultation_applications.filter(
+                        consultation_slot__in=consultation_slots)
+                # end if
+            # end if
+
+            is_past = request.query_params.get('is_past', None)
+            if is_past is not None:
+                if is_past == "True":
+                    # get member's past applications
+                    consultation_slots = ConsultationSlot.objects.filter(
+                        start_time__lt=timezone.now())
                     consultation_applications = consultation_applications.filter(
                         consultation_slot__in=consultation_slots)
                 # end if
