@@ -51,6 +51,7 @@ class NestedBaseUserSerializer(serializers.ModelSerializer):
             'email',
             'is_admin',
             'is_active',
+            'is_suspended',
             'date_joined',
             'profile_photo',
             'first_name',

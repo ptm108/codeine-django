@@ -6,16 +6,23 @@ from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes, parser_classes
 from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.response import Response
+from rest_framework_simplejwt.tokens import RefreshToken
 
 from rest_framework.permissions import (
     IsAuthenticated,
     AllowAny,
     IsAuthenticatedOrReadOnly,
+    IsAdminUser
 )
 from .models import BaseUser, Member
 from .serializers import MemberSerializer, NestedBaseUserSerializer
 from .permissions import IsMemberOnly, IsMemberOrAdminOrReadOnly
 import json
+import jwt
+import os
+from django.template.loader import render_to_string
+from django.core.mail import send_mail
+from codeine_django import settings
 
 
 @api_view(['GET', 'POST'])
@@ -34,6 +41,31 @@ def member_view(request):
 
                 member = Member(user=user)
                 member.save()
+
+                name = user.first_name + ' ' + user.last_name
+
+                verification_url = (
+                    f'http://localhost:3000/verify/{user.id}'
+                )
+                recipient_email = (
+                    data['email']
+                )
+
+                plain_text_email = render_to_string(
+                    'verification.txt', {'name': name, 'url': verification_url}
+                )
+
+                html_email = render_to_string(
+                    'verification.html', {'name': name, 'url': verification_url}
+                )
+
+                send_mail(
+                    'Welcome to Codeine!',
+                    plain_text_email,
+                    'Codeine Admin <codeine4103@gmail.com>',
+                    [recipient_email],
+                    html_message=html_email,
+                )
 
                 serializer = NestedBaseUserSerializer(user, context={"request": request})
 
@@ -99,7 +131,7 @@ def single_member_view(request, pk):
 
             if request.user != user and not request.user.is_admin:
                 return Response(status=status.HTTP_401_UNAUTHORIZED)
-            # end if 
+            # end if
 
             if 'first_name' in data:
                 user.first_name = data['first_name']
@@ -193,6 +225,108 @@ def activate_member_view(request, pk):
             return Response(serializer.data, status=status.HTTP_200_OK)
         except ObjectDoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
+        # end try-except
+    # end if
+# end def
+
+
+@api_view(['POST', 'PATCH'])
+@permission_classes((AllowAny,))
+def reset_member_password_view(request):
+    '''
+    Sends email with jwt token to reset password
+    '''
+    if request.method == 'POST':
+
+        try:
+            data = request.data
+            print(data)
+            email = data['email']
+            user = BaseUser.objects.get(email=email)
+            name = user.first_name + ' ' + user.last_name
+
+            refresh = RefreshToken.for_user(user)
+
+            reset_password_url = (
+                f'http://localhost:3000/reset-password/?token={refresh.access_token}'
+            )
+            recipient_email = (
+                data['email']
+            )
+
+            plain_text_email = render_to_string(
+                'reset_password.txt', {'name': name, 'url': reset_password_url}
+            )
+
+            html_email = render_to_string(
+                'reset_password.html', {'name': name, 'url': reset_password_url}
+            )
+
+            send_mail(
+                'Ask and you shall receive... a password reset',
+                plain_text_email,
+                'Codeine Admin <codeine4103@gmail.com>',
+                [recipient_email],
+                html_message=html_email,
+            )
+
+            return Response(status=status.HTTP_200_OK)
+
+        except (IntegrityError, KeyError, ValueError) as e:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+        # end try-except
+    # end if
+
+    '''
+    Reset member's password
+    '''
+    if request.method == 'PATCH':
+        try:
+            data = request.data
+            user = request.user
+
+            # # extract query params
+            # token = request.query_params.get('token', None)
+            # payload = jwt.decode(jwt=token, key=settings.SECRET_KEY, algorithms=["HS256"])
+            # user = BaseUser.objects.get(id=payload['user_id'])
+
+            user.set_password(data['reset_password'])
+            user.save()
+
+            serializer = NestedBaseUserSerializer(user, context={"request": request})
+            return Response(serializer.data, status=status.HTTP_200_OK)
+
+        except ObjectDoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        except KeyError:
+            return Response('Invalid payload', status=status.HTTP_400_BAD_REQUEST)
+        # end try-except
+    # end if
+# end def
+
+
+@api_view(['PATCH'])
+@permission_classes((IsAdminUser,))
+def suspend_user_view(request, pk):
+    '''
+    Suspend/Unsuspend user
+    '''
+    if request.method == 'PATCH':
+        try:
+            user = BaseUser.objects.get(pk=pk)
+            member = Member.objects.get(user=user)
+            data = request.data
+
+            user.is_suspended = data['is_suspended']
+            user.save()
+
+            serializer = NestedBaseUserSerializer(user, context={"request": request})
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except ObjectDoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        except (KeyError, ValueError) as e:
+            print(e)
+            return Response(status=status.HTTP_400_BAD_REQUEST)
         # end try-except
     # end if
 # end def

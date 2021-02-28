@@ -11,11 +11,14 @@ from rest_framework.permissions import (
     IsAuthenticated,
     AllowAny,
     IsAuthenticatedOrReadOnly,
+    IsAdminUser
 )
 from .models import BaseUser, Partner, Organization
 from .serializers import NestedBaseUserSerializer
 from .permissions import IsPartnerOnly, IsPartnerOrAdminOrReadOnly
 import json
+from django.template.loader import render_to_string
+from django.core.mail import send_mail
 
 
 @api_view(['GET', 'POST'])
@@ -46,6 +49,31 @@ def partner_view(request):
 
                 partner = Partner(user=user, organization=organization, org_admin=org_admin)
                 partner.save()
+
+                name = user.first_name + ' ' + user.last_name
+
+                verification_url = (
+                    f'http://localhost:3000/verify/{user.id}'
+                )
+                recipient_email = (
+                    data['email']
+                )
+
+                plain_text_email = render_to_string(
+                    'verification.txt', {'name': name, 'url': verification_url}
+                )
+
+                html_email = render_to_string(
+                    'verification.html', {'name': name, 'url': verification_url}
+                )
+
+                send_mail(
+                    'Welcome to Codeine!',
+                    plain_text_email,
+                    'Codeine Admin <codeine4103@gmail.com>',
+                    [recipient_email],
+                    html_message=html_email,
+                )
 
                 serializer = NestedBaseUserSerializer(user, context={"request": request})
                 return Response(serializer.data, status=status.HTTP_201_CREATED)
@@ -222,6 +250,33 @@ def activate_partner_view(request, pk):
             return Response(serializer.data, status=status.HTTP_200_OK)
         except ObjectDoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
+        # end try-except
+    # end if
+# end def
+
+
+@api_view(['PATCH'])
+@permission_classes((IsAdminUser,))
+def suspend_user_view(request, pk):
+    '''
+    Suspend/Unsuspend user
+    '''
+    if request.method == 'PATCH':
+        try:
+            user = BaseUser.objects.get(pk=pk)
+            partner = Partner.objects.get(user=user)
+            data = request.data
+
+            user.is_suspended = data['is_suspended']
+            user.save()
+
+            serializer = NestedBaseUserSerializer(user, context={"request": request})
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except ObjectDoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        except (KeyError, ValueError) as e:
+            print(e)
+            return Response(status=status.HTTP_400_BAD_REQUEST)
         # end try-except
     # end if
 # end def

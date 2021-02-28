@@ -17,6 +17,7 @@ def org_directory_path(instance, filename):
     return 'org_{0}/{1}'.format(instance.id, filename)
 # end def
 
+
 def get_default_member_stats():
     return {
         'PY': 0,
@@ -35,6 +36,7 @@ def get_default_member_stats():
         'ML': 0,
     }
 # end def
+
 
 class CustomUserManager(BaseUserManager):
     """
@@ -79,6 +81,7 @@ class BaseUser(AbstractBaseUser, PermissionsMixin):
     email = models.EmailField(_('email address'), unique=True)
     is_admin = models.BooleanField(default=False)
     is_active = models.BooleanField(default=False)
+    is_suspended = models.BooleanField(default=False)
     date_joined = models.DateTimeField(default=timezone.now)
     first_name = models.CharField(max_length=150, null=True)
     last_name = models.CharField(max_length=150, null=True)
@@ -176,8 +179,9 @@ class PaymentTransaction(models.Model):
 
     class Meta:
         ordering = ['timestamp']
-    #end class
+    # end class
 # end class
+
 
 class BankDetail(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, unique=True)
