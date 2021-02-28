@@ -135,6 +135,9 @@ def single_contribution_payment_view(request, pk):
     if request.method == 'DELETE':
         try:
             contribution_payment = ContributionPayment.objects.get(pk=pk)
+            if contribution_payment.payment_transaction.payment_status != 'PENDING_COMPLETION':
+                return Response(status=status.HTTP_400_BAD_REQUEST)
+            # end if
             contribution_payment.delete()
 
             return Response(ContributionPaymentSerializer(contribution_payment, context={"request": request}).data)
