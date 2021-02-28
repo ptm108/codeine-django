@@ -2,6 +2,8 @@ from django.db import transaction
 from django.db.utils import IntegrityError
 from django.core.exceptions import ValidationError, ObjectDoesNotExist
 from django.db.models import Q
+from django.utils import timezone
+
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes, parser_classes, renderer_classes
 from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
@@ -16,7 +18,6 @@ from .models import ConsultationSlot, ConsultationApplication
 from common.models import Partner, Member
 from common.permissions import IsMemberOnly, IsPartnerOnly, IsPartnerOrReadOnly
 from .serializers import ConsultationSlotSerializer
-from datetime import datetime, timedelta
 
 
 @api_view(['GET', 'POST'])
@@ -140,6 +141,10 @@ def single_consultation_slot_view(request, pk):
                     return Response(status=status.HTTP_401_UNAUTHORIZED)
                 # end if
 
+                # do not allow partners to edit ongoing or past consultation slots
+                if consultation_slot.start_time <= timezone.now():
+                    return Response(status=status.HTTP_403_FORBIDDEN)
+
                 if 'title' in data:
                     consultation_slot.title = data['title']
                 if 'start_date' in data:
@@ -192,6 +197,10 @@ def cancel_consultation_slot(request, pk):
             if partner.user != user:
                 return Response(status=status.HTTP_401_UNAUTHORIZED)
             # end if
+
+            # do not allow partners to edit ongoing or past consultation slots
+            if consultation_slot.start_time <= timezone.now():
+                return Response(status=status.HTTP_403_FORBIDDEN)
 
             consultation_slot.is_cancelled = True
             consultation_slot.save()

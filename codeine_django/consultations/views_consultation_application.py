@@ -2,7 +2,7 @@ from django.db import transaction
 from django.db.utils import IntegrityError
 from django.core.exceptions import ValidationError, ObjectDoesNotExist
 from django.db.models import Q
-from django.utils.timezone import datetime
+from django.utils import timezone
 
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes, parser_classes, renderer_classes
@@ -32,6 +32,10 @@ def consultation_application_view(request, consultation_slot_id):
         if consultation_slot.is_cancelled is True:
             return Response(status=status.HTTP_400_BAD_REQUEST)
         # end if            
+
+        # do not allow member to apply for ongoing or past consultation slots
+        if consultation_slot.start_time <= timezone.now():
+            return Response(status=status.HTTP_403_FORBIDDEN)
 
         prev_applications = ConsultationApplication.objects.filter(
             Q(consultation_slot=consultation_slot) &
@@ -137,6 +141,10 @@ def cancel_consultation_application(request, pk):
                 return Response(status=status.HTTP_400_BAD_REQUEST)
             # end if
 
+            # do not allow member to cancel application for ongoing or past consultation slots
+            if consultation_application.consultation_slot.start_time <= timezone.now():
+                return Response(status=status.HTTP_403_FORBIDDEN)
+
             consultation_application.is_cancelled = True
             consultation_application.save()
 
@@ -173,6 +181,10 @@ def reject_consultation_application(request, pk):
                 return Response(status=status.HTTP_400_BAD_REQUEST)
             # end if
 
+            # do not allow member to cancel application for ongoing or past consultation slots
+            if consultation_application.consultation_slot.start_time <= timezone.now():
+                return Response(status=status.HTTP_403_FORBIDDEN)
+
             consultation_application.is_rejected = True
             consultation_application.save()
 
@@ -199,7 +211,7 @@ def partner_consultation_application_view(request):
             consultation_slots = ConsultationSlot.objects.filter(
                 Q(partner=partner) &
                 Q(is_cancelled=False) &
-                Q(start_time__gte=datetime.now())
+                Q(start_time__gte=timezone.now())
             )
             consultation_applications = ConsultationApplication.objects.filter(consultation_slot__in=consultation_slots)
             
@@ -236,7 +248,7 @@ def member_consultation_application_view(request):
             consultation_applications = ConsultationApplication.objects.filter(member=member)
             
             # filter out past member's applications
-            future_consultation_slots = ConsultationSlot.objects.filter(start_time__gte=datetime.now())
+            future_consultation_slots = ConsultationSlot.objects.filter(start_time__gte=timezone.now())
             consultation_applications = ConsultationApplication.objects.filter(consultation_slot__in=future_consultation_slots)
 
             search = request.query_params.get('search', None)
