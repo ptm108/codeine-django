@@ -82,6 +82,10 @@ class Course(models.Model):
 
     # experience points
     exp_points = models.PositiveIntegerField()
+
+    class Meta:
+        ordering = ['is_deleted', 'published_date']
+    # end Meta
 # end class
 
 
@@ -255,13 +259,14 @@ class CourseComment(models.Model):
     # replying to comment
     reply_to = models.ForeignKey('self', on_delete=models.CASCADE, null=True, blank=True, default=None, related_name='replies')
 
-    class Meta: 
+    class Meta:
         ordering = ['-pinned']
     # end Meta
 # end class
+
 
 class CourseCommentEngagement(models.Model):
     comment = models.ForeignKey('CourseComment', on_delete=models.CASCADE, related_name='engagements')
     member = models.ForeignKey('common.Member', on_delete=models.CASCADE, related_name='+')
     timestamp = models.DateTimeField(auto_now_add=True)
-# end class 
+# end class
