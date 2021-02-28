@@ -2047,7 +2047,7 @@ class Command(BaseCommand):
         try:
             chap = Chapter.objects.get(title='React Native App Basics')
             cm = chap.course_materials.all()[0]
-            user = BaseUser.objects.get(first_name='Andrew')
+            user = BaseUser.objects.get(first_name='Steve')
 
             cc = CourseComment(
                 display_id=cm.course_comments.count() + 1,
