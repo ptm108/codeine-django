@@ -66,7 +66,7 @@ def contribution_payment_view(request):
                     organization=organization,
                     made_by=partner,
                     expiry_date=expiry_date,
-                    month_duration=month_duration
+                    month_duration=data['month_duration']
                 )
                 contribution_payment.save()
 
