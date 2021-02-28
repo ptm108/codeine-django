@@ -156,7 +156,7 @@ class Command(BaseCommand):
                 last_name='Ng',
                 is_active=True
             )
-            u.profile_photo.save('ep1.jpeg', ImageFile(open('./codeine_django/common/management/demo_assets/ep1.jpeg', 'rb')))
+            u.profile_photo.save('ep2.jpeg', ImageFile(open('./codeine_django/common/management/demo_assets/ep2.jpg', 'rb')))
             u.save()
 
             p = Partner(user=u, job_title='Lecturer', bio='ML is my passion', org_admin=True, organization=o)
@@ -1742,4 +1742,46 @@ class Command(BaseCommand):
             self.stdout.write(f'{self.style.ERROR("ERROR")}: {repr(e)}')
         # end try-except
 
+        # create course comments
+        self.stdout.write('Creating some comments...')
+        try:
+            chap = Chapter.objects.get(title='React Native App Basics')
+            cm = chap.course_materials.all()[0]
+            user = BaseUser.objects.get(first_name='Andrew')
+
+            cc = CourseComment(
+                display_id=cm.course_comments.count() + 1,
+                comment='This is great!!!',
+                course_material=cm,
+                user=user,
+            )
+            cc.save()
+
+            cm = Course.objects.get(title='Stanford CS229: Machine Learning (Autumn 2018)').chapters.all()[0].course_materials.all()[0]
+            cc = CourseComment(
+                display_id=cm.course_comments.count() + 1,
+                comment='This is awesome!!!',
+                course_material=cm,
+                user=user,
+            )
+            cc.save()
+            
+            self.stdout.write(f'{self.style.SUCCESS("Success")}: Course comments created')
+        except:
+            e = sys.exc_info()[0]
+            self.stdout.write(f'{self.style.ERROR("ERROR")}: {repr(e)}')
+        # end try-except
+
+
+        # # create course consults
+        # self.stdout.write('Creating some consultations...')
+        # try:
+        #     p = Partner.objects.get(user__first_name='Steve')
+            
+
+        #     self.stdout.write(f'{self.style.SUCCESS("Success")}: Course comments created')
+        # except:
+        #     e = sys.exc_info()[0]
+        #     self.stdout.write(f'{self.style.ERROR("ERROR")}: {repr(e)}')
+        # # end try-except
     # end def
