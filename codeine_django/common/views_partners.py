@@ -1,24 +1,55 @@
 from django.db import transaction
 from django.db.utils import IntegrityError
+from django.utils import timezone
 from django.core.exceptions import ValidationError, ObjectDoesNotExist
 from django.db.models import Q
+from django.template.loader import render_to_string
+from django.core.mail import send_mail
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes, parser_classes
 from rest_framework.parsers import MultiPartParser, FormParser
-
 from rest_framework.permissions import (
     IsAuthenticated,
     AllowAny,
     IsAuthenticatedOrReadOnly,
     IsAdminUser
 )
-from .models import BaseUser, Partner, Organization
+
+from .models import BaseUser, Partner, Organization, Member, PaymentTransaction
 from .serializers import NestedBaseUserSerializer
 from .permissions import IsPartnerOnly, IsPartnerOrAdminOrReadOnly
+from consultations.models import ConsultationApplication, ConsultationPayment, ConsultationSlot
+
 import json
-from django.template.loader import render_to_string
-from django.core.mail import send_mail
+
+
+def cancel_refund_consultations(partner, suspended):
+    if suspended:
+        slots = ConsultationSlot.objects.filter(partner=partner).update(is_cancelled=True)
+
+        applications = ConsultationApplication.objects.filter(consultation_slot__start_time__gte=timezone.now()).filter(consultation_slot__partner=partner)
+        # process refund
+        for application in applications.all():
+            prev_payment = application.consultation_payments.all()[0]
+
+            payment_transaction = PaymentTransaction(
+                payment_amount=prev_payment.payment_transaction.payment_amount,
+                payment_type=prev_payment.payment_transaction.payment_type,
+                payment_status='REFUNDED'
+            )
+            payment_transaction.save()
+
+            consultation_payment = ConsultationPayment(
+                payment_transaction=payment_transaction,
+                consultation_application=application
+            )
+            consultation_payment.save()
+        # end for
+
+        applications.update(is_rejected=True)
+    # end if
+# end def
 
 
 @api_view(['GET', 'POST'])
@@ -263,15 +294,19 @@ def suspend_user_view(request, pk):
     '''
     if request.method == 'PATCH':
         try:
-            user = BaseUser.objects.get(pk=pk)
-            partner = Partner.objects.get(user=user)
-            data = request.data
+            with transaction.atomic():
+                user = BaseUser.objects.get(pk=pk)
+                partner = Partner.objects.get(user=user)
+                data = request.data
 
-            user.is_suspended = data['is_suspended']
-            user.save()
+                user.is_suspended = data['is_suspended']
+                user.save()
 
-            serializer = NestedBaseUserSerializer(user, context={"request": request})
-            return Response(serializer.data, status=status.HTTP_200_OK)
+                cancel_refund_consultations(partner, data['is_suspended'])
+
+                serializer = NestedBaseUserSerializer(user, context={"request": request})
+                return Response(serializer.data, status=status.HTTP_200_OK)
+            # end with
         except ObjectDoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
         except (KeyError, ValueError) as e:
