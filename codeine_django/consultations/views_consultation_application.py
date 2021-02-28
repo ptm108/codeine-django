@@ -198,7 +198,8 @@ def partner_consultation_application_view(request):
             partner = Partner.objects.get(user=user)
             consultation_slots = ConsultationSlot.objects.filter(
                 Q(partner=partner) &
-                Q(is_cancelled=False)
+                Q(is_cancelled=False) &
+                Q(start_time__gte=datetime.now())
             )
             consultation_applications = ConsultationApplication.objects.filter(consultation_slot__in=consultation_slots)
             
