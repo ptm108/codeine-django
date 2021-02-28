@@ -3,7 +3,7 @@ from django.core.files import File
 from django.core.files.images import ImageFile
 from django.utils import timezone
 
-from common.models import BaseUser, Member, Partner, Organization
+from common.models import BaseUser, Member, Partner, Organization, BankDetail
 from courses.models import (
     Course,
     Chapter,
@@ -102,6 +102,16 @@ class Command(BaseCommand):
             p = Partner(user=u, job_title='Net Ninja', bio='I ninja through the net')
             p.save()
 
+            bd = BankDetail(
+                bank_account='1234567890',
+                bank_name='DBS',
+                swift_code='123',
+                bank_country='Singapore',
+                bank_address='1 Tras St Singapore 123456',
+                partner=p
+            )
+            bd.save()
+
             u = BaseUser.objects.create_user(
                 'p2@p2.com',
                 'password',
@@ -114,6 +124,17 @@ class Command(BaseCommand):
 
             p = Partner(user=u, job_title='Ohayogo', bio='Watashi wa suzuki dessssss')
             p.save()
+
+            bd = BankDetail(
+                bank_account='1234567890',
+                bank_name='DBS',
+                swift_code='123',
+                bank_country='Singapore',
+                bank_address='1 Tras St Singapore 123456',
+                partner=p
+            )
+            bd.save()
+
             self.stdout.write(f'{self.style.SUCCESS("Success")}: {Partner.objects.count()} partners instantiated')
         except:
             e = sys.exc_info()[0]
@@ -140,6 +161,16 @@ class Command(BaseCommand):
             p = Partner(user=u, job_title='CEO', bio='I create jobs', org_admin=True, organization=o)
             p.save()
 
+            bd = BankDetail(
+                bank_account='1234567890',
+                bank_name='DBS',
+                swift_code='123',
+                bank_country='Singapore',
+                bank_address='1 Tras St Singapore 123456',
+                partner=p
+            )
+            bd.save()
+
             self.stdout.write(f'{self.style.SUCCESS("Success")}: 1 x Steve Jobs (Enterprise: Apple) instantiated')
         except:
             e = sys.exc_info()[0]
@@ -162,7 +193,17 @@ class Command(BaseCommand):
             u.save()
 
             p = Partner(user=u, job_title='Lecturer', bio='ML is my passion', org_admin=True, organization=o)
-            p.save()
+            p.save() 
+
+            bd = BankDetail(
+                bank_account='1234567890',
+                bank_name='DBS',
+                swift_code='123',
+                bank_country='Singapore',
+                bank_address='1 Tras St Singapore 123456',
+                partner=p
+            )
+            bd.save()
 
             self.stdout.write(f'{self.style.SUCCESS("Success")}: 1 x Andrew Ng (Enterprise: Stanford U) instantiated')
         except:
