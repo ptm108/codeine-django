@@ -172,7 +172,7 @@ class Command(BaseCommand):
         # creating a React Course
         self.stdout.write('Creating courses...')
         try:
-            partner = Partner.objects.first()
+            partner = Partner.objects.get(user__first_name='Andrew')
 
             c = Course(
                 title='React Native for Beginners',
@@ -1777,7 +1777,7 @@ class Command(BaseCommand):
         # create course consults
         self.stdout.write('Creating some consultations...')
         try:
-            p = Partner.objects.get(user__first_name='Steve')
+            p = Partner.objects.get(user__first_name='Andrew')
             now = timezone.now()
 
             cs = ConsultationSlot(
