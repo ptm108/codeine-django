@@ -102,6 +102,15 @@ def consultation_slot_view(request):
             )
         # end if
 
+        # filter out past consultation slots
+        is_upcoming = request.query_params.get('is_upcoming', None)
+        if is_upcoming is not None:
+            if is_upcoming == "True":
+                consultation_slots = consultation_slots.filter(
+                    start_time__gte=timezone.now())
+            # end if
+        # end if
+
         serializer = ConsultationSlotSerializer(
             consultation_slots.all(), many=True, context={"request": request})
         return Response(serializer.data, status=status.HTTP_200_OK)
@@ -169,7 +178,8 @@ def single_consultation_slot_view(request, pk):
                 consultation_slot.save()
             # end with
 
-            serializer = ConsultationSlotSerializer(consultation_slot, context={"request": request})
+            serializer = ConsultationSlotSerializer(
+                consultation_slot, context={"request": request})
             return Response(serializer.data, status=status.HTTP_200_OK)
         except ConsultationSlot.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
@@ -206,7 +216,8 @@ def cancel_consultation_slot(request, pk):
             consultation_slot.save()
 
             # reject all consultation applications
-            consultation_applications = ConsultationApplication.objects.filter(consultation_slot=consultation_slot)
+            consultation_applications = ConsultationApplication.objects.filter(
+                consultation_slot=consultation_slot)
             for application in consultation_applications:
                 application.is_rejected = True
                 application.save()
