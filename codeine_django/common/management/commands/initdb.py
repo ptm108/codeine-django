@@ -23,6 +23,7 @@ from consultations.models import ConsultationSlot
 import sys
 from datetime import timedelta
 
+
 class Command(BaseCommand):
     help = 'Prepopulates the database with data for demo'
 
@@ -272,6 +273,7 @@ class Command(BaseCommand):
 
             q = Quiz(
                 course_material=cm,
+                passing_marks=0,
             )
             q.save()
 
@@ -504,6 +506,7 @@ class Command(BaseCommand):
 
             q = Quiz(
                 course=c,
+                passing_marks=1,
             )
             q.save()
 
@@ -927,6 +930,7 @@ class Command(BaseCommand):
 
             q = Quiz(
                 course=c,
+                passing_marks=1,
             )
             q.save()
 
@@ -1157,6 +1161,7 @@ class Command(BaseCommand):
 
             q = Quiz(
                 course=c,
+                passing_marks=1,
             )
             q.save()
 
@@ -1418,6 +1423,7 @@ class Command(BaseCommand):
 
             q = Quiz(
                 course=c,
+                passing_marks=1,
             )
             q.save()
 
@@ -1679,6 +1685,7 @@ class Command(BaseCommand):
 
             q = Quiz(
                 course=c,
+                passing_marks=1,
             )
             q.save()
 
@@ -1939,6 +1946,7 @@ class Command(BaseCommand):
 
             q = Quiz(
                 course=c,
+                passing_marks=1,
             )
             q.save()
 
@@ -2016,13 +2024,12 @@ class Command(BaseCommand):
                 user=user,
             )
             cc.save()
-            
+
             self.stdout.write(f'{self.style.SUCCESS("Success")}: Course comments created')
         except:
             e = sys.exc_info()[0]
             self.stdout.write(f'{self.style.ERROR("ERROR")}: {repr(e)}')
         # end try-except
-
 
         # create course consults
         self.stdout.write('Creating some consultations...')
