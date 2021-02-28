@@ -34,13 +34,25 @@ def consultation_application_view(request, consultation_slot_id):
             return Response(status=status.HTTP_400_BAD_REQUEST)
         # end if
 
+        # check if user has been rejected before
+        prev_applications = ConsultationApplication.objects.filter(
+            Q(consultation_slot=consultation_slot) & 
+            Q(member=member) & 
+            Q(is_rejected=True)
+        )
+        if prev_applications.count() > 0:
+            return Response(status=status.HTTP_403_FORBIDDEN)
+        # end if
+
         # do not allow member to apply for ongoing or past consultation slots
         if consultation_slot.start_time <= timezone.now():
-            return Response(status=status.HTTP_403_FORBIDDEN)
+            return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
+        # end if
 
         prev_applications = ConsultationApplication.objects.filter(
             Q(consultation_slot=consultation_slot) &
-            Q(is_cancelled=False)
+            Q(is_cancelled=False) &
+            Q(is_rejected=False)
         )
 
         # check if consultation already has maxed out the number of slots
