@@ -37,7 +37,7 @@ class Command(BaseCommand):
         self.stdout.write('Creating superuser...')
         try:
             u = BaseUser.objects.create_superuser(
-                'admin@codeine.com',
+                'a@a.com',
                 'password',
                 first_name='David',
                 last_name='Chen',
