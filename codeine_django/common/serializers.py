@@ -147,7 +147,7 @@ class MemberApplicationSerializer(serializers.ModelSerializer):
     def get_profile_photo_url(self, obj):
         request = self.context.get("request")
         if obj.user.profile_photo and hasattr(obj.user.profile_photo, 'url'):
-            return request.build_absolute_uri(obj.profile_photo.url)
+            return request.build_absolute_uri(obj.user.profile_photo.url)
         # end if
     # end def
 

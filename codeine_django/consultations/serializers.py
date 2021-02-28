@@ -115,18 +115,20 @@ class ConsultationSlotSerializer(serializers.ModelSerializer):
     # end def
 
     def get_confirmed_applications(self, obj):
+        request = self.context.get("request")
         consultation_applications = obj.consultation_applications.filter(
             Q(is_cancelled=False) &
             Q(is_rejected=False)
         )
-        return NestedConsultationApplicationSerializer(consultation_applications, many=True).data
+        return NestedConsultationApplicationSerializer(consultation_applications, context={'request': request}, many=True).data
     # end def
 
     def get_rejected_applications(self, obj):
+        request = self.context.get("request")
         consultation_applications = obj.consultation_applications.filter(
             Q(is_rejected=True)
         )
-        return NestedConsultationApplicationSerializer(consultation_applications, many=True).data
+        return NestedConsultationApplicationSerializer(consultation_applications, context={'request': request}, many=True).data
     # end def
 # end class
 

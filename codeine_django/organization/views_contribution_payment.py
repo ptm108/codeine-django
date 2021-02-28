@@ -96,10 +96,10 @@ def contribution_payment_view(request):
 
         # contribution_payments = ContributionPayment.objects.filter(Q(made_by=partner) | Q(organization=organization))
 
-        if latest is not None:
-            return Response(ContributionPaymentSerializer(contribution_payments.first(), context={"request": request}).data, status=status.HTTP_200_OK)
         if payment_status is not None:
             contribution_payments = contribution_payments.filter(payment_transaction__payment_status=payment_status)
+        if latest is not None:
+            return Response(ContributionPaymentSerializer(contribution_payments.first(), context={"request": request}).data, status=status.HTTP_200_OK)
         # end if
 
         serializer = ContributionPaymentSerializer(contribution_payments.all(), context={"request": request}, many=True)

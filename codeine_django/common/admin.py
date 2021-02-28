@@ -74,9 +74,9 @@ class MemberInline(admin.StackedInline):
 
 
 class PartnerInline(admin.StackedInline):
-    model = Member
+    model = Partner
     can_delete = False
-    verbose_name_plural = 'Members'
+    verbose_name_plural = 'Partners'
 # end class
 
 
@@ -91,7 +91,7 @@ class UserAdmin(BaseUserAdmin):
     # The fields to be used in displaying the User model.
     # These override the definitions on the base UserAdmin
     # that reference specific fields on auth.User.
-    list_display = ('id', 'email', 'is_admin', 'is_active', 'is_suspended')
+    list_display = ('id', 'email', 'is_admin', 'is_active', 'is_suspended', 'profile_photo')
     list_filter = ('is_admin',)
     fieldsets = (
         (None, {'fields': ('email', 'password')}),
