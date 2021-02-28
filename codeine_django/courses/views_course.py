@@ -32,7 +32,7 @@ def course_view(request):
             rating_sort = request.query_params.get('sortRating', None)
 
             # get pagination params from request, default is (10, 1)
-            page_size = int(request.query_params.get('pageSize', 10))
+            page_size = int(request.query_params.get('pageSize', 1000))
 
             courses = Course.objects.filter(is_deleted=False).filter(is_available=True).filter(is_published=True)  # implicit requirements for public view
 
