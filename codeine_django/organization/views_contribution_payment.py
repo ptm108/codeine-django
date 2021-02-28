@@ -30,6 +30,11 @@ def contribution_payment_view(request):
 
         with transaction.atomic():
             try:
+                # check if there is a pending completion
+                if ContributionPayment.objects.filter(payment_transaction__payment_status='PENDING_COMPLETION'):
+                    return Response(status=status.HTTP_400_BAD_REQUEST)
+                # end if
+
                 month_duration = int(data['month_duration'])
                 payment_transaction = PaymentTransaction(
                     payment_amount=(float(data['contribution']) * month_duration),
@@ -108,7 +113,7 @@ def contribution_payment_view(request):
 # end def
 
 
-@ api_view(['GET'])
+@ api_view(['GET', 'DELETE'])
 @ permission_classes((IsPartnerOnly,))
 def single_contribution_payment_view(request, pk):
     '''
@@ -121,6 +126,22 @@ def single_contribution_payment_view(request, pk):
         except (ObjectDoesNotExist, KeyError, ValueError) as e:
             print(e)
             return Response(status=status.HTTP_400_BAD_REQUEST)
+        # end try-except
+    # end if
+
+    '''
+    Deletes a contribution payment by id
+    '''
+    if request.method == 'DELETE':
+        try:
+            contribution_payment = ContributionPayment.objects.get(pk=pk)
+            contribution_payment.delete()
+
+            return Response(ContributionPaymentSerializer(contribution_payment, context={"request": request}).data)
+        except (ObjectDoesNotExist, KeyError, ValueError) as e:
+            print(e)
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+        # end try-except
     # end if
 # end def
 
