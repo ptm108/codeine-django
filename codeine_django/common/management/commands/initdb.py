@@ -18,9 +18,10 @@ from courses.models import (
     MRQ,
     CourseComment
 )
+from consultations.models import ConsultationSlot
 
 import sys
-
+from datetime import timedelta
 
 class Command(BaseCommand):
     help = 'Prepopulates the database with data for demo'
@@ -1773,15 +1774,81 @@ class Command(BaseCommand):
         # end try-except
 
 
-        # # create course consults
-        # self.stdout.write('Creating some consultations...')
-        # try:
-        #     p = Partner.objects.get(user__first_name='Steve')
-            
+        # create course consults
+        self.stdout.write('Creating some consultations...')
+        try:
+            p = Partner.objects.get(user__first_name='Steve')
+            now = timezone.now()
 
-        #     self.stdout.write(f'{self.style.SUCCESS("Success")}: Course comments created')
-        # except:
-        #     e = sys.exc_info()[0]
-        #     self.stdout.write(f'{self.style.ERROR("ERROR")}: {repr(e)}')
-        # # end try-except
+            cs = ConsultationSlot(
+                title='React Native 1',
+                start_time=(now + timedelta(days=2)).replace(hour=2, minute=0),
+                end_time=(now + timedelta(days=2)).replace(hour=2, minute=30),
+                meeting_link='https://meet.google.com/meo-fymy-oae',
+                price_per_pax=0,
+                max_members=2,
+                partner=p
+            )
+            cs.save()
+
+            cs = ConsultationSlot(
+                title='React Native 2',
+                start_time=(now + timedelta(days=2)).replace(hour=3, minute=0),
+                end_time=(now + timedelta(days=2)).replace(hour=4, minute=0),
+                meeting_link='https://meet.google.com/meo-fymy-oae',
+                price_per_pax=5,
+                max_members=2,
+                partner=p
+            )
+            cs.save()
+
+            cs = ConsultationSlot(
+                title='React Native 3',
+                start_time=(now + timedelta(days=3)).replace(hour=10, minute=0),
+                end_time=(now + timedelta(days=3)).replace(hour=11, minute=30),
+                meeting_link='https://meet.google.com/meo-fymy-oae',
+                price_per_pax=0,
+                max_members=2,
+                partner=p
+            )
+            cs.save()
+
+            cs = ConsultationSlot(
+                title='React Native 4',
+                start_time=(now + timedelta(days=4)).replace(hour=8, minute=0),
+                end_time=(now + timedelta(days=4)).replace(hour=9, minute=0),
+                meeting_link='https://meet.google.com/meo-fymy-oae',
+                price_per_pax=10,
+                max_members=1,
+                partner=p
+            )
+            cs.save()
+
+            cs = ConsultationSlot(
+                title='React Native 5',
+                start_time=(now + timedelta(days=3)).replace(hour=1, minute=0),
+                end_time=(now + timedelta(days=3)).replace(hour=1, minute=30),
+                meeting_link='https://meet.google.com/meo-fymy-oae',
+                price_per_pax=0,
+                max_members=1,
+                partner=p
+            )
+            cs.save()
+
+            cs = ConsultationSlot(
+                title='React Native 6',
+                start_time=(now + timedelta(days=6)).replace(hour=7, minute=20),
+                end_time=(now + timedelta(days=6)).replace(hour=9, minute=20),
+                meeting_link='https://meet.google.com/meo-fymy-oae',
+                price_per_pax=10,
+                max_members=10,
+                partner=p
+            )
+            cs.save()
+
+            self.stdout.write(f'{self.style.SUCCESS("Success")}: Course consultations created')
+        except:
+            e = sys.exc_info()[0]
+            self.stdout.write(f'{self.style.ERROR("ERROR")}: {repr(e)}')
+        # end try-except
     # end def
