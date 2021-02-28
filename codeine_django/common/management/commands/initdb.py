@@ -925,6 +925,56 @@ class Command(BaseCommand):
             )
             cv.save()
 
+            q = Quiz(
+                course=c,
+            )
+            q.save()
+
+            qn = Question(
+                title='Which of the following are machine learning algorithms',
+                subtitle='You should know this...',
+                order=q.questions.count(),
+                quiz=q
+            )
+            qn.save()
+
+            mcq = MCQ(
+                question=qn,
+                marks=1,
+                options=['SSSP', 'Aho-Corasick', 'Random Tree Classifier'],
+                correct_answer='Random Tree Classifier'
+            )
+            mcq.save()
+
+            qn = Question(
+                title='Risheng is...',
+                order=q.questions.count(),
+                quiz=q
+            )
+            qn.save()
+
+            mrq = MRQ(
+                question=qn,
+                marks=1,
+                options=['Handsome', 'Very Handsome', 'Extremely Handsome', 'Ugly'],
+                correct_answer=['Ugly']
+            )
+            mrq.save()
+
+            qn = Question(
+                title='Who is Andrew Ng',
+                order=q.questions.count(),
+                quiz=q
+            )
+            qn.save()
+
+            sa = ShortAnswer(
+                question=qn,
+                marks=1,
+                keywords=['Pope']
+            )
+            sa.save()
+
             self.stdout.write(f'{self.style.SUCCESS("Success")}: Machine Learning Course created')
         except:
             e = sys.exc_info()[0]
@@ -1104,6 +1154,56 @@ class Command(BaseCommand):
                 video_url='https://youtu.be/wIPHER2UBB4'
             )
             cv.save()
+
+            q = Quiz(
+                course=c,
+            )
+            q.save()
+
+            qn = Question(
+                title='Which of the following are machine learning algorithms',
+                subtitle='You should know this...',
+                order=q.questions.count(),
+                quiz=q
+            )
+            qn.save()
+
+            mcq = MCQ(
+                question=qn,
+                marks=1,
+                options=['SSSP', 'Aho-Corasick', 'Random Tree Classifier'],
+                correct_answer='Random Tree Classifier'
+            )
+            mcq.save()
+
+            qn = Question(
+                title='Risheng is...',
+                order=q.questions.count(),
+                quiz=q
+            )
+            qn.save()
+
+            mrq = MRQ(
+                question=qn,
+                marks=1,
+                options=['Handsome', 'Very Handsome', 'Extremely Handsome', 'Ugly'],
+                correct_answer=['Ugly']
+            )
+            mrq.save()
+
+            qn = Question(
+                title='Who is Andrew Ng',
+                order=q.questions.count(),
+                quiz=q
+            )
+            qn.save()
+
+            sa = ShortAnswer(
+                question=qn,
+                marks=1,
+                keywords=['Pope']
+            )
+            sa.save()
 
             self.stdout.write(f'{self.style.SUCCESS("Success")}: Django Course created')
         except:
@@ -1316,6 +1416,56 @@ class Command(BaseCommand):
             )
             cv.save()
 
+            q = Quiz(
+                course=c,
+            )
+            q.save()
+
+            qn = Question(
+                title='Which of the following are machine learning algorithms',
+                subtitle='You should know this...',
+                order=q.questions.count(),
+                quiz=q
+            )
+            qn.save()
+
+            mcq = MCQ(
+                question=qn,
+                marks=1,
+                options=['SSSP', 'Aho-Corasick', 'Random Tree Classifier'],
+                correct_answer='Random Tree Classifier'
+            )
+            mcq.save()
+
+            qn = Question(
+                title='Risheng is...',
+                order=q.questions.count(),
+                quiz=q
+            )
+            qn.save()
+
+            mrq = MRQ(
+                question=qn,
+                marks=1,
+                options=['Handsome', 'Very Handsome', 'Extremely Handsome', 'Ugly'],
+                correct_answer=['Ugly']
+            )
+            mrq.save()
+
+            qn = Question(
+                title='Who is Andrew Ng',
+                order=q.questions.count(),
+                quiz=q
+            )
+            qn.save()
+
+            sa = ShortAnswer(
+                question=qn,
+                marks=1,
+                keywords=['Pope']
+            )
+            sa.save()
+
             self.stdout.write(f'{self.style.SUCCESS("Success")}: Next Course created')
         except:
             e = sys.exc_info()[0]
@@ -1527,6 +1677,56 @@ class Command(BaseCommand):
             )
             cv.save()
 
+            q = Quiz(
+                course=c,
+            )
+            q.save()
+
+            qn = Question(
+                title='Which of the following are machine learning algorithms',
+                subtitle='You should know this...',
+                order=q.questions.count(),
+                quiz=q
+            )
+            qn.save()
+
+            mcq = MCQ(
+                question=qn,
+                marks=1,
+                options=['SSSP', 'Aho-Corasick', 'Random Tree Classifier'],
+                correct_answer='Random Tree Classifier'
+            )
+            mcq.save()
+
+            qn = Question(
+                title='Risheng is...',
+                order=q.questions.count(),
+                quiz=q
+            )
+            qn.save()
+
+            mrq = MRQ(
+                question=qn,
+                marks=1,
+                options=['Handsome', 'Very Handsome', 'Extremely Handsome', 'Ugly'],
+                correct_answer=['Ugly']
+            )
+            mrq.save()
+
+            qn = Question(
+                title='Who is Andrew Ng',
+                order=q.questions.count(),
+                quiz=q
+            )
+            qn.save()
+
+            sa = ShortAnswer(
+                question=qn,
+                marks=1,
+                keywords=['Pope']
+            )
+            sa.save()
+
             self.stdout.write(f'{self.style.SUCCESS("Success")}: Docker Course created')
         except:
             e = sys.exc_info()[0]
@@ -1736,6 +1936,56 @@ class Command(BaseCommand):
                 video_url='https://youtu.be/rjbkWSTjHzM'
             )
             cv.save()
+
+            q = Quiz(
+                course=c,
+            )
+            q.save()
+
+            qn = Question(
+                title='Which of the following are machine learning algorithms',
+                subtitle='You should know this...',
+                order=q.questions.count(),
+                quiz=q
+            )
+            qn.save()
+
+            mcq = MCQ(
+                question=qn,
+                marks=1,
+                options=['SSSP', 'Aho-Corasick', 'Random Tree Classifier'],
+                correct_answer='Random Tree Classifier'
+            )
+            mcq.save()
+
+            qn = Question(
+                title='Risheng is...',
+                order=q.questions.count(),
+                quiz=q
+            )
+            qn.save()
+
+            mrq = MRQ(
+                question=qn,
+                marks=1,
+                options=['Handsome', 'Very Handsome', 'Extremely Handsome', 'Ugly'],
+                correct_answer=['Ugly']
+            )
+            mrq.save()
+
+            qn = Question(
+                title='Who is Andrew Ng',
+                order=q.questions.count(),
+                quiz=q
+            )
+            qn.save()
+
+            sa = ShortAnswer(
+                question=qn,
+                marks=1,
+                keywords=['Pope']
+            )
+            sa.save()
 
             self.stdout.write(f'{self.style.SUCCESS("Success")}: Infosec Course created')
         except:
