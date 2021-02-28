@@ -101,6 +101,8 @@ class ConsultationSlotSerializer(serializers.ModelSerializer):
     partner = serializers.SerializerMethodField('get_partner_base_user')
     confirmed_applications = serializers.SerializerMethodField(
         'get_confirmed_applications')
+    rejected_applications = serializers.SerializerMethodField(
+        'get_rejected_applications')
 
     class Meta:
         model = ConsultationSlot
@@ -116,6 +118,13 @@ class ConsultationSlotSerializer(serializers.ModelSerializer):
         consultation_applications = obj.consultation_applications.filter(
             Q(is_cancelled=False) &
             Q(is_rejected=False)
+        )
+        return NestedConsultationApplicationSerializer(consultation_applications, many=True).data
+    # end def
+
+    def get_rejected_applications(self, obj):
+        consultation_applications = obj.consultation_applications.filter(
+            Q(is_rejected=True)
         )
         return NestedConsultationApplicationSerializer(consultation_applications, many=True).data
     # end def
