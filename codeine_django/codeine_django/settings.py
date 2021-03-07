@@ -38,7 +38,7 @@ INSTALLED_APPS = [
     'common',
     'consultations',
     'courses',
-    'tickets',
+    'helpdesk',
     'achievements',
     'community',
     'industry-projects',
