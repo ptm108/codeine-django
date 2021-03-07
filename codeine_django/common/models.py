@@ -222,6 +222,8 @@ class MembershipSubscription(models.Model):
         primary_key=True, default=uuid.uuid4, editable=False, unique=True)
     payment_transaction = models.OneToOneField(
         PaymentTransaction, on_delete=models.CASCADE)
+    month_duration = models.PositiveSmallIntegerField(default=1)
+    expiry_date = models.DateTimeField()
 
     # ref
     member = models.ForeignKey(
