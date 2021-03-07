@@ -51,8 +51,8 @@ urlpatterns = [
     path('enrollments', include('courses.urls_enrollments'), name='Get/Search Enrollments'),
     path('enrolled-members', include('courses.urls_enrolled_members'), name='Get Enrolled Members'),
 
-    # tickets endpoints
-    path('tickets', include('tickets.urls'), name='Tickets endpoints'),
+    # helpdesk endpoints
+    path('helpdesk', include('helpdesk.urls'), name='Helpdesk endpoints'),
 
     # achievements endpoints
     path('achievements', include('achievements.urls'), name='Achievements endpoints'),
