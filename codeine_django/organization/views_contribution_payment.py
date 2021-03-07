@@ -10,10 +10,10 @@ from rest_framework.response import Response
 
 from datetime import datetime
 
-from common.models import PaymentTransaction, Partner, Organization
-from common.permissions import IsPartnerOnly
 from .models import ContributionPayment
 from .serializers import ContributionPaymentSerializer
+from common.models import PaymentTransaction, Partner, Organization
+from common.permissions import IsPartnerOnly
 
 
 @api_view(['GET', 'POST'])
@@ -35,43 +35,40 @@ def contribution_payment_view(request):
                     return Response(status=status.HTTP_400_BAD_REQUEST)
                 # end if
 
-                month_duration = int(data['month_duration'])
                 payment_transaction = PaymentTransaction(
-                    payment_amount=(float(data['contribution']) * month_duration),
+                    payment_amount=float(data['contribution']),
                     payment_type=data['payment_type']
                 )
                 payment_transaction.save()
 
-                # get today's date or last contribution expiry date
-                now = datetime.now()
-                contribution = ContributionPayment.objects.filter(Q(made_by=partner) | Q(organization=organization)).first()
+                # # get today's date or last contribution expiry date
+                # month_duration = int(data['month_duration'])
+                # now = datetime.now()
+                # contribution = ContributionPayment.objects.filter(Q(made_by=partner) | Q(organization=organization)).first()
 
-                if contribution is not None:
-                    now = contribution.expiry_date
-                    month_duration -= 1
-                # end if
+                # if contribution is not None:
+                #     now = contribution.expiry_date
+                #     month_duration -= 1
+                # # end if
 
-                year = now.year
-                month = now.month + month_duration + 1  # first of the next month
+                # year = now.year
+                # month = now.month + month_duration + 1  # first of the next month
 
-                if month > 12:
-                    month = month % 12 + 1
-                    year += 1
-                # end if
+                # if month > 12:
+                #     month = month % 12 + 1
+                #     year += 1
+                # # end if
 
-                expiry_date = timezone.make_aware(datetime(year, month, 1))
+                # expiry_date = timezone.make_aware(datetime(year, month, 1))
 
                 contribution_payment = ContributionPayment(
                     payment_transaction=payment_transaction,
                     organization=organization,
                     made_by=partner,
-                    expiry_date=expiry_date,
-                    month_duration=data['month_duration']
                 )
                 contribution_payment.save()
 
-                serializer = ContributionPaymentSerializer(
-                    contribution_payment, context={"request": request})
+                serializer = ContributionPaymentSerializer(contribution_payment, context={"request": request})
 
                 return Response(serializer.data, status=status.HTTP_201_CREATED)
             except (IntegrityError, ValueError, KeyError) as e:
@@ -93,8 +90,9 @@ def contribution_payment_view(request):
         # if organization is null, return contributions made by that partner
         if organization is None:
             contribution_payments = contribution_payments.filter(made_by=partner)
-        else:  # organization is not null, return contribtuions made by the organization
+        else:  # organization is not null, return contributions made by the organization
             contribution_payments = contribution_payments.filter(organization=organization)
+        # end if-else
 
         latest = request.query_params.get('latest', None)
         payment_status = request.query_params.get('payment_status', None)
