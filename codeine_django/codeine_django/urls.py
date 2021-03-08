@@ -68,7 +68,10 @@ urlpatterns = [
 
     # organization end points
     path('events', include('organization.urls_events'), name='Event endpoints'),
-    path('contributions', include('organization.urls_contribution_payments'), name='Contribution endpoints')
+    path('contributions', include('organization.urls_contribution_payments'), name='Contribution endpoints'),
+
+    # IDE views
+    path('ide', include('common.urls_ide'), name='IDE endpoints'),
 ]
 
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
