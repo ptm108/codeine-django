@@ -13,6 +13,8 @@ from .serializers import EngagementSerializer
 from common.models import Member
 
 # Create your views here.
+
+
 @api_view(['GET', 'POST'])
 @permission_classes((IsAuthenticated,))
 def engagement_view(request, article_id):
@@ -33,7 +35,8 @@ def engagement_view(request, article_id):
             )
         # end if
 
-        serializer = EngagementSerializer(engagements.all(), many=True)
+        serializer = EngagementSerializer(
+            engagements.all(), many=True, context={'request': request})
         return Response(serializer.data, status=status.HTTP_200_OK)
     # end if
 
@@ -52,13 +55,14 @@ def engagement_view(request, article_id):
         # end if
         try:
             engagement = Engagement(
-                like = data['like'],
-                member = member,
-                article = article
+                like=data['like'],
+                member=member,
+                article=article
             )
             engagement.save()
 
-            serializer = EngagementSerializer(engagement)
+            serializer = EngagementSerializer(
+                engagement, context={'request': request})
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         except (IntegrityError, ValueError, KeyError) as e:
             print(e)
@@ -66,6 +70,7 @@ def engagement_view(request, article_id):
         # end try-except
     # end if
 # def
+
 
 @api_view(['GET', 'PUT', 'DELETE'])
 @permission_classes((IsAuthenticated,))
@@ -76,7 +81,8 @@ def single_engagement_view(request, pk, article_id):
     if request.method == 'GET':
         try:
             engagement = Engagement.objects.get(pk=pk)
-            serializer = EngagementSerializer(engagement)
+            serializer = EngagementSerializer(
+                engagement, context={'request': request})
             return Response(serializer.data)
         except (ObjectDoesNotExist, KeyError, ValueError) as e:
             print(e)
@@ -95,7 +101,8 @@ def single_engagement_view(request, pk, article_id):
                 engagement.like = data['like']
 
             engagement.save()
-            serializer = EngagementSerializer(engagement)
+            serializer = EngagementSerializer(
+                engagement, context={'request': request})
             return Response(serializer.data, status=status.HTTP_200_OK)
         except Engagement.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)

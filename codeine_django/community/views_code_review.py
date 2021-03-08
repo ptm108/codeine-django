@@ -13,6 +13,8 @@ from .serializers import CodeReviewSerializer
 from common.models import Member
 
 # Create your views here.
+
+
 @api_view(['GET', 'POST'])
 @permission_classes((IsAuthenticated,))
 def code_review_view(request):
@@ -34,8 +36,8 @@ def code_review_view(request):
                 Q(categories__icontains=search)
             )
         # end if
+        serializer = CodeReviewSerializer(code_reviews.all(), many=True, context={'request': request})
 
-        serializer = CodeReviewSerializer(code_reviews.all(), many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
     # end if
 
@@ -49,15 +51,16 @@ def code_review_view(request):
 
         try:
             code_review = CodeReview(
-                title = data['title'],
-                code = data['code'],
-                coding_languages = data['coding_languages'],
-                categories = data['categories'],
-                member = member
+                title=data['title'],
+                code=data['code'],
+                coding_languages=data['coding_languages'],
+                categories=data['categories'],
+                member=member
             )
             code_review.save()
 
-            serializer = CodeReviewSerializer(code_review)
+            serializer = CodeReviewSerializer(code_review, context={'request': request})
+
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         except (IntegrityError, ValueError, KeyError) as e:
             print(e)
@@ -65,6 +68,7 @@ def code_review_view(request):
         # end try-except
     # end if
 # def
+
 
 @api_view(['GET', 'PUT', 'DELETE'])
 @permission_classes((IsAuthenticated,))
@@ -75,7 +79,8 @@ def single_code_review_view(request, pk):
     if request.method == 'GET':
         try:
             code_review = CodeReview.objects.get(pk=pk)
-            serializer = CodeReviewSerializer(code_review)
+            serializer = CodeReviewSerializer(
+                code_review, context={'request': request})
             return Response(serializer.data)
         except (ObjectDoesNotExist, KeyError, ValueError) as e:
             print(e)
@@ -102,7 +107,8 @@ def single_code_review_view(request, pk):
                 code_review.categories = data['categories']
 
             code_review.save()
-            serializer = CodeReviewSerializer(code_review)
+            serializer = CodeReviewSerializer(
+                code_review, context={'request': request})
             return Response(serializer.data, status=status.HTTP_200_OK)
         except CodeReview.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
