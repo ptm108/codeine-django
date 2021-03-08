@@ -20,4 +20,4 @@ fi
 sudo git clone "${GIT_URL}" /home/coder/code
 sudo chmod -R 777 /home/coder/code
 
-dumb-init /usr/bin/code-server --home=http://localhost:3000 --auth none "$@"
+dumb-init /home/coder/bin/code-server --home=http://localhost:3000 --auth none "$@"

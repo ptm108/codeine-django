@@ -37,9 +37,35 @@ RUN ARCH="$(dpkg --print-architecture)" && \
     mkdir -p /etc/fixuid && \
     printf "user: coder\ngroup: coder\n" > /etc/fixuid/config.yml
 
-COPY ./code-server*.deb /tmp/
 COPY ./entrypoint.sh /usr/bin/entrypoint.sh
-RUN dpkg -i /tmp/code-server*$(dpkg --print-architecture).deb && rm /tmp/code-server*.deb
+# COPY ./code-server*.deb /tmp/
+# RUN dpkg -i /tmp/code-server*$(dpkg --print-architecture).deb && rm /tmp/code-server*.deb
+
+# RUN mkdir -p /home/coder/lib /home/coder/bin
+# COPY ./code-server-3.9.0-linux-amd64 /home/coder/lib/code-server-3.9.0-linux-amd64
+# RUN ln -s /home/coder/lib/code-server-3.9.0-linux-amd64/bin/code-server /home/coder/bin/code-server
+
+COPY ./code-server-3.9.0-linux-amd64.tar.gz /tmp/
+RUN mkdir -p /home/coder/lib /home/coder/bin
+RUN tar -xzvf /tmp/code-server-3.9.0-linux-amd64.tar.gz -C /home/coder/lib 
+RUN mv /home/coder/lib/code-server-3.9.0-linux-amd64 /home/coder/lib/code-server-3.9.0
+RUN ln -s /home/coder/lib/code-server-3.9.0/bin/code-server /home/coder/bin/code-server
+RUN rm /tmp/code-server-3.9.0-linux-amd64.tar.gz
+
+# COPY ./code-server-3.9.1-macos-amd64.tar.gz /tmp/
+# RUN mkdir -p /home/coder/lib /home/coder/bin
+# RUN tar -xzvf /tmp/code-server-3.9.1-macos-amd64.tar.gz -C /home/coder/lib 
+# RUN mv /home/coder/lib/code-server-3.9.1-macos-amd64 /home/coder/lib/code-server-3.9.1
+
+# # reinstall npm modules
+# RUN rm -rf /home/coder/lib/code-server-3.9.1/node_modules
+# RUN npm --prefix /home/coder/lib/code-server-3.9.1/ install /home/coder/lib/code-server-3.9.1/
+
+# # resolve exec error
+# RUN rm /home/coder/lib/code-server-3.9.1/lib/node
+# COPY ./node /home/coder/lib/code-server-3.9.1/lib/
+
+# RUN ln -s /home/coder/lib/code-server-3.9.1/bin/code-server /home/coder/bin/code-server
 
 EXPOSE 8080
 # This way, if someone sets $DOCKER_USER, docker-exec will still work as
