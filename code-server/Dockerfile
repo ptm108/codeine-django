@@ -41,5 +41,5 @@ EXPOSE 8080
 # docker-run.
 USER 1000
 ENV USER=coder
-WORKDIR /home/coder
+WORKDIR /home/coder/code
 ENTRYPOINT ["/usr/bin/entrypoint.sh", "--bind-addr", "0.0.0.0:8080", "."]

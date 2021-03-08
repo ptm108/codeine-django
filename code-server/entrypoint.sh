@@ -17,4 +17,6 @@ if [ "${DOCKER_USER-}" ] && [ "$DOCKER_USER" != "$USER" ]; then
   sudo sed -i "/coder/d" /etc/sudoers.d/nopasswd
 fi
 
+sudo git clone "${GIT_URL}" /home/coder/code
+
 dumb-init /usr/bin/code-server --auth none "$@"
