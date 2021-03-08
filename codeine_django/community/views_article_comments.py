@@ -11,7 +11,7 @@ from rest_framework.permissions import (
     IsAdminUser,
 )
 from .models import Article, ArticleComment
-from .serializers import NestedArticleCommentSerializer
+from .serializers import ArticleCommentSerializer
 from common.models import Member
 
 # Create your views here.
@@ -36,7 +36,7 @@ def article_comment_view(request, article_id):
             )
         # end if
 
-        serializer = NestedArticleCommentSerializer(
+        serializer = ArticleCommentSerializer(
             article_comments.all(), many=True, context={'request': request})
         return Response(serializer.data, status=status.HTTP_200_OK)
     # end if
@@ -62,7 +62,7 @@ def article_comment_view(request, article_id):
             )
             article_comment.save()
 
-            serializer = NestedArticleCommentSerializer(
+            serializer = ArticleCommentSerializer(
                 article_comment, context={'request': request})
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         except (IntegrityError, ValueError, KeyError) as e:
@@ -82,7 +82,7 @@ def single_article_comment_view(request, article_id, pk):
     if request.method == 'GET':
         try:
             article_comment = ArticleComment.objects.get(pk=pk)
-            serializer = NestedArticleCommentSerializer(
+            serializer = ArticleCommentSerializer(
                 article_comment, context={'request': request})
             return Response(serializer.data, status=status.HTTP_200_OK)
         except (ObjectDoesNotExist, KeyError, ValueError) as e:
@@ -103,7 +103,7 @@ def single_article_comment_view(request, article_id, pk):
                 article_comment.comment = data['comment']
 
             article_comment.save()
-            serializer = NestedArticleCommentSerializer(
+            serializer = ArticleCommentSerializer(
                 article_comment, context={'request': request})
             return Response(serializer.data, status=status.HTTP_200_OK)
         except ArticleComment.DoesNotExist:

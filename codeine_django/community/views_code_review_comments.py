@@ -11,7 +11,7 @@ from rest_framework.permissions import (
     IsAdminUser,
 )
 from .models import CodeReview, CodeReviewComment
-from .serializers import CodeReviewCommentSerializer, NestedCodeReviewCommentSerializer
+from .serializers import CodeReviewCommentSerializer
 from common.models import Member
 
 # Create your views here.
@@ -39,7 +39,7 @@ def code_review_comment_view(request, code_review_id):
                 Q(code_review__id__icontains=search)
             )
         # end if
-        serializer = NestedCodeReviewCommentSerializer(
+        serializer = CodeReviewCommentSerializer(
             code_review_comments.all(), many=True, context={'request': request})
         return Response(serializer.data, status=status.HTTP_200_OK)
     # end if
@@ -65,7 +65,7 @@ def code_review_comment_view(request, code_review_id):
                 parent_comment=parent_comment
             )
             code_review_comment.save()
-            serializer = NestedCodeReviewCommentSerializer(
+            serializer = CodeReviewCommentSerializer(
                 code_review_comment, context={'request': request})
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         except (IntegrityError, ValueError, KeyError) as e:
@@ -85,7 +85,7 @@ def single_code_review_comment_view(request, code_review_id, pk):
     if request.method == 'GET':
         try:
             code_review_comment = CodeReviewComment.objects.get(pk=pk)
-            serializer = NestedCodeReviewCommentSerializer(
+            serializer = CodeReviewCommentSerializer(
                 code_review_comment, context={'request': request})
             return Response(serializer.data)
         except (ObjectDoesNotExist, KeyError, ValueError) as e:
@@ -106,7 +106,7 @@ def single_code_review_comment_view(request, code_review_id, pk):
                 code_review_comment.comment = data['comment']
 
             code_review_comment.save()
-            serializer = NestedCodeReviewCommentSerializer(
+            serializer = CodeReviewCommentSerializer(
                 code_review_comment, context={'request': request})
             return Response(serializer.data, status=status.HTTP_200_OK)
         except CodeReviewComment.DoesNotExist:
