@@ -228,9 +228,11 @@ class NestedEnrollmentSerializer(serializers.ModelSerializer):
     # end Meta
 # end class
 
+
 class MemberEnrollmentSerializer(serializers.ModelSerializer):
     course = CourseSerializer()
     member = serializers.SerializerMethodField('get_base_user')
+
     class Meta:
         model = Enrollment
         fields = ('progress', 'member', 'course', 'materials_done')
@@ -311,6 +313,7 @@ class NestedCourseCommentSerializer(serializers.ModelSerializer):
     likes = serializers.SerializerMethodField()
     current_member_liked = serializers.SerializerMethodField()
     reply_to = ParentCourseCommentSerializer()
+    reply_count = serializers.SerializerMethodField('get_reply_count')
 
     class Meta:
         model = CourseComment
@@ -338,6 +341,22 @@ class NestedCourseCommentSerializer(serializers.ModelSerializer):
             return CourseCommentEngagement.objects.filter(comment=obj).filter(member=member).exists()
         # end if
     # end def
+
+    def get_reply_count(self, obj):
+        def rec_reply_count(comment):
+            if len(comment.replies.all()) == 0:
+                return 1
+            else:
+                count = 1
+                for reply in comment.replies.all():
+                    count += rec_reply_count(reply)
+                # end for
+                return count
+            # end if else
+        # end def
+
+        return rec_reply_count(obj) - 1 # minus self
+    # end def
 # end class
 
 
@@ -346,6 +365,7 @@ class CourseCommentSerializer(serializers.ModelSerializer):
     likes = serializers.SerializerMethodField()
     current_member_liked = serializers.SerializerMethodField()
     reply_to = ParentCourseCommentSerializer()
+    reply_count = serializers.SerializerMethodField('get_reply_count')
 
     class Meta:
         model = CourseComment
@@ -363,5 +383,21 @@ class CourseCommentSerializer(serializers.ModelSerializer):
             member = request.user.member
             return CourseCommentEngagement.objects.filter(comment=obj).filter(member=member).exists()
         # end if
+    # end def
+
+    def get_reply_count(self, obj):
+        def rec_reply_count(comment):
+            if len(comment.replies.all()) == 0:
+                return 1
+            else:
+                count = 1
+                for reply in comment.replies.all():
+                    count += rec_reply_count(reply)
+                # end for
+                return count
+            # end if else
+        # end def
+
+        return rec_reply_count(obj) - 1
     # end def
 # end class
