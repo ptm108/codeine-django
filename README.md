@@ -48,14 +48,14 @@ SSH password is `root`
 Source code: [cdr/code-server](https://github.com/cdr/code-server)
 
 ```bash
-docker build --tag code-server ./code-server
-docker run -it --rm --name code-server -p 127.0.0.1:8080:8080 \
+docker build --tag codeine-ide ./codeine-ide
+docker run -it --rm --name codeine-ide -p 127.0.0.1:8080:8080 \
   -u "$(id -u):$(id -g)" \
   -e "DOCKER_USER=$USER" -e "GIT_URL=https://github.com/ptm108/photo-journal-rn.git" \
-  code-server
+  codeine-ide
 ```
 
-Change GIT_URL according to change the initialize the working directory
+Change GIT_URL accordingly to change the initialize the working directory
 
 ## Django backend
 
