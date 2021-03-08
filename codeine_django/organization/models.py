@@ -3,6 +3,8 @@ from django.db import models
 import uuid
 
 # Create your models here.
+
+
 class Event(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, unique=True)
     title = models.CharField(max_length=255)
@@ -12,7 +14,7 @@ class Event(models.Model):
     is_cancelled = models.BooleanField(default=False)
     price_per_pax = models.DecimalField(max_digits=5, decimal_places=2, default=0.0)
     max_members = models.IntegerField()
-    
+
     # ref
     organization = models.ForeignKey('common.Organization', on_delete=models.SET_NULL, related_name='events', null=True, blank=True)
 
@@ -22,7 +24,7 @@ class Event(models.Model):
 
     class Meta:
         ordering = ['start_time', 'end_time']
-    #end class
+    # end class
 # end class
 
 
@@ -44,7 +46,7 @@ class EventApplication(models.Model):
 class EventPayment(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, unique=True)
     payment_transaction = models.OneToOneField('common.PaymentTransaction', on_delete=models.CASCADE)
-    
+
     # ref
     event_application = models.ForeignKey(EventApplication, on_delete=models.SET_NULL, related_name='event_payments', null=True, blank=True)
 
@@ -57,9 +59,10 @@ class EventPayment(models.Model):
 class ContributionPayment(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, unique=True)
     payment_transaction = models.OneToOneField('common.PaymentTransaction', on_delete=models.CASCADE)
-    month_duration = models.PositiveSmallIntegerField(default=1)
-    expiry_date = models.DateTimeField()
-    
+    timestamp = models.DateTimeField(auto_now_add=True)
+    # month_duration = models.PositiveSmallIntegerField(default=1)
+    # expiry_date = models.DateTimeField()
+
     # ref
     organization = models.ForeignKey('common.Organization', on_delete=models.SET_NULL, related_name='contribution_payments', null=True, blank=True)
     made_by = models.ForeignKey('common.Partner', on_delete=models.SET_NULL, related_name='contributions_made', null=True, blank=True)
@@ -69,6 +72,6 @@ class ContributionPayment(models.Model):
     # end def
 
     class Meta:
-        ordering = ['-expiry_date']
+        ordering = ['-timestamp']
     # end Meta
 # end class
