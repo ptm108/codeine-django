@@ -28,6 +28,14 @@ class ParentArticleCommentSerializer(serializers.ModelSerializer):
 # end class
 
 
+class NestedArticleCommentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ArticleComment
+        fields = '__all__'
+    # end Meta
+# end class
+
+
 class ParentCodeReviewCommentSerializer(serializers.ModelSerializer):
     class Meta:
         model = CodeReviewComment
@@ -38,7 +46,6 @@ class ParentCodeReviewCommentSerializer(serializers.ModelSerializer):
 
 class ArticleCommentSerializer(serializers.ModelSerializer):
     user = serializers.SerializerMethodField('get_user')
-    code_review = NestedCodeReviewSerializer()
     parent_comment = serializers.SerializerMethodField('get_parent_comment')
 
     class Meta:
@@ -100,12 +107,14 @@ class ArticleSerializer(serializers.ModelSerializer):
     # end Meta
 
     def get_top_level_comments(self, obj):
+        request = self.context.get("request")
         top_level_comments = ArticleComment.objects.filter(
             parent_comment=None, article=obj)
         return ArticleCommentSerializer(top_level_comments, many=True, context={'request': request}).data
     # end def
 
     def get_engagements(self, obj):
+        request = self.context.get("request")
         engagements = Engagement.objects.filter(article=obj)
         return EngagementSerializer(engagements, many=True, context={'request': request}).data
     # end def
