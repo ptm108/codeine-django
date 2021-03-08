@@ -15,6 +15,8 @@ from .serializers import ArticleSerializer
 from common.models import Member
 
 # Create your views here.
+
+
 @api_view(['GET', 'POST'])
 @permission_classes((IsAuthenticated,))
 def article_view(request):
@@ -36,7 +38,8 @@ def article_view(request):
             )
         # end if
 
-        serializer = ArticleSerializer(articles.all(), many=True)
+        serializer = ArticleSerializer(
+            articles.all(), many=True, context={'request': request})
         return Response(serializer.data, status=status.HTTP_200_OK)
     # end if
 
@@ -50,14 +53,15 @@ def article_view(request):
 
         try:
             article = Article(
-                title = data['title'],
-                content = data['content'],
-                category = data['category'],
-                member = member
+                title=data['title'],
+                content=data['content'],
+                category=data['category'],
+                member=member
             )
             article.save()
 
-            serializer = ArticleSerializer(article)
+            serializer = ArticleSerializer(
+                article, context={'request': request})
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         except (IntegrityError, ValueError, KeyError) as e:
             print(e)
@@ -65,6 +69,7 @@ def article_view(request):
         # end try-except
     # end if
 # def
+
 
 @api_view(['GET', 'PUT', 'DELETE'])
 @permission_classes((IsAuthenticated,))
@@ -75,7 +80,8 @@ def single_article_view(request, pk):
     if request.method == 'GET':
         try:
             article = Article.objects.get(pk=pk)
-            serializer = ArticleSerializer(article)
+            serializer = ArticleSerializer(
+                article, context={'request': request})
             return Response(serializer.data, status=status.HTTP_200_OK)
         except (ObjectDoesNotExist, KeyError, ValueError) as e:
             print(e)
@@ -102,7 +108,8 @@ def single_article_view(request, pk):
                 article.is_activated = data['is_activated']
 
             article.save()
-            serializer = ArticleSerializer(article)
+            serializer = ArticleSerializer(
+                article, context={'request': request})
             return Response(serializer.data, status=status.HTTP_200_OK)
         except Article.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
