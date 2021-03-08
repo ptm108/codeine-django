@@ -2,11 +2,11 @@
 
 Backend powering codeine
 
-## Docker usage
+## Docker build and deployment instructions
 
-Use docker engine python sdk to create/delete docker containers
+Use docker engine python sdk to create/delete docker containers hosting IDEs
 
-### 1. Create Docker network bridge
+### 0. Create Docker network bridge (Necessary for web-ssh and WeTTy)
 
 For docker containers deploy in the same network
 
@@ -14,7 +14,9 @@ For docker containers deploy in the same network
 docker network create -d bridge <network-name>
 ```
 
-### 2. Build and deploy web-ssh image
+### Option 1: Empty Ubuntu 16.04 Shell
+
+#### 1. Build and deploy web-ssh image
 
 Only do the first time, or when Dockerfile is updated. Spin up container after build.
 
@@ -23,7 +25,7 @@ docker build --tag web-ssh ./web-ssh
 docker run -d -P --network <network-name> --name <container-instance-name> web-ssh
 ```
 
-### 3. Build and deploy WeTTy image
+#### 2. Build and deploy WeTTy image
 
 ```bash
 docker build --tag wetty ./wetty
@@ -40,6 +42,20 @@ docker port <wetty-instance-name>
 Access browser WeTTy at `localhost:55043`
 
 SSH password is `root`
+
+### Option 2: VSCODE in browser
+
+Source code: [cdr/code-server](https://github.com/cdr/code-server)
+
+```bash
+docker build --tag code-server ./code-server
+docker run -it --rm --name code-server -p 127.0.0.1:8080:8080 \
+  -u "$(id -u):$(id -g)" \
+  -e "DOCKER_USER=$USER" -e "GIT_URL=https://github.com/ptm108/photo-journal-rn.git" \
+  code-server
+```
+
+Change GIT_URL according to change the initialize the working directory
 
 ## Django backend
 
