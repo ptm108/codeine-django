@@ -16,12 +16,12 @@ from .serializers import TicketMessageSerializer
 # Create your views here.
 @api_view(['GET', 'POST'])
 @permission_classes((IsAuthenticated,))
-def ticket_message_view(request):
+def ticket_message_view(request, ticket_id):
     '''
-    Retrieves all ticket message
+    Retrieves all ticket message for a ticket
     '''
     if request.method == 'GET':
-        ticket_messages = TicketMessage.objects
+        ticket_messages = TicketMessage.objects.filter(ticket__id=ticket_id)
 
         # extract query params
         search = request.query_params.get('search', None)
@@ -29,7 +29,6 @@ def ticket_message_view(request):
         if search is not None:
             ticket_messages = ticket_messages.filter(
                 Q(base_user__user__id__exact=search) |
-                Q(ticket__id__exact=search) |
                 Q(message__icontains=search)
             )
         # end if
@@ -47,7 +46,7 @@ def ticket_message_view(request):
 
         with transaction.atomic():
             try:
-                ticket = Ticket.objects.get(pk=data['ticket_id'])
+                ticket = Ticket.objects.get(pk=ticket_id)
 
                 ticket_message = TicketMessage(
                     message = data['message'],
