@@ -15,6 +15,7 @@ djangorestframework-simplejwt = "*"
 pillow = "*"
 django-multiselectfield = "*"
 django-cors-headers = "*"
+docker = "*"
 
 [requires]
 python_version = "3.8"
