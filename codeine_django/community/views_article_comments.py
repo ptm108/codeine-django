@@ -15,6 +15,8 @@ from .serializers import ArticleCommentSerializer
 from common.models import Member
 
 # Create your views here.
+
+
 @api_view(['GET', 'POST'])
 @permission_classes((IsAuthenticated,))
 def article_comment_view(request, article_id):
@@ -24,7 +26,7 @@ def article_comment_view(request, article_id):
     if request.method == 'GET':
         article = Article.objects.get(pk=article_id)
         article_comments = ArticleComment.objects.filter(article=article)
-        
+
         # extract query params
         search = request.query_params.get('search', None)
 
@@ -34,7 +36,8 @@ def article_comment_view(request, article_id):
             )
         # end if
 
-        serializer = ArticleCommentSerializer(article_comments.all(), many=True)
+        serializer = ArticleCommentSerializer(
+            article_comments.all(), many=True, context={'request': request})
         return Response(serializer.data, status=status.HTTP_200_OK)
     # end if
 
@@ -47,18 +50,20 @@ def article_comment_view(request, article_id):
         article = Article.objects.get(pk=article_id)
         parent_comment = None
         if 'parent_comment_id' in data:
-            parent_comment = ArticleComment.objects.get(pk=data['parent_comment_id'])
+            parent_comment = ArticleComment.objects.get(
+                pk=data['parent_comment_id'])
 
         try:
             article_comment = ArticleComment(
-                comment = data['comment'],
-                user = user,
-                article = article,
-                parent_comment = parent_comment
+                comment=data['comment'],
+                user=user,
+                article=article,
+                parent_comment=parent_comment
             )
             article_comment.save()
 
-            serializer = ArticleCommentSerializer(article_comment)
+            serializer = ArticleCommentSerializer(
+                article_comment, context={'request': request})
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         except (IntegrityError, ValueError, KeyError) as e:
             print(e)
@@ -66,6 +71,7 @@ def article_comment_view(request, article_id):
         # end try-except
     # end if
 # def
+
 
 @api_view(['GET', 'PUT', 'DELETE'])
 @permission_classes((IsAuthenticated,))
@@ -76,13 +82,15 @@ def single_article_comment_view(request, article_id, pk):
     if request.method == 'GET':
         try:
             article_comment = ArticleComment.objects.get(pk=pk)
-            serializer = ArticleCommentSerializer(article_comment)
+            serializer = ArticleCommentSerializer(
+                article_comment, context={'request': request})
             return Response(serializer.data, status=status.HTTP_200_OK)
         except (ObjectDoesNotExist, KeyError, ValueError) as e:
             print(e)
             return Response(status=status.HTTP_400_BAD_REQUEST)
         # end try-except
     # end if
+
     '''
     Update comment
     '''
@@ -95,7 +103,8 @@ def single_article_comment_view(request, article_id, pk):
                 article_comment.comment = data['comment']
 
             article_comment.save()
-            serializer = ArticleCommentSerializer(article_comment)
+            serializer = ArticleCommentSerializer(
+                article_comment, context={'request': request})
             return Response(serializer.data, status=status.HTTP_200_OK)
         except ArticleComment.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
@@ -103,6 +112,7 @@ def single_article_comment_view(request, article_id, pk):
             return Response(status=status.HTTP_400_BAD_REQUEST)
         # end try-except
     # end if
+
     '''
     Deletes an article comment
     '''
