@@ -9,11 +9,11 @@ from rest_framework.permissions import (
 
 import docker
 import os
-import pwd
-
+# import pwd
+import getpass
 
 def get_username():
-    return pwd.getpwuid(os.getuid())[0]
+    return getpass.getuser()
 # end def
 
 
