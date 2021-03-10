@@ -1,6 +1,7 @@
 FROM debian:10
 
-RUN apt-get update \
+RUN echo 'deb http://deb.debian.org/debian testing main' >> /etc/apt/sources.list
+RUN apt-get update -y\
  && apt-get install -y \
     curl \
     dumb-init \
@@ -15,12 +16,14 @@ RUN apt-get update \
     vim.tiny \
     lsb-release \
     npm \
+    gcc \
     default-jre \
     default-jdk \
+    nodejs \
   && rm -rf /var/lib/apt/lists/*
 
-RUN curl -fsSL https://deb.nodesource.com/setup_12.x | bash -
-RUN apt-get install -y nodejs
+# RUN curl -fsSL https://deb.nodesource.com/setup_12.x | bash -
+# RUN apt-get install -y nodejs
 
 # https://wiki.debian.org/Locale#Manually
 RUN sed -i "s/# en_US.UTF-8/en_US.UTF-8/" /etc/locale.gen \
