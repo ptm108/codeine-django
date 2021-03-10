@@ -37,8 +37,8 @@ def init_ide(request):
             container = client.containers.run(
                 'codeine-ide',
                 detach=True,
-                environment=[f'DOCKER_USER={get_username()}', 'GIT_URL=https://github.com/ptm108/Graspfood2'],
-                user=f'{os.getuid()}:{os.getgid()}',
+                environment=[f'DOCKER_USER={get_username()}', f'GIT_URL={git_url}'],
+                user='501:20',
                 name=f'codeine-ide-{user.id}',
                 ports={'8080/tcp': None},
             )
