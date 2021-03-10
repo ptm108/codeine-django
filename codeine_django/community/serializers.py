@@ -23,7 +23,7 @@ class NestedCodeReviewCommentSerializer(serializers.ModelSerializer):
 class ParentArticleCommentSerializer(serializers.ModelSerializer):
     class Meta:
         model = ArticleComment
-        fields = ('id')
+        fields = ['id']
     # end Meta
 # end class
 
@@ -39,7 +39,7 @@ class NestedArticleCommentSerializer(serializers.ModelSerializer):
 class ParentCodeReviewCommentSerializer(serializers.ModelSerializer):
     class Meta:
         model = CodeReviewComment
-        fields = ('id')
+        fields = ['id']
     # end Meta
 # end class
 

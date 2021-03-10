@@ -155,4 +155,4 @@ dmypy.json
 cython_debug/
 
 # code-server stuff
-code-server-3.9.0-linux-amd64
+code-server-3.9.0-linux-amd64/
