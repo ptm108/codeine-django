@@ -2,24 +2,24 @@ FROM debian:10
 
 RUN echo 'deb http://deb.debian.org/debian testing main' >> /etc/apt/sources.list
 RUN apt-get update -y\
- && apt-get install -y \
-    curl \
-    dumb-init \
-    htop \
-    locales \
-    man \
-    nano \
-    git \
-    procps \
-    openssh-client \
-    sudo \
-    vim.tiny \
-    lsb-release \
-    npm \
-    gcc \
-    default-jre \
-    default-jdk \
-    nodejs \
+  && apt-get install -y \
+  curl \
+  dumb-init \
+  htop \
+  locales \
+  man \
+  nano \
+  git \
+  procps \
+  openssh-client \
+  sudo \
+  vim.tiny \
+  lsb-release \
+  npm \
+  gcc \
+  default-jre \
+  default-jdk \
+  nodejs \
   && rm -rf /var/lib/apt/lists/*
 
 # RUN curl -fsSL https://deb.nodesource.com/setup_12.x | bash -
@@ -34,13 +34,12 @@ RUN adduser --gecos '' --disabled-password coder && \
   echo "coder ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers.d/nopasswd
 
 RUN ARCH="$(dpkg --print-architecture)" && \
-    curl -fsSL "https://github.com/boxboat/fixuid/releases/download/v0.4.1/fixuid-0.4.1-linux-$ARCH.tar.gz" | tar -C /usr/local/bin -xzf - && \
-    chown root:root /usr/local/bin/fixuid && \
-    chmod 4755 /usr/local/bin/fixuid && \
-    mkdir -p /etc/fixuid && \
-    printf "user: coder\ngroup: coder\n" > /etc/fixuid/config.yml
+  curl -fsSL "https://github.com/boxboat/fixuid/releases/download/v0.4.1/fixuid-0.4.1-linux-$ARCH.tar.gz" | tar -C /usr/local/bin -xzf - && \
+  chown root:root /usr/local/bin/fixuid && \
+  chmod 4755 /usr/local/bin/fixuid && \
+  mkdir -p /etc/fixuid && \
+  printf "user: coder\ngroup: coder\n" > /etc/fixuid/config.yml
 
-COPY ./entrypoint.sh /usr/bin/entrypoint.sh
 # COPY ./code-server*.deb /tmp/
 # RUN dpkg -i /tmp/code-server*$(dpkg --print-architecture).deb && rm /tmp/code-server*.deb
 
@@ -69,6 +68,8 @@ RUN rm /tmp/code-server-3.9.0-linux-amd64.tar.gz
 # COPY ./node /home/coder/lib/code-server-3.9.1/lib/
 
 # RUN ln -s /home/coder/lib/code-server-3.9.1/bin/code-server /home/coder/bin/code-server
+
+COPY ./entrypoint.sh /usr/bin/entrypoint.sh
 
 EXPOSE 8080
 # This way, if someone sets $DOCKER_USER, docker-exec will still work as

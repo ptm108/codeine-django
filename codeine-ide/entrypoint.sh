@@ -17,7 +17,11 @@ if [ "${DOCKER_USER-}" ] && [ "$DOCKER_USER" != "$USER" ]; then
   sudo sed -i "/coder/d" /etc/sudoers.d/nopasswd
 fi
 
-sudo git clone "${GIT_URL}" /home/coder/code
-sudo chmod -R 777 /home/coder/code
+DIR="/home/coder/code"
+
+if [ -d "$DIR" ] && [ -z "$(ls -A $DIR)" ]; then
+  sudo git clone "${GIT_URL}" /home/coder/code
+  sudo chmod -R 777 /home/coder/code
+fi
 
 dumb-init /home/coder/bin/code-server --home=http://localhost:3000 --auth none "$@"
