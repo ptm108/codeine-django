@@ -35,7 +35,7 @@ class NestedPartnerSerializer(serializers.ModelSerializer):
 class NestedMemberSerializer(serializers.ModelSerializer):
     class Meta:
         model = Member
-        fields = ('id', 'stats',)
+        fields = ('id', 'stats', 'membership_tier')
     # end Meta
 # end class
 
@@ -144,7 +144,7 @@ class MemberApplicationSerializer(serializers.ModelSerializer):
     class Meta:
         model = Member
         fields = ('id', 'base_id', 'email', 'profile_photo',
-                  'first_name', 'last_name')
+                  'first_name', 'last_name', 'membership_tier')
     # end Meta
 
     def get_profile_photo_url(self, obj):

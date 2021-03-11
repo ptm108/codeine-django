@@ -1,12 +1,16 @@
-from common.models import Member
+from common.models import Member, MembershipSubscription
 from courses.models import Course
 from django.db.models import Q, Sum
+from django.utils import timezone
+from django.core.exceptions import ObjectDoesNotExist
+import pytz
 
 
 def get_member_stats(pk):
     member = Member.objects.get(user_id=pk)
 
-    courses = Course.objects.filter(enrollments__member=member)  # courses member is enrolled in
+    # courses member is enrolled in
+    courses = Course.objects.filter(enrollments__member=member)
     courses = courses.filter(
         Q(assessment__quiz_results__member=member) &
         Q(assessment__quiz_results__passed=True)
@@ -61,4 +65,24 @@ def get_default_member_stats():
         'UI': 0,
         'ML': 0,
     }
+# end def
+
+
+def get_membership_tier(member):
+    try:
+        subscription = MembershipSubscription.objects.get(
+            member=member, payment_transaction__payment_status='COMPLETED')
+        print(subscription.expiry_date)
+        print(timezone.now().today())
+        if subscription.expiry_date < pytz.utc.localize(timezone.now().today()):
+            member.membership_tier = 'FREE'
+            member.save()
+        else:
+            member.membership_tier = 'PRO'
+            member.save()
+        # end if
+    except ObjectDoesNotExist:
+        member.membership_tier = 'FREE'
+        member.save()
+    # end try-except
 # end def

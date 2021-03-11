@@ -9,11 +9,6 @@ from rest_framework.decorators import api_view, permission_classes, parser_class
 from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
 from rest_framework.response import Response
 
-from rest_framework.permissions import (
-    IsAuthenticated,
-    AllowAny,
-    IsAuthenticatedOrReadOnly,
-)
 from .models import ConsultationSlot, ConsultationApplication
 from common.models import Partner, Member
 from common.permissions import IsMemberOnly, IsPartnerOnly, IsPartnerOrReadOnly
@@ -31,22 +26,16 @@ def consultation_slot_view(request):
         partner = Partner.objects.get(user=user)
         data = request.data
 
-        # if (datetime.strptime(data['end_time']) > datetime.strptime(data['start_time'])):
-        #     return Response({'message': 'Invalid date'}, status=status.HTTP_400_BAD_REQUEST)
 
         with transaction.atomic():
             try:
                 consultation_slot = ConsultationSlot(
-                    # start_date = data['start_date'],
-                    # end_date = data['end_date'],
                     title=data['title'],
                     start_time=data['start_time'],
                     end_time=data['end_time'],
                     meeting_link=data['meeting_link'],
                     price_per_pax=data['price_per_pax'],
                     max_members=data['max_members'],
-                    # r_rule = data['r_rule'],
-                    # is_all_day = data['is_all_day'],
                     partner=partner
                 )
 
@@ -179,10 +168,6 @@ def single_consultation_slot_view(request, pk):
                     consultation_slot.price_per_pax = data['price_per_pax']
                 if 'max_members' in data:
                     consultation_slot.max_members = data['max_members']
-                # if 'r_rule' in data:
-                #     consultation_slot.r_rule = data['r_rule']
-                # if 'is_all_day' in data:
-                #     consultation_slot.is_all_day = data['is_all_day']
 
                 consultation_slot.save()
             # end with

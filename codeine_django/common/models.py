@@ -232,4 +232,8 @@ class MembershipSubscription(models.Model):
     def __str__(self):
         return f'{self.payment_transaction} for {self.member}'
     # end def
+
+    class Meta: 
+        ordering = ['expiry_date']
+    # end Meta
 # end class
