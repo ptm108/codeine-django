@@ -13,6 +13,7 @@ from .models import ConsultationApplication, ConsultationSlot
 from common.models import Member, Partner
 from common.permissions import IsMemberOnly, IsMemberOrReadOnly, IsPartnerOnly
 from .serializers import ConsultationApplicationSerializer
+from utils.member_utils import get_membership_tier
 
 
 @api_view(['GET', 'POST'])
@@ -29,15 +30,26 @@ def consultation_application_view(request, consultation_slot_id):
         consultation_slot = ConsultationSlot.objects.get(
             pk=consultation_slot_id)
 
+        get_membership_tier(member)
+
+        prev_applications = ConsultationApplication.objects.filter(
+            member=member)
+
+        if member.membership_tier == 'FREE':
+            if prev_applications.filter(consultation_slot__start_time__month=consultation_slot.start_time.month).count() > 0:
+                # free member can only have one consultation slot per month
+                return Response(status=status.HTTP_400_BAD_REQUEST)
+            # end if
+        # end if
+
         # check if consultation is cancelled
         if consultation_slot.is_cancelled is True:
             return Response(status=status.HTTP_400_BAD_REQUEST)
         # end if
 
         # check if user has been rejected before
-        prev_applications = ConsultationApplication.objects.filter(
-            Q(consultation_slot=consultation_slot) & 
-            Q(member=member) & 
+        prev_applications = prev_applications.filter(
+            Q(consultation_slot=consultation_slot) &
             Q(is_rejected=True)
         )
         if prev_applications.count() > 0:
