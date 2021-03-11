@@ -15,7 +15,9 @@ class Article(models.Model):
     content = models.TextField()
     date_created = models.DateTimeField(auto_now_add=True)
     date_edited = models.DateTimeField(auto_now=True)
-    category = models.JSONField()
+    coding_languages = models.JSONField()
+    languages = models.JSONField()
+    categories = models.JSONField()
     is_published = models.BooleanField(default=True)
     is_activated = models.BooleanField(default=True)
 

@@ -7,8 +7,7 @@ from rest_framework.decorators import api_view, permission_classes, parser_class
 from rest_framework.response import Response
 
 from rest_framework.permissions import (
-    IsAuthenticated,
-    IsAdminUser,
+    IsAuthenticatedOrReadOnly,
 )
 from .models import CodeReview, CodeReviewComment
 from .serializers import CodeReviewCommentSerializer
@@ -18,7 +17,7 @@ from common.models import Member
 
 
 @api_view(['GET', 'POST'])
-@permission_classes((IsAuthenticated,))
+@permission_classes((IsAuthenticatedOrReadOnly,))
 def code_review_comment_view(request, code_review_id):
     '''
     Retrieves all code review comments
@@ -77,7 +76,7 @@ def code_review_comment_view(request, code_review_id):
 
 
 @api_view(['GET', 'PUT', 'DELETE'])
-@permission_classes((IsAuthenticated,))
+@permission_classes((IsAuthenticatedOrReadOnly,))
 def single_code_review_comment_view(request, code_review_id, pk):
     '''
     Get an code review comment by primary key/ id

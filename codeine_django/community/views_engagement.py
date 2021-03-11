@@ -6,7 +6,7 @@ from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes, parser_classes, renderer_classes
 from rest_framework.response import Response
 from rest_framework.permissions import (
-    IsAuthenticated,
+    IsAuthenticatedOrReadOnly,
 )
 from .models import Article, Engagement
 from .serializers import EngagementSerializer
@@ -16,7 +16,7 @@ from common.models import Member
 
 
 @api_view(['GET', 'POST'])
-@permission_classes((IsAuthenticated,))
+@permission_classes((IsAuthenticatedOrReadOnly,))
 def engagement_view(request, article_id):
     '''
     Retrieves all engagements
@@ -73,7 +73,7 @@ def engagement_view(request, article_id):
 
 
 @api_view(['GET', 'PUT', 'DELETE'])
-@permission_classes((IsAuthenticated,))
+@permission_classes((IsAuthenticatedOrReadOnly,))
 def single_engagement_view(request, pk, article_id):
     '''
     Get an engagement by primary key/ id
