@@ -6,7 +6,7 @@ from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes, parser_classes, renderer_classes
 from rest_framework.response import Response
 from rest_framework.permissions import (
-    IsAuthenticated,
+    IsAuthenticatedOrReadOnly,
 )
 from .models import CodeReview
 from .serializers import CodeReviewSerializer
@@ -16,7 +16,7 @@ from common.models import Member
 
 
 @api_view(['GET', 'POST'])
-@permission_classes((IsAuthenticated,))
+@permission_classes((IsAuthenticatedOrReadOnly,))
 def code_review_view(request):
     '''
     Retrieves all code reviews
@@ -71,7 +71,7 @@ def code_review_view(request):
 
 
 @api_view(['GET', 'PUT', 'DELETE'])
-@permission_classes((IsAuthenticated,))
+@permission_classes((IsAuthenticatedOrReadOnly,))
 def single_code_review_view(request, pk):
     '''
     Get a code review by primary key/ id
