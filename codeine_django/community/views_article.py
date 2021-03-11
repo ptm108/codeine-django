@@ -54,7 +54,9 @@ def article_view(request):
             article = Article(
                 title=data['title'],
                 content=data['content'],
-                category=data['category'],
+                coding_languages=data['coding_languages'],
+                languages=data['languages'],
+                categories=data['categories'],
                 member=member
             )
             article.save()

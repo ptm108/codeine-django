@@ -42,7 +42,7 @@ class CodeReviewCommentInline(admin.StackedInline):
 
 class ArticleAdmin(admin.ModelAdmin):
     list_display = ('id', 'title', 'content', 'date_created',
-                    'date_edited', 'is_published', 'is_activated', 'member')
+                    'date_edited', 'coding_languages', 'languages', 'categories', 'is_published', 'is_activated', 'member')
 # end class
 
 
