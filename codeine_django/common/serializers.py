@@ -1,10 +1,11 @@
 from rest_framework import serializers
 
-from .models import Member, BaseUser, Partner, Organization, PaymentTransaction, BankDetail
+from .models import Member, BaseUser, Partner, Organization, PaymentTransaction, BankDetail, MembershipSubscription
 
 
 class OrganizationSerializer(serializers.ModelSerializer):
-    organization_photo = serializers.SerializerMethodField('get_organization_photo_url')
+    organization_photo = serializers.SerializerMethodField(
+        'get_organization_photo_url')
 
     def get_organization_photo_url(self, obj):
         request = self.context.get("request")
@@ -34,7 +35,7 @@ class NestedPartnerSerializer(serializers.ModelSerializer):
 class NestedMemberSerializer(serializers.ModelSerializer):
     class Meta:
         model = Member
-        fields = ('id', 'stats',)
+        fields = ('id', 'stats', 'membership_tier')
     # end Meta
 # end class
 
@@ -76,7 +77,8 @@ class BaseUserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = BaseUser
-        fields = ('id', 'email', 'is_active', 'date_joined', 'profile_photo', 'first_name', 'last_name')
+        fields = ('id', 'email', 'is_active', 'date_joined',
+                  'profile_photo', 'first_name', 'last_name')
     # end Meta
 
     def get_profile_photo_url(self, obj):
@@ -141,7 +143,8 @@ class MemberApplicationSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Member
-        fields = ('id', 'base_id', 'email', 'profile_photo', 'first_name', 'last_name')
+        fields = ('id', 'base_id', 'email', 'profile_photo',
+                  'first_name', 'last_name', 'membership_tier')
     # end Meta
 
     def get_profile_photo_url(self, obj):
@@ -166,4 +169,15 @@ class MemberApplicationSerializer(serializers.ModelSerializer):
     def get_base_user_id(self, obj):
         return obj.user.id
     # end def
+# end class
+
+
+class MembershipSubscriptionSerializer(serializers.ModelSerializer):
+    payment_transaction = PaymentTransactionSerializer()
+    member = MemberSerializer()
+
+    class Meta:
+        model = MembershipSubscription
+        fields = '__all__'
+    # end Meta
 # end class

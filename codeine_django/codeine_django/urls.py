@@ -33,38 +33,49 @@ urlpatterns = [
     path('auth/', include('common.urls'), name='Common infra end points'),
 
     # consultation endpoints
-    path('consultations', include('consultations.urls_consultations'), name='Consultation end points'),
+    path('consultations', include('consultations.urls_consultations'),
+         name='Consultation end points'),
     # path('payments', include('consultations.urls_contribution_payments'), name='Contributions end points'),
 
     # courses endpoints
     path('courses', include('courses.urls'), name='Courses endpoints'),
     path('chapters', include('courses.urls_chapters'), name='Chapter endpoints'),
-    path('materials', include('courses.urls_course_materials'), name='Course Materials endpoints'),
-    path('private-courses', include('courses.urls_protected_courses'), name='Private courses endpoints'),
-    path('course-comments', include('courses.urls_course_comments'), name='Course Comment endpoints'),
-    
+    path('materials', include('courses.urls_course_materials'),
+         name='Course Materials endpoints'),
+    path('private-courses', include('courses.urls_protected_courses'),
+         name='Private courses endpoints'),
+    path('course-comments', include('courses.urls_course_comments'),
+         name='Course Comment endpoints'),
+
     # quiz endpoints
-    path('quiz', include('courses.urls_quiz'), name='Quiz and question endpoints'),
-    path('quiz-results', include('courses.urls_quiz_results'), name='QuizResult endpoints'),
+    path('quiz', include('courses.urls_quiz'),
+         name='Quiz and question endpoints'),
+    path('quiz-results', include('courses.urls_quiz_results'),
+         name='QuizResult endpoints'),
 
     # enrollment endpoints
-    path('enrollments', include('courses.urls_enrollments'), name='Get/Search Enrollments'),
-    path('enrolled-members', include('courses.urls_enrolled_members'), name='Get Enrolled Members'),
+    path('enrollments', include('courses.urls_enrollments'),
+         name='Get/Search Enrollments'),
+    path('enrolled-members', include('courses.urls_enrolled_members'),
+         name='Get Enrolled Members'),
 
     # helpdesk endpoints
     path('helpdesk', include('helpdesk.urls'), name='Helpdesk endpoints'),
 
     # achievements endpoints
-    path('achievements', include('achievements.urls'), name='Achievements endpoints'),
+    path('achievements', include('achievements.urls'),
+         name='Achievements endpoints'),
 
     # article endpoints
     path('articles', include('community.urls_articles'), name='Article endpoints'),
 
     # industry projects endpoints
-    path('industry-projects', include('industry-projects.urls'), name='Industry Projects endpoints'),
+    path('industry-projects', include('industry-projects.urls'),
+         name='Industry Projects endpoints'),
 
     # code review endpoints
-    path('code-reviews', include('community.urls_code_reviews'), name='Code Review endpoints'),
+    path('code-reviews', include('community.urls_code_reviews'),
+         name='Code Review endpoints'),
 
     # organization end points
     path('events', include('organization.urls_events'), name='Event endpoints'),
