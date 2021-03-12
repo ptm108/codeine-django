@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'organization',
     'corsheaders',
     'utils',
+    'analytics',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',

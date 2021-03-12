@@ -9,5 +9,4 @@ class EventLogAdmin(admin.ModelAdmin):
     )
 # end class
 
-
 admin.site.register(EventLog, EventLogAdmin)
