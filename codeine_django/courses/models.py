@@ -84,7 +84,7 @@ class Course(models.Model):
     exp_points = models.PositiveIntegerField()
 
     # pro course
-    paid = models.BooleanField(default=False)
+    pro = models.BooleanField(default=False)
 
     class Meta:
         ordering = ['is_deleted', 'published_date']
