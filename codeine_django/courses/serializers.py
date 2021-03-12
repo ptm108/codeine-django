@@ -164,14 +164,17 @@ class ChapterSerializer(serializers.ModelSerializer):
 
     def get_course_materials(self, obj):
         request = self.context.get('request')
-        user = request.user
-        # partner = Partner.objects.filter(user=user).first()
-        member = Member.objects.filter(user=user).first()
+        owner = self.context.get('owner')
+        pro_member = self.context.get('pro_member')
+
+        # print('owner', owner)
+        # print('pro_member', pro_member)
+        # print(self.context.get('public'))
 
         if self.context.get('public'):
             # print(obj.course_materials)
             return PublicCourseMaterialSerializer(obj.course_materials, many=True).data
-        elif member is not None and obj.course.pro and member.membership_tier != 'PRO':
+        elif not pro_member and not owner: #pro course but member is under free tier
             return PublicCourseMaterialSerializer(obj.course_materials, many=True).data
         else:
             return CourseMaterialSerializer(obj.course_materials, many=True, context={'request': self.context.get('request')}).data
@@ -182,7 +185,7 @@ class ChapterSerializer(serializers.ModelSerializer):
 
 
 class CourseSerializer(serializers.ModelSerializer):
-    chapters = ChapterSerializer(many=True)
+    chapters = serializers.SerializerMethodField()
     thumbnail = serializers.SerializerMethodField('get_thumbnail_url')
     partner = serializers.SerializerMethodField('get_base_user')
     assessment = QuizSerializer()
@@ -223,6 +226,25 @@ class CourseSerializer(serializers.ModelSerializer):
             return enrollment.exists()
         # end if-else
     # end def
+
+    def get_chapters(self, obj):
+        request = self.context.get('request')
+        user = request.user
+        partner = Partner.objects.filter(user=user).first()
+        member = Member.objects.filter(user=user).first()
+
+        pro_member = member is not None and member.membership_tier == 'PRO' if obj.pro else True
+        owner = obj.partner == partner
+
+        context = {
+            'public': self.context.get('public'),
+            'request': request,
+            'pro_member': pro_member,
+            'owner': owner
+        }
+
+        return ChapterSerializer(obj.chapters, many=True, context=context).data
+    # end def   
 # end class
 
 
