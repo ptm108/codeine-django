@@ -20,7 +20,7 @@ from .models import (
     CourseCommentEngagement
 )
 
-from common.models import Member
+from common.models import Member, Partner
 from common.serializers import NestedBaseUserSerializer, MemberSerializer
 
 # Assessment related
@@ -163,8 +163,15 @@ class ChapterSerializer(serializers.ModelSerializer):
     # end Meta
 
     def get_course_materials(self, obj):
-        if (self.context.get('public')):
+        request = self.context.get('request')
+        user = request.user
+        # partner = Partner.objects.filter(user=user).first()
+        member = Member.objects.filter(user=user).first()
+
+        if self.context.get('public'):
             # print(obj.course_materials)
+            return PublicCourseMaterialSerializer(obj.course_materials, many=True).data
+        elif member is not None and obj.course.pro and member.membership_tier != 'PRO':
             return PublicCourseMaterialSerializer(obj.course_materials, many=True).data
         else:
             return CourseMaterialSerializer(obj.course_materials, many=True, context={'request': self.context.get('request')}).data
@@ -207,7 +214,7 @@ class CourseSerializer(serializers.ModelSerializer):
         # end if
 
         member = Member.objects.filter(user=user).first()
-        print(obj)
+        # print(obj)
 
         if member is None:
             return member

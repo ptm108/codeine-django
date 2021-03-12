@@ -83,6 +83,9 @@ class Course(models.Model):
     # experience points
     exp_points = models.PositiveIntegerField()
 
+    # pro course
+    pro = models.BooleanField(default=False)
+
     class Meta:
         ordering = ['is_deleted', 'published_date']
     # end Meta
