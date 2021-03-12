@@ -85,15 +85,15 @@ def add_question_view(request, quiz_id):
                     sa = ShortAnswer(
                         question=question,
                         marks=int(data['marks']),
-                        keywords=data['keywords'] if type(data['keywords']) is list else None
+                        keywords=json.loads(data['keywords']) if 'keywords' in data else None
                     )
                     sa.save()
                 if qn_type == 'mcq':
-                    print(type(data['options']))
+                    print(type(json.loads(data['options'])))
                     mcq = MCQ(
                         question=question,
                         marks=int(data['marks']),
-                        options=data['options'] if type(data['options']) is list else None,
+                        options=json.loads(data['options']) if 'options' in data else None,
                         correct_answer=data['correct_answer']
                     )
                     mcq.save()
@@ -101,8 +101,8 @@ def add_question_view(request, quiz_id):
                     mrq = MRQ(
                         question=question,
                         marks=int(data['marks']),
-                        options=data['options'] if type(data['options']) is list else None,
-                        correct_answer=data['correct_answer'] if type(data['correct_answer']) is list else None
+                        options=json.loads(data['options']) if 'options' in data else None,
+                        correct_answer=json.loads(data['correct_answer']) if 'correct_answer' in data else None
                     )
                     mrq.save()
                 # end ifs
@@ -158,21 +158,21 @@ def single_question_view(request, quiz_id, question_id):
                     sa = question.shortanswer
                     sa.question = question
                     sa.marks = int(data['marks'])
-                    sa.keywords = data['keywords'] if type(data['keywords']) is list else None
+                    sa.keywords = json.loads(data['keywords']) if 'keywords' in data else sa.keywords
                     sa.save()
                 if qn_type == 'mcq':
                     mcq = question.mcq
                     mcq.question = question
                     mcq.marks = int(data['marks'])
-                    mcq.options = data['options'] if type(data['options']) is list else None
+                    mcq.options = json.loads(data['options']) if 'options' in data else mcq.options,
                     mcq.correct_answer = data['correct_answer']
                     mcq.save()
                 if qn_type == 'mrq':
                     mrq = question.mrq
                     mrq.question = question
                     mrq.marks = int(data['marks'])
-                    mrq.options = data['options'] if type(data['options']) is list else None
-                    mrq.correct_answer = data['correct_answer'] if type(data['correct_answer']) is list else None
+                    mrq.options = json.loads(data['options']) if 'options' in data else mrq.options,
+                    mrq.correct_answer = json.loads(data['correct_answer']) if 'correct_answer' in data else mrq.correct_answer
                     mrq.save()
                 # end ifs
 
@@ -249,6 +249,7 @@ def order_question_view(request, quiz_id):
         # end try-except
     # end if
 # end def
+
 
 @api_view(['GET'])
 @permission_classes((IsPartnerOnly,))

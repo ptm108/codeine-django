@@ -74,6 +74,7 @@ class QuestionAdmin(admin.ModelAdmin):
         'title',
         'subtitle',
         'order',
+        'image',
         'quiz',
     )
 # end class
