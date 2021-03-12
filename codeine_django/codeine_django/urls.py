@@ -70,7 +70,7 @@ urlpatterns = [
     path('articles', include('community.urls_articles'), name='Article endpoints'),
 
     # industry projects endpoints
-    path('industry-projects', include('industry-projects.urls'),
+    path('industry-projects', include('industry_projects.urls'),
          name='Industry Projects endpoints'),
 
     # code review endpoints

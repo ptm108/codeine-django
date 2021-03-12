@@ -41,7 +41,7 @@ INSTALLED_APPS = [
     'helpdesk',
     'achievements',
     'community',
-    'industry-projects',
+    'industry_projects',
     'organization',
     'corsheaders',
     'utils',
