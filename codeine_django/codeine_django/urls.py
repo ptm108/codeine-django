@@ -83,6 +83,9 @@ urlpatterns = [
 
     # IDE views
     path('ide', include('common.urls_ide'), name='IDE endpoints'),
+
+    # Analytics views
+    path('analytics', include('analytics.urls'), name='Analytics endpoints'),
 ]
 
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
