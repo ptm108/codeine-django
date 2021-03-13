@@ -227,6 +227,8 @@ class Command(BaseCommand):
                 categories=['FE', 'UI'],
                 is_published=True,
                 published_date=timezone.now(),
+                pro=False,
+                duration=9,
                 exp_points=230,
                 partner=partner
             )
@@ -617,6 +619,8 @@ class Command(BaseCommand):
                 categories=['ML'],
                 is_published=True,
                 published_date=timezone.now(),
+                pro=False,
+                duration=9,
                 exp_points=600,
                 partner=partner
             )
@@ -1040,6 +1044,8 @@ class Command(BaseCommand):
                 categories=['BE', 'DB'],
                 is_published=True,
                 published_date=timezone.now(),
+                pro=True,
+                duration=9,
                 exp_points=600,
                 partner=partner
             )
@@ -1271,6 +1277,8 @@ class Command(BaseCommand):
                 categories=['BE', 'DB', 'FE'],
                 is_published=True,
                 published_date=timezone.now(),
+                pro=True,
+                duration=4,
                 exp_points=600,
                 partner=partner
             )
@@ -1533,6 +1541,8 @@ class Command(BaseCommand):
                 categories=['BE', 'DB', 'FE'],
                 is_published=True,
                 published_date=timezone.now(),
+                pro=False,
+                duration=9,
                 exp_points=600,
                 partner=partner
             )
@@ -1794,6 +1804,8 @@ class Command(BaseCommand):
                 categories=['BE', 'DB', 'FE', 'SEC'],
                 is_published=True,
                 published_date=timezone.now(),
+                pro=True,
+                duration=9,
                 exp_points=600,
                 partner=partner
             )
