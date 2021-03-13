@@ -230,6 +230,11 @@ class CourseSerializer(serializers.ModelSerializer):
     def get_chapters(self, obj):
         request = self.context.get('request')
         user = request.user
+
+        if not user.is_authenticated:
+            return ChapterSerializer(obj.chapters, many=True, context=self.context).data
+        # end if
+
         partner = Partner.objects.filter(user=user).first()
         member = Member.objects.filter(user=user).first()
 
