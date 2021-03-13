@@ -92,6 +92,7 @@ def course_view(request):
                 categories=json.loads(data['categories']),
                 exp_points=data['exp_points'],
                 pro=data['pro'],
+                duration=data['duration'],
                 partner=partner
             )
             course.save()
@@ -147,6 +148,7 @@ def single_course_view(request, pk):
             course.exp_points = data['exp_points']
             course.pro = data['pro']
             course.categories = json.loads(data['categories'])
+            course.duration = data['duration']
             if 'thumbnail' in data:
                 course.thumbnail = data['thumbnail']
             # end if

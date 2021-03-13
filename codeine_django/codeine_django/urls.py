@@ -70,7 +70,7 @@ urlpatterns = [
     path('articles', include('community.urls_articles'), name='Article endpoints'),
 
     # industry projects endpoints
-    path('industry-projects', include('industry-projects.urls'),
+    path('industry-projects', include('industry_projects.urls'),
          name='Industry Projects endpoints'),
 
     # code review endpoints
@@ -83,6 +83,9 @@ urlpatterns = [
 
     # IDE views
     path('ide', include('common.urls_ide'), name='IDE endpoints'),
+
+    # Analytics views
+    path('analytics', include('analytics.urls'), name='Analytics endpoints'),
 ]
 
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
