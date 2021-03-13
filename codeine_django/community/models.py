@@ -44,7 +44,7 @@ class Article(models.Model):
     date_created = models.DateTimeField(auto_now_add=True)
     date_edited = models.DateTimeField(auto_now=True)
 
-    # availability 
+    # availability
     is_published = models.BooleanField(default=True)
     is_activated = models.BooleanField(default=True)
 
@@ -115,13 +115,42 @@ class Engagement(models.Model):
 
 
 class CodeReview(models.Model):
+    CODING_LANGUAGES = (
+        ('PY', 'Python'),
+        ('JAVA', 'Java'),
+        ('JS', 'Javascript'),
+        ('CPP', 'C++'),
+        ('CS', 'C#'),
+        ('HTML', 'HTML'),
+        ('CSS', 'CSS'),
+        ('RUBY', 'Ruby'),
+    )
+
+    LANGUAGES = (
+        ('ENG', 'English'),
+        ('MAN', 'Mandarin'),
+        ('FRE', 'French'),
+    )
+
+    CATEGORIES = (
+        ('SEC', 'Security'),
+        ('DB', 'Database Administration'),
+        ('FE', 'Frontend'),
+        ('BE', 'Backend'),
+        ('UI', 'UI/UX'),
+        ('ML', 'Machine Learning'),
+    )
+
     id = models.UUIDField(
         primary_key=True, default=uuid.uuid4, editable=False, unique=True)
     title = models.CharField(max_length=255)
     code = models.TextField()
     timestamp = models.DateTimeField(auto_now_add=True)
-    coding_languages = models.JSONField()
-    categories = models.JSONField()
+
+    # enums
+    coding_languages = MultiSelectField(choices=CODING_LANGUAGES)
+    languages = MultiSelectField(choices=LANGUAGES)
+    categories = MultiSelectField(choices=CATEGORIES)
 
     # ref
     member = models.ForeignKey(

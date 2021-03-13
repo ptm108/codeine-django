@@ -36,7 +36,8 @@ def code_review_view(request):
                 Q(categories__icontains=search)
             )
         # end if
-        serializer = CodeReviewSerializer(code_reviews.all(), many=True, context={'request': request})
+        serializer = CodeReviewSerializer(
+            code_reviews.all(), many=True, context={'request': request})
 
         return Response(serializer.data, status=status.HTTP_200_OK)
     # end if
@@ -54,12 +55,14 @@ def code_review_view(request):
                 title=data['title'],
                 code=data['code'],
                 coding_languages=data['coding_languages'],
+                languages=data['languages'],
                 categories=data['categories'],
                 member=member
             )
             code_review.save()
 
-            serializer = CodeReviewSerializer(code_review, context={'request': request})
+            serializer = CodeReviewSerializer(
+                code_review, context={'request': request})
 
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         except (IntegrityError, ValueError, KeyError) as e:
@@ -99,8 +102,8 @@ def single_code_review_view(request, pk):
                 code_review.title = data['title']
             if 'code' in data:
                 code_review.code = data['code']
-            if 'category' in data:
-                code_review.category = data['category']
+            if 'languages' in data:
+                code_review.languages = data['languages']
             if 'coding_languages' in data:
                 code_review.coding_languages = data['coding_languages']
             if 'categories' in data:
