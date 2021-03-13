@@ -24,6 +24,7 @@ def init_ide(request):
 
         try:
             git_url = request.query_params.get('git_url', None)
+            course_name = request.query_params.get('course_name', None)
 
             if git_url is None:
                 return Response('git_url is missing', status=status.HTTP_400_BAD_REQUEST)
@@ -32,7 +33,7 @@ def init_ide(request):
             container = client.containers.run(
                 'codeine-ide',
                 detach=True,
-                environment=[f'GIT_URL={git_url}'],
+                environment=[f'GIT_URL={git_url}', f'COURSE_NAME={course_name}'],
                 user='501:20',
                 name=f'codeine-ide-{user.id}',
                 ports={'8080/tcp': None},
