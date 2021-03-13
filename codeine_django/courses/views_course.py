@@ -93,7 +93,7 @@ def course_view(request):
                 exp_points=data['exp_points'],
                 pro=data['pro'],
                 duration=data['duration'],
-                github_repo=data['github_repo'],
+                github_repo=data['github_repo'] if 'github_repo' in data else None,
                 partner=partner
             )
             course.save()
