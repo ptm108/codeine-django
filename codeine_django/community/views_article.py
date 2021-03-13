@@ -6,6 +6,8 @@ from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes, parser_classes, renderer_classes
 from rest_framework.response import Response
 
+import json
+
 from rest_framework.permissions import (
     IsAuthenticatedOrReadOnly,
 )
@@ -32,8 +34,8 @@ def article_view(request):
             articles = articles.filter(
                 Q(member__user__id__exact=search) |
                 Q(title__icontains=search) |
-                Q(content__icontains=search) |
-                Q(category__icontains=search)
+                Q(coding_languages__icontains=search) |
+                Q(categories__icontains=search)
             )
         # end if
 
@@ -101,12 +103,16 @@ def single_article_view(request, pk):
                 article.title = data['title']
             if 'content' in data:
                 article.content = data['content']
-            if 'category' in data:
-                article.category = data['category']
             if 'is_published' in data:
                 article.is_published = data['is_published']
             if 'is_activated' in data:
                 article.is_activated = data['is_activated']
+            if 'coding_languages' in data:
+                article.coding_languages = data['coding_languages']
+            if 'languages' in data:
+                article.languages = data['languages']
+            if 'categories' in data:
+                article.categories = data['categories']
 
             article.save()
             serializer = ArticleSerializer(

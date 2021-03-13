@@ -3,23 +3,55 @@ from django.utils.translation import gettext_lazy as _
 from django.core.exceptions import ValidationError
 from django.utils import timezone
 
+from multiselectfield import MultiSelectField
+import json
 import uuid
 
 # Create your models here.
 
 
 class Article(models.Model):
+    CODING_LANGUAGES = (
+        ('PY', 'Python'),
+        ('JAVA', 'Java'),
+        ('JS', 'Javascript'),
+        ('CPP', 'C++'),
+        ('CS', 'C#'),
+        ('HTML', 'HTML'),
+        ('CSS', 'CSS'),
+        ('RUBY', 'Ruby'),
+    )
+
+    LANGUAGES = (
+        ('ENG', 'English'),
+        ('MAN', 'Mandarin'),
+        ('FRE', 'French'),
+    )
+
+    CATEGORIES = (
+        ('SEC', 'Security'),
+        ('DB', 'Database Administration'),
+        ('FE', 'Frontend'),
+        ('BE', 'Backend'),
+        ('UI', 'UI/UX'),
+        ('ML', 'Machine Learning'),
+    )
+
     id = models.UUIDField(
         primary_key=True, default=uuid.uuid4, editable=False, unique=True)
     title = models.CharField(max_length=255)
     content = models.TextField()
     date_created = models.DateTimeField(auto_now_add=True)
     date_edited = models.DateTimeField(auto_now=True)
-    coding_languages = models.JSONField()
-    languages = models.JSONField()
-    categories = models.JSONField()
+
+    # availability
     is_published = models.BooleanField(default=True)
     is_activated = models.BooleanField(default=True)
+
+    # enums
+    coding_languages = MultiSelectField(choices=CODING_LANGUAGES)
+    languages = MultiSelectField(choices=LANGUAGES)
+    categories = MultiSelectField(choices=CATEGORIES)
 
     # ref
     member = models.ForeignKey(
@@ -83,13 +115,42 @@ class Engagement(models.Model):
 
 
 class CodeReview(models.Model):
+    CODING_LANGUAGES = (
+        ('PY', 'Python'),
+        ('JAVA', 'Java'),
+        ('JS', 'Javascript'),
+        ('CPP', 'C++'),
+        ('CS', 'C#'),
+        ('HTML', 'HTML'),
+        ('CSS', 'CSS'),
+        ('RUBY', 'Ruby'),
+    )
+
+    LANGUAGES = (
+        ('ENG', 'English'),
+        ('MAN', 'Mandarin'),
+        ('FRE', 'French'),
+    )
+
+    CATEGORIES = (
+        ('SEC', 'Security'),
+        ('DB', 'Database Administration'),
+        ('FE', 'Frontend'),
+        ('BE', 'Backend'),
+        ('UI', 'UI/UX'),
+        ('ML', 'Machine Learning'),
+    )
+
     id = models.UUIDField(
         primary_key=True, default=uuid.uuid4, editable=False, unique=True)
     title = models.CharField(max_length=255)
     code = models.TextField()
     timestamp = models.DateTimeField(auto_now_add=True)
-    coding_languages = models.JSONField()
-    categories = models.JSONField()
+
+    # enums
+    coding_languages = MultiSelectField(choices=CODING_LANGUAGES)
+    languages = MultiSelectField(choices=LANGUAGES)
+    categories = MultiSelectField(choices=CATEGORIES)
 
     # ref
     member = models.ForeignKey(
