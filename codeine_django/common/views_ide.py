@@ -33,7 +33,7 @@ def init_ide(request):
             container = client.containers.run(
                 'codeine-ide',
                 detach=True,
-                environment=[f'GIT_URL={git_url}', f'COURSE_NAME={course_name}'],
+                environment=[f'GIT_URL={git_url}', f'COURSE_NAME={course_name.replace(" ", "-")}'],
                 user='501:20',
                 name=f'codeine-ide-{user.id}',
                 ports={'8080/tcp': None},

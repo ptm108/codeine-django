@@ -17,7 +17,12 @@ if [ "${DOCKER_USER-}" ] && [ "$DOCKER_USER" != "$USER" ]; then
   sudo sed -i "/coder/d" /etc/sudoers.d/nopasswd
 fi
 
-DIR="/home/coder/code/$COURSE_NAME"
+DIR="/home/coder/codeine-ide/$COURSE_NAME"
+echo $DIR
+
+if [ ! -d "$DIR" ]; then
+  sudo mkdir $DIR
+fi
 
 if [ -d "$DIR" ] && [ -z "$(ls -A $DIR)" ]; then
   sudo git clone "${GIT_URL}" "$DIR"
