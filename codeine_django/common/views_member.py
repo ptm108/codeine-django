@@ -141,6 +141,12 @@ def single_member_view(request, pk):
                 user.email = data['email']
             if 'profile_photo' in data:
                 user.profile_photo = data['profile_photo']
+            if 'age' in data: 
+                user.age = data['age']
+            if 'gender' in data: 
+                user.gender = data['gender']
+            if 'location' in data:
+                user.location = data['location']
             # end ifs
             user.save()
 
