@@ -93,6 +93,7 @@ def course_view(request):
                 exp_points=data['exp_points'],
                 pro=data['pro'],
                 duration=data['duration'],
+                github_repo=data['github_repo'],
                 partner=partner
             )
             course.save()
@@ -149,6 +150,7 @@ def single_course_view(request, pk):
             course.pro = data['pro']
             course.categories = json.loads(data['categories'])
             course.duration = data['duration']
+            course.github_repo = data['github_repo']
             if 'thumbnail' in data:
                 course.thumbnail = data['thumbnail']
             # end if
