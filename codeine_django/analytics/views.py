@@ -19,11 +19,6 @@ from courses.models import Course, CourseMaterial, Quiz, Enrollment
 from industry_projects.models import IndustryProject
 
 
-def course_conversion_rate_helper(course):
-    event_logs = EventLog.objects.filter(course=course).filter(payload='course view').distinct('user').count()
-
-# end def
-
 
 @api_view(['POST'])
 @permission_classes((AllowAny,))
