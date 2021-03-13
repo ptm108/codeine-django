@@ -150,7 +150,7 @@ def single_course_view(request, pk):
             course.pro = data['pro']
             course.categories = json.loads(data['categories'])
             course.duration = data['duration']
-            course.github_repo = data['github_repo']
+            course.github_repo = data['github_repo'] if 'github_repo' in data else course.github_repo
             if 'thumbnail' in data:
                 course.thumbnail = data['thumbnail']
             # end if
