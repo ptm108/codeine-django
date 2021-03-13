@@ -97,6 +97,7 @@ class CodeReviewCommentSerializer(serializers.ModelSerializer):
 
 
 class ArticleSerializer(serializers.ModelSerializer):
+    member = serializers.SerializerMethodField('get_member')
     top_level_comments = serializers.SerializerMethodField(
         'get_top_level_comments')
     engagements = serializers.SerializerMethodField('get_engagements')
@@ -105,6 +106,11 @@ class ArticleSerializer(serializers.ModelSerializer):
         model = Article
         fields = '__all__'
     # end Meta
+
+    def get_member(self, obj):
+        request = self.context.get("request")
+        return NestedBaseUserSerializer(obj.member.user, context={'request': request}).data
+    # end def
 
     def get_top_level_comments(self, obj):
         request = self.context.get("request")
