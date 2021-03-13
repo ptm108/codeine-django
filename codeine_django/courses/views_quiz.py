@@ -2,9 +2,10 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.db import transaction
 from django.db.models import Q
 from django.db.utils import IntegrityError
-from rest_framework.decorators import api_view, permission_classes
+from rest_framework.decorators import api_view, permission_classes, parser_classes
 from rest_framework import status
 from rest_framework.response import Response
+from rest_framework.parsers import MultiPartParser, FormParser
 
 import json
 
@@ -31,7 +32,7 @@ def quiz_view(request, quiz_id):
                 Q(course_material__chapter__course__partner=partner)
             ).get(pk=quiz_id)
 
-            serializer = QuizSerializer(quiz)
+            serializer = QuizSerializer(quiz, context={'request': request})
             return Response(serializer.data, status=status.HTTP_200_OK)
         except ObjectDoesNotExist as e:
             print(e)
@@ -46,6 +47,7 @@ def quiz_view(request, quiz_id):
 
 @api_view(['POST'])
 @permission_classes((IsPartnerOnly,))
+@parser_classes([MultiPartParser, FormParser])
 def add_question_view(request, quiz_id):
     user = request.user
     data = request.data
@@ -74,7 +76,8 @@ def add_question_view(request, quiz_id):
                     title=data['title'],
                     subtitle=data['subtitle'] if 'subtitle' in data else None,
                     order=quiz.questions.count() + 1,
-                    quiz=quiz
+                    quiz=quiz,
+                    image=data['image'] if 'image' in data else None,
                 )
                 question.save()
 
@@ -82,15 +85,15 @@ def add_question_view(request, quiz_id):
                     sa = ShortAnswer(
                         question=question,
                         marks=int(data['marks']),
-                        keywords=data['keywords'] if type(data['keywords']) is list else None
+                        keywords=json.loads(data['keywords']) if 'keywords' in data else None
                     )
                     sa.save()
                 if qn_type == 'mcq':
-                    print(type(data['options']))
+                    print(type(json.loads(data['options'])))
                     mcq = MCQ(
                         question=question,
                         marks=int(data['marks']),
-                        options=data['options'] if type(data['options']) is list else None,
+                        options=json.loads(data['options']) if 'options' in data else None,
                         correct_answer=data['correct_answer']
                     )
                     mcq.save()
@@ -98,13 +101,13 @@ def add_question_view(request, quiz_id):
                     mrq = MRQ(
                         question=question,
                         marks=int(data['marks']),
-                        options=data['options'] if type(data['options']) is list else None,
-                        correct_answer=data['correct_answer'] if type(data['correct_answer']) is list else None
+                        options=json.loads(data['options']) if 'options' in data else None,
+                        correct_answer=json.loads(data['correct_answer']) if 'correct_answer' in data else None
                     )
                     mrq.save()
                 # end ifs
 
-                serializer = QuizSerializer(quiz)
+                serializer = QuizSerializer(quiz, context={'request': request})
                 return Response(serializer.data, status=status.HTTP_201_CREATED)
             except ObjectDoesNotExist:
                 return Response(status=status.HTTP_404_NOT_FOUND)
@@ -120,6 +123,7 @@ def add_question_view(request, quiz_id):
 
 @api_view(['PUT', 'DELETE'])
 @permission_classes((IsPartnerOnly,))
+@parser_classes([MultiPartParser, FormParser])
 def single_question_view(request, quiz_id, question_id):
     user = request.user
 
@@ -145,33 +149,34 @@ def single_question_view(request, quiz_id, question_id):
                     return Response('Type not specified', status=status.HTTP_400_BAD_REQUEST)
                 # end if
 
-                question.title = data['title']
-                question.subtitle = data['subtitle'] if 'subtitle' in data else None
+                question.title = data['title'] if 'title' in data else question.title
+                question.subtitle = data['subtitle'] if 'subtitle' in data else question.subtitle
+                question.image = data['image'] if 'image' in data else question.image
                 question.save()
 
                 if qn_type == 'shortanswer':
                     sa = question.shortanswer
                     sa.question = question
                     sa.marks = int(data['marks'])
-                    sa.keywords = data['keywords'] if type(data['keywords']) is list else None
+                    sa.keywords = json.loads(data['keywords']) if 'keywords' in data else sa.keywords
                     sa.save()
                 if qn_type == 'mcq':
                     mcq = question.mcq
                     mcq.question = question
                     mcq.marks = int(data['marks'])
-                    mcq.options = data['options'] if type(data['options']) is list else None
+                    mcq.options = json.loads(data['options']) if 'options' in data else mcq.options,
                     mcq.correct_answer = data['correct_answer']
                     mcq.save()
                 if qn_type == 'mrq':
                     mrq = question.mrq
                     mrq.question = question
                     mrq.marks = int(data['marks'])
-                    mrq.options = data['options'] if type(data['options']) is list else None
-                    mrq.correct_answer = data['correct_answer'] if type(data['correct_answer']) is list else None
+                    mrq.options = json.loads(data['options']) if 'options' in data else mrq.options,
+                    mrq.correct_answer = json.loads(data['correct_answer']) if 'correct_answer' in data else mrq.correct_answer
                     mrq.save()
                 # end ifs
 
-                serializer = QuizSerializer(quiz)
+                serializer = QuizSerializer(quiz, context={'request': request})
                 return Response(serializer.data, status=status.HTTP_200_OK)
             except ObjectDoesNotExist:
                 return Response(status=status.HTTP_404_NOT_FOUND)
@@ -198,7 +203,7 @@ def single_question_view(request, quiz_id, question_id):
 
             question.delete()
 
-            serializer = QuizSerializer(quiz)
+            serializer = QuizSerializer(quiz, context={'request': request})
             return Response(serializer.data, status=status.HTTP_200_OK)
         except ObjectDoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
@@ -234,7 +239,7 @@ def order_question_view(request, quiz_id):
                 Question.objects.filter(pk=qn_id).update(order=index + 1)
             # end for
 
-            serializer = QuizSerializer(quiz)
+            serializer = QuizSerializer(quiz, context={'request': request})
             return Response(serializer.data, status=status.HTTP_200_OK)
         except ObjectDoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
@@ -244,6 +249,7 @@ def order_question_view(request, quiz_id):
         # end try-except
     # end if
 # end def
+
 
 @api_view(['GET'])
 @permission_classes((IsPartnerOnly,))
@@ -271,7 +277,7 @@ def all_quiz_view(request):
                 )
             # end if
 
-            serializer = QuizSerializer(quiz, many=True)
+            serializer = QuizSerializer(quiz, many=True, context={'request': request})
             return Response(serializer.data, status=status.HTTP_200_OK)
         except ObjectDoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)

@@ -20,7 +20,7 @@ from .models import (
     CourseCommentEngagement
 )
 
-from common.models import Member
+from common.models import Member, Partner
 from common.serializers import NestedBaseUserSerializer, MemberSerializer
 
 # Assessment related
@@ -82,11 +82,19 @@ class QuestionSerializer(serializers.ModelSerializer):
     shortanswer = ShortAnswerSerializer()
     mcq = MCQSerializer()
     mrq = MRQAnswerSerializer()
+    image = serializers.SerializerMethodField()
 
     class Meta:
         model = Question
-        fields = ('id', 'title', 'subtitle', 'shortanswer', 'mcq', 'mrq', 'order',)
+        fields = ('id', 'title', 'subtitle', 'shortanswer', 'mcq', 'mrq', 'order', 'image',)
     # end class
+
+    def get_image(self, obj):
+        request = self.context.get("request")
+        if obj.image and hasattr(obj.image, 'url'):
+            return request.build_absolute_uri(obj.image.url)
+        # end if
+    # end def
 # end class
 
 
@@ -155,8 +163,18 @@ class ChapterSerializer(serializers.ModelSerializer):
     # end Meta
 
     def get_course_materials(self, obj):
-        if (self.context.get('public')):
+        request = self.context.get('request')
+        owner = self.context.get('owner')
+        pro_member = self.context.get('pro_member')
+
+        # print('owner', owner)
+        # print('pro_member', pro_member)
+        # print(self.context.get('public'))
+
+        if self.context.get('public'):
             # print(obj.course_materials)
+            return PublicCourseMaterialSerializer(obj.course_materials, many=True).data
+        elif not pro_member and not owner: #pro course but member is under free tier
             return PublicCourseMaterialSerializer(obj.course_materials, many=True).data
         else:
             return CourseMaterialSerializer(obj.course_materials, many=True, context={'request': self.context.get('request')}).data
@@ -167,7 +185,7 @@ class ChapterSerializer(serializers.ModelSerializer):
 
 
 class CourseSerializer(serializers.ModelSerializer):
-    chapters = ChapterSerializer(many=True)
+    chapters = serializers.SerializerMethodField()
     thumbnail = serializers.SerializerMethodField('get_thumbnail_url')
     partner = serializers.SerializerMethodField('get_base_user')
     assessment = QuizSerializer()
@@ -199,7 +217,7 @@ class CourseSerializer(serializers.ModelSerializer):
         # end if
 
         member = Member.objects.filter(user=user).first()
-        print(obj)
+        # print(obj)
 
         if member is None:
             return member
@@ -208,6 +226,30 @@ class CourseSerializer(serializers.ModelSerializer):
             return enrollment.exists()
         # end if-else
     # end def
+
+    def get_chapters(self, obj):
+        request = self.context.get('request')
+        user = request.user
+
+        if not user.is_authenticated:
+            return ChapterSerializer(obj.chapters, many=True, context=self.context).data
+        # end if
+
+        partner = Partner.objects.filter(user=user).first()
+        member = Member.objects.filter(user=user).first()
+
+        pro_member = member is not None and member.membership_tier == 'PRO' if obj.pro else True
+        owner = obj.partner == partner
+
+        context = {
+            'public': self.context.get('public'),
+            'request': request,
+            'pro_member': pro_member,
+            'owner': owner
+        }
+
+        return ChapterSerializer(obj.chapters, many=True, context=context).data
+    # end def   
 # end class
 
 

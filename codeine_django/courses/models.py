@@ -83,6 +83,12 @@ class Course(models.Model):
     # experience points
     exp_points = models.PositiveIntegerField()
 
+    # pro course
+    pro = models.BooleanField(default=False)
+
+    # course duration
+    duration = models.PositiveSmallIntegerField()
+
     class Meta:
         ordering = ['is_deleted', 'published_date']
     # end Meta
@@ -182,6 +188,7 @@ class Question(models.Model):
     title = models.TextField()
     subtitle = models.TextField(null=True, default='', blank=True)
     order = models.PositiveSmallIntegerField()
+    image = models.ImageField(null=True, blank=True, default=None)
 
     # ref to Assessment
     quiz = models.ForeignKey('Quiz', on_delete=models.CASCADE, null=True, blank=True, related_name='questions')

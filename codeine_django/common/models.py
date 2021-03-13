@@ -77,6 +77,12 @@ class CustomUserManager(BaseUserManager):
 
 
 class BaseUser(AbstractBaseUser, PermissionsMixin):
+    GENDER = (
+        ('M', 'Male'),
+        ('F', 'Female'), 
+        ('U', 'Unknown')
+    )
+
     id = models.UUIDField(
         primary_key=True, default=uuid.uuid4, editable=False, unique=True)
     email = models.EmailField(_('email address'), unique=True)
@@ -88,6 +94,9 @@ class BaseUser(AbstractBaseUser, PermissionsMixin):
     last_name = models.CharField(max_length=150, null=True)
     profile_photo = models.ImageField(
         upload_to=user_directory_path, max_length=100, blank=True, null=True, default=None)
+    age = models.PositiveIntegerField(null=True)
+    gender = models.CharField(max_length=10, choices=GENDER, null=True)
+    location = models.CharField(max_length=150, null=True)
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = []
