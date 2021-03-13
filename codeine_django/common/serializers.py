@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from .models import Member, BaseUser, Partner, Organization, PaymentTransaction, BankDetail, MembershipSubscription
+from .models import Member, BaseUser, Partner, Organization, PaymentTransaction, BankDetail, MembershipSubscription, Notification
 
 
 class OrganizationSerializer(serializers.ModelSerializer):
@@ -57,8 +57,8 @@ class NestedBaseUserSerializer(serializers.ModelSerializer):
             'profile_photo',
             'first_name',
             'last_name',
-            'age', 
-            'gender', 
+            'age',
+            'gender',
             'location',
             'member',
             'partner',
@@ -181,6 +181,16 @@ class MembershipSubscriptionSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = MembershipSubscription
+        fields = '__all__'
+    # end Meta
+# end class
+
+
+class NotificationSerializer(serializers.ModelSerializer):
+    receiver = NestedBaseUserSerializer()
+
+    class Meta:
+        model = Notification
         fields = '__all__'
     # end Meta
 # end class

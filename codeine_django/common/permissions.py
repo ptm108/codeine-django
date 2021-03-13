@@ -132,3 +132,21 @@ class IsMemberOrPartnerOrReadOnly(BasePermission):
         return hasattr(request.user, 'member') or hasattr(request.user, 'partner')
     # end def
 # end class
+
+
+class AdminOrReadOnly(BasePermission):
+
+    '''
+    View level check for unsafe methods
+    Check if requesting user is an Admin
+    '''
+
+    def has_permission(self, request, view):
+        if request.method in SAFE_METHODS:
+            return True
+        if request.user.is_authenticated and request.user.is_admin:
+            return True
+        # end ifs
+        return False
+    # end def
+# end class
