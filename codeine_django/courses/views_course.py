@@ -91,8 +91,9 @@ def course_view(request):
                 languages=json.loads(data['languages']),
                 categories=json.loads(data['categories']),
                 exp_points=data['exp_points'],
-                pro=data['pro'],
+                pro=data['pro'] == 'true',
                 duration=data['duration'],
+                github_repo=data['github_repo'] if 'github_repo' in data else None,
                 partner=partner
             )
             course.save()
@@ -146,9 +147,10 @@ def single_course_view(request, pk):
             course.coding_languages = json.loads(data['coding_languages'])
             course.languages = json.loads(data['languages'])
             course.exp_points = data['exp_points']
-            course.pro = data['pro']
+            course.pro = data['pro'] == 'true'
             course.categories = json.loads(data['categories'])
             course.duration = data['duration']
+            course.github_repo = data['github_repo'] if 'github_repo' in data else course.github_repo
             if 'thumbnail' in data:
                 course.thumbnail = data['thumbnail']
             # end if

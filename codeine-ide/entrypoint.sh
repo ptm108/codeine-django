@@ -17,11 +17,16 @@ if [ "${DOCKER_USER-}" ] && [ "$DOCKER_USER" != "$USER" ]; then
   sudo sed -i "/coder/d" /etc/sudoers.d/nopasswd
 fi
 
-DIR="/home/coder/code"
+DIR="/home/coder/codeine-ide/$COURSE_NAME"
+echo $DIR
+
+if [ ! -d "$DIR" ]; then
+  sudo mkdir $DIR
+fi
 
 if [ -d "$DIR" ] && [ -z "$(ls -A $DIR)" ]; then
-  sudo git clone "${GIT_URL}" /home/coder/code
-  sudo chmod -R 777 /home/coder/code
+  sudo git clone "${GIT_URL}" "$DIR"
+  sudo chmod -R 777 "$DIR"
 fi
 
 dumb-init /home/coder/bin/code-server --home=http://localhost:3000 --auth none "$@"

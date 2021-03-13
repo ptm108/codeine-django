@@ -78,5 +78,5 @@ EXPOSE 8080
 USER 1000
 ENV USER=coder
 ENV SHELL /bin/bash
-WORKDIR /home/coder/code
+WORKDIR /home/coder/codeine-ide
 ENTRYPOINT ["/usr/bin/entrypoint.sh", "--bind-addr", "0.0.0.0:8080", "."]

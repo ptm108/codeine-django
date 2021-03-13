@@ -57,6 +57,9 @@ class NestedBaseUserSerializer(serializers.ModelSerializer):
             'profile_photo',
             'first_name',
             'last_name',
+            'age', 
+            'gender', 
+            'location',
             'member',
             'partner',
         )
@@ -78,7 +81,7 @@ class BaseUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = BaseUser
         fields = ('id', 'email', 'is_active', 'date_joined',
-                  'profile_photo', 'first_name', 'last_name')
+                  'profile_photo', 'first_name', 'last_name', 'age', 'gender', 'location')
     # end Meta
 
     def get_profile_photo_url(self, obj):
