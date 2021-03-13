@@ -86,6 +86,9 @@ class Course(models.Model):
     # pro course
     pro = models.BooleanField(default=False)
 
+    # course duration
+    duration = models.PositiveSmallIntegerField()
+
     class Meta:
         ordering = ['is_deleted', 'published_date']
     # end Meta
