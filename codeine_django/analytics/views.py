@@ -17,7 +17,7 @@ from industry_projects.models import IndustryProject
 
 
 @api_view(['POST'])
-@permission_classes((AllowAny))
+@permission_classes((AllowAny,))
 def post_log_view(request):
     user = request.user
     '''
@@ -32,7 +32,6 @@ def post_log_view(request):
         industry_project = IndustryProject.objects.get(data['industry_project']) if 'industry_project' in data else None
 
         try:
-            course = request.query_params.get('course', None)
             event_log = EventLog(
                 payload=data['payload'],
                 user=user if user.is_authenticated else None,
