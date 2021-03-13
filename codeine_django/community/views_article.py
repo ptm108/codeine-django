@@ -101,12 +101,16 @@ def single_article_view(request, pk):
                 article.title = data['title']
             if 'content' in data:
                 article.content = data['content']
-            if 'category' in data:
-                article.category = data['category']
             if 'is_published' in data:
                 article.is_published = data['is_published']
             if 'is_activated' in data:
                 article.is_activated = data['is_activated']
+            if 'coding_languages' in data:
+                article.coding_languages = data['coding_languages']
+            if 'languages' in data:
+                article.languages = data['languages']
+            if 'categories' in data:
+                article.categories = data['categories']
 
             article.save()
             serializer = ArticleSerializer(
