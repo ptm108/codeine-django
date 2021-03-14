@@ -26,13 +26,15 @@ def engagement_view(request, article_id):
         engagements = Engagement.objects.filter(article=article)
 
         # extract query params
-        search = request.query_params.get('search', None)
+        is_user = request.query_params.get('is_user', None)
 
-        if search is not None:
-            engagements = engagements.filter(
-                Q(member__user__id__icontains=search) |
-                Q(article__id__icontains=search)
-            )
+        if is_user is not None:
+            if is_user:
+                user = request.user
+                member = Member.objects.get(user=user)
+                engagements = engagements.filter(
+                    Q(member=member)
+                )
         # end if
 
         serializer = EngagementSerializer(
@@ -49,7 +51,7 @@ def engagement_view(request, article_id):
         member = Member.objects.get(user=user)
         article = Article.objects.get(pk=article_id)
 
-        if Engagement.objects.filter(member=member, article=article).exists():
+        if Engagement.objects.filter(Q(member=member) & Q(article=article)).exists():
             # engagement not unique
             return Response(status=status.HTTP_403_FORBIDDEN)
         # end if

@@ -128,11 +128,17 @@ class ArticleSerializer(serializers.ModelSerializer):
 
 
 class EngagementSerializer(serializers.ModelSerializer):
+    member = serializers.SerializerMethodField('get_member')
 
     class Meta:
         model = Engagement
         fields = '__all__'
     # end Meta
+
+    def get_member(self, obj):
+        request = self.context.get("request")
+        return NestedBaseUserSerializer(obj.member.user, context={'request': request}).data
+    # end def
 # end class
 
 
