@@ -324,7 +324,6 @@ def inactive_members_view(request):
                     Q(course=course) | 
                     Q(course_material__chapter__course=course)
                 )
-                
                 event_log = event_logs.filter(timestamp__gte=today).first()
 
                 if event_log is not None:
@@ -337,6 +336,59 @@ def inactive_members_view(request):
             # end for
 
             return Response(inactive_members, status=status.HTTP_200_OK)
+        except ObjectDoesNotExist as e:
+            print(str(e))
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        except (ValueError, KeyError) as e:
+            print(str(e))
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+        # end try-except
+    # end if
+# end def
+
+
+@api_view(['GET'])
+@permission_classes((IsPartnerOrAdminOnly,))
+def course_member_stats_view(request):
+    '''
+    Get percentage of false starters and active members in course
+    '''
+    if request.method == 'GET':
+        user = request.user
+        partner = Partner.objects.filter(user=user).first()
+
+        try:
+            course_id = request.query_params.get('course_id', None)
+            days = int(request.query_params.get('days', 7))
+
+            courses = Course.objects.filter(partner=partner) if partner is not None else Course.objects
+            course = courses.get(pk=course_id)
+
+            total_count = Enrollment.objects.exclude(progress=100).filter(course=course).count()
+            today = timezone.now() - timedelta(days=days)
+
+            false_starter_count = Enrollment.objects.filter(
+                Q(course=course) & 
+                Q(date_created__lte=timezone.now() - timedelta(days=days)) & 
+                Q(progress=0)
+            ).count()
+            false_starter_percentage = false_starter_count / total_count
+
+            active_count = 0
+            for enrollment in course.enrollments.exclude(progress=100).all():
+
+                event_log = EventLog.objects.filter(user=enrollment.member.user).filter(
+                    Q(course=course) | 
+                    Q(course_material__chapter__course=course)
+                ).filter(timestamp__gte=today).first()
+
+                if event_log is not None:
+                    active_count += 1
+                # end if
+            # end for
+            active_members_percentage = active_count / total_count
+
+            return Response({'false_starter_percentage': false_starter_percentage, 'active_members_percentage': active_members_percentage}, status=status.HTTP_200_OK)
         except ObjectDoesNotExist as e:
             print(str(e))
             return Response(status=status.HTTP_404_NOT_FOUND)
