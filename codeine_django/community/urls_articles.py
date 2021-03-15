@@ -16,7 +16,9 @@ urlpatterns = [
     path('/<slug:article_id>/comments/<slug:pk>/pin', views_article_comments.pin_comment_view,
          name='Pin Article Comments'),
     path('/<slug:article_id>/comments/<slug:pk>/unpin', views_article_comments.unpin_comment_view,
-         name='Pin Article Comments'),
+         name='Unpin Article Comments'),
+    path('/<slug:article_id>/comments/<slug:pk>/engagements', views_article_comments.article_comment_engagement_view,
+         name='Like/Unlike article comments'),
 
     # article engagement views
     path('/<slug:article_id>/engagement', views_article_engagement.article_engagement_view,

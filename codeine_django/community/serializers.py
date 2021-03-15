@@ -32,7 +32,6 @@ class NestedArticleCommentSerializer(serializers.ModelSerializer):
     user = NestedBaseUserSerializer()
     replies = serializers.SerializerMethodField()
     likes = serializers.SerializerMethodField()
-    current_member_liked = serializers.SerializerMethodField()
     reply_to = ParentArticleCommentSerializer()
     reply_count = serializers.SerializerMethodField('get_reply_count')
 
@@ -52,15 +51,6 @@ class NestedArticleCommentSerializer(serializers.ModelSerializer):
 
     def get_likes(self, obj):
         return ArticleCommentEngagement.objects.filter(comment=obj).count()
-    # end def
-
-    def get_current_member_liked(self, obj):
-        request = self.context.get("request")
-
-        if hasattr(request.user, 'user'):
-            user = request.user
-            return ArticleCommentEngagement.objects.filter(comment=obj).filter(user=user).exists()
-        # end if
     # end def
 
     def get_reply_count(self, obj):
@@ -92,7 +82,6 @@ class ParentCodeReviewCommentSerializer(serializers.ModelSerializer):
 class ArticleCommentSerializer(serializers.ModelSerializer):
     user = NestedBaseUserSerializer()
     likes = serializers.SerializerMethodField()
-    current_user_liked = serializers.SerializerMethodField()
     reply_to = ParentArticleCommentSerializer()
     reply_count = serializers.SerializerMethodField('get_reply_count')
 
@@ -103,15 +92,6 @@ class ArticleCommentSerializer(serializers.ModelSerializer):
 
     def get_likes(self, obj):
         return ArticleCommentEngagement.objects.filter(comment=obj).count()
-    # end def
-
-    def current_user_liked(self, obj):
-        request = self.context.get("request")
-
-        if hasattr(request.user, 'user'):
-            user = request.user
-            return ArticleCommentEngagement.objects.filter(comment=obj).filter(user=user).exists()
-        # end if
     # end def
 
     def get_reply_count(self, obj):

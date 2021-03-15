@@ -9,7 +9,7 @@ from rest_framework.response import Response
 from rest_framework.permissions import (
     IsAuthenticatedOrReadOnly,
 )
-from .models import Article, ArticleComment
+from .models import Article, ArticleComment, ArticleCommentEngagement
 from .serializers import NestedArticleCommentSerializer
 from common.models import Member
 
@@ -144,7 +144,7 @@ def single_article_comment_view(request, article_id, pk):
 
 @api_view(['PATCH'])
 @permission_classes((IsAuthenticatedOrReadOnly,))
-def pin_comment_view(request, comment_id):
+def pin_comment_view(request, article_id, pk):
     '''
     Pins comment
     '''
@@ -161,7 +161,7 @@ def pin_comment_view(request, comment_id):
             article_comment.save()
 
             article_comment.save()
-            serializer = ArticleCommentSerializer(
+            serializer = NestedArticleCommentSerializer(
                 article_comment, context={'request': request})
             return Response(serializer.data, status=status.HTTP_200_OK)
         except ArticleComment.DoesNotExist:
@@ -175,7 +175,7 @@ def pin_comment_view(request, comment_id):
 
 @api_view(['PATCH'])
 @permission_classes((IsAuthenticatedOrReadOnly,))
-def unpin_comment_view(request, comment_id):
+def unpin_comment_view(request, article_id, pk):
     '''
     Unpins comment
     '''
@@ -192,13 +192,64 @@ def unpin_comment_view(request, comment_id):
             article_comment.save()
 
             article_comment.save()
-            serializer = ArticleCommentSerializer(
+            serializer = NestedArticleCommentSerializer(
                 article_comment, context={'request': request})
             return Response(serializer.data, status=status.HTTP_200_OK)
         except ArticleComment.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
         except (KeyError, ValueError) as e:
             return Response(status=status.HTTP_400_BAD_REQUEST)
+        # end try-except
+    # end if
+# end def
+
+@api_view(['POST', 'DELETE'])
+@permission_classes((IsAuthenticatedOrReadOnly,))
+def article_comment_engagement_view(request, article_id, pk):
+    '''
+    Like a comment
+    '''
+    if request.method == 'POST':
+        user = request.user
+        try:
+            article_comment = ArticleComment.objects.get(pk=pk)
+
+            if ArticleCommentEngagement.objects.filter(comment=article_comment).filter(user=user).exists():
+                return Response(NestedArticleCommentSerializer(article_comment, context={'request': request, 'recursive': True}).data, status=status.HTTP_409_CONFLICT)
+            # end if
+
+            engagement = ArticleCommentEngagement(
+                comment=article_comment,
+                user=user
+            )
+            engagement.save()
+            article_comment.save()
+
+            serializer = NestedArticleCommentSerializer(article_comment, context={'request': request, 'recursive': True})
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except ObjectDoesNotExist as e:
+            print(e)
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        # end try-except
+    # end if
+
+    '''
+    Unlike a comment
+    '''
+    if request.method == 'DELETE':
+        user = request.user
+        try:
+            article_comment = ArticleComment.objects.get(pk=pk)
+
+            engagement = ArticleCommentEngagement.objects.filter(comment=article_comment).get(user=user)
+            engagement.delete()
+            article_comment.save()
+
+            serializer = NestedArticleCommentSerializer(article_comment, context={'request': request, 'recursive': True})
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except ObjectDoesNotExist as e:
+            print(e)
+            return Response(status=status.HTTP_404_NOT_FOUND)
         # end try-except
     # end if
 # end def
