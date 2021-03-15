@@ -30,6 +30,7 @@ def course_view(request):
             search = request.query_params.get('search', None)
             date_sort = request.query_params.get('sortDate', None)
             rating_sort = request.query_params.get('sortRating', None)
+            coding_language = request.query_params.get('coding_language', None)
 
             # get pagination params from request, default is (10, 1)
             page_size = int(request.query_params.get('pageSize', 1000))
@@ -54,6 +55,10 @@ def course_view(request):
 
             if rating_sort is not None:
                 courses = courses.order_by(rating_sort)
+            # end if
+
+            if coding_language is not None: 
+                courses = courses.filter(coding_languages__icontains=coding_language)
             # end if
 
             # paginator configs
