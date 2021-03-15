@@ -181,6 +181,7 @@ class ArticleSerializer(serializers.ModelSerializer):
     top_level_comments = serializers.SerializerMethodField(
         'get_top_level_comments')
     engagements = serializers.SerializerMethodField('get_engagements')
+    current_member_liked = serializers.SerializerMethodField('get_current_member_liked')
 
     class Meta:
         model = Article
@@ -203,6 +204,15 @@ class ArticleSerializer(serializers.ModelSerializer):
         request = self.context.get("request")
         engagements = ArticleEngagement.objects.filter(article=obj)
         return ArticleEngagementSerializer(engagements, many=True, context={'request': request}).data
+    # end def
+
+    def get_current_member_liked(self, obj):
+        request = self.context.get("request")
+
+        if hasattr(request.user, 'member'):
+            member = request.user.member
+            return ArticleEngagement.objects.filter(article=obj).filter(member=member).exists()
+        # end if
     # end def
 # end class
 
