@@ -78,7 +78,7 @@ def code_review_comment_view(request, code_review_id):
                 parent_comment=parent_comment
             )
             code_review_comment.save()
-            serializer = NestedNestedCodeReviewCommentSerializer(
+            serializer = NestedCodeReviewCommentSerializer(
                 code_review_comment, context={'request': request})
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         except (IntegrityError, ValueError, KeyError) as e:
