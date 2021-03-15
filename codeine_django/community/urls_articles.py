@@ -1,6 +1,6 @@
 from django.urls import path
 
-from . import views_article, views_article_comments, views_engagement
+from . import views_article, views_article_comments, views_article_engagement
 
 urlpatterns = [
     # article views
@@ -13,10 +13,14 @@ urlpatterns = [
          name='Create/Get all/Search Article Comments'),
     path('/<slug:article_id>/comments/<slug:pk>', views_article_comments.single_article_comment_view,
          name='Read/update/delete for Article Comments'),
+    path('/<slug:article_id>/comments/<slug:pk>/pin', views_article_comments.pin_comment_view,
+         name='Pin Article Comments'),
+    path('/<slug:article_id>/comments/<slug:pk>/unpin', views_article_comments.unpin_comment_view,
+         name='Pin Article Comments'),
 
-    # engagement views
-    path('/<slug:article_id>/engagement', views_engagement.engagement_view,
+    # article engagement views
+    path('/<slug:article_id>/engagement', views_article_engagement.article_engagement_view,
          name='Create/Get all/Search Engagements'),
     path('/<slug:article_id>/engagement/<slug:pk>',
-         views_engagement.single_engagement_view, name='Read/update/delete for Engagements'),
+         views_article_engagement.single_article_engagement_view, name='Read/update/delete for Engagements'),
 ]
