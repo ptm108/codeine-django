@@ -12,11 +12,49 @@ class NestedCodeReviewSerializer(serializers.ModelSerializer):
 # end class
 
 
+class ParentCodeReviewCommentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CodeReviewComment
+        fields = ['id']
+    # end Meta
+# end class
+
+
 class NestedCodeReviewCommentSerializer(serializers.ModelSerializer):
+    user = NestedBaseUserSerializer()
+    replies = serializers.SerializerMethodField('get_replies')
+    parent_comment = ParentCodeReviewCommentSerializer()
+    reply_count = serializers.SerializerMethodField('get_reply_count')
+
     class Meta:
         model = CodeReviewComment
         fields = '__all__'
     # end Meta
+
+    def get_replies(self, obj):
+        request = self.context.get("request")
+        if self.context.get("recursive"):
+            return NestedCodeReviewCommentSerializer(obj.replies, many=True, context={'request': request}).data
+        else:
+            return CodeReviewCommentSerializer(obj.replies, many=True, context={'request': request}).data
+        # end if else
+    # end def
+
+    def get_reply_count(self, obj):
+        def rec_reply_count(comment):
+            if len(comment.replies.all()) == 0:
+                return 1
+            else:
+                count = 1
+                for reply in comment.replies.all():
+                    count += rec_reply_count(reply)
+                # end for
+                return count
+            # end if else
+        # end def
+
+        return rec_reply_count(obj) - 1 # minus self
+    # end def
 # end class
 
 
@@ -68,14 +106,6 @@ class NestedArticleCommentSerializer(serializers.ModelSerializer):
 
         return rec_reply_count(obj) - 1 # minus self
     # end def
-# end class
-
-
-class ParentCodeReviewCommentSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = CodeReviewComment
-        fields = ['id']
-    # end Meta
 # end class
 
 

@@ -64,7 +64,7 @@ class CodeReviewAdmin(admin.ModelAdmin):
 
 class CodeReviewCommentAdmin(admin.ModelAdmin):
     list_display = ('id', 'highlighted_code', 'comment',
-                    'timestamp', 'user', 'code_review', 'parent_comment')
+                    'timestamp', 'user', 'code_review', 'parent_comment', 'start_index', 'end_index')
 # end class
 
 

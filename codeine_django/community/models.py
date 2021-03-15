@@ -183,7 +183,10 @@ class CodeReviewComment(models.Model):
     highlighted_code = models.TextField()
     comment = models.TextField()
     timestamp = models.DateTimeField(auto_now_add=True)
-    time_edited = models.DateTimeField(default=None, null=True, blank=True)
+    time_edited = models.DateTimeField(auto_now=True)
+    start_index = models.IntegerField(null=True, blank=True)
+    end_index = models.IntegerField(null=True, blank=True)
+
 
     # ref
     user = models.ForeignKey(
