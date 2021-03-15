@@ -16,6 +16,7 @@ from .models import EventLog
 from common.permissions import IsPartnerOrAdminOnly
 from common.models import Partner
 from courses.models import Course, CourseMaterial, Quiz, Enrollment
+from courses.serializers import CourseSerializer
 from industry_projects.models import IndustryProject
 
 
@@ -208,9 +209,14 @@ def course_material_average_time_view(request):
     Calculates average time spent on course material in a course
     '''
     if request.method == 'GET':
+        user = request.user
+        partner = Partner.objects.filter(user=user).first()
+
         try:
             course_id = request.query_params.get('course_id', None)
-            course = Course.objects.get(pk=course_id)
+
+            courses = Course.objects.filter(partner=partner) if partner is not None else Course.objects
+            course = courses.get(pk=course_id)
 
             res = {
                 'course_id': course.id,
@@ -218,7 +224,7 @@ def course_material_average_time_view(request):
                 'course_image': request.build_absolute_uri(course.thumbnail.url),
                 'chapters': []
             }
-            total_time = 0
+
             for chapter in course.chapters.all():
                 tmp_chap = {
                     'chapter_id': chapter.id,
@@ -245,7 +251,42 @@ def course_material_average_time_view(request):
             return Response(res, status=status.HTTP_200_OK)
         except ObjectDoesNotExist as e:
             print(str(e))
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        except (ValueError, KeyError) as e:
+            print(str(e))
             return Response(status=status.HTTP_400_BAD_REQUEST)
+        # end try-except
+    # end if
+# end def
+
+
+@ api_view(['GET'])
+@ permission_classes((IsPartnerOrAdminOnly,))
+def course_average_time_view(request):
+    '''
+    Calculates average time spent on a course
+    '''
+    if request.method == 'GET':
+        user = request.user
+        partner = Partner.objects.filter(user=user).first()
+
+        try:
+            course_id = request.query_params.get('course_id', None)
+
+            courses = Course.objects.filter(partner=partner) if partner is not None else Course.objects
+            course = courses.get(pk=course_id)
+
+            event_logs = EventLog.objects.filter(
+                Q(course=course) &
+                Q(payload='stop course')
+            ).exclude(duration=None)
+
+            average_time = event_logs.values('user').annotate(total_time=Sum('duration')).order_by().aggregate(Avg('total_time'))
+
+            return Response({'course_id': course.id, 'course_title': course.title, 'description': course.description, 'average_time_taken': average_time['total_time__avg']}, status=status.HTTP_200_OK)
+        except ObjectDoesNotExist as e:
+            print(str(e))
+            return Response(status=status.HTTP_404_NOT_FOUND)
         except (ValueError, KeyError) as e:
             print(str(e))
             return Response(status=status.HTTP_400_BAD_REQUEST)
