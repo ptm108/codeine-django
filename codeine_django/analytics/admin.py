@@ -5,6 +5,7 @@ class EventLogAdmin(admin.ModelAdmin):
     list_display = (
         'timestamp',
         'payload',
+        'duration',
         'user',
         'course',
         'course_material',

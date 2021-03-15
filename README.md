@@ -6,7 +6,9 @@ Backend powering codeine
 
 Use docker engine python sdk to create/delete docker containers hosting IDEs
 
-### 0. Create Docker network bridge (Necessary for web-ssh and WeTTy)
+### Option 1: Empty Ubuntu 16.04 Shell
+
+#### 0. Create Docker network bridge (Necessary for web-ssh and WeTTy)
 
 For docker containers deploy in the same network
 
@@ -14,7 +16,6 @@ For docker containers deploy in the same network
 docker network create -d bridge <network-name>
 ```
 
-### Option 1: Empty Ubuntu 16.04 Shell
 
 #### 1. Build and deploy web-ssh image
 

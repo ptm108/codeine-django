@@ -78,7 +78,7 @@ def code_review_comment_view(request, code_review_id):
                 parent_comment=parent_comment
             )
             code_review_comment.save()
-            serializer = NestedNestedCodeReviewCommentSerializer(
+            serializer = NestedCodeReviewCommentSerializer(
                 code_review_comment, context={'request': request})
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         except (IntegrityError, ValueError, KeyError) as e:
@@ -98,7 +98,7 @@ def single_code_review_comment_view(request, code_review_id, pk):
     if request.method == 'GET':
         try:
             code_review_comment = CodeReviewComment.objects.get(pk=pk)
-            serializer = NestedNestedCodeReviewCommentSerializer(
+            serializer = NestedCodeReviewCommentSerializer(
                 code_review_comment, context={'request': request})
             return Response(serializer.data)
         except (ObjectDoesNotExist, KeyError, ValueError) as e:
