@@ -423,7 +423,7 @@ def member_demographics_view(request):
             if course is not None:
                 members = members.filter(member__enrollments__course=course)
             # end if
-            
+
             gender = members.values('gender').order_by().annotate(Count('id'))
             location = members.values('location').order_by().annotate(Count('id'))
             age = members.aggregate(Avg('age'))
@@ -440,6 +440,5 @@ def member_demographics_view(request):
             print(str(e))
             return Response(status=status.HTTP_400_BAD_REQUEST)
         # end try-except
-
     # end if
 # end def

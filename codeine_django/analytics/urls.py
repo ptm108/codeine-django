@@ -1,6 +1,6 @@
 from django.urls import path
 
-from . import views_course_analytics
+from . import views_course_analytics, views_earnings
 
 urlpatterns = [
     # analytics views
@@ -11,4 +11,5 @@ urlpatterns = [
     path('/inactive-members', views_course_analytics.inactive_members_view, name='Get inactive members by course'),
     path('/course-members-stats', views_course_analytics.course_member_stats_view, name='Get member stats by course'),
     path('/members-demographics', views_course_analytics.member_demographics_view, name='Get member demographics by course/partner'),
+    path('/earnings-report', views_earnings.earnings_report_view, name='Get partner\'s earnings report'),
 ]
