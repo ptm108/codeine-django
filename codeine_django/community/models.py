@@ -70,17 +70,19 @@ class Article(models.Model):
 class ArticleComment(models.Model):
     id = models.UUIDField(
         primary_key=True, default=uuid.uuid4, editable=False, unique=True)
+    display_id = models.PositiveIntegerField()
     comment = models.TextField()
     timestamp = models.DateTimeField(auto_now_add=True)
     time_edited = models.DateTimeField(default=None, null=True, blank=True)
+    pinned = models.BooleanField(default=False)
 
     # ref
     user = models.ForeignKey(
         'common.BaseUser', on_delete=models.CASCADE, related_name='article_comments')
     article = models.ForeignKey(
         'community.Article', on_delete=models.CASCADE, related_name='article_comments')
-    parent_comment = models.ForeignKey(
-        'community.ArticleComment', on_delete=models.SET_NULL, related_name='replies', null=True, blank=True)
+    reply_to = models.ForeignKey(
+        'self', on_delete=models.CASCADE, related_name='replies', null=True, blank=True)
 
     def __str__(self):
         return f'Article comment {self.id} for {self.article.id} from {self.user.id}'
@@ -92,7 +94,7 @@ class ArticleComment(models.Model):
 # end class
 
 
-class Engagement(models.Model):
+class ArticleEngagement(models.Model):
     id = models.UUIDField(
         primary_key=True, default=uuid.uuid4, editable=False, unique=True)
     like = models.IntegerField()
@@ -105,12 +107,21 @@ class Engagement(models.Model):
         'community.Article', on_delete=models.CASCADE, related_name='engagements')
 
     def __str__(self):
-        return f'Engagement {self.id} for {self.article.id} from {self.member.user.id}'
+        return f'Article Engagement {self.id} for Article {self.article.id} from {self.member.user.id}'
     # end def
 
     class Meta:
         ordering = ['-timestamp']
     # end class
+# end class
+
+
+class ArticleCommentEngagement(models.Model):
+    timestamp = models.DateTimeField(auto_now_add=True)
+
+    # ref
+    comment = models.ForeignKey('ArticleComment', on_delete=models.CASCADE, related_name='engagements')
+    user = models.ForeignKey('common.BaseUser', on_delete=models.CASCADE, related_name='+')
 # end class
 
 
@@ -172,7 +183,10 @@ class CodeReviewComment(models.Model):
     highlighted_code = models.TextField()
     comment = models.TextField()
     timestamp = models.DateTimeField(auto_now_add=True)
-    time_edited = models.DateTimeField(default=None, null=True, blank=True)
+    time_edited = models.DateTimeField(auto_now=True)
+    start_index = models.IntegerField(null=True, blank=True)
+    end_index = models.IntegerField(null=True, blank=True)
+
 
     # ref
     user = models.ForeignKey(

@@ -8,8 +8,8 @@ from rest_framework.response import Response
 from rest_framework.permissions import (
     IsAuthenticatedOrReadOnly,
 )
-from .models import Article, Engagement
-from .serializers import EngagementSerializer
+from .models import Article, ArticleEngagement
+from .serializers import ArticleEngagementSerializer
 from common.models import Member
 
 # Create your views here.
@@ -17,26 +17,28 @@ from common.models import Member
 
 @api_view(['GET', 'POST'])
 @permission_classes((IsAuthenticatedOrReadOnly,))
-def engagement_view(request, article_id):
+def article_engagement_view(request, article_id):
     '''
     Retrieves all engagements
     '''
     if request.method == 'GET':
         article = Article.objects.get(pk=article_id)
-        engagements = Engagement.objects.filter(article=article)
+        article_engagements = ArticleEngagement.objects.filter(article=article)
 
         # extract query params
-        search = request.query_params.get('search', None)
+        is_user = request.query_params.get('is_user', None)
 
-        if search is not None:
-            engagements = engagements.filter(
-                Q(member__user__id__icontains=search) |
-                Q(article__id__icontains=search)
-            )
+        if is_user is not None:
+            if is_user:
+                user = request.user
+                member = Member.objects.get(user=user)
+                article_engagements = article_engagements.filter(
+                    Q(member=member)
+                )
         # end if
 
-        serializer = EngagementSerializer(
-            engagements.all(), many=True, context={'request': request})
+        serializer = ArticleEngagementSerializer(
+            article_engagements.all(), many=True, context={'request': request})
         return Response(serializer.data, status=status.HTTP_200_OK)
     # end if
 
@@ -49,20 +51,20 @@ def engagement_view(request, article_id):
         member = Member.objects.get(user=user)
         article = Article.objects.get(pk=article_id)
 
-        if Engagement.objects.filter(member=member, article=article).exists():
-            # engagement not unique
+        if ArticleEngagement.objects.filter(Q(member=member) & Q(article=article)).exists():
+            # ArticleEngagement not unique
             return Response(status=status.HTTP_403_FORBIDDEN)
         # end if
         try:
-            engagement = Engagement(
+            article_engagement = ArticleEngagement(
                 like=data['like'],
                 member=member,
                 article=article
             )
-            engagement.save()
+            article_engagement.save()
 
-            serializer = EngagementSerializer(
-                engagement, context={'request': request})
+            serializer = ArticleEngagementSerializer(
+                article_engagement, context={'request': request})
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         except (IntegrityError, ValueError, KeyError) as e:
             print(e)
@@ -74,15 +76,15 @@ def engagement_view(request, article_id):
 
 @api_view(['GET', 'PUT', 'DELETE'])
 @permission_classes((IsAuthenticatedOrReadOnly,))
-def single_engagement_view(request, pk, article_id):
+def single_article_engagement_view(request, pk, article_id):
     '''
-    Get an engagement by primary key/ id
+    Get an article engagement by primary key/ id
     '''
     if request.method == 'GET':
         try:
-            engagement = Engagement.objects.get(pk=pk)
-            serializer = EngagementSerializer(
-                engagement, context={'request': request})
+            article_engagement = ArticleEngagement.objects.get(pk=pk)
+            serializer = ArticleEngagementSerializer(
+                article_engagement, context={'request': request})
             return Response(serializer.data)
         except (ObjectDoesNotExist, KeyError, ValueError) as e:
             print(e)
@@ -90,35 +92,35 @@ def single_engagement_view(request, pk, article_id):
         # end try-except
     # end if
     '''
-    Update engagement - like
+    Update Article Engagement - like
     '''
     if request.method == 'PUT':
         data = request.data
         try:
-            engagement = Engagement.objects.get(pk=pk)
+            article_engagement = ArticleEngagement.objects.get(pk=pk)
 
             if 'like' in data:
-                engagement.like = data['like']
+                article_engagement.like = data['like']
 
-            engagement.save()
-            serializer = EngagementSerializer(
-                engagement, context={'request': request})
+            article_engagement.save()
+            serializer = ArticleEngagementSerializer(
+                article_engagement, context={'request': request})
             return Response(serializer.data, status=status.HTTP_200_OK)
-        except Engagement.DoesNotExist:
+        except ArticleEngagement.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
         except (KeyError, ValueError) as e:
             return Response(status=status.HTTP_400_BAD_REQUEST)
         # end try-except
     # end if
     '''
-    Deletes an engagement
+    Deletes an Article Engagement
     '''
     if request.method == 'DELETE':
         try:
-            engagement = Engagement.objects.get(pk=pk)
-            engagement.delete()
+            article_engagement = ArticleEngagement.objects.get(pk=pk)
+            article_engagement.delete()
             return Response(status=status.HTTP_200_OK)
-        except Engagement.DoesNotExist:
+        except ArticleEngagement.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
     # end if
 # def

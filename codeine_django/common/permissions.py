@@ -150,3 +150,16 @@ class AdminOrReadOnly(BasePermission):
         return False
     # end def
 # end class
+
+
+class IsPartnerOrAdminOnly(BasePermission):
+    '''
+    View level check if requesting user is a Partner or Admin
+    '''
+    def has_permission(self, request, view):
+        if not request.user.is_authenticated:
+            return False
+        # end if
+        return hasattr(request.user, 'partner') or request.user.is_admin
+    # end def
+# end class

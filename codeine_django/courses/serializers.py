@@ -86,7 +86,7 @@ class QuestionSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Question
-        fields = ('id', 'title', 'subtitle', 'shortanswer', 'mcq', 'mrq', 'order', 'image',)
+        fields = ('id', 'title', 'subtitle', 'shortanswer', 'mcq', 'mrq', 'order', 'image', 'label')
     # end class
 
     def get_image(self, obj):
@@ -128,7 +128,7 @@ class QuizSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Quiz
-        fields = ('id', 'passing_marks', 'course', 'course_material', 'questions', 'instructions',)
+        fields = ('id', 'passing_marks', 'course', 'course_material', 'questions', 'instructions', 'labels', 'is_randomized')
     # end Meta
 # end class
 
