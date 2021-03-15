@@ -10,7 +10,7 @@ from rest_framework.permissions import (
     IsAuthenticatedOrReadOnly,
 )
 from .models import CodeReview, CodeReviewComment
-from .serializers import CodeReviewCommentSerializer
+from .serializers import NestedCodeReviewCommentSerializer
 from common.models import Member
 
 # Create your views here.
@@ -38,7 +38,7 @@ def code_review_comment_view(request, code_review_id):
                 Q(code_review__id__icontains=search)
             )
         # end if
-        serializer = CodeReviewCommentSerializer(
+        serializer = NestedCodeReviewCommentSerializer(
             code_review_comments.all(), many=True, context={'request': request})
         return Response(serializer.data, status=status.HTTP_200_OK)
     # end if
@@ -78,7 +78,7 @@ def code_review_comment_view(request, code_review_id):
                 parent_comment=parent_comment
             )
             code_review_comment.save()
-            serializer = CodeReviewCommentSerializer(
+            serializer = NestedNestedCodeReviewCommentSerializer(
                 code_review_comment, context={'request': request})
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         except (IntegrityError, ValueError, KeyError) as e:
@@ -98,7 +98,7 @@ def single_code_review_comment_view(request, code_review_id, pk):
     if request.method == 'GET':
         try:
             code_review_comment = CodeReviewComment.objects.get(pk=pk)
-            serializer = CodeReviewCommentSerializer(
+            serializer = NestedNestedCodeReviewCommentSerializer(
                 code_review_comment, context={'request': request})
             return Response(serializer.data)
         except (ObjectDoesNotExist, KeyError, ValueError) as e:
@@ -129,7 +129,7 @@ def single_code_review_comment_view(request, code_review_id, pk):
             # end ifs
 
             code_review_comment.save()
-            serializer = CodeReviewCommentSerializer(
+            serializer = NestedCodeReviewCommentSerializer(
                 code_review_comment, context={'request': request})
             return Response(serializer.data, status=status.HTTP_200_OK)
         except CodeReviewComment.DoesNotExist:
