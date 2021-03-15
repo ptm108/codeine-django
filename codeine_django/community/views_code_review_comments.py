@@ -49,16 +49,30 @@ def code_review_comment_view(request, code_review_id):
     if request.method == 'POST':
         user = request.user
         data = request.data
-        code_review = CodeReview.objects.get(pk=code_review_id)
-        parent_comment = None
-        if 'parent_comment_id' in data:
-            parent_comment = CodeReviewComment.objects.get(
-                pk=data['parent_comment_id'])
 
         try:
+            code_review = CodeReview.objects.get(pk=code_review_id)
+            parent_comment = None
+            start_index = None
+            end_index = None
+
+            if 'parent_comment_id' in data:
+                parent_comment = CodeReviewComment.objects.get(
+                    pk=data['parent_comment_id'])
+            else:
+                if data['start_index'] > data['end_index']:
+                    return Response(status=status.HTTP_400_BAD_REQUEST)
+                else:
+                    start_index = data['start_index']
+                    end_index = data['end_index']
+                # end if-else
+            # end if-else
+
             code_review_comment = CodeReviewComment(
                 highlighted_code=data['highlighted_code'],
                 comment=data['comment'],
+                start_index=start_index,
+                end_index=end_index,
                 user=user,
                 code_review=code_review,
                 parent_comment=parent_comment
@@ -103,6 +117,16 @@ def single_code_review_comment_view(request, code_review_id, pk):
                 code_review_comment.highlighted_code = data['highlighted_code']
             if 'comment' in data:
                 code_review_comment.comment = data['comment']
+            if code_review_comment.parent_comment is None:
+                if 'start_index' in data:
+                    code_review_comment.start_index = data['start_index']
+                if 'end_index' in data:
+                    code_review_comment.end_index = data['end_index']
+
+                if code_review_comment.start_index > code_review_comment.end_index:
+                    return Response(status=status.HTTP_400_BAD_REQUEST)
+                # end if
+            # end ifs
 
             code_review_comment.save()
             serializer = CodeReviewCommentSerializer(
