@@ -19,6 +19,7 @@ from courses.models import (
     CourseComment
 )
 from consultations.models import ConsultationSlot
+from analytics.models import EventLog
 
 import sys
 from datetime import timedelta
@@ -234,6 +235,15 @@ class Command(BaseCommand):
             )
             c.thumbnail.save('courseimage.png', ImageFile(open('./codeine_django/common/management/demo_assets/course1/courseimage.png', 'rb')))
             c.save()
+
+            # create some fake views 
+            for u in BaseUser.objects.all():
+                EventLog(
+                    payload='course view',
+                    user=u,
+                    course=c
+                ).save()
+            # end for
 
             # chapters
             chap = Chapter(
@@ -626,6 +636,15 @@ class Command(BaseCommand):
             )
             c.thumbnail.save('courseimage.png', ImageFile(open('./codeine_django/common/management/demo_assets/course2/course2.jpg', 'rb')))
             c.save()
+
+            # create some fake views 
+            for u in BaseUser.objects.all():
+                EventLog(
+                    payload='course view',
+                    user=u,
+                    course=c
+                ).save()
+            # end for
 
             # chapters
             chap = Chapter(
@@ -1052,6 +1071,15 @@ class Command(BaseCommand):
             c.thumbnail.save('courseimage.png', ImageFile(open('./codeine_django/common/management/demo_assets/course3/course3.png', 'rb')))
             c.save()
 
+            # create some fake views 
+            for u in BaseUser.objects.all():
+                EventLog(
+                    payload='course view',
+                    user=u,
+                    course=c
+                ).save()
+            # end for
+
             # chapters
             chap = Chapter(
                 title='What is Django?',
@@ -1284,6 +1312,15 @@ class Command(BaseCommand):
             )
             c.thumbnail.save('courseimage.png', ImageFile(open('./codeine_django/common/management/demo_assets/course4/course4.png', 'rb')))
             c.save()
+
+            # create some fake views 
+            for u in BaseUser.objects.all():
+                EventLog(
+                    payload='course view',
+                    user=u,
+                    course=c
+                ).save()
+            # end for
 
             # chapters
             chap = Chapter(
@@ -1549,6 +1586,15 @@ class Command(BaseCommand):
             c.thumbnail.save('courseimage.png', ImageFile(open('./codeine_django/common/management/demo_assets/course5/course5.png', 'rb')))
             c.save()
 
+            # create some fake views 
+            for u in BaseUser.objects.all():
+                EventLog(
+                    payload='course view',
+                    user=u,
+                    course=c
+                ).save()
+            # end for
+
             # chapters
             chap = Chapter(
                 title='Lecture 1',
@@ -1811,6 +1857,15 @@ class Command(BaseCommand):
             )
             c.thumbnail.save('courseimage.png', ImageFile(open('./codeine_django/common/management/demo_assets/course6/course6.png', 'rb')))
             c.save()
+
+            # create some fake views 
+            for u in BaseUser.objects.all():
+                EventLog(
+                    payload='course view',
+                    user=u,
+                    course=c
+                ).save()
+            # end for
 
             # chapters
             chap = Chapter(
@@ -2157,6 +2212,17 @@ class Command(BaseCommand):
             cs.save()
 
             self.stdout.write(f'{self.style.SUCCESS("Success")}: Course consultations created')
+
+            # generate some search stats
+            self.stdout.write('Generating some search stats...')
+            searches = ['web', 'react native', 'docker', 'django']
+            for i in range(99):
+                EventLog(
+                    payload='search course',
+                    search_string=searches[i%4]
+                ).save()
+            # end for
+            self.stdout.write(f'{self.style.SUCCESS("Success")}: Mock search stats initiated')
         except:
             e = sys.exc_info()[0]
             self.stdout.write(f'{self.style.ERROR("ERROR")}: {repr(e)}')
