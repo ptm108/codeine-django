@@ -12,9 +12,13 @@ from rest_framework.permissions import (
     AllowAny,
 )
 
+from datetime import timedelta
+
 from .models import EventLog
+from .serializers import EventLogSerializer
 from common.permissions import IsPartnerOrAdminOnly
 from common.models import Partner
+from common.serializers import NestedBaseUserSerializer
 from courses.models import Course, CourseMaterial, Quiz, Enrollment
 from courses.serializers import CourseSerializer
 from industry_projects.models import IndustryProject
@@ -133,8 +137,8 @@ def post_log_view(request):
 # end def
 
 
-@ api_view(['GET'])
-@ permission_classes((IsPartnerOrAdminOnly,))
+@api_view(['GET'])
+@permission_classes((IsPartnerOrAdminOnly,))
 def course_conversion_rate_view(request):
     '''
     Get conversion rate of course page views --> enrollments
@@ -202,8 +206,8 @@ def course_conversion_rate_view(request):
 # end def
 
 
-@ api_view(['GET'])
-@ permission_classes((IsPartnerOrAdminOnly,))
+@api_view(['GET'])
+@permission_classes((IsPartnerOrAdminOnly,))
 def course_material_average_time_view(request):
     '''
     Calculates average time spent on course material in a course
@@ -260,8 +264,8 @@ def course_material_average_time_view(request):
 # end def
 
 
-@ api_view(['GET'])
-@ permission_classes((IsPartnerOrAdminOnly,))
+@api_view(['GET'])
+@permission_classes((IsPartnerOrAdminOnly,))
 def course_average_time_view(request):
     '''
     Calculates average time spent on a course
@@ -284,6 +288,55 @@ def course_average_time_view(request):
             average_time = event_logs.values('user').annotate(total_time=Sum('duration')).order_by().aggregate(Avg('total_time'))
 
             return Response({'course_id': course.id, 'course_title': course.title, 'description': course.description, 'average_time_taken': average_time['total_time__avg']}, status=status.HTTP_200_OK)
+        except ObjectDoesNotExist as e:
+            print(str(e))
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        except (ValueError, KeyError, ValidationError) as e:
+            print(str(e))
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+        # end try-except
+    # end if
+# end def
+
+
+@api_view(['GET'])
+@permission_classes((IsPartnerOrAdminOnly,))
+def inactive_members_view(request):
+    '''
+    Gets a list of inactive members in a course
+    '''
+    if request.method == 'GET':
+        user = request.user
+        partner = Partner.objects.filter(user=user).first()
+
+        try:
+            course_id = request.query_params.get('course_id', None)
+            days = int(request.query_params.get('days', 7))
+
+            courses = Course.objects.filter(partner=partner) if partner is not None else Course.objects
+            course = courses.get(pk=course_id)
+
+            inactive_members = []
+            today = timezone.now() - timedelta(days=days)
+            
+            for enrollment in course.enrollments.all():
+                event_logs = EventLog.objects.filter(user=enrollment.member.user).filter(
+                    Q(course=course) | 
+                    Q(course_material__chapter__course=course)
+                )
+                
+                event_log = event_logs.filter(timestamp__gte=today).first()
+
+                if event_log is not None:
+                    continue
+                # end if
+
+                event_log = EventLog.objects.filter(user=enrollment.member.user).first()
+                user_data = NestedBaseUserSerializer(enrollment.member.user, context={"request": request}).data
+                inactive_members.append({**user_data, 'last_active': event_log.timestamp})
+            # end for
+
+            return Response(inactive_members, status=status.HTTP_200_OK)
         except ObjectDoesNotExist as e:
             print(str(e))
             return Response(status=status.HTTP_404_NOT_FOUND)
