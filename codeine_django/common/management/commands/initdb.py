@@ -2212,6 +2212,17 @@ class Command(BaseCommand):
             cs.save()
 
             self.stdout.write(f'{self.style.SUCCESS("Success")}: Course consultations created')
+
+            # generate some search stats
+            self.stdout.write('Generating some search stats...')
+            searches = ['web', 'react native', 'docker', 'django']
+            for i in range(99):
+                EventLog(
+                    payload='search course',
+                    search_string=searches[i%4]
+                ).save()
+            # end for
+            self.stdout.write(f'{self.style.SUCCESS("Success")}: Mock search stats initiated')
         except:
             e = sys.exc_info()[0]
             self.stdout.write(f'{self.style.ERROR("ERROR")}: {repr(e)}')
