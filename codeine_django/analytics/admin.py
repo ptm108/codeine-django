@@ -5,11 +5,13 @@ class EventLogAdmin(admin.ModelAdmin):
     list_display = (
         'timestamp',
         'payload',
+        'duration',
         'user',
         'course',
         'course_material',
         'quiz',
         'industry_project',
+        'duration',
     )
 # end class
 

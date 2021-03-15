@@ -9,7 +9,7 @@ class EventLog(models.Model):
     # payloads:
     # 1. "course view", course 
     # 2. "continue course", course, user
-    # 3. "pause course", course, user,
+    # 3. "stop course", course, user,
     # 4. "continue course material", course material, user
     # 5. "stop course material", course material, user
     # 6. "start assessment", quiz, user 
