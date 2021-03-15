@@ -1,9 +1,19 @@
 from django.db import models
 from django.utils.translation import gettext_lazy as _
+from multiselectfield import MultiSelectField
 
 import uuid
 
 class IndustryProject(models.Model):
+    CATEGORIES = (
+        ('SEC', 'Security'),
+        ('DB', 'Database Administration'),
+        ('FE', 'Frontend'),
+        ('BE', 'Backend'),
+        ('UI', 'UI/UX'),
+        ('ML', 'Machine Learning'),
+    )
+
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, unique=True)
     title = models.CharField(max_length=255)
     description = models.CharField(max_length=255)
@@ -12,6 +22,7 @@ class IndustryProject(models.Model):
     application_deadline = models.DateField(null=True, default=None)
     is_available = models.BooleanField(default=True)
     is_completed = models.BooleanField(default=False)
+    categories = MultiSelectField(choices=CATEGORIES, null=True, default=None)
 
     # provider ref
     partner = models.ForeignKey('common.Partner', on_delete=models.SET_NULL, related_name='industry_projects', null=True)
