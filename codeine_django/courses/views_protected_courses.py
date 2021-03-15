@@ -34,6 +34,7 @@ def course_view(request):
             date_sort = request.query_params.get('sortDate', None)
             rating_sort = request.query_params.get('sortRating', None)
             partner_id = request.query_params.get('partnerId', None)
+            coding_language = request.query_params.get('coding_language', None)
 
             # get pagination params from request, default is (10, 1)
             page_size = int(request.query_params.get('pageSize', 10))
@@ -57,6 +58,8 @@ def course_view(request):
                 courses = courses.order_by(date_sort)
             if rating_sort is not None:
                 courses = courses.order_by(rating_sort)
+            if coding_language is not None: 
+                courses = courses.filter(coding_languages__icontains=coding_language)
             # end if
 
             # check user type for access control
