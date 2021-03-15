@@ -177,6 +177,10 @@ class Quiz(models.Model):
     passing_marks = models.PositiveIntegerField(default=None, null=True, blank=True)
     instructions = models.TextField(default='')
 
+    # question bank
+    labels = models.JSONField(default=dict) 
+    is_randomized = models.BooleanField(default=False)
+
     # extends course material or mapped to course
     course_material = models.OneToOneField('CourseMaterial', on_delete=models.CASCADE, null=True, blank=True)
     course = models.OneToOneField('Course',  on_delete=models.CASCADE, related_name='assessment', null=True, blank=True)
@@ -189,6 +193,7 @@ class Question(models.Model):
     subtitle = models.TextField(null=True, default='', blank=True)
     order = models.PositiveSmallIntegerField()
     image = models.ImageField(null=True, blank=True, default=None)
+    label = models.TextField(default="")
 
     # ref to Assessment
     quiz = models.ForeignKey('Quiz', on_delete=models.CASCADE, null=True, blank=True, related_name='questions')
