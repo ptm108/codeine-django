@@ -37,7 +37,7 @@ def article_engagement_view(request, article_id):
                 )
         # end if
 
-        serializer = ArticleEngagement(
+        serializer = ArticleEngagementSerializer(
             article_engagements.all(), many=True, context={'request': request})
         return Response(serializer.data, status=status.HTTP_200_OK)
     # end if
@@ -63,7 +63,7 @@ def article_engagement_view(request, article_id):
             )
             article_engagement.save()
 
-            serializer = ArticleEngagement(
+            serializer = ArticleEngagementSerializer(
                 article_engagement, context={'request': request})
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         except (IntegrityError, ValueError, KeyError) as e:
