@@ -32,7 +32,7 @@ def article_engagement_view(request, article_id):
             if is_user:
                 user = request.user
                 member = Member.objects.get(user=user)
-                article_engagements = ArticleEngagement.filter(
+                article_engagements = article_engagements.filter(
                     Q(member=member)
                 )
         # end if
