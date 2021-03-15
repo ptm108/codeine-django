@@ -2,7 +2,7 @@ from django.db import transaction
 from django.db.utils import IntegrityError
 from django.utils import timezone
 from django.core.exceptions import ValidationError, ObjectDoesNotExist
-from django.db.models import Q
+from django.db.models import Q, Sum, Avg
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
@@ -17,7 +17,6 @@ from common.permissions import IsPartnerOrAdminOnly
 from common.models import Partner
 from courses.models import Course, CourseMaterial, Quiz, Enrollment
 from industry_projects.models import IndustryProject
-
 
 
 @api_view(['POST'])
@@ -36,15 +35,90 @@ def post_log_view(request):
         industry_project = IndustryProject.objects.get(data['industry_project']) if 'industry_project' in data else None
 
         try:
-            event_log = EventLog(
-                payload=data['payload'],
-                user=user if user.is_authenticated else None,
-                course=course,
-                course_material=course_material,
-                quiz=quiz,
-                industry_project=industry_project,
-            )
-            event_log.save()
+            with transaction.atomic():
+                event_log = EventLog(
+                    payload=data['payload'],
+                    user=user if user.is_authenticated else None,
+                    course=course,
+                    course_material=course_material,
+                    quiz=quiz,
+                    industry_project=industry_project,
+                )
+
+                # duration logging for course material
+                if data['payload'] == 'stop course material':
+                    stop_event = EventLog.objects.filter(
+                        Q(payload='stop course material') &
+                        Q(course_material=course_material) &
+                        Q(user=request.user)
+                    ).first()
+                    continue_event = EventLog.objects.filter(
+                        Q(payload='continue course material') &
+                        Q(course_material=course_material) &
+                        Q(user=request.user)
+                    )
+
+                    if stop_event is not None:
+                        continue_event = continue_event.filter(timestamp__gte=stop_event.timestamp).filter(course_material=course_material).last()
+                    else:
+                        continue_event = continue_event.first()
+                    # end if-else
+
+                    if continue_event is not None:
+                        event_log.duration = timezone.now().timestamp() - continue_event.timestamp.timestamp()
+                    # end if
+                # end if
+
+                # duration logging for course
+                if data['payload'] == 'stop course':
+                    stop_event = EventLog.objects.filter(
+                        Q(payload='stop course') &
+                        Q(course_material=course_material) &
+                        Q(user=request.user)
+                    ).first()
+                    continue_event = EventLog.objects.filter(
+                        Q(payload='continue course') &
+                        Q(course_material=course_material) &
+                        Q(user=request.user)
+                    )
+
+                    if stop_event is not None:
+                        continue_event = continue_event.filter(timestamp__gte=stop_event.timestamp).filter(course_material=course_material).last()
+                    else:
+                        continue_event = continue_event.first()
+                    # end if-else
+
+                    if continue_event is not None:
+                        event_log.duration = timezone.now().timestamp() - continue_event.timestamp.timestamp()
+                    # end if
+                # end if
+
+                # duration logging for assessments
+                if data['payload'] == 'stop assessment':
+                    stop_event = EventLog.objects.filter(
+                        Q(payload='stop assessment') &
+                        Q(course_material=course_material) &
+                        Q(user=request.user)
+                    ).first()
+                    continue_event = EventLog.objects.filter(
+                        Q(payload='continue assessment') &
+                        Q(course_material=course_material) &
+                        Q(user=request.user)
+                    )
+
+                    if stop_event is not None:
+                        continue_event = continue_event.filter(timestamp__gte=stop_event.timestamp).filter(course_material=course_material).last()
+                    else:
+                        continue_event = continue_event.first()
+                    # end if-else
+
+                    if continue_event is not None:
+                        event_log.duration = timezone.now().timestamp() - continue_event.timestamp.timestamp()
+                    # end if
+                # end if
+
+                event_log.save()
+            # end with
             return Response(status=status.HTTP_201_CREATED)
         except (IntegrityError, ValueError, KeyError, ValidationError) as e:
             print(str(e))
@@ -57,8 +131,8 @@ def post_log_view(request):
 # end def
 
 
-@api_view(['GET'])
-@permission_classes((IsPartnerOrAdminOnly,))
+@ api_view(['GET'])
+@ permission_classes((IsPartnerOrAdminOnly,))
 def course_conversion_rate_view(request):
     '''
     Get conversion rate of course page views --> enrollments
@@ -119,6 +193,59 @@ def course_conversion_rate_view(request):
 
             return Response(res, status=status.HTTP_200_OK)
         except (ObjectDoesNotExist, ValueError, KeyError, ZeroDivisionError) as e:
+            print(str(e))
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+        # end try-except
+    # end if
+# end def
+
+
+@ api_view(['GET'])
+@ permission_classes((IsPartnerOrAdminOnly,))
+def course_material_average_time_view(request):
+    '''
+    Calculates average time spent on course material in a course
+    '''
+    if request.method == 'GET':
+        try:
+            course_id = request.query_params.get('course_id', None)
+            course = Course.objects.get(pk=course_id)
+
+            res = {
+                'course_id': course.id,
+                'course_title': course.title,
+                'course_image': request.build_absolute_uri(course.thumbnail.url),
+                'chapters': []
+            }
+            total_time = 0
+            for chapter in course.chapters.all():
+                tmp_chap = {
+                    'chapter_id': chapter.id,
+                    'chapter_title': chapter.title,
+                    'course_materials': []
+                }
+
+                for cm in chapter.course_materials.all():
+                    tmp_cm = {
+                        'course_material_id': cm.id,
+                        'course_material_title': cm.title,
+                        'material_type': cm.material_type
+                    }
+                    average_time = EventLog.objects.filter(Q(course_material=cm) & Q(payload='stop course material')).exclude(duration=None).values('user').annotate(total_time=Sum('duration')).order_by().aggregate(Avg('total_time'))
+                    # print(average_time)
+                    tmp_cm['average_time_taken'] = average_time['total_time__avg']
+
+                    tmp_chap['course_materials'].append(tmp_cm)
+                # end for
+
+                res['chapters'].append(tmp_chap)
+            # end for
+
+            return Response(res, status=status.HTTP_200_OK)
+        except ObjectDoesNotExist as e:
+            print(str(e))
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+        except (ValueError, KeyError) as e:
             print(str(e))
             return Response(status=status.HTTP_400_BAD_REQUEST)
         # end try-except

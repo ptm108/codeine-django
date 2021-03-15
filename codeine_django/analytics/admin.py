@@ -11,7 +11,6 @@ class EventLogAdmin(admin.ModelAdmin):
         'course_material',
         'quiz',
         'industry_project',
-        'duration',
     )
 # end class
 
