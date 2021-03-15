@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from .models import Article, ArticleComment, Engagement, CodeReview, CodeReviewComment
+from .models import Article, ArticleComment, ArticleEngagement, CodeReview, CodeReviewComment, ArticleCommentEngagement
 from common.serializers import NestedBaseUserSerializer
 
 
@@ -23,16 +23,51 @@ class NestedCodeReviewCommentSerializer(serializers.ModelSerializer):
 class ParentArticleCommentSerializer(serializers.ModelSerializer):
     class Meta:
         model = ArticleComment
-        fields = ['id']
+        fields = ['id', 'display_id']
     # end Meta
 # end class
 
 
 class NestedArticleCommentSerializer(serializers.ModelSerializer):
+    user = NestedBaseUserSerializer()
+    replies = serializers.SerializerMethodField()
+    likes = serializers.SerializerMethodField()
+    reply_to = ParentArticleCommentSerializer()
+    reply_count = serializers.SerializerMethodField('get_reply_count')
+
     class Meta:
         model = ArticleComment
         fields = '__all__'
     # end Meta
+
+    def get_replies(self, obj):
+        request = self.context.get("request")
+        if self.context.get("recursive"):
+            return NestedArticleCommentSerializer(obj.replies, many=True, context={'request': request}).data
+        else:
+            return ArticleCommentSerializer(obj.replies, many=True, context={'request': request}).data
+        # end if else
+    # end def
+
+    def get_likes(self, obj):
+        return ArticleCommentEngagement.objects.filter(comment=obj).count()
+    # end def
+
+    def get_reply_count(self, obj):
+        def rec_reply_count(comment):
+            if len(comment.replies.all()) == 0:
+                return 1
+            else:
+                count = 1
+                for reply in comment.replies.all():
+                    count += rec_reply_count(reply)
+                # end for
+                return count
+            # end if else
+        # end def
+
+        return rec_reply_count(obj) - 1 # minus self
+    # end def
 # end class
 
 
@@ -45,28 +80,35 @@ class ParentCodeReviewCommentSerializer(serializers.ModelSerializer):
 
 
 class ArticleCommentSerializer(serializers.ModelSerializer):
-    user = serializers.SerializerMethodField('get_user')
-    parent_comment = serializers.SerializerMethodField('get_parent_comment')
+    user = NestedBaseUserSerializer()
+    likes = serializers.SerializerMethodField()
+    reply_to = ParentArticleCommentSerializer()
+    reply_count = serializers.SerializerMethodField('get_reply_count')
 
     class Meta:
         model = ArticleComment
         fields = '__all__'
     # end Meta'
 
-    def get_user(self, obj):
-        request = self.context.get("request")
-        return NestedBaseUserSerializer(obj.user, context={'request': request}).data
+    def get_likes(self, obj):
+        return ArticleCommentEngagement.objects.filter(comment=obj).count()
     # end def
 
-    def get_parent_comment(self, obj):
-        request = self.context.get("request")
-        if obj.parent_comment is None:
-            return None
-        else:
-            return ParentArticleCommentSerializer(obj.parent_comment, context={'request': request}).data
-        # end if-else
-    # end def
+    def get_reply_count(self, obj):
+        def rec_reply_count(comment):
+            if len(comment.replies.all()) == 0:
+                return 1
+            else:
+                count = 1
+                for reply in comment.replies.all():
+                    count += rec_reply_count(reply)
+                # end for
+                return count
+            # end if else
+        # end def
 
+        return rec_reply_count(obj) - 1
+    # end def
 # end class
 
 
@@ -97,6 +139,7 @@ class CodeReviewCommentSerializer(serializers.ModelSerializer):
 
 
 class ArticleSerializer(serializers.ModelSerializer):
+    member = serializers.SerializerMethodField('get_member')
     top_level_comments = serializers.SerializerMethodField(
         'get_top_level_comments')
     engagements = serializers.SerializerMethodField('get_engagements')
@@ -106,27 +149,38 @@ class ArticleSerializer(serializers.ModelSerializer):
         fields = '__all__'
     # end Meta
 
+    def get_member(self, obj):
+        request = self.context.get("request")
+        return NestedBaseUserSerializer(obj.member.user, context={'request': request}).data
+    # end def
+
     def get_top_level_comments(self, obj):
         request = self.context.get("request")
         top_level_comments = ArticleComment.objects.filter(
-            parent_comment=None, article=obj)
+            reply_to=None, article=obj)
         return ArticleCommentSerializer(top_level_comments, many=True, context={'request': request}).data
     # end def
 
     def get_engagements(self, obj):
         request = self.context.get("request")
-        engagements = Engagement.objects.filter(article=obj)
-        return EngagementSerializer(engagements, many=True, context={'request': request}).data
+        engagements = ArticleEngagement.objects.filter(article=obj)
+        return ArticleEngagementSerializer(engagements, many=True, context={'request': request}).data
     # end def
 # end class
 
 
-class EngagementSerializer(serializers.ModelSerializer):
+class ArticleEngagementSerializer(serializers.ModelSerializer):
+    member = serializers.SerializerMethodField('get_member')
 
     class Meta:
-        model = Engagement
+        model = ArticleEngagement
         fields = '__all__'
     # end Meta
+
+    def get_member(self, obj):
+        request = self.context.get("request")
+        return NestedBaseUserSerializer(obj.member.user, context={'request': request}).data
+    # end def
 # end class
 
 
