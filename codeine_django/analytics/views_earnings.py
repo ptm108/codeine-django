@@ -17,6 +17,7 @@ from common.models import MembershipSubscription, PaymentTransaction, BaseUser
 from common.permissions import IsPartnerOnly
 from courses.models import Enrollment
 
+
 @api_view(['GET'])
 @permission_classes((IsPartnerOnly,))
 def earnings_report_view(request):
@@ -62,6 +63,9 @@ def earnings_report_view(request):
         except ObjectDoesNotExist as e:
             print(str(e))
             return Response(status=status.HTTP_404_NOT_FOUND)
+        except (ValueError, ZeroDivisionError, ValidationError) as e:
+            print(str(e))
+            return Response(status=status.HTTP_400_BAD_REQUEST)
         # end try-except
     # end if
 # end def
