@@ -2,7 +2,7 @@ from django.db import transaction
 from django.db.utils import IntegrityError
 from django.utils import timezone
 from django.core.exceptions import ValidationError, ObjectDoesNotExist
-from django.db.models import Q, Sum, Avg
+from django.db.models import Q, Sum, Avg, Count
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
@@ -17,7 +17,7 @@ from datetime import timedelta
 from .models import EventLog
 from .serializers import EventLogSerializer
 from common.permissions import IsPartnerOrAdminOnly
-from common.models import Partner
+from common.models import Partner, BaseUser
 from common.serializers import NestedBaseUserSerializer
 from courses.models import Course, CourseMaterial, Quiz, Enrollment
 from courses.serializers import CourseSerializer
@@ -318,10 +318,10 @@ def inactive_members_view(request):
 
             inactive_members = []
             today = timezone.now() - timedelta(days=days)
-            
+
             for enrollment in course.enrollments.all():
                 event_logs = EventLog.objects.filter(user=enrollment.member.user).filter(
-                    Q(course=course) | 
+                    Q(course=course) |
                     Q(course_material__chapter__course=course)
                 )
                 event_log = event_logs.filter(timestamp__gte=today).first()
@@ -368,8 +368,8 @@ def course_member_stats_view(request):
             today = timezone.now() - timedelta(days=days)
 
             false_starter_count = Enrollment.objects.filter(
-                Q(course=course) & 
-                Q(date_created__lte=timezone.now() - timedelta(days=days)) & 
+                Q(course=course) &
+                Q(date_created__lte=timezone.now() - timedelta(days=days)) &
                 Q(progress=0)
             ).count()
             false_starter_percentage = false_starter_count / total_count
@@ -378,7 +378,7 @@ def course_member_stats_view(request):
             for enrollment in course.enrollments.exclude(progress=100).all():
 
                 event_log = EventLog.objects.filter(user=enrollment.member.user).filter(
-                    Q(course=course) | 
+                    Q(course=course) |
                     Q(course_material__chapter__course=course)
                 ).filter(timestamp__gte=today).first()
 
@@ -396,5 +396,50 @@ def course_member_stats_view(request):
             print(str(e))
             return Response(status=status.HTTP_400_BAD_REQUEST)
         # end try-except
+    # end if
+# end def
+
+
+@api_view(['GET'])
+@permission_classes((IsPartnerOrAdminOnly,))
+def member_demographics_view(request):
+    '''
+    Get member demographics by partner or course
+    '''
+    if request.method == 'GET':
+        user = request.user
+        partner = Partner.objects.filter(user=user).first()
+
+        try:
+            course_id = request.query_params.get('course_id', None)
+            partner_id = request.query_params.get('partner_id', None)
+
+            if partner is None:
+                partner = Partner.objects.get(pk=partner_id)
+            # end if
+            members = BaseUser.objects.filter(member__enrollments__course__partner=partner)
+
+            course = Course.objects.filter(pk=course_id).first()
+            if course is not None:
+                members = members.filter(member__enrollments__course=course)
+            # end if
+            
+            gender = members.values('gender').order_by().annotate(Count('id'))
+            location = members.values('location').order_by().annotate(Count('id'))
+            age = members.aggregate(Avg('age'))
+
+            return Response({
+                'genders': gender,
+                'locations': location,
+                'average_age': age['age__avg']
+            }, status=status.HTTP_200_OK)
+        except ObjectDoesNotExist as e:
+            print(str(e))
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        except (ValueError, KeyError) as e:
+            print(str(e))
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+        # end try-except
+
     # end if
 # end def
