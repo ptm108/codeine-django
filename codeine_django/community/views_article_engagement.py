@@ -32,12 +32,12 @@ def article_engagement_view(request, article_id):
             if is_user:
                 user = request.user
                 member = Member.objects.get(user=user)
-                article_engagements = ArticleEngagement.filter(
+                article_engagements = article_engagements.filter(
                     Q(member=member)
                 )
         # end if
 
-        serializer = ArticleEngagement(
+        serializer = ArticleEngagementSerializer(
             article_engagements.all(), many=True, context={'request': request})
         return Response(serializer.data, status=status.HTTP_200_OK)
     # end if
@@ -63,7 +63,7 @@ def article_engagement_view(request, article_id):
             )
             article_engagement.save()
 
-            serializer = ArticleEngagement(
+            serializer = ArticleEngagementSerializer(
                 article_engagement, context={'request': request})
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         except (IntegrityError, ValueError, KeyError) as e:
