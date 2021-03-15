@@ -98,7 +98,7 @@ def single_code_review_comment_view(request, code_review_id, pk):
     if request.method == 'GET':
         try:
             code_review_comment = CodeReviewComment.objects.get(pk=pk)
-            serializer = NestedNestedCodeReviewCommentSerializer(
+            serializer = NestedCodeReviewCommentSerializer(
                 code_review_comment, context={'request': request})
             return Response(serializer.data)
         except (ObjectDoesNotExist, KeyError, ValueError) as e:
