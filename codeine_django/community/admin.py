@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Article, ArticleComment, Engagement, CodeReview, CodeReviewComment
+from .models import Article, ArticleComment, ArticleEngagement, CodeReview, CodeReviewComment
 
 # Register your models here.
 
@@ -19,10 +19,10 @@ class ArticleCommentInline(admin.StackedInline):
 # end class
 
 
-class EngagementInline(admin.StackedInline):
-    model = Engagement
+class ArticleEngagementInline(admin.StackedInline):
+    model = ArticleEngagement
     can_delete = False
-    verbose_name_plural = 'Engagements'
+    verbose_name_plural = 'Article Engagements'
 # end class
 
 
@@ -51,7 +51,7 @@ class ArticleCommentAdmin(admin.ModelAdmin):
 # end class
 
 
-class EngagementAdmin(admin.ModelAdmin):
+class ArticleEngagementAdmin(admin.ModelAdmin):
     list_display = ('id', 'like', 'timestamp', 'member', 'article')
 # end class
 
@@ -70,6 +70,6 @@ class CodeReviewCommentAdmin(admin.ModelAdmin):
 
 admin.site.register(Article, ArticleAdmin)
 admin.site.register(ArticleComment, ArticleCommentAdmin)
-admin.site.register(Engagement, EngagementAdmin)
+admin.site.register(ArticleEngagement, ArticleEngagementAdmin)
 admin.site.register(CodeReview, CodeReviewAdmin)
 admin.site.register(CodeReviewComment, CodeReviewCommentAdmin)
