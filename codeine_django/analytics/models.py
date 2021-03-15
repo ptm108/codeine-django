@@ -25,7 +25,7 @@ class EventLog(models.Model):
     course_material = models.ForeignKey('courses.CourseMaterial', on_delete=models.CASCADE, null=True, blank=True, default=None)
     quiz = models.ForeignKey('courses.Quiz', on_delete=models.CASCADE, null=True, blank=True, default=None)
     industry_project = models.ForeignKey('industry_projects.IndustryProject', on_delete=models.CASCADE, null=True, blank=True, default=None)
-    duration = models.PositiveBigIntegerField()
+    duration = models.PositiveBigIntegerField(null=True, blank=True, default=None)
 
     class Meta:
         ordering = ['-timestamp']
