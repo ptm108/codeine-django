@@ -28,11 +28,12 @@ def post_log_view(request):
     '''
     if request.method == 'POST':
         data = request.data
+        query_params = request.query_params
 
-        course = Course.objects.get(pk=data['course']) if 'course' in data else None
-        course_material = CourseMaterial.objects.get(pk=data['course_material']) if 'course_material' in data else None
-        quiz = Quiz.objects.get(data['quiz']) if 'quiz' in data else None
-        industry_project = IndustryProject.objects.get(data['industry_project']) if 'industry_project' in data else None
+        course = Course.objects.filter(pk=query_params.get('course_id', None)).first()
+        course_material = CourseMaterial.objects.filter(pk=query_params.get('course_material_id', None)).first()
+        quiz = Quiz.objects.filter(pk=query_params.get('quiz_id', None)).first()
+        industry_project = IndustryProject.objects.filter(pk=query_params.get('industry_project_id', None)).first()
 
         try:
             with transaction.atomic():
