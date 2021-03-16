@@ -1,6 +1,6 @@
 from django.urls import path
 
-from . import views_course_analytics, views_earnings, views_search_analytics, views_members_analytics
+from . import views_course_analytics, views_earnings, views_search_analytics, views_members_analytics, views_industry_projects
 
 urlpatterns = [
     # analytics views
@@ -16,11 +16,11 @@ urlpatterns = [
     path('/course-assessment-performance', views_members_analytics.course_assessment_performance_view, name='Get course assessment performance'),
 
     # EP
-    path('/ip-viewer-average-skill', views_members_analytics.viewer_average_skill_view, name='Get average skills of members viewing IP'),
-    path('/ip-applicant-average-skill', views_members_analytics.applicant_average_skill_view, name='Get average skills of IP applicants'),
-    path('/ip-applicant-demographics', views_members_analytics.applicant_demographics_view, name='Get demographics of IP applicants'),
+    path('/ip-viewer-average-skill', views_industry_projects.viewer_average_skill_view, name='Get average skills of members viewing IP'),
+    path('/ip-applicant-average-skill', views_industry_projects.applicant_average_skill_view, name='Get average skills of IP applicants'),
+    path('/ip-applicant-demographics', views_industry_projects.applicant_demographics_view, name='Get demographics of IP applicants'),
     path('/ip-search-ranking', views_search_analytics.ip_search_ranking_view, name='Get popular IP searches'),
-    path('/ip-application-rate', views_members_analytics.ip_application_rate_view, name='conversion rate for Ip applications'),
+    path('/ip-application-rate', views_industry_projects.ip_application_rate_view, name='conversion rate for Ip applications'),
 
     # members
     path('/time-spent-breakdown', views_members_analytics.time_spent_breakdown_view, name='time spent by member on subjects'),
