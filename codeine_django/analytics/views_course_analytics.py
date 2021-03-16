@@ -151,23 +151,11 @@ def course_conversion_rate_view(request):
             overall_view = EventLog.objects
             enrollments = Enrollment.objects
 
-            period = request.query_params.get('period', None)
+            days = int(request.query_params.get('days', 120))
             now = timezone.now()
 
-            if period == 'day':
-                overall_view = overall_view.filter(timestamp__date=now)
-                enrollments = enrollments.filter(date_created__date=now)
-            elif period == 'week':
-                week = now.isocalendar()[1]
-                overall_view = overall_view.filter(timestamp__week=week)
-                enrollments = enrollments.filter(date_created__week=week)
-            elif period == 'month':
-                overall_view = overall_view.filter(timestamp__month=now.month)
-                enrollments = enrollments.filter(date_created__month=now.month)
-            elif period == 'year':
-                overall_view = overall_view.filter(timestamp__year=now.year)
-                enrollments = enrollments.filter(date_created__year=now.year)
-            # end if-else
+            overall_view = overall_view.filter(timestamp__date__gte=now - timedelta(days=days))
+            enrollments = enrollments.filter(date_created__date__gte=now - timedelta(days=days))
 
             if partner is not None:
                 overall_view = overall_view.filter(course__partner=partner)

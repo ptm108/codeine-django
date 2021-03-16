@@ -12,6 +12,8 @@ from rest_framework.permissions import (
     AllowAny,
 )
 
+from datetime import timedelta
+
 from .models import EventLog
 
 
@@ -24,19 +26,11 @@ def course_search_ranking_view(request):
     if request.method == 'GET':
         try:
             event_logs = EventLog.objects.filter(payload='search course')
-            period = request.query_params.get('period', None)
+
+            days = int(request.query_params.get('days', 120))
             now = timezone.now()
 
-            if period == 'day':
-                event_logs = event_logs.filter(timestamp__date=now)
-            elif period == 'week':
-                week = now.isocalendar()[1]
-                event_logs = event_logs.filter(timestamp__week=week)
-            elif period == 'month':
-                event_logs = event_logs.filter(timestamp__month=now.month)
-            elif period == 'year':
-                event_logs = event_logs.filter(timestamp__year=now.year)
-            # end if-else
+            event_logs = event_logs.filter(timestamp__date__gte=now - timedelta(days=days))
 
             search_ranking = event_logs.values('search_string').order_by().annotate(search_count=Count('id')).order_by('-search_count')
             # print(search_ranking)
