@@ -3,7 +3,7 @@ from django.core.files import File
 from django.core.files.images import ImageFile
 from django.utils import timezone
 
-from common.models import BaseUser, Member, Partner, Organization, BankDetail
+from common.models import BaseUser, Member, Partner, Organization, BankDetail, MembershipSubscription, PaymentTransaction
 from courses.models import (
     Course,
     Chapter,
@@ -23,7 +23,7 @@ from analytics.models import EventLog
 from industry_projects.models import IndustryProject
 
 import sys
-from datetime import timedelta
+from datetime import timedelta, datetime
 from random import randint
 
 
@@ -70,6 +70,19 @@ class Command(BaseCommand):
 
             m = Member(user=u)
             m.save()
+
+            pt = PaymentTransaction(
+                payment_amount=5.99,
+                payment_type='AMEX'
+            )
+            pt.save()
+
+            now = timezone.now()
+            MembershipSubscription(
+                payment_transaction=pt,
+                expiry_date=timezone.make_aware(datetime(now.year, now.month+1, 1)),
+                member=m
+            ).save()
 
             u = BaseUser.objects.create_user(
                 'm2@m2.com',
