@@ -23,6 +23,7 @@ from analytics.models import EventLog
 
 import sys
 from datetime import timedelta
+from random import randint
 
 
 class Command(BaseCommand):
@@ -2219,7 +2220,7 @@ class Command(BaseCommand):
             for i in range(99):
                 EventLog(
                     payload='search course',
-                    search_string=searches[i%4]
+                    search_string=searches[randint(0,3)]
                 ).save()
             # end for
             self.stdout.write(f'{self.style.SUCCESS("Success")}: Mock search stats initiated')
