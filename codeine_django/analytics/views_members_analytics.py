@@ -19,7 +19,7 @@ from common.permissions import IsPartnerOrAdminOnly
 from common.models import Partner, Member, BaseUser
 from courses.models import QuizResult, Course, CourseMaterial
 from utils.member_utils import get_average_skill_set
-from industry_projects.models import IndustryProject
+from industry_projects.models import IndustryProject, IndustryProjectApplication
 
 
 @api_view(['GET'])
@@ -268,6 +268,63 @@ def applicant_demographics_view(request):
         except ObjectDoesNotExist as e:
             print(str(e))
             return Response(status=status.HTTP_404_NOT_FOUND)
+        # end try-except
+    # end if
+# end def
+
+
+@api_view(['GET'])
+@permission_classes((IsPartnerOrAdminOnly,))
+def ip_application_rate_view(request):
+    '''
+    Get conversion rate of ip page views --> applications
+    '''
+    if request.method == 'GET':
+        user = request.user
+        partner = Partner.objects.filter(user=user).first()
+
+        try:
+            days = int(request.query_params.get('days', 120))
+            now = timezone.now()
+
+            overall_views = EventLog.objects.filter(timestamp__date__gte=now - timedelta(days=days))
+            applications = IndustryProjectApplication.objects.filter(date_created__date__gte=now - timedelta(days=days))
+            industry_projects = IndustryProject.objects
+
+            if partner is not None:
+                industry_projects = industry_projects.filter(partner=partner)
+                overall_views = overall_views.filter(industry_project__in=industry_projects.all())
+                applications = applications.filter(industry_project__in=industry_projects.all())
+            # end if
+
+            view_count = overall_views.count()
+            application_count = applications.count()
+
+            res = {}
+            res['overall_conversion_rate'] = application_count / view_count if view_count > 0 else 0
+            res['overall_views'] = view_count
+            res['applications'] = application_count
+
+            breakdown = []
+            for ip in industry_projects.all():
+                tmp = {}
+                tmp['ip_id'] = ip.id
+                tmp['ip_title'] = ip.title
+
+                view_count = overall_views.filter(industry_project=ip).count()
+                application_count = applications.filter(industry_project=ip).count()
+                tmp['conversion_rate'] = application_count / view_count if view_count > 0 else 0
+                tmp['view_count'] = view_count
+                tmp['application_count'] = application_count
+
+                breakdown.append(tmp)
+            # end for
+            res['breakdown_by_industry_project'] = breakdown
+
+            return Response(res, status=status.HTTP_200_OK)
+        except (ObjectDoesNotExist, ValueError, KeyError, ZeroDivisionError) as e:
+            print(str(e))
+            return Response(status=status.HTTP_400_BAD_REQUEST)
         # end try-except
     # end if
 # end def

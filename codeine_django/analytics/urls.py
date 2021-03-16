@@ -20,4 +20,5 @@ urlpatterns = [
     path('/ip-applicant-average-skill', views_members_analytics.applicant_average_skill_view, name='Get average skills of IP applicants'),
     path('/ip-applicant-demographics', views_members_analytics.applicant_demographics_view, name='Get demographics of IP applicants'),
     path('/ip-search-ranking', views_search_analytics.ip_search_ranking_view, name='Get popular IP searches'),
+    path('/ip-application-rate', views_members_analytics.ip_application_rate_view, name='conversion rate for Ip applications'),
 ]
