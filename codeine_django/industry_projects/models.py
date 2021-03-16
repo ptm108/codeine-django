@@ -4,6 +4,7 @@ from multiselectfield import MultiSelectField
 
 import uuid
 
+
 class IndustryProject(models.Model):
     CATEGORIES = (
         ('SEC', 'Security'),
@@ -29,13 +30,15 @@ class IndustryProject(models.Model):
 
 # end class
 
+
 class IndustryProjectApplication(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, unique=True)
+    date_created = models.DateTimeField(auto_now_add=True)
     is_accepted = models.BooleanField(default=False)
     is_rejected = models.BooleanField(default=False)
 
     industry_project = models.ForeignKey('IndustryProject', on_delete=models.CASCADE, related_name='industry_project_applications')
-    
+
     # member ref
     member = models.ForeignKey('common.Member', on_delete=models.SET_NULL, related_name='industry_project_applications', null=True)
 
