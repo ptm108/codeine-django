@@ -328,3 +328,73 @@ def ip_application_rate_view(request):
         # end try-except
     # end if
 # end def
+
+
+@api_view(['GET'])
+@permission_classes((IsAuthenticated,))
+def time_spent_breakdown_view(request):
+    '''
+    Get the time member has spent on various subjects
+    '''
+    if request.method == 'GET':
+        user = request.user
+        member = Member.objects.filter(user=user).first()
+
+        try:
+            if member is None:
+                user_id = request.query_params.get('user_id', None)
+                user = BaseUser.objects.get(pk=user_id)
+            # end if
+
+            days = int(request.query_params.get('days', 9999))
+            now = timezone.now()
+
+            stats = {
+                'PY': 0,
+                'JAVA': 0,
+                'JS': 0,
+                'CPP': 0,
+                'CS': 0,
+                'HTML': 0,
+                'CSS': 0,
+                'RUBY': 0,
+                'SEC': 0,
+                'DB': 0,
+                'FE': 0,
+                'BE': 0,
+                'UI': 0,
+                'ML': 0,
+            }
+
+            event_logs = EventLog.objects.filter(timestamp__date__gte=now - timedelta(days=days)).filter(user=member.user)
+            event_logs = event_logs.filter(payload='stop course material').exclude(duration=None)
+
+            total_time = 0
+            for ev in event_logs:
+                duration = ev.duration
+                total_time += duration
+
+                course = ev.course_material.chapter.course
+                coding_languages = list(course.coding_languages)
+                categories = list(course.categories)
+
+                for cl in coding_languages:
+                    stats[cl] += duration
+                # end for
+
+                for c in categories:
+                    stats[c] += duration
+                # end for
+            # end for
+            # print(len(event_logs))
+
+            return Response({
+                'total_time_spent': total_time,
+                'breakdown_by_categories': stats
+            }, status=status.HTTP_200_OK)
+        except (ObjectDoesNotExist, ValueError, KeyError, ZeroDivisionError) as e:
+            print(str(e))
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+        # end try-except
+    # end if
+# end def

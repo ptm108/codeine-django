@@ -195,7 +195,7 @@ class Command(BaseCommand):
             u.save()
 
             p = Partner(user=u, job_title='Lecturer', bio='ML is my passion', org_admin=True, organization=o)
-            p.save() 
+            p.save()
 
             bd = BankDetail(
                 bank_account='1234567890',
@@ -237,7 +237,7 @@ class Command(BaseCommand):
             c.thumbnail.save('courseimage.png', ImageFile(open('./codeine_django/common/management/demo_assets/course1/courseimage.png', 'rb')))
             c.save()
 
-            # create some fake views 
+            # create some fake views
             for u in BaseUser.objects.all():
                 EventLog(
                     payload='course view',
@@ -638,7 +638,7 @@ class Command(BaseCommand):
             c.thumbnail.save('courseimage.png', ImageFile(open('./codeine_django/common/management/demo_assets/course2/course2.jpg', 'rb')))
             c.save()
 
-            # create some fake views 
+            # create some fake views
             for u in BaseUser.objects.all():
                 EventLog(
                     payload='course view',
@@ -1072,7 +1072,7 @@ class Command(BaseCommand):
             c.thumbnail.save('courseimage.png', ImageFile(open('./codeine_django/common/management/demo_assets/course3/course3.png', 'rb')))
             c.save()
 
-            # create some fake views 
+            # create some fake views
             for u in BaseUser.objects.all():
                 EventLog(
                     payload='course view',
@@ -1314,7 +1314,7 @@ class Command(BaseCommand):
             c.thumbnail.save('courseimage.png', ImageFile(open('./codeine_django/common/management/demo_assets/course4/course4.png', 'rb')))
             c.save()
 
-            # create some fake views 
+            # create some fake views
             for u in BaseUser.objects.all():
                 EventLog(
                     payload='course view',
@@ -1587,7 +1587,7 @@ class Command(BaseCommand):
             c.thumbnail.save('courseimage.png', ImageFile(open('./codeine_django/common/management/demo_assets/course5/course5.png', 'rb')))
             c.save()
 
-            # create some fake views 
+            # create some fake views
             for u in BaseUser.objects.all():
                 EventLog(
                     payload='course view',
@@ -1859,7 +1859,7 @@ class Command(BaseCommand):
             c.thumbnail.save('courseimage.png', ImageFile(open('./codeine_django/common/management/demo_assets/course6/course6.png', 'rb')))
             c.save()
 
-            # create some fake views 
+            # create some fake views
             for u in BaseUser.objects.all():
                 EventLog(
                     payload='course view',
@@ -2220,17 +2220,38 @@ class Command(BaseCommand):
             for i in range(99):
                 EventLog(
                     payload='search course',
-                    search_string=searches[randint(0,3)]
+                    search_string=searches[randint(0, 3)]
                 ).save()
             # end for
             searches = ['ui designer', 'frontend dev', 'devops engineer', 'ML sexpert']
             for i in range(99):
                 EventLog(
                     payload='search industry project',
-                    search_string=searches[randint(0,3)]
+                    search_string=searches[randint(0, 3)]
                 ).save()
             # end for
             self.stdout.write(f'{self.style.SUCCESS("Success")}: Mock search stats initiated')
+
+            # generate event logs for courses
+            self.stdout.write('Generating course-related event logs...')
+            members = BaseUser.objects.exclude(member=None).all()
+            for cm in CourseMaterial.objects.all():
+                for i in range(4):
+                    EventLog(
+                        payload='continue course material',
+                        user=members[randint(0, 1)],
+                        course_material=cm
+                    ).save()
+                    EventLog(
+                        payload='stop course material',
+                        user=members[randint(0, 1)],
+                        course_material=cm,
+                        duration=randint(60, 2400),
+                    ).save()
+                # end for
+            # end for
+            self.stdout.write(f'{self.style.SUCCESS("Success")}: Event logs initiated')
+
         except:
             e = sys.exc_info()[0]
             self.stdout.write(f'{self.style.ERROR("ERROR")}: {repr(e)}')
