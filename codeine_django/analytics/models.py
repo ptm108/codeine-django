@@ -20,7 +20,7 @@ class EventLog(models.Model):
     payload = models.CharField(max_length=255)
 
     timestamp = models.DateTimeField(auto_now_add=True)
-    user = models.ForeignKey('common.BaseUser', on_delete=models.SET_NULL, null=True, blank=True, default=None)
+    user = models.ForeignKey('common.BaseUser', on_delete=models.SET_NULL, null=True, blank=True, default=None, related_name='event_logs')
     course = models.ForeignKey('courses.Course', on_delete=models.CASCADE, null=True, blank=True, default=None)
     course_material = models.ForeignKey('courses.CourseMaterial', on_delete=models.CASCADE, null=True, blank=True, default=None)
     quiz = models.ForeignKey('courses.Quiz', on_delete=models.CASCADE, null=True, blank=True, default=None)
