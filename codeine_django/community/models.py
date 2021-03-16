@@ -180,13 +180,14 @@ class CodeReview(models.Model):
 class CodeReviewComment(models.Model):
     id = models.UUIDField(
         primary_key=True, default=uuid.uuid4, editable=False, unique=True)
-    highlighted_code = models.TextField()
     comment = models.TextField()
     timestamp = models.DateTimeField(auto_now_add=True)
     time_edited = models.DateTimeField(auto_now=True)
-    start_index = models.IntegerField(null=True, blank=True)
-    end_index = models.IntegerField(null=True, blank=True)
 
+    # KIV
+    # highlighted_code = models.TextField()
+    # start_index = models.IntegerField(null=True, blank=True)
+    # end_index = models.IntegerField(null=True, blank=True)
 
     # ref
     user = models.ForeignKey(
