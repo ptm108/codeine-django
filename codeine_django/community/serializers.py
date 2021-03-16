@@ -133,27 +133,13 @@ class ArticleCommentSerializer(serializers.ModelSerializer):
         return ArticleCommentEngagement.objects.filter(comment=obj).count()
     # end def
 
-    def get_reply_count(self, obj):
-        def rec_reply_count(comment):
-            if len(comment.replies.all()) == 0:
-                return 1
-            else:
-                count = 1
-                for reply in comment.replies.all():
-                    count += rec_reply_count(reply)
-                # end for
-                return count
-            # end if else
-        # end def
-
-        return rec_reply_count(obj) - 1
-    # end def
-
-    def get_current_user_liked(self, obj):
+    def get_parent_comment(self, obj):
         request = self.context.get("request")
-        user = request.user
-        return ArticleCommentEngagement.objects.filter(comment=obj).filter(user=user).exists()
-        # end if
+        if obj.parent_comment is None:
+            return None
+        else:
+            return ParentArticleCommentSerializer(obj.parent_comment, context={'request': request}).data
+        # end if-else
     # end def
 # end class
 
