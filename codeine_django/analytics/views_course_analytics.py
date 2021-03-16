@@ -169,9 +169,10 @@ def course_conversion_rate_view(request):
                 enrollments = enrollments.filter(date_created__year=now.year)
             # end if-else
 
-            if not user.is_admin and partner is not None:
+            if partner is not None:
                 overall_view = overall_view.filter(course__partner=partner)
                 enrollments = enrollments.filter(course__partner=partner)
+                total_enrollments = Enrollment.objects.filter(course__partner=partner)
             # end if
 
             view_count = overall_view.count()
@@ -181,6 +182,7 @@ def course_conversion_rate_view(request):
             res['overall_conversion_rate'] = enrollment_count / view_count if view_count > 0 else 0
             res['overall_view'] = view_count
             res['enrollments'] = enrollment_count
+            res['total_enrollments'] = total_enrollments.count()
 
             breakdown = []
             for course in partner.courses.all():
