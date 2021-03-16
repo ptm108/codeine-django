@@ -122,6 +122,7 @@ class ArticleCommentSerializer(serializers.ModelSerializer):
     likes = serializers.SerializerMethodField()
     reply_to = ParentArticleCommentSerializer()
     reply_count = serializers.SerializerMethodField('get_reply_count')
+    current_user_liked = serializers.SerializerMethodField('get_current_user_liked')
 
     class Meta:
         model = ArticleComment
@@ -146,6 +147,13 @@ class ArticleCommentSerializer(serializers.ModelSerializer):
         # end def
 
         return rec_reply_count(obj) - 1
+    # end def
+
+    def get_current_user_liked(self, obj):
+        request = self.context.get("request")
+        user = request.user
+        return ArticleCommentEngagement.objects.filter(comment=obj).filter(user=user).exists()
+        # end if
     # end def
 # end class
 
@@ -181,6 +189,7 @@ class ArticleSerializer(serializers.ModelSerializer):
     top_level_comments = serializers.SerializerMethodField(
         'get_top_level_comments')
     engagements = serializers.SerializerMethodField('get_engagements')
+    current_member_liked = serializers.SerializerMethodField('get_current_member_liked')
 
     class Meta:
         model = Article
@@ -203,6 +212,15 @@ class ArticleSerializer(serializers.ModelSerializer):
         request = self.context.get("request")
         engagements = ArticleEngagement.objects.filter(article=obj)
         return ArticleEngagementSerializer(engagements, many=True, context={'request': request}).data
+    # end def
+
+    def get_current_member_liked(self, obj):
+        request = self.context.get("request")
+
+        if hasattr(request.user, 'member'):
+            member = request.user.member
+            return ArticleEngagement.objects.filter(article=obj).filter(member=member).exists()
+        # end if
     # end def
 # end class
 
