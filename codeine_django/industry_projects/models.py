@@ -25,6 +25,8 @@ class IndustryProject(models.Model):
     is_completed = models.BooleanField(default=False)
     categories = MultiSelectField(choices=CATEGORIES, null=True, default=None)
 
+    date_listed = models.DateTimeField(auto_now_add=True)
+
     # provider ref
     partner = models.ForeignKey('common.Partner', on_delete=models.SET_NULL, related_name='industry_projects', null=True)
 
