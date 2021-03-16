@@ -12,6 +12,8 @@ from rest_framework.permissions import (
     AllowAny,
 )
 
+from datetime import timedelta
+
 from .models import EventLog
 from common.models import MembershipSubscription, PaymentTransaction, BaseUser
 from common.permissions import IsPartnerOnly
@@ -20,7 +22,7 @@ from courses.models import Enrollment
 
 @api_view(['GET'])
 @permission_classes((IsPartnerOnly,))
-def earnings_report_view(request):
+def partner_earnings_report_view(request):
     '''
     Calculates the profits sans expenses, 
     and partner's cut of the profit pay out
@@ -64,6 +66,42 @@ def earnings_report_view(request):
             print(str(e))
             return Response(status=status.HTTP_404_NOT_FOUND)
         except (ValueError, ZeroDivisionError, ValidationError) as e:
+            print(str(e))
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+        # end try-except
+    # end if
+# end def
+
+
+@api_view(['GET'])
+@permission_classes((IsAdminUser,))
+def admin_earnings_report_view(request):
+    '''
+    Platform earnings report
+    '''
+    if request.method == 'GET':
+        try:
+            days = int(request.query_params.get('days', 999))
+            today = timezone.now()
+
+            total_subscription_revenue = MembershipSubscription.objects.filter(
+                Q(expiry_date__date__gte=today-timedelta(days=days)) &
+                Q(payment_transaction__payment_status='COMPLETED')
+            ).count() * 5.99
+            user_count = BaseUser.objects.count()
+            expenses = user_count * 0.38 + 2700
+            total_contribution_income = PaymentTransaction.objects.filter(
+                Q(contributionpayment__timestamp__date__gte=today-timedelta(days=days)) &
+                Q(payment_status='COMPLETED')
+            ).aggregate(Sum('payment_amount'))
+
+            return Response({
+                'total_subscription_revenue': total_subscription_revenue,
+                'user_count': user_count,
+                'expenses': expenses,
+                'total_contribution_income': total_contribution_income['payment_amount__sum']
+            }, status=status.HTTP_200_OK)
+        except Exception as e:
             print(str(e))
             return Response(status=status.HTTP_400_BAD_REQUEST)
         # end try-except
