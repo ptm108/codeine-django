@@ -2,7 +2,7 @@ from django.db import transaction
 from django.db.utils import IntegrityError
 from django.utils import timezone
 from django.core.exceptions import ValidationError, ObjectDoesNotExist
-from django.db.models import Q, Sum, Avg, Count
+from django.db.models import Q, Sum, Avg, Count, F
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
@@ -17,7 +17,7 @@ from datetime import timedelta
 from .models import EventLog
 from .serializers import EventLogSerializer
 from common.permissions import IsPartnerOrAdminOnly
-from common.models import Partner, BaseUser
+from common.models import Partner, Member, BaseUser
 from common.serializers import NestedBaseUserSerializer
 from courses.models import Course, CourseMaterial, Quiz, Enrollment
 from courses.serializers import CourseSerializer
@@ -427,6 +427,54 @@ def member_demographics_view(request):
             print(str(e))
             return Response(status=status.HTTP_404_NOT_FOUND)
         except (ValueError, KeyError) as e:
+            print(str(e))
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+        # end try-except
+    # end if
+# end def
+
+
+@api_view(['GET'])
+@permission_classes((IsAuthenticated,))
+def course_first_enrollment_count_view(request):
+    '''
+    Get the number of first enrollments in each course
+    '''
+    if request.method == 'GET':
+        try:
+            members = Member.objects.all()
+            ranking = {}
+            days = int(request.query_params.get('days', 999))
+
+            for member in members:
+                first_enrollment = member.enrollments.first()
+
+                if first_enrollment.date_created < timezone.now() - timedelta(days=days):
+                    continue
+                # end if
+
+                if first_enrollment is not None:
+                    course = first_enrollment.course
+                    try:
+                        ranking[str(course.id)] += 1
+                    except KeyError:
+                        ranking[str(course.id)] = 1
+                # end if
+            # end for
+            ranking = dict(sorted(ranking.items(), key=lambda item: item[1], reverse=True))
+            res = []
+
+            for key in list(ranking.keys())[:10]:
+                course = Course.objects.get(pk=key)
+                res.append({
+                    'course_id': key,
+                    'course_title': course.title,
+                    'first_enrollment_count': ranking[key],
+                })
+            # end for
+
+            return Response(res, status=status.HTTP_200_OK)
+        except ObjectDoesNotExist as e:
             print(str(e))
             return Response(status=status.HTTP_400_BAD_REQUEST)
         # end try-except

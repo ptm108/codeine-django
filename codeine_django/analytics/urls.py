@@ -20,8 +20,12 @@ urlpatterns = [
     path('/ip-applicant-average-skill', views_industry_projects.applicant_average_skill_view, name='Get average skills of IP applicants'),
     path('/ip-applicant-demographics', views_industry_projects.applicant_demographics_view, name='Get demographics of IP applicants'),
     path('/ip-search-ranking', views_search_analytics.ip_search_ranking_view, name='Get popular IP searches'),
-    path('/ip-application-rate', views_industry_projects.ip_application_rate_view, name='conversion rate for Ip applications'),
+    path('/ip-application-rate', views_industry_projects.ip_application_rate_view, name='conversion rate for IP applications'),
+    path('/ip-popular-skills', views_industry_projects.ip_popular_skills_view, name='popular required skills in IPs'),
 
     # members
     path('/time-spent-breakdown', views_members_analytics.time_spent_breakdown_view, name='time spent by member on subjects'),
+
+    # admin
+    path('/first-enrollment-count', views_course_analytics.course_first_enrollment_count_view, name='get courses with most number of first enrollments'),
 ]

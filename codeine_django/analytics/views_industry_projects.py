@@ -239,3 +239,16 @@ def ip_application_rate_view(request):
         # end try-except
     # end if
 # end def
+
+
+@api_view(['GET'])
+@permission_classes((AllowAny,))
+def ip_popular_skills_view(request):
+    '''
+    Get the most popular skills required in industry projects
+    '''
+    if request.method == 'GET':
+        industry_project_ranking = IndustryProject.objects.values('categories').order_by().annotate(count=Count('id'))
+        return Response(industry_project_ranking, status=status.HTTP_200_OK)
+    # end if
+# end def

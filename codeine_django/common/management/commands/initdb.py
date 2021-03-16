@@ -20,6 +20,7 @@ from courses.models import (
 )
 from consultations.models import ConsultationSlot
 from analytics.models import EventLog
+from industry_projects.models import IndustryProject
 
 import sys
 from datetime import timedelta
@@ -2252,6 +2253,35 @@ class Command(BaseCommand):
             # end for
             self.stdout.write(f'{self.style.SUCCESS("Success")}: Event logs initiated')
 
+        except:
+            e = sys.exc_info()[0]
+            self.stdout.write(f'{self.style.ERROR("ERROR")}: {repr(e)}')
+        # end try-except
+
+        try:
+            # initiate some industry projects
+            self.stdout.write('Initiating some industry projects...')
+            now = timezone.now()
+
+            IndustryProject(
+                title='Finance Dashboard',
+                description='Build a dashboard using the MERN stack',
+                start_date=now + timedelta(days=120),
+                end_date=now + timedelta(days=240),
+                application_deadline=now + timedelta(days=60),
+                categories=['FE', 'BE']
+            ).save()
+
+            IndustryProject(
+                title='Finetune our ranking algorithm!',
+                description='Flex your ML skills! KNN!',
+                start_date=now + timedelta(days=140),
+                end_date=now + timedelta(days=300),
+                application_deadline=now + timedelta(days=20),
+                categories=['ML', 'BE']
+            ).save()
+
+            self.stdout.write(f'{self.style.SUCCESS("Success")}: Industry projects initiated')
         except:
             e = sys.exc_info()[0]
             self.stdout.write(f'{self.style.ERROR("ERROR")}: {repr(e)}')
