@@ -30,4 +30,5 @@ urlpatterns = [
     path('/first-enrollment-count', views_course_analytics.course_first_enrollment_count_view, name='get courses with most number of first enrollments'),
     path('/admin-earnings-report', views_earnings.admin_earnings_report_view, name='Admin earnings report'),
     path('/platform-health-check', view_platform_analytics.platform_health_check_view, name='Platform health check'),
+    path('/course-enrollment-count', view_platform_analytics.course_enrollment_count_view, name='View popular courses'),
 ]
