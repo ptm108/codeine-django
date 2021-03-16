@@ -269,3 +269,17 @@ class Notification(models.Model):
         ordering = ['timestamp']
     # end Meta
 # end class
+
+
+class CV(models.Model):
+    id = models.UUIDField(
+        primary_key=True, default=uuid.uuid4, editable=False, unique=True)
+    title = models.CharField(max_length=150)
+    description = models.CharField(max_length=255)
+    organisation = models.CharField(max_length=100)
+    start_date = models.DateField(null=True, default=None)
+    end_date = models.DateField(null=True, default=None)
+
+    member = models.ForeignKey(
+        'Member', on_delete=models.CASCADE, related_name='cvs')
+# end class
