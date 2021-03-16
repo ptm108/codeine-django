@@ -14,6 +14,10 @@ urlpatterns = [
     path('/earnings-report', views_earnings.earnings_report_view, name='Get partner\'s earnings report'),
     path('/course-search-ranking', views_search_analytics.course_search_ranking_view, name='Get popular course searches'),
     path('/course-assessment-performance', views_members_analytics.course_assessment_performance_view, name='Get course assessment performance'),
+
+    # EP
     path('/ip-viewer-average-skill', views_members_analytics.viewer_average_skill_view, name='Get average skills of members viewing IP'),
     path('/ip-applicant-average-skill', views_members_analytics.applicant_average_skill_view, name='Get average skills of IP applicants'),
+    path('/ip-applicant-demographics', views_members_analytics.applicant_demographics_view, name='Get demographics of IP applicants'),
+    path('/ip-search-ranking', views_search_analytics.ip_search_ranking_view, name='Get popular IP searches'),
 ]

@@ -2223,6 +2223,13 @@ class Command(BaseCommand):
                     search_string=searches[randint(0,3)]
                 ).save()
             # end for
+            searches = ['ui designer', 'frontend dev', 'devops engineer', 'ML sexpert']
+            for i in range(99):
+                EventLog(
+                    payload='search industry project',
+                    search_string=searches[randint(0,3)]
+                ).save()
+            # end for
             self.stdout.write(f'{self.style.SUCCESS("Success")}: Mock search stats initiated')
         except:
             e = sys.exc_info()[0]

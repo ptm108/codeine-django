@@ -41,3 +41,30 @@ def course_search_ranking_view(request):
         # end try-except
     # end if
 # end def
+
+
+@api_view(['GET'])
+@permission_classes((IsAuthenticated,))
+def ip_search_ranking_view(request):
+    '''
+    Returns top 10 most search terms for courses
+    '''
+    if request.method == 'GET':
+        try:
+            event_logs = EventLog.objects.filter(payload='search industry project')
+
+            days = int(request.query_params.get('days', 120))
+            now = timezone.now()
+
+            event_logs = event_logs.filter(timestamp__date__gte=now - timedelta(days=days))
+
+            search_ranking = event_logs.values('search_string').order_by().annotate(search_count=Count('id')).order_by('-search_count')
+            # print(search_ranking)
+            return Response(search_ranking.all()[:10], status=status.HTTP_200_OK)
+        except (ValidationError) as e:
+            print(str(e))
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+        # end try-except
+    # end if
+# end def
+

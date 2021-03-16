@@ -215,3 +215,59 @@ def applicant_average_skill_view(request):
         # end try-except
     # end if
 # end def
+
+
+@api_view(['GET'])
+@permission_classes((IsPartnerOrAdminOnly,))
+def applicant_demographics_view(request):
+    '''
+    Get the demographics of industry projects applicants
+    '''
+    if request.method == 'GET':
+        user = request.user
+        partner = Partner.objects.filter(user=user).first()
+        try:
+            industry_project_id = request.query_params.get('industry_project_id', None)
+
+            industry_projects = IndustryProject.objects
+            if partner is not None:
+                industry_projects = industry_projects.filter(partner=partner)
+            # end if
+            if industry_project_id is not None:
+                industry_projects = industry_projects.filter(pk=industry_project_id)
+            # end if
+
+            members = BaseUser.objects.filter(member__industry_project_applications__industry_project__in=industry_projects.all())
+            gender = members.values('gender').order_by().annotate(Count('id'))
+            location = members.values('location').order_by().annotate(Count('id'))
+            age = members.aggregate(Avg('age'))
+
+            res = {
+                'genders': gender,
+                'locations': location,
+                'average_age': age['age__avg'],
+                'breakdown_by_industry_project': []
+            }
+
+            for ip in industry_projects:
+                tmp_members = members.filter(industry_project_applications__industry_project=ip)
+                gender = members.values('gender').order_by().annotate(Count('id'))
+                location = members.values('location').order_by().annotate(Count('id'))
+                age = members.aggregate(Avg('age'))
+                tmp_ip = {
+                    'ip_id': ip.id,
+                    'ip_title': ip.title,
+                    'genders': gender,
+                    'locations': location,
+                    'average_age': age['age__avg'],
+                }
+                res['breakdown_by_industry_project'].append(tmp_ip)
+            # end for
+
+            return Response(res, status=status.HTTP_200_OK)
+        except ObjectDoesNotExist as e:
+            print(str(e))
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        # end try-except
+    # end if
+# end def
