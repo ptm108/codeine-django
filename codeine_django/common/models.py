@@ -79,7 +79,7 @@ class CustomUserManager(BaseUserManager):
 class BaseUser(AbstractBaseUser, PermissionsMixin):
     GENDER = (
         ('M', 'Male'),
-        ('F', 'Female'), 
+        ('F', 'Female'),
         ('U', 'Unknown')
     )
 
@@ -135,7 +135,8 @@ class Member(models.Model):
     stats = models.JSONField(default=get_default_member_stats)
 
     # enums
-    membership_tier = models.TextField(choices=MEMBERSHIP_TIERS, default='FREE')
+    membership_tier = models.TextField(
+        choices=MEMBERSHIP_TIERS, default='FREE')
 
     def __str__(self):
         return f'{self.user}'
@@ -242,7 +243,29 @@ class MembershipSubscription(models.Model):
         return f'{self.payment_transaction} for {self.member}'
     # end def
 
-    class Meta: 
+    class Meta:
         ordering = ['expiry_date']
+    # end Meta
+# end class
+
+
+class Notification(models.Model):
+    id = models.UUIDField(
+        primary_key=True, default=uuid.uuid4, editable=False, unique=True)
+    title = models.CharField(max_length=255)
+    description = models.TextField()
+    timestamp = models.DateTimeField(auto_now_add=True)
+    is_read = models.BooleanField(default=False)
+
+    # ref
+    receiver = models.ForeignKey(
+        BaseUser, related_name='notifications', on_delete=models.SET_NULL, blank=True, null=True)
+
+    def __str__(self):
+        return f'Notification {self.id}'
+    # end def
+
+    class Meta:
+        ordering = ['timestamp']
     # end Meta
 # end class
