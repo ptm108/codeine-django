@@ -89,6 +89,8 @@ def code_review_comment_view(request, code_review_id):
             
             code_review_comment = CodeReviewComment(
                 comment=data['comment'],
+                start_index=start_index,
+                end_index=end_index,
                 user=user,
                 code_review=code_review,
                 parent_comment=parent_comment
@@ -132,20 +134,6 @@ def single_code_review_comment_view(request, code_review_id, pk):
 
             if 'comment' in data:
                 code_review_comment.comment = data['comment']
-            # end if
-
-            # if 'highlighted_code' in data:
-            #     code_review_comment.highlighted_code = data['highlighted_code']
-            # if code_review_comment.parent_comment is None:
-            #     if 'start_index' in data:
-            #         code_review_comment.start_index = data['start_index']
-            #     if 'end_index' in data:
-            #         code_review_comment.end_index = data['end_index']
-
-            #     if code_review_comment.start_index > code_review_comment.end_index:
-            #         return Response(status=status.HTTP_400_BAD_REQUEST)
-                # end if
-            # end ifs
 
             code_review_comment.save()
             serializer = NestedCodeReviewCommentSerializer(
