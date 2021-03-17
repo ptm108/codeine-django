@@ -11,6 +11,7 @@ from rest_framework.permissions import (
 from .models import CodeReview
 from .serializers import CodeReviewSerializer
 from common.models import Member
+from common.permissions import IsMemberOnly
 
 # Create your views here.
 
@@ -130,5 +131,22 @@ def single_code_review_view(request, pk):
         except CodeReview.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
         # end try-except
+    # end if
+# def
+
+
+@api_view(['GET'])
+@permission_classes((IsMemberOnly,))
+def member_code_review_view(request):
+    '''
+    Retrieves all of member's code reviews
+    '''
+    if request.method == 'GET':
+        user = request.user
+        member = Member.objects.get(user=user)
+        code_reviews = CodeReview.objects.filter(member=member)
+        serializer = CodeReviewSerializer(
+            code_reviews.all(), many=True, context={'request': request})
+        return Response(serializer.data, status=status.HTTP_200_OK)
     # end if
 # def
