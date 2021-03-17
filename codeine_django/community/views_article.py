@@ -155,3 +155,25 @@ def member_article_view(request):
         return Response(serializer.data, status=status.HTTP_200_OK)
     # end if
 # def
+
+
+@api_view(['PATCH'])
+@permission_classes((IsMemberOnly,))
+def publish_article_view(request, pk):
+    '''
+    Publish article by primary key/ id
+    '''
+    if request.method == 'PATCH':
+        try:
+            article = Article.objects.get(pk=pk)
+            article.is_published = True
+            article.save()
+            serializer = ArticleSerializer(
+                article, context={'request': request})
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except (ObjectDoesNotExist, KeyError, ValueError) as e:
+            print(e)
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+        # end try-except
+    # end if
+# def
