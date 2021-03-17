@@ -8,6 +8,8 @@ urlpatterns = [
          name='Create/Get all/Search Code Reviews'),
     path('/<slug:pk>', views_code_review.single_code_review_view,
          name='Read/update/delete for Code Review'),
+    path('/member/', views_code_review.member_code_review_view,
+         name='Get Member\'s Code Review'),
 
     # code review comment views
     path('/<slug:code_review_id>/comments', views_code_review_comments.code_review_comment_view,

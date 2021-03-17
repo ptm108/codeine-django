@@ -45,7 +45,7 @@ class Article(models.Model):
     date_edited = models.DateTimeField(auto_now=True)
 
     # availability
-    is_published = models.BooleanField(default=True)
+    is_published = models.BooleanField(default=False)
     is_activated = models.BooleanField(default=True)
 
     # enums
