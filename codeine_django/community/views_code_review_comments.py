@@ -89,8 +89,6 @@ def code_review_comment_view(request, code_review_id):
             
             code_review_comment = CodeReviewComment(
                 comment=data['comment'],
-                start_index=start_index,
-                end_index=end_index,
                 user=user,
                 code_review=code_review,
                 parent_comment=parent_comment
