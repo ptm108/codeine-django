@@ -99,6 +99,12 @@ def single_article_view(request, pk):
         data = request.data
         try:
             article = Article.objects.get(pk=pk)
+            user = request.user
+            member = Member.objects.get(user=user)
+
+            if article.member != member:
+                return Response(status=status.HTTP_401_UNAUTHORIZED)
+            # end if
 
             if 'title' in data:
                 article.title = data['title']
@@ -131,6 +137,14 @@ def single_article_view(request, pk):
     if request.method == 'DELETE':
         try:
             article = Article.objects.get(pk=pk)
+            
+            user = request.user
+            member = Member.objects.get(user=user)
+
+            if article.member != member:
+                return Response(status=status.HTTP_401_UNAUTHORIZED)
+            # end if
+
             article.delete()
             return Response(status=status.HTTP_200_OK)
         except Article.DoesNotExist:
@@ -166,7 +180,45 @@ def publish_article_view(request, pk):
     if request.method == 'PATCH':
         try:
             article = Article.objects.get(pk=pk)
+
+            user = request.user
+            member = Member.objects.get(user=user)
+
+            if article.member != member:
+                return Response(status=status.HTTP_401_UNAUTHORIZED)
+            # end if
+
             article.is_published = True
+            article.save()
+            serializer = ArticleSerializer(
+                article, context={'request': request})
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except (ObjectDoesNotExist, KeyError, ValueError) as e:
+            print(e)
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+        # end try-except
+    # end if
+# def
+
+
+@api_view(['PATCH'])
+@permission_classes((IsMemberOnly,))
+def unpublish_article_view(request, pk):
+    '''
+    Unpublish article by primary key/ id
+    '''
+    if request.method == 'PATCH':
+        try:
+            article = Article.objects.get(pk=pk)
+
+            user = request.user
+            member = Member.objects.get(user=user)
+
+            if article.member != member:
+                return Response(status=status.HTTP_401_UNAUTHORIZED)
+            # end if
+
+            article.is_published = False
             article.save()
             serializer = ArticleSerializer(
                 article, context={'request': request})
