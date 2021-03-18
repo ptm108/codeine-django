@@ -38,8 +38,8 @@ def achievement_requirement_view(request, pk):
 
             achievement = Achievement.objects.get(pk=pk)
             requirement = AchievementRequirement(
-                category = data['category'],
                 stat = data['stat'],
+                experience_point = data['experience_point'],
                 achievement=achievement
             )
             requirement.save()
