@@ -266,7 +266,7 @@ class CodeReviewSerializer(serializers.ModelSerializer):
     top_level_comments = serializers.SerializerMethodField(
         'get_top_level_comments')
     member = serializers.SerializerMethodField('get_member')
-    engagements = serializers.SerializerMethodField('get_engagements')
+    likes = serializers.SerializerMethodField('get_likes')
     current_member_liked = serializers.SerializerMethodField('get_current_member_liked')
 
     class Meta:
@@ -286,10 +286,8 @@ class CodeReviewSerializer(serializers.ModelSerializer):
         return NestedBaseUserSerializer(obj.member.user, context={'request': request}).data
     # end def
 
-    def get_engagements(self, obj):
-        request = self.context.get("request")
-        engagements = CodeReviewEngagement.objects.filter(code_review=obj)
-        return CodeReviewEngagementSerializer(engagements, many=True, context={'request': request}).data
+    def get_likes(self, obj):
+        return CodeReviewEngagement.objects.filter(code_review=obj).count()
     # end def
 
     def get_current_member_liked(self, obj):

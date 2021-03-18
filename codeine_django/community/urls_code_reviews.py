@@ -10,6 +10,8 @@ urlpatterns = [
          name='Read/update/delete for Code Review'),
     path('/member/', views_code_review.member_code_review_view,
          name='Get Member\'s Code Review'),
+    path('/<slug:pk>/engagements', views_code_review.code_review_engagement_view,
+         name='Like/Unlike article'),
 
     # code review comment views
     path('/<slug:code_review_id>/comments', views_code_review_comments.code_review_comment_view,
@@ -20,8 +22,8 @@ urlpatterns = [
          name='Like/Unlike article comments'),
 
     # code review engagement views
-    path('/<slug:code_review_id>/engagement', views_code_review_engagement.code_review_engagement_view,
-         name='Create/Get all/Search Engagements'),
-    path('/<slug:code_review_id>/engagement/<slug:pk>',
-         views_code_review_engagement.single_code_review_engagement_view, name='Read/update/delete for Engagements'),
+#     path('/<slug:code_review_id>/engagement', views_code_review_engagement.code_review_engagement_view,
+#          name='Create/Get all/Search Engagements'),
+#     path('/<slug:code_review_id>/engagement/<slug:pk>',
+#          views_code_review_engagement.single_code_review_engagement_view, name='Read/update/delete for Engagements'),
 ]

@@ -72,7 +72,8 @@ class CodeReviewCommentAdmin(admin.ModelAdmin):
 
 
 class CodeReviewEngagementAdmin(admin.ModelAdmin):
-    list_display = ('id', 'like', 'timestamp', 'member', 'code_review')
+    list_display = ('id', 'timestamp', 'member', 'code_review')
+    # list_display = ('id', 'like', 'timestamp', 'member', 'code_review')
 # end class
 
 

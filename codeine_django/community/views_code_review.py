@@ -8,7 +8,7 @@ from rest_framework.response import Response
 from rest_framework.permissions import (
     IsAuthenticatedOrReadOnly,
 )
-from .models import CodeReview
+from .models import CodeReview, CodeReviewEngagement
 from .serializers import CodeReviewSerializer
 from common.models import Member
 from common.permissions import IsMemberOnly
@@ -150,3 +150,56 @@ def member_code_review_view(request):
         return Response(serializer.data, status=status.HTTP_200_OK)
     # end if
 # def
+
+
+@api_view(['POST', 'DELETE'])
+@permission_classes((IsAuthenticatedOrReadOnly,))
+def code_review_engagement_view(request, pk):
+    '''
+    Like a code review
+    '''
+    if request.method == 'POST':
+        user = request.user
+        try:
+            code_review = CodeReview.objects.get(pk=pk)
+            member = Member.objects.get(user=user)
+
+            if CodeReviewEngagement.objects.filter(code_review=code_review).filter(member=member).exists():
+                return Response(CodeReviewSerializer(code_review, context={'request': request, 'recursive': True}).data, status=status.HTTP_409_CONFLICT)
+            # end if
+
+            code_review_engagement = CodeReviewEngagement(
+                member=member,
+                code_review=code_review
+            )
+            code_review_engagement.save()
+
+            serializer = CodeReviewSerializer(code_review, context={'request': request, 'recursive': True})
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except ObjectDoesNotExist as e:
+            print(e)
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        # end try-except
+    # end if
+
+    '''
+    Unlike a code review
+    '''
+    if request.method == 'DELETE':
+        user = request.user
+        try:
+            code_review = CodeReview.objects.get(pk=pk)
+            member = Member.objects.get(user=user)
+
+            engagement = CodeReviewEngagement.objects.filter(code_review=code_review).get(member=member)
+            engagement.delete()
+            code_review.save()
+
+            serializer = CodeReviewSerializer(code_review, context={'request': request, 'recursive': True})
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except ObjectDoesNotExist as e:
+            print(e)
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        # end try-except
+    # end if
+# end def

@@ -10,7 +10,7 @@ from rest_framework.permissions import (
     IsAuthenticatedOrReadOnly,
     IsAdminUser,
 )
-from .models import CodeReview, CodeReviewComment
+from .models import CodeReview, CodeReviewComment, CodeReviewCommentEngagement
 from .serializers import CodeReviewCommentSerializer, NestedCodeReviewCommentSerializer
 from common.models import Member
 
