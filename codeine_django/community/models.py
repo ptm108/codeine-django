@@ -102,7 +102,7 @@ class ArticleEngagement(models.Model):
 
     # ref
     member = models.ForeignKey(
-        'common.Member', on_delete=models.CASCADE, related_name='engagements')
+        'common.Member', on_delete=models.CASCADE, related_name='article_engagements')
     article = models.ForeignKey(
         'community.Article', on_delete=models.CASCADE, related_name='engagements')
 
@@ -204,4 +204,35 @@ class CodeReviewComment(models.Model):
     class Meta:
         ordering = ['-timestamp']
     # end class
+# end class
+
+
+class CodeReviewEngagement(models.Model):
+    id = models.UUIDField(
+        primary_key=True, default=uuid.uuid4, editable=False, unique=True)
+    like = models.IntegerField()
+    timestamp = models.DateTimeField(auto_now_add=True)
+
+    # ref
+    member = models.ForeignKey(
+        'common.Member', on_delete=models.CASCADE, related_name='code_review_engagements')
+    code_review = models.ForeignKey(
+        'community.CodeReview', on_delete=models.CASCADE, related_name='engagements')
+
+    def __str__(self):
+        return f'Code Review Engagement {self.id} for Code Review {self.code_review.id} from {self.member.user.id}'
+    # end def
+
+    class Meta:
+        ordering = ['-timestamp']
+    # end class
+# end class
+
+
+class CodeReviewCommentEngagement(models.Model):
+    timestamp = models.DateTimeField(auto_now_add=True)
+
+    # ref
+    comment = models.ForeignKey('CodeReviewComment', on_delete=models.CASCADE, related_name='engagements')
+    user = models.ForeignKey('common.BaseUser', on_delete=models.CASCADE, related_name='+')
 # end class
