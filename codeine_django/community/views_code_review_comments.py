@@ -8,9 +8,10 @@ from rest_framework.response import Response
 
 from rest_framework.permissions import (
     IsAuthenticatedOrReadOnly,
+    IsAdminUser,
 )
 from .models import CodeReview, CodeReviewComment
-from .serializers import NestedCodeReviewCommentSerializer
+from .serializers import CodeReviewCommentSerializer, NestedCodeReviewCommentSerializer
 from common.models import Member
 
 # Create your views here.
@@ -37,6 +38,7 @@ def code_review_comment_view(request, code_review_id):
         #         Q(user__id__icontains=search) |
         #         Q(code_review__id__icontains=search)
         #     )
+
 
         if search is not None:
             code_review_comments = code_review_comments.filter(
@@ -106,6 +108,7 @@ def code_review_comment_view(request, code_review_id):
 # def
 
 
+
 @api_view(['GET', 'PUT', 'DELETE'])
 @permission_classes((IsAuthenticatedOrReadOnly,))
 def single_code_review_comment_view(request, code_review_id, pk):
@@ -130,6 +133,8 @@ def single_code_review_comment_view(request, code_review_id, pk):
         try:
             code_review_comment = CodeReviewComment.objects.get(pk=pk)
 
+            # if 'highlighted_code' in data:
+            #     code_review_comment.highlighted_code = data['highlighted_code']
             if 'comment' in data:
                 code_review_comment.comment = data['comment']
 
@@ -157,3 +162,55 @@ def single_code_review_comment_view(request, code_review_id, pk):
         # end try-except
     # end if
 # def
+
+
+@api_view(['POST', 'DELETE'])
+@permission_classes((IsAuthenticatedOrReadOnly,))
+def code_review_comment_engagement_view(request, code_review_id, pk):
+    '''
+    Like a comment
+    '''
+    if request.method == 'POST':
+        user = request.user
+        try:
+            code_review_comment = CodeReviewComment.objects.get(pk=pk)
+
+            if CodeReviewCommentEngagement.objects.filter(comment=code_review_comment).filter(user=user).exists():
+                return Response(NestedCodeReviewCommentSerializer(code_review_comment, context={'request': request, 'recursive': True}).data, status=status.HTTP_409_CONFLICT)
+            # end if
+
+            engagement = CodeReviewCommentEngagement(
+                comment=code_review_comment,
+                user=user
+            )
+            engagement.save()
+            code_review_comment.save()
+
+            serializer = NestedCodeReviewCommentSerializer(CodeReview_comment, context={'request': request, 'recursive': True})
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except ObjectDoesNotExist as e:
+            print(e)
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        # end try-except
+    # end if
+
+    '''
+    Unlike a comment
+    '''
+    if request.method == 'DELETE':
+        user = request.user
+        try:
+            code_review_comment = CodeReviewComment.objects.get(pk=pk)
+
+            engagement = CodeReviewCommentEngagement.objects.filter(comment=code_review_comment).get(user=user)
+            engagement.delete()
+            code_review_comment.save()
+
+            serializer = NestedCodeReviewCommentSerializer(code_review_comment, context={'request': request, 'recursive': True})
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except ObjectDoesNotExist as e:
+            print(e)
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        # end try-except
+    # end if
+# end def

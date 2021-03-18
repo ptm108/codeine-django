@@ -1,6 +1,6 @@
 from django.urls import path
 
-from . import views_code_review, views_code_review_comments
+from . import views_code_review, views_code_review_comments, views_code_review_engagement
 
 urlpatterns = [
     # code review views
@@ -16,4 +16,12 @@ urlpatterns = [
          name='Create/Get all/Search Code Review Comments'),
     path('/<slug:code_review_id>/comments/<slug:pk>', views_code_review_comments.single_code_review_comment_view,
          name='Read/update/delete Code Review Comments'),
+    path('/<slug:code_review_id>/comments/<slug:pk>/engagements', views_code_review_comments.code_review_comment_engagement_view,
+         name='Like/Unlike article comments'),
+
+    # code review engagement views
+    path('/<slug:code_review_id>/engagement', views_code_review_engagement.code_review_engagement_view,
+         name='Create/Get all/Search Engagements'),
+    path('/<slug:code_review_id>/engagement/<slug:pk>',
+         views_code_review_engagement.single_code_review_engagement_view, name='Read/update/delete for Engagements'),
 ]
