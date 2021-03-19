@@ -132,6 +132,10 @@ def single_code_review_comment_view(request, code_review_id, pk):
         data = request.data
         try:
             code_review_comment = CodeReviewComment.objects.get(pk=pk)
+            user = request.user
+            if code_review_comment.user != user:
+                return Response(status=status.HTTP_401_UNAUTHORIZED)
+            # end if
 
             # if 'highlighted_code' in data:
             #     code_review_comment.highlighted_code = data['highlighted_code']
@@ -155,6 +159,12 @@ def single_code_review_comment_view(request, code_review_id, pk):
     if request.method == 'DELETE':
         try:
             code_review_comment = CodeReviewComment.objects.get(pk=pk)
+            
+            user = request.user
+            if code_review_comment.user != user:
+                return Response(status=status.HTTP_401_UNAUTHORIZED)
+            # end if
+
             code_review_comment.delete()
             return Response(status=status.HTTP_200_OK)
         except CodeReviewComment.DoesNotExist:
@@ -186,7 +196,7 @@ def code_review_comment_engagement_view(request, code_review_id, pk):
             engagement.save()
             code_review_comment.save()
 
-            serializer = NestedCodeReviewCommentSerializer(CodeReview_comment, context={'request': request, 'recursive': True})
+            serializer = NestedCodeReviewCommentSerializer(code_review_comment, context={'request': request, 'recursive': True})
             return Response(serializer.data, status=status.HTTP_200_OK)
         except ObjectDoesNotExist as e:
             print(e)

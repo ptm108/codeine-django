@@ -83,6 +83,7 @@ def single_article_engagement_view(request, pk, article_id):
     if request.method == 'GET':
         try:
             article_engagement = ArticleEngagement.objects.get(pk=pk)
+
             serializer = ArticleEngagementSerializer(
                 article_engagement, context={'request': request})
             return Response(serializer.data)
@@ -96,8 +97,14 @@ def single_article_engagement_view(request, pk, article_id):
     '''
     if request.method == 'PUT':
         data = request.data
+        
         try:
             article_engagement = ArticleEngagement.objects.get(pk=pk)
+            user = request.user
+            member = Member.objects.get(user=user)
+            if article_engagement.member != member:
+                return Response(status=status.HTTP_401_UNAUTHORIZED)
+            # end if
 
             if 'like' in data:
                 article_engagement.like = data['like']
@@ -118,6 +125,12 @@ def single_article_engagement_view(request, pk, article_id):
     if request.method == 'DELETE':
         try:
             article_engagement = ArticleEngagement.objects.get(pk=pk)
+            user = request.user
+            member = Member.objects.get(user=user)
+            if article_engagement.member != member:
+                return Response(status=status.HTTP_401_UNAUTHORIZED)
+            # end if
+
             article_engagement.delete()
             return Response(status=status.HTTP_200_OK)
         except ArticleEngagement.DoesNotExist:

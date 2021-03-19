@@ -1,6 +1,6 @@
 from django.urls import path
 
-from . import views_code_review, views_code_review_comments, views_code_review_engagement
+from . import views_code_review, views_code_review_comments
 
 urlpatterns = [
     # code review views
