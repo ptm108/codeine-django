@@ -212,7 +212,7 @@ class Question(models.Model):
     quiz = models.ForeignKey('Quiz', on_delete=models.CASCADE, null=True, blank=True, related_name='questions')
 
     # ref to group -- for question banks
-    group = models.ForeignKey('QuestionGroup', on_delete=models.CASCADE, null=True, blank=True, related_name='questions')
+    group = models.ForeignKey('QuestionGroup', on_delete=models.SET_NULL, null=True, blank=True, related_name='questions')
 
     class Meta:
         ordering = ['order']
