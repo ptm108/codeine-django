@@ -8,8 +8,8 @@ urlpatterns = [
          name='Create/Get all/Search Code Reviews'),
     path('/<slug:pk>', views_code_review.single_code_review_view,
          name='Read/update/delete for Code Review'),
-    path('/member/', views_code_review.member_code_review_view,
-         name='Get Member\'s Code Review'),
+    path('/user/', views_code_review.user_code_review_view,
+         name='Get user\'s Code Review'),
     path('/<slug:pk>/engagements', views_code_review.code_review_engagement_view,
          name='Like/Unlike article'),
 

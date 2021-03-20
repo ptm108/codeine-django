@@ -12,7 +12,6 @@ from rest_framework.permissions import (
 )
 from .models import CodeReview, CodeReviewComment, CodeReviewCommentEngagement
 from .serializers import CodeReviewCommentSerializer, NestedCodeReviewCommentSerializer
-from common.models import Member
 
 # Create your views here.
 

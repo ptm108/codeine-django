@@ -42,7 +42,7 @@ class CodeReviewCommentInline(admin.StackedInline):
 
 class ArticleAdmin(admin.ModelAdmin):
     list_display = ('id', 'title', 'content', 'date_created',
-                    'date_edited', 'coding_languages', 'languages', 'categories', 'is_published', 'is_activated', 'member')
+                    'date_edited', 'coding_languages', 'languages', 'categories', 'is_published', 'is_activated', 'user')
 # end class
 
 
@@ -52,13 +52,13 @@ class ArticleCommentAdmin(admin.ModelAdmin):
 
 
 class ArticleEngagementAdmin(admin.ModelAdmin):
-    list_display = ('id', 'like', 'timestamp', 'member', 'article')
+    list_display = ('id', 'like', 'timestamp', 'user', 'article')
 # end class
 
 
 class CodeReviewAdmin(admin.ModelAdmin):
     list_display = ('id', 'title', 'code', 'timestamp',
-                    'coding_languages', 'categories', 'member')
+                    'coding_languages', 'categories', 'user')
 # end class
 
 
@@ -72,8 +72,8 @@ class CodeReviewCommentAdmin(admin.ModelAdmin):
 
 
 class CodeReviewEngagementAdmin(admin.ModelAdmin):
-    list_display = ('id', 'timestamp', 'member', 'code_review')
-    # list_display = ('id', 'like', 'timestamp', 'member', 'code_review')
+    list_display = ('id', 'timestamp', 'user', 'code_review')
+    # list_display = ('id', 'like', 'timestamp', 'user', 'code_review')
 # end class
 
 

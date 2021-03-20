@@ -10,7 +10,6 @@ from rest_framework.permissions import (
 )
 from .models import CodeReview, CodeReviewEngagement
 from .serializers import CodeReviewEngagementSerializer
-from common.models import Member
 
 # Create your views here.
 
@@ -31,9 +30,8 @@ def code_review_engagement_view(request, code_review_id):
         if is_user is not None:
             if is_user:
                 user = request.user
-                member = Member.objects.get(user=user)
                 code_review_engagements = code_review_engagements.filter(
-                    Q(member=member)
+                    Q(user=user)
                 )
         # end if
 
@@ -48,17 +46,16 @@ def code_review_engagement_view(request, code_review_id):
     if request.method == 'POST':
         user = request.user
         data = request.data
-        member = Member.objects.get(user=user)
         code_review = CodeReview.objects.get(pk=code_review_id)
 
-        if CodeReviewEngagement.objects.filter(Q(member=member) & Q(code_review=code_review)).exists():
+        if CodeReviewEngagement.objects.filter(Q(user=user) & Q(code_review=code_review)).exists():
             # CodeReviewEngagement not unique
             return Response(status=status.HTTP_403_FORBIDDEN)
         # end if
         try:
             code_review_engagement = CodeReviewEngagement(
                 like=data['like'],
-                member=member,
+                user=user,
                 code_review=code_review
             )
             code_review_engagement.save()

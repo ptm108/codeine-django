@@ -10,8 +10,6 @@ from rest_framework.permissions import (
 )
 from .models import CodeReview, CodeReviewEngagement
 from .serializers import CodeReviewSerializer
-from common.models import Member
-from common.permissions import IsMemberOnly
 
 # Create your views here.
 
@@ -30,7 +28,7 @@ def code_review_view(request):
 
         if search is not None:
             articles = articles.filter(
-                Q(member__user__id__icontains=search) |
+                Q(user__id__icontains=search) |
                 Q(title__icontains=search) |
                 Q(code__icontains=search) |
                 Q(coding_languages__icontains=search) |
@@ -49,7 +47,6 @@ def code_review_view(request):
     if request.method == 'POST':
         user = request.user
         data = request.data
-        member = Member.objects.get(user=user)
 
         try:
             code_review = CodeReview(
@@ -58,7 +55,7 @@ def code_review_view(request):
                 coding_languages=data['coding_languages'],
                 languages=data['languages'],
                 categories=data['categories'],
-                member=member
+                user=user
             )
             code_review.save()
 
@@ -136,15 +133,14 @@ def single_code_review_view(request, pk):
 
 
 @api_view(['GET'])
-@permission_classes((IsMemberOnly,))
-def member_code_review_view(request):
+@permission_classes((IsAuthenticatedOrReadOnly,))
+def user_code_review_view(request):
     '''
-    Retrieves all of member's code reviews
+    Retrieves all of user's code reviews
     '''
     if request.method == 'GET':
         user = request.user
-        member = Member.objects.get(user=user)
-        code_reviews = CodeReview.objects.filter(member=member)
+        code_reviews = CodeReview.objects.filter(user=user)
         serializer = CodeReviewSerializer(
             code_reviews.all(), many=True, context={'request': request})
         return Response(serializer.data, status=status.HTTP_200_OK)
@@ -162,14 +158,13 @@ def code_review_engagement_view(request, pk):
         user = request.user
         try:
             code_review = CodeReview.objects.get(pk=pk)
-            member = Member.objects.get(user=user)
 
-            if CodeReviewEngagement.objects.filter(code_review=code_review).filter(member=member).exists():
+            if CodeReviewEngagement.objects.filter(code_review=code_review).filter(user=user).exists():
                 return Response(CodeReviewSerializer(code_review, context={'request': request, 'recursive': True}).data, status=status.HTTP_409_CONFLICT)
             # end if
 
             code_review_engagement = CodeReviewEngagement(
-                member=member,
+                user=user,
                 code_review=code_review
             )
             code_review_engagement.save()
@@ -189,9 +184,8 @@ def code_review_engagement_view(request, pk):
         user = request.user
         try:
             code_review = CodeReview.objects.get(pk=pk)
-            member = Member.objects.get(user=user)
 
-            engagement = CodeReviewEngagement.objects.filter(code_review=code_review).get(member=member)
+            engagement = CodeReviewEngagement.objects.filter(code_review=code_review).get(user=user)
             engagement.delete()
             code_review.save()
 
