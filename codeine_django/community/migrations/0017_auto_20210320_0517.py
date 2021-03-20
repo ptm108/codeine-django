@@ -34,25 +34,25 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='article',
             name='user',
-            field=models.ForeignKey(default='ac8aef1d-5b69-49a3-b3ee-9c9f237ca3e2', on_delete=django.db.models.deletion.CASCADE, related_name='articles', to='common.baseuser'),
+            field=models.ForeignKey(null=True, on_delete=django.db.models.deletion.CASCADE, related_name='articles', to='common.baseuser'),
             preserve_default=False,
         ),
         migrations.AddField(
             model_name='articleengagement',
             name='user',
-            field=models.ForeignKey(default='ac8aef1d-5b69-49a3-b3ee-9c9f237ca3e2', on_delete=django.db.models.deletion.CASCADE, related_name='article_engagements', to='common.baseuser'),
+            field=models.ForeignKey(null=True, on_delete=django.db.models.deletion.CASCADE, related_name='article_engagements', to='common.baseuser'),
             preserve_default=False,
         ),
         migrations.AddField(
             model_name='codereview',
             name='user',
-            field=models.ForeignKey(default='ac8aef1d-5b69-49a3-b3ee-9c9f237ca3e2', on_delete=django.db.models.deletion.CASCADE, related_name='code_reviews', to='common.baseuser'),
+            field=models.ForeignKey(null=True, on_delete=django.db.models.deletion.CASCADE, related_name='code_reviews', to='common.baseuser'),
             preserve_default=False,
         ),
         migrations.AddField(
             model_name='codereviewengagement',
             name='user',
-            field=models.ForeignKey(default='ac8aef1d-5b69-49a3-b3ee-9c9f237ca3e2', on_delete=django.db.models.deletion.CASCADE, related_name='code_review_engagements', to='common.baseuser'),
+            field=models.ForeignKey(null=True, on_delete=django.db.models.deletion.CASCADE, related_name='code_review_engagements', to='common.baseuser'),
             preserve_default=False,
         ),
         migrations.AlterField(
