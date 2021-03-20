@@ -192,6 +192,12 @@ class QuestionGroup(models.Model):
 
     # ref to quiz
     quiz = models.ForeignKey('Quiz', on_delete=models.CASCADE, related_name='question_groups')
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=['quiz', 'label'], name='QuestionGroup Unique Constraint: quiz_label')
+        ]
+    # end Meta
 # end class
 
 
