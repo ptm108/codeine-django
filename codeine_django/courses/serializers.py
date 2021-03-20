@@ -17,7 +17,8 @@ from .models import (
     QuizAnswer,
     CourseReview,
     CourseComment,
-    CourseCommentEngagement
+    CourseCommentEngagement,
+    QuestionGroup
 )
 
 from common.models import Member, Partner
@@ -86,7 +87,7 @@ class QuestionSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Question
-        fields = ('id', 'title', 'subtitle', 'shortanswer', 'mcq', 'mrq', 'order', 'image', 'label')
+        fields = ('id', 'title', 'subtitle', 'shortanswer', 'mcq', 'mrq', 'order', 'image')
     # end class
 
     def get_image(self, obj):
@@ -128,7 +129,17 @@ class QuizSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Quiz
-        fields = ('id', 'passing_marks', 'course', 'course_material', 'questions', 'instructions', 'labels', 'is_randomized')
+        fields = ('id', 'passing_marks', 'course', 'course_material', 'questions', 'instructions', 'is_randomized')
+    # end Meta
+# end class
+
+
+class QuestionGroupSerializer(serializers.ModelSerializer):
+    questions = QuestionSerializer(many=True)
+
+    class Meta:
+        model = QuestionGroup
+        fields = '__all__'
     # end Meta
 # end class
 
@@ -174,7 +185,7 @@ class ChapterSerializer(serializers.ModelSerializer):
         if self.context.get('public'):
             # print(obj.course_materials)
             return PublicCourseMaterialSerializer(obj.course_materials, many=True).data
-        elif not pro_member and not owner: #pro course but member is under free tier
+        elif not pro_member and not owner:  # pro course but member is under free tier
             return PublicCourseMaterialSerializer(obj.course_materials, many=True).data
         else:
             return CourseMaterialSerializer(obj.course_materials, many=True, context={'request': self.context.get('request')}).data
@@ -249,7 +260,7 @@ class CourseSerializer(serializers.ModelSerializer):
         }
 
         return ChapterSerializer(obj.chapters, many=True, context=context).data
-    # end def   
+    # end def
 # end class
 
 
@@ -397,7 +408,7 @@ class NestedCourseCommentSerializer(serializers.ModelSerializer):
             # end if else
         # end def
 
-        return rec_reply_count(obj) - 1 # minus self
+        return rec_reply_count(obj) - 1  # minus self
     # end def
 # end class
 
