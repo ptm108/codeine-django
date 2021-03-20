@@ -84,10 +84,11 @@ class QuestionSerializer(serializers.ModelSerializer):
     mcq = MCQSerializer()
     mrq = MRQAnswerSerializer()
     image = serializers.SerializerMethodField()
+    group_label = serializers.SerializerMethodField('get_group_label')
 
     class Meta:
         model = Question
-        fields = ('id', 'title', 'subtitle', 'shortanswer', 'mcq', 'mrq', 'order', 'image')
+        fields = ('id', 'title', 'subtitle', 'shortanswer', 'mcq', 'mrq', 'order', 'image', 'group_label')
     # end class
 
     def get_image(self, obj):
@@ -95,6 +96,14 @@ class QuestionSerializer(serializers.ModelSerializer):
         if obj.image and hasattr(obj.image, 'url'):
             return request.build_absolute_uri(obj.image.url)
         # end if
+    # end def
+
+    def get_group_label(self, obj):
+        if obj.group:
+            return obj.group.label
+        else:
+            return None
+        # end if-else
     # end def
 # end class
 
@@ -126,21 +135,30 @@ class CourseVideoSerializer(serializers.ModelSerializer):
 
 class QuizSerializer(serializers.ModelSerializer):
     questions = QuestionSerializer(many=True)
+    question_groups = serializers.SerializerMethodField()
 
     class Meta:
         model = Quiz
-        fields = ('id', 'passing_marks', 'course', 'course_material', 'questions', 'instructions', 'is_randomized')
+        fields = ('id', 'passing_marks', 'course', 'course_material', 'questions', 'instructions', 'is_randomized', 'question_groups',)
     # end Meta
+
+    def get_question_groups(self, obj):
+        return [group.label for group in obj.question_groups.all()]
+    # end def
 # end class
 
 
 class QuestionGroupSerializer(serializers.ModelSerializer):
-    questions = QuestionSerializer(many=True)
+    question_count = serializers.SerializerMethodField('get_question_count')
 
     class Meta:
         model = QuestionGroup
-        fields = '__all__'
+        fields = ('label', 'question_count', 'quiz',)
     # end Meta
+
+    def get_question_count(self, obj):
+        return Question.objects.filter(group=obj).count()
+    # end def
 # end class
 
 
