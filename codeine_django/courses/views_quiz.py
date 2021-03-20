@@ -310,3 +310,30 @@ def all_quiz_view(request):
         # end try-except
     # end if
 # end def
+
+
+@api_view(['DELETE'])
+@permission_classes((IsPartnerOnly,))
+def delete_question_group_view(request, quiz_id):
+    '''
+    Deletes the question group
+    '''
+    if request.method == 'DELETE':
+        user = request.user
+        data = request.data
+        try:
+            partner = user.partner
+
+            quiz = Quiz.objects.filter(Q(course__partner=partner) | Q(course_material__chapter__course__partner=partner)).get(pk=quiz_id)
+            question_group = QuestionGroup.objects.filter(quiz=quiz).get(label=data['label'])
+            question_group.delete()
+
+            return Response(status=status.HTTP_200_OK)
+        except ObjectDoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        except (ValueError, IntegrityError, KeyError) as e:
+            print(e)
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+        # end try-except
+    # end if
+# end def
