@@ -17,7 +17,8 @@ from .models import (
     QuizAnswer,
     CourseReview,
     CourseComment,
-    CourseCommentEngagement
+    CourseCommentEngagement,
+    QuestionGroup
 )
 
 from common.models import Member, Partner
@@ -83,10 +84,11 @@ class QuestionSerializer(serializers.ModelSerializer):
     mcq = MCQSerializer()
     mrq = MRQAnswerSerializer()
     image = serializers.SerializerMethodField()
+    group_label = serializers.SerializerMethodField('get_group_label')
 
     class Meta:
         model = Question
-        fields = ('id', 'title', 'subtitle', 'shortanswer', 'mcq', 'mrq', 'order', 'image', 'label')
+        fields = ('id', 'title', 'subtitle', 'shortanswer', 'mcq', 'mrq', 'order', 'image', 'group_label')
     # end class
 
     def get_image(self, obj):
@@ -94,6 +96,14 @@ class QuestionSerializer(serializers.ModelSerializer):
         if obj.image and hasattr(obj.image, 'url'):
             return request.build_absolute_uri(obj.image.url)
         # end if
+    # end def
+
+    def get_group_label(self, obj):
+        if obj.group:
+            return obj.group.label
+        else:
+            return None
+        # end if-else
     # end def
 # end class
 
@@ -125,11 +135,30 @@ class CourseVideoSerializer(serializers.ModelSerializer):
 
 class QuizSerializer(serializers.ModelSerializer):
     questions = QuestionSerializer(many=True)
+    question_groups = serializers.SerializerMethodField()
 
     class Meta:
         model = Quiz
-        fields = ('id', 'passing_marks', 'course', 'course_material', 'questions', 'instructions', 'labels', 'is_randomized')
+        fields = ('id', 'passing_marks', 'course', 'course_material', 'questions', 'instructions', 'is_randomized', 'question_groups',)
     # end Meta
+
+    def get_question_groups(self, obj):
+        return [group.label for group in obj.question_groups.all()]
+    # end def
+# end class
+
+
+class QuestionGroupSerializer(serializers.ModelSerializer):
+    question_count = serializers.SerializerMethodField('get_question_count')
+
+    class Meta:
+        model = QuestionGroup
+        fields = ('label', 'question_count', 'quiz',)
+    # end Meta
+
+    def get_question_count(self, obj):
+        return Question.objects.filter(group=obj).count()
+    # end def
 # end class
 
 
@@ -174,7 +203,7 @@ class ChapterSerializer(serializers.ModelSerializer):
         if self.context.get('public'):
             # print(obj.course_materials)
             return PublicCourseMaterialSerializer(obj.course_materials, many=True).data
-        elif not pro_member and not owner: #pro course but member is under free tier
+        elif not pro_member and not owner:  # pro course but member is under free tier
             return PublicCourseMaterialSerializer(obj.course_materials, many=True).data
         else:
             return CourseMaterialSerializer(obj.course_materials, many=True, context={'request': self.context.get('request')}).data
@@ -249,7 +278,7 @@ class CourseSerializer(serializers.ModelSerializer):
         }
 
         return ChapterSerializer(obj.chapters, many=True, context=context).data
-    # end def   
+    # end def
 # end class
 
 
@@ -397,7 +426,7 @@ class NestedCourseCommentSerializer(serializers.ModelSerializer):
             # end if else
         # end def
 
-        return rec_reply_count(obj) - 1 # minus self
+        return rec_reply_count(obj) - 1  # minus self
     # end def
 # end class
 

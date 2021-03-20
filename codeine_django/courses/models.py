@@ -178,12 +178,26 @@ class Quiz(models.Model):
     instructions = models.TextField(default='')
 
     # question bank
-    labels = models.JSONField(default=dict) 
     is_randomized = models.BooleanField(default=False)
 
     # extends course material or mapped to course
     course_material = models.OneToOneField('CourseMaterial', on_delete=models.CASCADE, null=True, blank=True)
     course = models.OneToOneField('Course',  on_delete=models.CASCADE, related_name='assessment', null=True, blank=True)
+# end class
+
+class QuestionGroup(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, unique=True)
+    label = models.CharField(max_length=255)
+    count = models.PositiveSmallIntegerField(default=1)
+
+    # ref to quiz
+    quiz = models.ForeignKey('Quiz', on_delete=models.CASCADE, related_name='question_groups')
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=['quiz', 'label'], name='QuestionGroup Unique Constraint: quiz_label')
+        ]
+    # end Meta
 # end class
 
 
@@ -193,10 +207,12 @@ class Question(models.Model):
     subtitle = models.TextField(null=True, default='', blank=True)
     order = models.PositiveSmallIntegerField()
     image = models.ImageField(null=True, blank=True, default=None)
-    label = models.TextField(default="")
 
-    # ref to Assessment
+    # ref to Quiz
     quiz = models.ForeignKey('Quiz', on_delete=models.CASCADE, null=True, blank=True, related_name='questions')
+
+    # ref to group -- for question banks
+    group = models.ForeignKey('QuestionGroup', on_delete=models.SET_NULL, null=True, blank=True, related_name='questions')
 
     class Meta:
         ordering = ['order']
