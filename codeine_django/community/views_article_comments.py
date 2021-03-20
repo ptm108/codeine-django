@@ -11,7 +11,6 @@ from rest_framework.permissions import (
 )
 from .models import Article, ArticleComment, ArticleCommentEngagement
 from .serializers import NestedArticleCommentSerializer
-from common.models import Member
 
 # Create your views here.
 

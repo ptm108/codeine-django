@@ -13,8 +13,6 @@ from rest_framework.permissions import (
 )
 from .models import Article
 from .serializers import ArticleSerializer
-from common.models import Member
-from common.permissions import IsMemberOnly
 
 # Create your views here.
 
@@ -33,7 +31,7 @@ def article_view(request):
 
         if search is not None:
             articles = articles.filter(
-                Q(member__user__id__exact=search) |
+                Q(user__id__exact=search) |
                 Q(title__icontains=search) |
                 Q(coding_languages__icontains=search) |
                 Q(categories__icontains=search)
@@ -51,7 +49,6 @@ def article_view(request):
     if request.method == 'POST':
         user = request.user
         data = request.data
-        member = Member.objects.get(user=user)
 
         try:
             article = Article(
@@ -60,7 +57,7 @@ def article_view(request):
                 coding_languages=data['coding_languages'],
                 languages=data['languages'],
                 categories=data['categories'],
-                member=member
+                user=user
             )
             article.save()
 
@@ -100,9 +97,8 @@ def single_article_view(request, pk):
         try:
             article = Article.objects.get(pk=pk)
             user = request.user
-            member = Member.objects.get(user=user)
 
-            if article.member != member:
+            if article.user != user:
                 return Response(status=status.HTTP_401_UNAUTHORIZED)
             # end if
 
@@ -139,9 +135,8 @@ def single_article_view(request, pk):
             article = Article.objects.get(pk=pk)
             
             user = request.user
-            member = Member.objects.get(user=user)
 
-            if article.member != member:
+            if article.user != user:
                 return Response(status=status.HTTP_401_UNAUTHORIZED)
             # end if
 
@@ -155,15 +150,14 @@ def single_article_view(request, pk):
 
 
 @api_view(['GET'])
-@permission_classes((IsMemberOnly,))
-def member_article_view(request):
+@permission_classes((IsAuthenticatedOrReadOnly,))
+def user_article_view(request):
     '''
-    Retrieves all of member's code reviews
+    Retrieves all of user's code reviews
     '''
     if request.method == 'GET':
         user = request.user
-        member = Member.objects.get(user=user)
-        articles = Article.objects.filter(member=member)
+        articles = Article.objects.filter(user=user)
         serializer = ArticleSerializer(
             articles.all(), many=True, context={'request': request})
         return Response(serializer.data, status=status.HTTP_200_OK)
@@ -172,7 +166,7 @@ def member_article_view(request):
 
 
 @api_view(['PATCH'])
-@permission_classes((IsMemberOnly,))
+@permission_classes((IsAuthenticatedOrReadOnly,))
 def publish_article_view(request, pk):
     '''
     Publish article by primary key/ id
@@ -182,9 +176,8 @@ def publish_article_view(request, pk):
             article = Article.objects.get(pk=pk)
 
             user = request.user
-            member = Member.objects.get(user=user)
 
-            if article.member != member:
+            if article.user != user:
                 return Response(status=status.HTTP_401_UNAUTHORIZED)
             # end if
 
@@ -202,7 +195,7 @@ def publish_article_view(request, pk):
 
 
 @api_view(['PATCH'])
-@permission_classes((IsMemberOnly,))
+@permission_classes((IsAuthenticatedOrReadOnly,))
 def unpublish_article_view(request, pk):
     '''
     Unpublish article by primary key/ id
@@ -212,9 +205,8 @@ def unpublish_article_view(request, pk):
             article = Article.objects.get(pk=pk)
 
             user = request.user
-            member = Member.objects.get(user=user)
 
-            if article.member != member:
+            if article.user != user:
                 return Response(status=status.HTTP_401_UNAUTHORIZED)
             # end if
 

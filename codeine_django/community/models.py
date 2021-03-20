@@ -54,8 +54,11 @@ class Article(models.Model):
     categories = MultiSelectField(choices=CATEGORIES)
 
     # ref
-    member = models.ForeignKey(
-        'common.Member', on_delete=models.CASCADE, related_name='articles')
+    # member = models.ForeignKey(
+    #     'common.Member', on_delete=models.CASCADE, related_name='articles')
+    user = models.ForeignKey(
+        'common.BaseUser', on_delete=models.CASCADE, related_name='articles')
+
 
     def __str__(self):
         return f'Article: {self.id}, Title: {self.title}'
@@ -73,7 +76,7 @@ class ArticleComment(models.Model):
     display_id = models.PositiveIntegerField()
     comment = models.TextField()
     timestamp = models.DateTimeField(auto_now_add=True)
-    time_edited = models.DateTimeField(default=None, null=True, blank=True)
+    time_edited = models.DateTimeField(auto_now=True)
     pinned = models.BooleanField(default=False)
 
     # ref
@@ -101,8 +104,10 @@ class ArticleEngagement(models.Model):
     timestamp = models.DateTimeField(auto_now_add=True)
 
     # ref
-    member = models.ForeignKey(
-        'common.Member', on_delete=models.CASCADE, related_name='article_engagements')
+    # member = models.ForeignKey(
+    #     'common.Member', on_delete=models.CASCADE, related_name='article_engagements')
+    user = models.ForeignKey(
+        'common.BaseUser', on_delete=models.CASCADE, related_name='article_engagements')
     article = models.ForeignKey(
         'community.Article', on_delete=models.CASCADE, related_name='engagements')
 
@@ -164,8 +169,10 @@ class CodeReview(models.Model):
     categories = MultiSelectField(choices=CATEGORIES)
 
     # ref
-    member = models.ForeignKey(
-        'common.Member', on_delete=models.CASCADE, related_name='code_reviews')
+    # member = models.ForeignKey(
+    #     'common.Member', on_delete=models.CASCADE, related_name='code_reviews')
+    user = models.ForeignKey(
+        'common.BaseUser', on_delete=models.CASCADE, related_name='code_reviews')
 
     def __str__(self):
         return f'Code Review {self.id} request from {self.member.user.id}'
@@ -214,8 +221,10 @@ class CodeReviewEngagement(models.Model):
     timestamp = models.DateTimeField(auto_now_add=True)
 
     # ref
-    member = models.ForeignKey(
-        'common.Member', on_delete=models.CASCADE, related_name='code_review_engagements')
+    # member = models.ForeignKey(
+    #     'common.Member', on_delete=models.CASCADE, related_name='code_review_engagements')
+    user = models.ForeignKey(
+        'common.BaseUser', on_delete=models.CASCADE, related_name='code_review_engagements')
     code_review = models.ForeignKey(
         'community.CodeReview', on_delete=models.CASCADE, related_name='engagements')
 

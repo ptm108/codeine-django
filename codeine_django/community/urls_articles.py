@@ -7,12 +7,12 @@ urlpatterns = [
     path('', views_article.article_view, name='Create/Get all/Search Articles'),
     path('/<slug:pk>', views_article.single_article_view,
          name='Read/update/delete for Articles'),
-    path('/member/', views_article.member_article_view,
-         name='Get Member\'s Article'),
+    path('/user/', views_article.user_article_view,
+         name='Get user\'s Article'),
     path('/<slug:pk>/publish', views_article.publish_article_view,
-         name='Member publish Article'),
+         name='user publish Article'),
     path('/<slug:pk>/unpublish', views_article.unpublish_article_view,
-         name='Member unpublish Article'),
+         name='user unpublish Article'),
 
     # article comment views
     path('/<slug:article_id>/comments', views_article_comments.article_comment_view,
