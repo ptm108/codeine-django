@@ -27,7 +27,7 @@ class EventLog(models.Model):
     industry_project = models.ForeignKey('industry_projects.IndustryProject', on_delete=models.CASCADE, null=True, blank=True, default=None)
     duration = models.PositiveBigIntegerField(null=True, blank=True, default=None)
 
-    search_string = models.CharField(max_length=255)
+    search_string = models.CharField(max_length=255, null=True, blank=True, default=None)
 
     class Meta:
         ordering = ['-timestamp']

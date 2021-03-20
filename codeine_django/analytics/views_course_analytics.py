@@ -39,6 +39,7 @@ def post_log_view(request):
         course_material = CourseMaterial.objects.filter(pk=query_params.get('course_material_id', None)).first()
         quiz = Quiz.objects.filter(pk=query_params.get('quiz_id', None)).first()
         industry_project = IndustryProject.objects.filter(pk=query_params.get('industry_project_id', None)).first()
+        search_string = query_params.get('search_string', None)
 
         try:
             with transaction.atomic():
@@ -49,6 +50,7 @@ def post_log_view(request):
                     course_material=course_material,
                     quiz=quiz,
                     industry_project=industry_project,
+                    search_string=search_string
                 )
 
                 # duration logging for course material
