@@ -57,7 +57,7 @@ class Article(models.Model):
     # member = models.ForeignKey(
     #     'common.Member', on_delete=models.CASCADE, related_name='articles')
     user = models.ForeignKey(
-        'common.BaseUser', on_delete=models.CASCADE, related_name='articles')
+        'common.BaseUser', on_delete=models.CASCADE, related_name='articles', null=True, default=None)
 
 
     def __str__(self):
@@ -107,7 +107,7 @@ class ArticleEngagement(models.Model):
     # member = models.ForeignKey(
     #     'common.Member', on_delete=models.CASCADE, related_name='article_engagements')
     user = models.ForeignKey(
-        'common.BaseUser', on_delete=models.CASCADE, related_name='article_engagements')
+        'common.BaseUser', on_delete=models.CASCADE, related_name='article_engagements', null=True, default=None)
     article = models.ForeignKey(
         'community.Article', on_delete=models.CASCADE, related_name='engagements')
 
@@ -172,7 +172,7 @@ class CodeReview(models.Model):
     # member = models.ForeignKey(
     #     'common.Member', on_delete=models.CASCADE, related_name='code_reviews')
     user = models.ForeignKey(
-        'common.BaseUser', on_delete=models.CASCADE, related_name='code_reviews')
+        'common.BaseUser', on_delete=models.CASCADE, related_name='code_reviews', null=True, default=None)
 
     def __str__(self):
         return f'Code Review {self.id} request from {self.member.user.id}'
@@ -224,7 +224,7 @@ class CodeReviewEngagement(models.Model):
     # member = models.ForeignKey(
     #     'common.Member', on_delete=models.CASCADE, related_name='code_review_engagements')
     user = models.ForeignKey(
-        'common.BaseUser', on_delete=models.CASCADE, related_name='code_review_engagements')
+        'common.BaseUser', on_delete=models.CASCADE, related_name='code_review_engagements', null=True, default=None)
     code_review = models.ForeignKey(
         'community.CodeReview', on_delete=models.CASCADE, related_name='engagements')
 
