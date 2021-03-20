@@ -364,7 +364,7 @@ def course_member_stats_view(request):
                 Q(date_created__lte=timezone.now() - timedelta(days=days)) &
                 Q(progress=0)
             ).count()
-            false_starter_percentage = false_starter_count / total_count
+            false_starter_percentage = false_starter_count / total_count if total_count > 0 else 0
 
             active_count = 0
             for enrollment in course.enrollments.exclude(progress=100).all():
@@ -378,7 +378,7 @@ def course_member_stats_view(request):
                     active_count += 1
                 # end if
             # end for
-            active_members_percentage = active_count / total_count
+            active_members_percentage = active_count / total_count if total_count > 0 else 0
 
             return Response({'false_starter_percentage': false_starter_percentage, 'active_members_percentage': active_members_percentage}, status=status.HTTP_200_OK)
         except ObjectDoesNotExist as e:
