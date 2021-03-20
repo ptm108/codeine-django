@@ -188,7 +188,7 @@ class Quiz(models.Model):
 class QuestionGroup(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, unique=True)
     label = models.CharField(max_length=255)
-    count = models.PositiveSmallIntegerField()
+    count = models.PositiveSmallIntegerField(default=1)
 
     # ref to quiz
     quiz = models.ForeignKey('Quiz', on_delete=models.CASCADE, related_name='question_groups')
