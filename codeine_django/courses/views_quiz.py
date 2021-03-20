@@ -9,7 +9,7 @@ from rest_framework.parsers import MultiPartParser, FormParser
 
 import json
 
-from .models import Quiz, Question, ShortAnswer, MCQ, MRQ
+from .models import Quiz, Question, ShortAnswer, MCQ, MRQ, QuestionGroup
 from .serializers import QuizSerializer
 from common.permissions import IsPartnerOnly, IsPartnerOrReadOnly
 
@@ -78,8 +78,20 @@ def add_question_view(request, quiz_id):
                     order=quiz.questions.count() + 1,
                     quiz=quiz,
                     image=data['image'] if 'image' in data else None,
+                    group=None,
                 )
                 question.save()
+
+                # adds a question to a group
+                if 'label' in data:
+                    question_group = QuestionGroup.objects.filter(Q(quiz=quiz) & Q(label=data['label'])).first()
+                    if question_group is None:
+                        question_group = QuestionGroup(quiz=quiz, label=data['label'])
+                        question_group.save()
+                    # end if
+                    question.group = question_group
+                    question.save()
+                # end if
 
                 if qn_type == 'shortanswer':
                     sa = ShortAnswer(
@@ -152,6 +164,17 @@ def single_question_view(request, quiz_id, question_id):
                 question.title = data['title'] if 'title' in data else question.title
                 question.subtitle = data['subtitle'] if 'subtitle' in data else question.subtitle
                 question.image = data['image'] if 'image' in data else question.image
+
+                # adds the question to a group
+                if 'label' in data:
+                    question_group = QuestionGroup.objects.filter(Q(quiz=quiz) & Q(label=data['label'])).first()
+                    if question_group is None:
+                        question_group = QuestionGroup(quiz=quiz, label=data['label'])
+                        question_group.save()
+                    # end if
+                    question.group = question_group
+                    question.save()
+                # end if
                 question.save()
 
                 if qn_type == 'shortanswer':
