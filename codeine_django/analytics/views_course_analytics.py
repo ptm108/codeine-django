@@ -408,7 +408,7 @@ def member_demographics_view(request):
             course_id = request.query_params.get('course_id', None)
             partner_id = request.query_params.get('partner_id', None)
 
-            if partner is None:
+            if partner is None and partner_id is not None:
                 partner = Partner.objects.get(pk=partner_id)
             # end if
             members = BaseUser.objects.filter(member__enrollments__course__partner=partner)
