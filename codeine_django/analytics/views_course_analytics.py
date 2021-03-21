@@ -176,7 +176,8 @@ def course_conversion_rate_view(request):
             res['total_enrollments'] = total_enrollments.count()
 
             breakdown = []
-            for course in partner.courses.all():
+            courses = partner.courses.all() if partner is not None else Course.objects.all()
+            for course in courses:
                 tmp = {}
                 tmp['course_id'] = course.id
                 tmp['title'] = course.title
