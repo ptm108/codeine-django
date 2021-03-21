@@ -408,10 +408,13 @@ def member_demographics_view(request):
             course_id = request.query_params.get('course_id', None)
             partner_id = request.query_params.get('partner_id', None)
 
+            members = BaseUser.objects
+            if partner is not None:
+                members = BaseUser.objects.filter(member__enrollments__course__partner=partner)
             if partner is None and partner_id is not None:
                 partner = Partner.objects.get(pk=partner_id)
+                members = BaseUser.objects.filter(member__enrollments__course__partner=partner)
             # end if
-            members = BaseUser.objects.filter(member__enrollments__course__partner=partner)
 
             course = Course.objects.filter(pk=course_id).first()
             if course is not None:
