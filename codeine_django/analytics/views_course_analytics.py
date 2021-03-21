@@ -158,11 +158,12 @@ def course_conversion_rate_view(request):
 
             overall_view = overall_view.filter(timestamp__date__gte=now - timedelta(days=days))
             enrollments = enrollments.filter(date_created__date__gte=now - timedelta(days=days))
+            total_enrollments = Enrollment.objects
 
             if partner is not None:
                 overall_view = overall_view.filter(course__partner=partner)
                 enrollments = enrollments.filter(course__partner=partner)
-                total_enrollments = Enrollment.objects.filter(course__partner=partner)
+                total_enrollments = total_enrollments.filter(course__partner=partner)
             # end if
 
             view_count = overall_view.count()
