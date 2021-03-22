@@ -175,7 +175,7 @@ class CodeReview(models.Model):
         'common.BaseUser', on_delete=models.CASCADE, related_name='code_reviews', null=True, default=None)
 
     def __str__(self):
-        return f'Code Review {self.id} request from {self.member.user.id}'
+        return f'Code Review {self.id}'
     # end def
 
     class Meta:
@@ -229,7 +229,7 @@ class CodeReviewEngagement(models.Model):
         'community.CodeReview', on_delete=models.CASCADE, related_name='engagements')
 
     def __str__(self):
-        return f'Code Review Engagement {self.id} for Code Review {self.code_review.id} from {self.member.user.id}'
+        return f'Code Review Engagement {self.id} for Code Review {self.code_review.id} '
     # end def
 
     class Meta:
