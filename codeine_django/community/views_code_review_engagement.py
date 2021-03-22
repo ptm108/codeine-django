@@ -24,15 +24,16 @@ def code_review_engagement_view(request, code_review_id):
         code_review = CodeReview.objects.get(pk=code_review_id)
         code_review_engagements = CodeReviewEngagement.objects.filter(code_review=code_review)
 
-        # extract query params
-        is_user = request.query_params.get('is_user', None)
-
-        if is_user is not None:
-            if is_user:
-                user = request.user
-                code_review_engagements = code_review_engagements.filter(
-                    Q(user=user)
-                )
+        if request.user.is_anonymous is False:
+            # extract query params
+            is_user = request.query_params.get('is_user', None)
+            if is_user is not None:
+                if is_user:
+                    user = request.user
+                    code_review_engagements = code_review_engagements.filter(
+                        Q(user=user)
+                    )
+            # end if
         # end if
 
         serializer = CodeReviewEngagementSerializer(

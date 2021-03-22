@@ -24,15 +24,18 @@ def article_engagement_view(request, article_id):
         article = Article.objects.get(pk=article_id)
         article_engagements = ArticleEngagement.objects.filter(article=article)
 
-        # extract query params
-        is_user = request.query_params.get('is_user', None)
 
-        if is_user is not None:
-            if is_user:
-                user = request.user
-                article_engagements = article_engagements.filter(
-                    Q(user=user)
-                )
+        if request.user.is_anonymous is False:
+            # extract query params
+            is_user = request.query_params.get('is_user', None)
+
+            if is_user is not None:
+                if is_user:
+                    user = request.user
+                    article_engagements = article_engagements.filter(
+                        Q(user=user)
+                    )
+            # end if            
         # end if
 
         serializer = ArticleEngagementSerializer(

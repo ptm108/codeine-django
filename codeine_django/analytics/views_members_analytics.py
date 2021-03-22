@@ -71,9 +71,9 @@ def course_assessment_performance_view(request):
                 average_score = course_quiz_results.aggregate(Avg('score'))
                 total_score = course_quiz_results.annotate(total_score=Sum('quiz__questions__shortanswer__marks') + Sum('quiz__questions__mcq__marks') + Sum('quiz__questions__mrq__marks'))[0].total_score
                 # print(average_score['score__avg']/total_score)
-                tmp_course['average_score'] = average_score['score__avg'] / total_score
+                tmp_course['average_score'] = average_score['score__avg'] / total_score if total_score > 0 else 0
 
-                passing_rate = len(course_quiz_results.filter(passed=True).all()) / len(course_quiz_results.all())
+                passing_rate = len(course_quiz_results.filter(passed=True).all()) / len(course_quiz_results.all()) if len(course_quiz_results.all()) > 0 else 0
                 # print(passing_rate)
                 tmp_course['passing_rate'] = passing_rate
                 res['breakdown_by_course'].append(tmp_course)
@@ -91,21 +91,24 @@ def course_assessment_performance_view(request):
                         'course_material_id': cm.id,
                         'course_material_title': cm.title,
                         'quiz_id': cm.quiz.id,
-                        'average_score': average_score[i]['score__avg'] / total_score[i]['total_score'],
-                        'passing_rate': len(course_material_quiz_results.filter(passed=True).all()) / len(course_material_quiz_results.all())
+                        'average_score': average_score[i]['score__avg'] / total_score[i]['total_score'] if total_score[i]['total_score'] > 0 else 0,
+                        'passing_rate': len(course_material_quiz_results.filter(passed=True).all()) / len(course_material_quiz_results.all()) if len(course_material_quiz_results.all()) > 0 else 0
                     }
                     tmp_course['course_material_quiz'].append(tmp_cm)
                 # end for
 
             # quiz_results_total = quiz_results.annotate(total_score=Sum('quiz__questions__shortanswer__marks') + Sum('quiz__questions__mcq__marks') + Sum('quiz__questions__mrq__marks'))
             # quiz_results = quiz_results.values('quiz__course').order_by().annotate(average_score=Avg('score'))
-            res['overall_average_score'] /= active_courses
-            res['overall_passing_rate'] /= active_courses
+            res['overall_average_score'] = res['overall_average_score'] / active_courses if active_courses > 0 else 0
+            res['overall_passing_rate'] = res['overall_passing_rate'] / active_courses if active_courses > 0 else 0
 
             return Response(res)
         except ObjectDoesNotExist as e:
             print(str(e))
             return Response(status=status.HTTP_404_NOT_FOUND)
+        except ZeroDivisionError as e:
+            print(str(e))
+            return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         # end try-except
     # end if
 # end def

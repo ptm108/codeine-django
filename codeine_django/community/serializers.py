@@ -64,9 +64,12 @@ class NestedCodeReviewCommentSerializer(serializers.ModelSerializer):
 
     def get_current_user_liked(self, obj):
         request = self.context.get("request")
-        user = request.user
-        return CodeReviewCommentEngagement.objects.filter(comment=obj).filter(user=user).exists()
-        # end if
+        if request.user.is_anonymous:
+            return None
+        else:
+            user = request.user
+            return CodeReviewCommentEngagement.objects.filter(comment=obj).filter(user=user).exists()
+        # end if-else
     # end def
 # end class
 
@@ -123,9 +126,12 @@ class NestedArticleCommentSerializer(serializers.ModelSerializer):
 
     def get_current_user_liked(self, obj):
         request = self.context.get("request")
-        user = request.user
-        return ArticleCommentEngagement.objects.filter(comment=obj).filter(user=user).exists()
-        # end if
+        if request.user.is_anonymous:
+            return None
+        else:
+            user = request.user
+            return ArticleCommentEngagement.objects.filter(comment=obj).filter(user=user).exists()
+        # end if-else
     # end def
 # end class
 
@@ -173,9 +179,12 @@ class ArticleCommentSerializer(serializers.ModelSerializer):
 
     def get_current_user_liked(self, obj):
         request = self.context.get("request")
-        user = request.user
-        return ArticleCommentEngagement.objects.filter(comment=obj).filter(user=user).exists()
-        # end if
+        if request.user.is_anonymous:
+            return None
+        else:
+            user = request.user
+            return ArticleCommentEngagement.objects.filter(comment=obj).filter(user=user).exists()
+        # end if-else
     # end def
 # end class
 
@@ -238,8 +247,12 @@ class ArticleSerializer(serializers.ModelSerializer):
 
     def get_current_user_liked(self, obj):
         request = self.context.get("request")
-        user = request.user
-        return ArticleEngagement.objects.filter(article=obj).filter(user=user).exists()
+        print(request.user)
+        if request.user.is_anonymous:
+            return None
+        else:
+            user = request.user
+            return ArticleEngagement.objects.filter(article=obj).filter(user=user).exists()
         # end if
     # end def
 # end class
@@ -290,10 +303,12 @@ class CodeReviewSerializer(serializers.ModelSerializer):
 
     def get_current_user_liked(self, obj):
         request = self.context.get("request")
-
-        user = request.user
-        return CodeReviewEngagement.objects.filter(code_review=obj).filter(user=user).exists()
-        # end if
+        if request.user.is_anonymous:
+            return None
+        else:
+            user = request.user
+            return CodeReviewEngagement.objects.filter(code_review=obj).filter(user=user).exists()
+        # end if-else
     # end def
 # end class
 

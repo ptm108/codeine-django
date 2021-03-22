@@ -158,11 +158,12 @@ def course_conversion_rate_view(request):
 
             overall_view = overall_view.filter(timestamp__date__gte=now - timedelta(days=days))
             enrollments = enrollments.filter(date_created__date__gte=now - timedelta(days=days))
+            total_enrollments = Enrollment.objects
 
             if partner is not None:
                 overall_view = overall_view.filter(course__partner=partner)
                 enrollments = enrollments.filter(course__partner=partner)
-                total_enrollments = Enrollment.objects.filter(course__partner=partner)
+                total_enrollments = total_enrollments.filter(course__partner=partner)
             # end if
 
             view_count = overall_view.count()
@@ -175,7 +176,8 @@ def course_conversion_rate_view(request):
             res['total_enrollments'] = total_enrollments.count()
 
             breakdown = []
-            for course in partner.courses.all():
+            courses = partner.courses.all() if partner is not None else Course.objects.all()
+            for course in courses:
                 tmp = {}
                 tmp['course_id'] = course.id
                 tmp['title'] = course.title
@@ -364,7 +366,7 @@ def course_member_stats_view(request):
                 Q(date_created__lte=timezone.now() - timedelta(days=days)) &
                 Q(progress=0)
             ).count()
-            false_starter_percentage = false_starter_count / total_count
+            false_starter_percentage = false_starter_count / total_count if total_count > 0 else 0
 
             active_count = 0
             for enrollment in course.enrollments.exclude(progress=100).all():
@@ -378,7 +380,7 @@ def course_member_stats_view(request):
                     active_count += 1
                 # end if
             # end for
-            active_members_percentage = active_count / total_count
+            active_members_percentage = active_count / total_count if total_count > 0 else 0
 
             return Response({'false_starter_percentage': false_starter_percentage, 'active_members_percentage': active_members_percentage}, status=status.HTTP_200_OK)
         except ObjectDoesNotExist as e:
@@ -406,10 +408,13 @@ def member_demographics_view(request):
             course_id = request.query_params.get('course_id', None)
             partner_id = request.query_params.get('partner_id', None)
 
-            if partner is None:
+            members = BaseUser.objects
+            if partner is not None:
+                members = BaseUser.objects.filter(member__enrollments__course__partner=partner)
+            if partner is None and partner_id is not None:
                 partner = Partner.objects.get(pk=partner_id)
+                members = BaseUser.objects.filter(member__enrollments__course__partner=partner)
             # end if
-            members = BaseUser.objects.filter(member__enrollments__course__partner=partner)
 
             course = Course.objects.filter(pk=course_id).first()
             if course is not None:
