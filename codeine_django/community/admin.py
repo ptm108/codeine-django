@@ -52,7 +52,8 @@ class ArticleCommentAdmin(admin.ModelAdmin):
 
 
 class ArticleEngagementAdmin(admin.ModelAdmin):
-    list_display = ('id', 'like', 'timestamp', 'user', 'article')
+    # list_display = ('id', 'like', 'timestamp', 'user', 'article')
+    list_display = ('id', 'timestamp', 'user', 'article')
 # end class
 
 

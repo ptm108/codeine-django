@@ -11,7 +11,7 @@ import json
 from rest_framework.permissions import (
     IsAuthenticatedOrReadOnly,
 )
-from .models import Article
+from .models import Article, ArticleEngagement
 from .serializers import ArticleSerializer
 
 # Create your views here.
@@ -221,3 +221,54 @@ def unpublish_article_view(request, pk):
         # end try-except
     # end if
 # def
+
+
+@api_view(['POST', 'DELETE'])
+@permission_classes((IsAuthenticatedOrReadOnly,))
+def article_engagement_view(request, pk):
+    '''
+    Like an Article
+    '''
+    if request.method == 'POST':
+        user = request.user
+        try:
+            article = Article.objects.get(pk=pk)
+
+            if ArticleEngagement.objects.filter(article=article).filter(user=user).exists():
+                return Response(ArticleSerializer(article, context={'request': request, 'recursive': True}).data, status=status.HTTP_409_CONFLICT)
+            # end if
+
+            article_engagement = ArticleEngagement(
+                user=user,
+                article=article
+            )
+            article_engagement.save()
+
+            serializer = ArticleSerializer(article, context={'request': request, 'recursive': True})
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except ObjectDoesNotExist as e:
+            print(e)
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        # end try-except
+    # end if
+
+    '''
+    Unlike an Article
+    '''
+    if request.method == 'DELETE':
+        user = request.user
+        try:
+            article = Article.objects.get(pk=pk)
+
+            engagement = ArticleEngagement.objects.filter(article=article).get(user=user)
+            engagement.delete()
+            article.save()
+
+            serializer = ArticleSerializer(article, context={'request': request, 'recursive': True})
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except ObjectDoesNotExist as e:
+            print(e)
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        # end try-except
+    # end if
+# end def

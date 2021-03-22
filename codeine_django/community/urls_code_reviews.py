@@ -11,7 +11,7 @@ urlpatterns = [
     path('/user/', views_code_review.user_code_review_view,
          name='Get user\'s Code Review'),
     path('/<slug:pk>/engagements', views_code_review.code_review_engagement_view,
-         name='Like/Unlike article'),
+         name='Like/Unlike Code Review'),
 
     # code review comment views
     path('/<slug:code_review_id>/comments', views_code_review_comments.code_review_comment_view,
