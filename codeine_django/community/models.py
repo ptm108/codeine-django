@@ -100,7 +100,7 @@ class ArticleComment(models.Model):
 class ArticleEngagement(models.Model):
     id = models.UUIDField(
         primary_key=True, default=uuid.uuid4, editable=False, unique=True)
-    like = models.IntegerField()
+    # like = models.IntegerField()
     timestamp = models.DateTimeField(auto_now_add=True)
 
     # ref
@@ -112,7 +112,7 @@ class ArticleEngagement(models.Model):
         'community.Article', on_delete=models.CASCADE, related_name='engagements')
 
     def __str__(self):
-        return f'Article Engagement {self.id} for Article {self.article.id} from {self.member.user.id}'
+        return f'Article Engagement {self.id} for Article {self.article.id} from {self.user.id}'
     # end def
 
     class Meta:
