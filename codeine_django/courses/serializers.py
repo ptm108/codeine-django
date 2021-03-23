@@ -18,7 +18,8 @@ from .models import (
     CourseReview,
     CourseComment,
     CourseCommentEngagement,
-    QuestionGroup
+    QuestionGroup,
+    QuestionBank
 )
 
 from common.models import Member, Partner
@@ -105,6 +106,16 @@ class QuestionSerializer(serializers.ModelSerializer):
             return None
         # end if-else
     # end def
+# end class
+
+
+class QuestionBankSerializer(serializers.ModelSerializer):
+    questions = QuestionSerializer(many=True)
+
+    class Meta:
+        model = QuestionBank
+        fields = '__all__'
+    # end Meta
 # end class
 
 

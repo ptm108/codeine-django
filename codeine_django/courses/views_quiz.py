@@ -9,8 +9,8 @@ from rest_framework.parsers import MultiPartParser, FormParser
 
 import json
 
-from .models import Quiz, Question, ShortAnswer, MCQ, MRQ, QuestionGroup
-from .serializers import QuizSerializer
+from .models import Quiz, Question, ShortAnswer, MCQ, MRQ, QuestionGroup, Course, QuestionBank
+from .serializers import QuizSerializer, QuestionBankSerializer
 from common.permissions import IsPartnerOnly, IsPartnerOrReadOnly
 
 
@@ -329,6 +329,112 @@ def delete_question_group_view(request, quiz_id):
             question_group.delete()
 
             return Response(status=status.HTTP_200_OK)
+        except ObjectDoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        except (ValueError, IntegrityError, KeyError) as e:
+            print(e)
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+        # end try-except
+    # end if
+# end def
+
+
+@api_view(['GET', 'POST'])
+@permission_classes((IsPartnerOnly,))
+def question_bank_view(request, course_id):
+    user = request.user
+    data = request.data
+
+    '''
+    Gets all question banks in a course
+    '''
+    if request.method == 'GET':
+        try:
+            partner = user.partner
+            course = Course.objects.filter(partner=partner).get(pk=course_id)
+            question_banks = QuestionBank.objects.filter(course=course)
+
+            serializer = QuestionBankSerializer(question_banks.all(), many=True, context={'request': request})
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except ObjectDoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        except (ValueError, IntegrityError, KeyError) as e:
+            print(e)
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+        # end try-except
+    # end if
+    
+    '''
+    Creates a question bank, otherwise if exists, updates question bank
+    Returns list of question banks
+    '''
+    if request.method == 'POST':
+        try:
+            partner = user.partner
+            course = Course.objects.filter(partner=partner).get(pk=course_id)
+
+            QuestionBank(
+                label=data['label'],
+                course=course
+            ).save()
+            question_banks = QuestionBank.objects.filter(course=course)
+
+            serializer = QuestionBankSerializer(question_banks.all(), many=True, context={'request': request})
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except ObjectDoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        except (ValueError, IntegrityError, KeyError) as e:
+            print(e)
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+        # end try-except
+    # end if
+# end def
+
+@api_view(['PUT', 'DELETE'])
+@permission_classes((IsPartnerOnly,))
+def single_question_bank_view(request, course_id, qb_id):
+    user = request.user
+    data = request.data
+
+    '''
+    Updates a question bank
+    '''
+    if request.method == 'PUT':
+        try:
+            partner = user.partner
+            course = Course.objects.filter(partner=partner).get(pk=course_id)
+            question_bank = QuestionBank.objects.filter(course=course).get(pk=qb_id)
+
+            question_bank.label = data['label']
+            question_bank.save()
+            
+            question_banks = QuestionBank.objects.filter(course=course)
+
+            serializer = QuestionBankSerializer(question_banks.all(), many=True, context={'request': request})
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except ObjectDoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        except (ValueError, IntegrityError, KeyError) as e:
+            print(e)
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+        # end try-except
+    # end if
+    
+    '''
+    Delete a question bank
+    Returns list of question banks
+    '''
+    if request.method == 'DELETE':
+        try:
+            partner = user.partner
+            course = Course.objects.filter(partner=partner).get(pk=course_id)
+            question_bank = QuestionBank.objects.filter(course=course).get(pk=qb_id)
+            question_bank.delete()
+
+            question_banks = QuestionBank.objects.filter(course=course)
+
+            serializer = QuestionBankSerializer(question_banks.all(), many=True, context={'request': request})
+            return Response(serializer.data, status=status.HTTP_200_OK)
         except ObjectDoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
         except (ValueError, IntegrityError, KeyError) as e:
