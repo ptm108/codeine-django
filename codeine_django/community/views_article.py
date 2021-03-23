@@ -5,7 +5,6 @@ from django.db.models import Q
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes, parser_classes, renderer_classes
 from rest_framework.response import Response
-from rest_framework.pagination import PageNumberPagination
 
 import json
 
@@ -32,9 +31,6 @@ def article_view(request):
         # extract query params
         search = request.query_params.get('search', None)
         date_sort = request.query_params.get('sortDate', None)
-        # get pagination params from request, default is (10, 1)
-        page_size = int(request.query_params.get('pageSize', 1000))
-
 
         if search is not None:
             articles = articles.filter(
@@ -51,14 +47,9 @@ def article_view(request):
             articles = articles.order_by(date_sort)
         # end if
 
-        # paginator configs
-        paginator = PageNumberPagination()
-        paginator.page_size = page_size
-
-        result_page = paginator.paginate_queryset(articles.all(), request)
         serializer = ArticleSerializer(
-            result_page, many=True, context={'request': request, 'public': True})
-        return paginator.get_paginated_response(serializer.data)
+            articles.all(), many=True, context={'request': request})
+        return Response(serializer.data, status=status.HTTP_200_OK)
     # end if
 
     '''
