@@ -48,7 +48,7 @@ def quiz_view(request, quiz_id):
 @api_view(['POST'])
 @permission_classes((IsPartnerOnly,))
 @parser_classes([MultiPartParser, FormParser])
-def add_question_view(request, quiz_id):
+def add_question_view(request, qb_id):
     user = request.user
     data = request.data
 
@@ -67,31 +67,17 @@ def add_question_view(request, quiz_id):
                 # end if
 
                 # check if partner is owner of course/material
-                quiz = Quiz.objects.filter(
-                    Q(course__partner=partner) |
-                    Q(course_material__chapter__course__partner=partner)
-                ).get(pk=quiz_id)
+                question_bank = QuestionBank.objects.filter(course__partner=partner).get(pk=qb_id)
+                course = question_bank.course
 
                 question = Question(
                     title=data['title'],
                     subtitle=data['subtitle'] if 'subtitle' in data else None,
-                    order=quiz.questions.count() + 1,
-                    quiz=quiz,
+                    order=question_bank.questions.count() + 1,
+                    question_bank=question_bank,
                     image=data['image'] if 'image' in data else None,
-                    group=None,
                 )
                 question.save()
-
-                # adds a question to a group
-                if 'label' in data:
-                    question_group = QuestionGroup.objects.filter(Q(quiz=quiz) & Q(label=data['label'])).first()
-                    if question_group is None:
-                        question_group = QuestionGroup(quiz=quiz, label=data['label'])
-                        question_group.save()
-                    # end if
-                    question.group = question_group
-                    question.save()
-                # end if
 
                 if qn_type == 'shortanswer':
                     sa = ShortAnswer(
@@ -101,7 +87,6 @@ def add_question_view(request, quiz_id):
                     )
                     sa.save()
                 if qn_type == 'mcq':
-                    print(type(json.loads(data['options'])))
                     mcq = MCQ(
                         question=question,
                         marks=int(data['marks']),
@@ -118,8 +103,9 @@ def add_question_view(request, quiz_id):
                     )
                     mrq.save()
                 # end ifs
+                question_banks = QuestionBank.objects.filter(course=course)
 
-                serializer = QuizSerializer(quiz, context={'request': request})
+                serializer = QuestionBankSerializer(question_banks.all(), many=True, context={'request': request})
                 return Response(serializer.data, status=status.HTTP_201_CREATED)
             except ObjectDoesNotExist:
                 return Response(status=status.HTTP_404_NOT_FOUND)
@@ -136,7 +122,7 @@ def add_question_view(request, quiz_id):
 @api_view(['PUT', 'DELETE'])
 @permission_classes((IsPartnerOnly,))
 @parser_classes([MultiPartParser, FormParser])
-def single_question_view(request, quiz_id, question_id):
+def single_question_view(request, qb_id, question_id):
     user = request.user
 
     '''
@@ -151,10 +137,9 @@ def single_question_view(request, quiz_id, question_id):
 
                 # check if partner is owner of course/material
                 question = Question.objects.filter(
-                    Q(quiz__course__partner=partner) |
-                    Q(quiz__course_material__chapter__course__partner=partner)
+                    Q(question_bank__course__partner=partner) 
                 ).get(pk=question_id)
-                quiz = question.quiz
+                question_bank = question.question_bank
 
                 qn_type = request.query_params.get('type', None)
                 if qn_type is None:
@@ -164,18 +149,6 @@ def single_question_view(request, quiz_id, question_id):
                 question.title = data['title'] if 'title' in data else question.title
                 question.subtitle = data['subtitle'] if 'subtitle' in data else question.subtitle
                 question.image = data['image'] if 'image' in data else question.image
-
-                # adds the question to a group
-                if 'label' in data:
-                    question_group = QuestionGroup.objects.filter(Q(quiz=quiz) & Q(label=data['label'])).first()
-                    if question_group is None:
-                        question_group = QuestionGroup(quiz=quiz, label=data['label'])
-                        question_group.save()
-                    # end if
-                    question.group = question_group
-                    question.save()
-                # end if
-                question.save()
 
                 if qn_type == 'shortanswer':
                     sa = question.shortanswer
@@ -198,8 +171,9 @@ def single_question_view(request, quiz_id, question_id):
                     mrq.correct_answer = json.loads(data['correct_answer']) if 'correct_answer' in data else mrq.correct_answer
                     mrq.save()
                 # end ifs
+                question_banks = QuestionBank.objects.filter(course=question_bank.course)
 
-                serializer = QuizSerializer(quiz, context={'request': request})
+                serializer = QuestionBankSerializer(question_banks.all(), many=True, context={'request': request})
                 return Response(serializer.data, status=status.HTTP_200_OK)
             except ObjectDoesNotExist:
                 return Response(status=status.HTTP_404_NOT_FOUND)
@@ -219,14 +193,14 @@ def single_question_view(request, quiz_id, question_id):
 
             # check if partner is owner of course/material
             question = Question.objects.filter(
-                Q(quiz__course__partner=partner) |
-                Q(quiz__course_material__chapter__course__partner=partner)
+                Q(question_bank__course__partner=partner) 
             ).get(pk=question_id)
-            quiz = question.quiz
-
             question.delete()
 
-            serializer = QuizSerializer(quiz, context={'request': request})
+            question_bank = question.question_bank
+            question_banks = QuestionBank.objects.filter(course=question_bank.course)
+
+            serializer = QuestionBankSerializer(question_banks.all(), many=True, context={'request': request})
             return Response(serializer.data, status=status.HTTP_200_OK)
         except ObjectDoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
