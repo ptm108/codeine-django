@@ -93,7 +93,7 @@ class QuestionAdmin(admin.ModelAdmin):
         'subtitle',
         'order',
         'image',
-        'quiz',
+        'question_bank',
     )
 # end class
 

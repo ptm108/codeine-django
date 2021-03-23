@@ -92,6 +92,9 @@ class Course(models.Model):
     class Meta:
         ordering = ['is_deleted', 'published_date']
     # end Meta
+
+    def __str__(self):
+        return f'{self.title}; {self.id}'
 # end class
 
 
@@ -198,12 +201,17 @@ class QuestionBank(models.Model):
         ]
     # end Meta
 
+    def __str__(self):
+        return f'{self.label}; {self.id}'
+    # end def
+
 # end class
 
 
 class QuestionGroup(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, unique=True)
     count = models.PositiveSmallIntegerField(default=1)
+    order = models.PositiveSmallIntegerField(default=0)
 
     # ref to quiz
     quiz = models.ForeignKey('Quiz', on_delete=models.CASCADE, related_name='question_groups')
@@ -220,9 +228,6 @@ class Question(models.Model):
     subtitle = models.TextField(null=True, default='', blank=True)
     order = models.PositiveSmallIntegerField()
     image = models.ImageField(null=True, blank=True, default=None)
-
-    # ref to Quiz
-    quiz = models.ForeignKey('Quiz', on_delete=models.CASCADE, null=True, blank=True, related_name='questions')
 
     # ref to group -- for question banks
     question_bank = models.ForeignKey('QuestionBank', null=True, blank=True, on_delete=models.CASCADE, related_name='questions')
