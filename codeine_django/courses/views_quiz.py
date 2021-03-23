@@ -160,14 +160,14 @@ def single_question_view(request, qb_id, question_id):
                     mcq = question.mcq
                     mcq.question = question
                     mcq.marks = int(data['marks'])
-                    mcq.options = json.loads(data['options']) if 'options' in data else mcq.options,
+                    mcq.options = json.loads(data['options']) if 'options' in data else mcq.options
                     mcq.correct_answer = data['correct_answer']
                     mcq.save()
                 if qn_type == 'mrq':
                     mrq = question.mrq
                     mrq.question = question
                     mrq.marks = int(data['marks'])
-                    mrq.options = json.loads(data['options']) if 'options' in data else mrq.options,
+                    mrq.options = json.loads(data['options']) if 'options' in data else mrq.options
                     mrq.correct_answer = json.loads(data['correct_answer']) if 'correct_answer' in data else mrq.correct_answer
                     mrq.save()
                 # end ifs
