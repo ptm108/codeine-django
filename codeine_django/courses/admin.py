@@ -101,8 +101,8 @@ class QuestionAdmin(admin.ModelAdmin):
 class QuestionGroupAdmin(admin.ModelAdmin):
     list_display = (
         'id',
-        'label',
         'quiz',
+        'question_bank',
     )
 # end class
 

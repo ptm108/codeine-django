@@ -185,19 +185,32 @@ class Quiz(models.Model):
     course = models.OneToOneField('Course',  on_delete=models.CASCADE, related_name='assessment', null=True, blank=True)
 # end class
 
-class QuestionGroup(models.Model):
+
+class QuestionBank(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, unique=True)
     label = models.CharField(max_length=255)
+
+    course = models.ForeignKey('Course', on_delete=models.CASCADE, related_name="question_banks")
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=['course', 'label'], name='Course_QuestionBank Unique Constraint: label')
+        ]
+    # end Meta
+
+# end class
+
+
+class QuestionGroup(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, unique=True)
     count = models.PositiveSmallIntegerField(default=1)
 
     # ref to quiz
     quiz = models.ForeignKey('Quiz', on_delete=models.CASCADE, related_name='question_groups')
 
-    class Meta:
-        constraints = [
-            models.UniqueConstraint(fields=['quiz', 'label'], name='QuestionGroup Unique Constraint: quiz_label')
-        ]
-    # end Meta
+    # ref to question bank
+    question_bank = models.ForeignKey('QuestionBank', null=True, blank=True, on_delete=models.CASCADE, related_name='+')
+
 # end class
 
 
@@ -212,7 +225,7 @@ class Question(models.Model):
     quiz = models.ForeignKey('Quiz', on_delete=models.CASCADE, null=True, blank=True, related_name='questions')
 
     # ref to group -- for question banks
-    group = models.ForeignKey('QuestionGroup', on_delete=models.SET_NULL, null=True, blank=True, related_name='questions')
+    question_bank = models.ForeignKey('QuestionBank', null=True, blank=True, on_delete=models.CASCADE, related_name='questions')
 
     class Meta:
         ordering = ['order']
