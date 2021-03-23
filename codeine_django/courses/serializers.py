@@ -84,11 +84,11 @@ class QuestionSerializer(serializers.ModelSerializer):
     mcq = MCQSerializer()
     mrq = MRQAnswerSerializer()
     image = serializers.SerializerMethodField()
-    group_label = serializers.SerializerMethodField('get_group_label')
+    question_bank = serializers.SerializerMethodField('get_label')
 
     class Meta:
         model = Question
-        fields = ('id', 'title', 'subtitle', 'shortanswer', 'mcq', 'mrq', 'order', 'image', 'group_label')
+        fields = ('id', 'title', 'subtitle', 'shortanswer', 'mcq', 'mrq', 'order', 'image', 'question_bank',)
     # end class
 
     def get_image(self, obj):
@@ -98,9 +98,9 @@ class QuestionSerializer(serializers.ModelSerializer):
         # end if
     # end def
 
-    def get_group_label(self, obj):
-        if obj.group:
-            return obj.group.label
+    def get_label(self, obj):
+        if obj.question_bank:
+            return obj.question_bank.label
         else:
             return None
         # end if-else
