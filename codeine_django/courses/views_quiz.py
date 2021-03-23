@@ -137,7 +137,7 @@ def single_question_view(request, qb_id, question_id):
 
                 # check if partner is owner of course/material
                 question = Question.objects.filter(
-                    Q(question_bank__course__partner=partner) 
+                    Q(question_bank__course__partner=partner)
                 ).get(pk=question_id)
                 question_bank = question.question_bank
 
@@ -193,7 +193,7 @@ def single_question_view(request, qb_id, question_id):
 
             # check if partner is owner of course/material
             question = Question.objects.filter(
-                Q(question_bank__course__partner=partner) 
+                Q(question_bank__course__partner=partner)
             ).get(pk=question_id)
             question.delete()
 
@@ -214,7 +214,7 @@ def single_question_view(request, qb_id, question_id):
 
 @api_view(['PATCH'])
 @permission_classes((IsPartnerOnly,))
-def order_question_view(request, quiz_id):
+def order_question_view(request, qb_id):
     user = request.user
 
     '''
@@ -225,10 +225,7 @@ def order_question_view(request, quiz_id):
             partner = user.partner
 
             # check if partner is owner of course/material
-            quiz = Quiz.objects.filter(
-                Q(course__partner=partner) |
-                Q(course_material__chapter__course__partner=partner)
-            ).get(pk=quiz_id)
+            question_bank = QuestionBank.objects.filter(course__partner=partner).get(pk=qb_id)
 
             question_id_list = request.data
 
@@ -236,7 +233,9 @@ def order_question_view(request, quiz_id):
                 Question.objects.filter(pk=qn_id).update(order=index + 1)
             # end for
 
-            serializer = QuizSerializer(quiz, context={'request': request})
+            question_banks = QuestionBank.objects.filter(course=question_bank.course)
+
+            serializer = QuestionBankSerializer(question_banks.all(), many=True, context={'request': request})
             return Response(serializer.data, status=status.HTTP_200_OK)
         except ObjectDoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
@@ -337,7 +336,7 @@ def question_bank_view(request, course_id):
             return Response(status=status.HTTP_400_BAD_REQUEST)
         # end try-except
     # end if
-    
+
     '''
     Creates a question bank, otherwise if exists, updates question bank
     Returns list of question banks
@@ -364,6 +363,7 @@ def question_bank_view(request, course_id):
     # end if
 # end def
 
+
 @api_view(['PUT', 'DELETE'])
 @permission_classes((IsPartnerOnly,))
 def single_question_bank_view(request, course_id, qb_id):
@@ -381,7 +381,7 @@ def single_question_bank_view(request, course_id, qb_id):
 
             question_bank.label = data['label']
             question_bank.save()
-            
+
             question_banks = QuestionBank.objects.filter(course=course)
 
             serializer = QuestionBankSerializer(question_banks.all(), many=True, context={'request': request})
@@ -393,7 +393,7 @@ def single_question_bank_view(request, course_id, qb_id):
             return Response(status=status.HTTP_400_BAD_REQUEST)
         # end try-except
     # end if
-    
+
     '''
     Delete a question bank
     Returns list of question banks

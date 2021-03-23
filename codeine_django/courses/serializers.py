@@ -144,32 +144,23 @@ class CourseVideoSerializer(serializers.ModelSerializer):
 # end class
 
 
-class QuizSerializer(serializers.ModelSerializer):
-    questions = QuestionSerializer(many=True)
-    question_groups = serializers.SerializerMethodField()
-
-    class Meta:
-        model = Quiz
-        fields = ('id', 'passing_marks', 'course', 'course_material', 'questions', 'instructions', 'is_randomized', 'question_groups',)
-    # end Meta
-
-    def get_question_groups(self, obj):
-        return [group.label for group in obj.question_groups.all()]
-    # end def
-# end class
-
-
 class QuestionGroupSerializer(serializers.ModelSerializer):
-    question_count = serializers.SerializerMethodField('get_question_count')
+    question_bank = QuestionBankSerializer()
 
     class Meta:
         model = QuestionGroup
-        fields = ('label', 'question_count', 'quiz',)
+        fields = ('id', 'count', 'order', 'question_bank')
     # end Meta
+# end class
 
-    def get_question_count(self, obj):
-        return Question.objects.filter(group=obj).count()
-    # end def
+
+class QuizSerializer(serializers.ModelSerializer):
+    question_groups = QuestionGroupSerializer(many=True)
+
+    class Meta:
+        model = Quiz
+        fields = ('id', 'passing_marks', 'course', 'course_material', 'instructions', 'is_randomized', 'question_groups',)
+    # end Meta
 # end class
 
 
