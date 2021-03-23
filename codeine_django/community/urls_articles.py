@@ -10,9 +10,13 @@ urlpatterns = [
     path('/user/', views_article.user_article_view,
          name='Get user\'s Article'),
     path('/<slug:pk>/publish', views_article.publish_article_view,
-         name='user publish Article'),
+         name='User publish Article'),
     path('/<slug:pk>/unpublish', views_article.unpublish_article_view,
-         name='user unpublish Article'),
+         name='User unpublish Article'),
+    path('/<slug:pk>/activate', views_article.activate_article_view,
+         name='Admin activate Article'),
+    path('/<slug:pk>/deactivate', views_article.deactivate_article_view,
+         name='Admin deactivate Article'),
     path('/<slug:pk>/engagements', views_article.article_engagement_view,
          name='Like/Unlike article'),
 
@@ -29,8 +33,8 @@ urlpatterns = [
          name='Like/Unlike article comments'),
 
     # article engagement views
-#     path('/<slug:article_id>/engagement', views_article_engagement.article_engagement_view,
-#          name='Create/Get all/Search Engagements'),
-#     path('/<slug:article_id>/engagement/<slug:pk>',
-#          views_article_engagement.single_article_engagement_view, name='Read/update/delete for Engagements'),
+    #     path('/<slug:article_id>/engagement', views_article_engagement.article_engagement_view,
+    #          name='Create/Get all/Search Engagements'),
+    #     path('/<slug:article_id>/engagement/<slug:pk>',
+    #          views_article_engagement.single_article_engagement_view, name='Read/update/delete for Engagements'),
 ]

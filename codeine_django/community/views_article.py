@@ -11,6 +11,7 @@ import json
 from rest_framework.permissions import (
     IsAuthenticatedOrReadOnly,
 )
+from common.permissions import AdminOrReadOnly
 from .models import Article, ArticleEngagement
 from .serializers import ArticleSerializer
 
@@ -24,18 +25,26 @@ def article_view(request):
     Retrieves all articles
     '''
     if request.method == 'GET':
-        articles = Article.objects
+        articles = Article.objects.filter(
+            Q(is_published=True) & Q(is_activated=True))
 
         # extract query params
         search = request.query_params.get('search', None)
+        date_sort = request.query_params.get('sortDate', None)
 
         if search is not None:
             articles = articles.filter(
-                Q(user__id__exact=search) |
+                Q(user__first_name__icontains=search) |
+                Q(user__last_name__icontains=search) |
                 Q(title__icontains=search) |
+                Q(content__icontains=search) |
                 Q(coding_languages__icontains=search) |
                 Q(categories__icontains=search)
             )
+        # end if
+
+        if date_sort is not None:
+            articles = articles.order_by(date_sort)
         # end if
 
         serializer = ArticleSerializer(
@@ -133,7 +142,7 @@ def single_article_view(request, pk):
     if request.method == 'DELETE':
         try:
             article = Article.objects.get(pk=pk)
-            
+
             user = request.user
 
             if article.user != user:
@@ -244,7 +253,8 @@ def article_engagement_view(request, pk):
             )
             article_engagement.save()
 
-            serializer = ArticleSerializer(article, context={'request': request, 'recursive': True})
+            serializer = ArticleSerializer(
+                article, context={'request': request, 'recursive': True})
             return Response(serializer.data, status=status.HTTP_200_OK)
         except ObjectDoesNotExist as e:
             print(e)
@@ -260,11 +270,13 @@ def article_engagement_view(request, pk):
         try:
             article = Article.objects.get(pk=pk)
 
-            engagement = ArticleEngagement.objects.filter(article=article).get(user=user)
+            engagement = ArticleEngagement.objects.filter(
+                article=article).get(user=user)
             engagement.delete()
             article.save()
 
-            serializer = ArticleSerializer(article, context={'request': request, 'recursive': True})
+            serializer = ArticleSerializer(
+                article, context={'request': request, 'recursive': True})
             return Response(serializer.data, status=status.HTTP_200_OK)
         except ObjectDoesNotExist as e:
             print(e)
@@ -272,3 +284,53 @@ def article_engagement_view(request, pk):
         # end try-except
     # end if
 # end def
+
+
+@api_view(['PATCH'])
+@permission_classes((AdminOrReadOnly,))
+def activate_article_view(request, pk):
+    '''
+    Activate article by primary key/ id
+    '''
+    if request.method == 'PATCH':
+        try:
+            article = Article.objects.get(pk=pk)
+
+            user = request.user
+
+            article.is_activated = True
+            article.save()
+            serializer = ArticleSerializer(
+                article, context={'request': request})
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except (ObjectDoesNotExist, KeyError, ValueError) as e:
+            print(e)
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+        # end try-except
+    # end if
+# def
+
+
+@api_view(['PATCH'])
+@permission_classes((AdminOrReadOnly,))
+def deactivate_article_view(request, pk):
+    '''
+    Deactivate article by primary key/ id
+    '''
+    if request.method == 'PATCH':
+        try:
+            article = Article.objects.get(pk=pk)
+
+            user = request.user
+
+            article.is_activated = False
+            article.save()
+            serializer = ArticleSerializer(
+                article, context={'request': request})
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except (ObjectDoesNotExist, KeyError, ValueError) as e:
+            print(e)
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+        # end try-except
+    # end if
+# def
