@@ -11,6 +11,7 @@ import json
 from rest_framework.permissions import (
     IsAuthenticatedOrReadOnly,
 )
+from common.permissions import AdminOrReadOnly
 from .models import Article, ArticleEngagement
 from .serializers import ArticleSerializer
 
@@ -272,3 +273,54 @@ def article_engagement_view(request, pk):
         # end try-except
     # end if
 # end def
+
+
+
+@api_view(['PATCH'])
+@permission_classes((AdminOrReadOnly,))
+def activate_article_view(request, pk):
+    '''
+    Activate article by primary key/ id
+    '''
+    if request.method == 'PATCH':
+        try:
+            article = Article.objects.get(pk=pk)
+
+            user = request.user
+
+            article.is_activated = True
+            article.save()
+            serializer = ArticleSerializer(
+                article, context={'request': request})
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except (ObjectDoesNotExist, KeyError, ValueError) as e:
+            print(e)
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+        # end try-except
+    # end if
+# def
+
+
+@api_view(['PATCH'])
+@permission_classes((AdminOrReadOnly,))
+def deactivate_article_view(request, pk):
+    '''
+    Deactivate article by primary key/ id
+    '''
+    if request.method == 'PATCH':
+        try:
+            article = Article.objects.get(pk=pk)
+
+            user = request.user
+
+            article.is_activated = False
+            article.save()
+            serializer = ArticleSerializer(
+                article, context={'request': request})
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except (ObjectDoesNotExist, KeyError, ValueError) as e:
+            print(e)
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+        # end try-except
+    # end if
+# def
