@@ -7,6 +7,8 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 
+import random
+
 from .models import Quiz, QuizResult, QuizAnswer, Enrollment, Question, ShortAnswer, MRQ, MCQ, CourseMaterial
 from .serializers import QuizResultSerializer, NestedQuizResultSerializer
 from common.models import Member, Partner
@@ -49,7 +51,15 @@ def quiz_result_views(request, quiz_id):
             quiz_result = QuizResult(member=member, quiz=quiz)
             quiz_result.save()
 
-            for qn in quiz.questions.all():
+            random.seed(int(member.id))
+            questions = []
+
+            for question_group in quiz.question_groups.all():
+                tmp = random.sample(list(question_group.question_bank.questions.all()), k=question_group.count)
+                questions += tmp
+            # end for
+
+            for qn in questions:
                 qa = QuizAnswer(
                     quiz_result=quiz_result,
                     question=qn,
@@ -60,7 +70,8 @@ def quiz_result_views(request, quiz_id):
             # end for
 
             return Response(QuizResultSerializer(quiz_result).data, status=status.HTTP_200_OK)
-        except ObjectDoesNotExist:
+        except ObjectDoesNotExist as e:
+            print(str(e))
             return Response(status=status.HTTP_404_NOT_FOUND)
         # end try-except
     # end if
@@ -96,7 +107,7 @@ def update_quiz_result_view(request, quiz_result_id):
             serializer = NestedQuizResultSerializer(quiz_result, context={'request': request})
             return Response(serializer.data, status=status.HTTP_200_OK)
         except ObjectDoesNotExist as e:
-            print(e)
+            print(str(e))
             return Response(status=status.HTTP_404_NOT_FOUND)
         # end try-except
     # end if
@@ -124,9 +135,11 @@ def update_quiz_result_view(request, quiz_result_id):
             quiz_answer.save()
 
             return Response(QuizResultSerializer(quiz_result).data, status=status.HTTP_200_OK)
-        except Member.DoesNotExist:
+        except Member.DoesNotExist as e:
+            print(str(e))
             return Response(status=status.HTTP_401_UNAUTHORIZED)
-        except ObjectDoesNotExist:
+        except ObjectDoesNotExist as e:
+            print(str(e))
             return Response(status=status.HTTP_404_NOT_FOUND)
         except (KeyError, ValidationError) as e:
             print(e)
@@ -153,9 +166,9 @@ def sumbit_quiz_result_view(request, quiz_result_id):
             quiz = quiz_result.quiz
 
             with transaction.atomic():
-                total_marks = ShortAnswer.objects.filter(question__quiz=quiz).aggregate(Sum('marks'))['marks__sum'] if ShortAnswer.objects.filter(question__quiz=quiz).exists() else 0
-                total_marks += MRQ.objects.filter(question__quiz=quiz).aggregate(Sum('marks'))['marks__sum'] if MRQ.objects.filter(question__quiz=quiz).exists() else 0
-                total_marks += MCQ.objects.filter(question__quiz=quiz).aggregate(Sum('marks'))['marks__sum'] if MCQ.objects.filter(question__quiz=quiz).exists() else 0
+                # total_marks = ShortAnswer.objects.filter(question__question__bank__question_group__quiz=quiz).aggregate(Sum('marks'))['marks__sum'] if ShortAnswer.objects.filter(question__quiz=quiz).exists() else 0
+                # total_marks += MRQ.objects.filter(question__quiz=quiz).aggregate(Sum('marks'))['marks__sum'] if MRQ.objects.filter(question__quiz=quiz).exists() else 0
+                # total_marks += MCQ.objects.filter(question__quiz=quiz).aggregate(Sum('marks'))['marks__sum'] if MCQ.objects.filter(question__quiz=quiz).exists() else 0
                 score = 0
 
                 for answer in quiz_answers.all():
@@ -214,9 +227,9 @@ def sumbit_quiz_result_view(request, quiz_result_id):
         except ObjectDoesNotExist as e:
             print(e)
             return Response(status=status.HTTP_404_NOT_FOUND)
-        except (KeyError, ValueError, ValidationError, AttributeError) as e:
-            print(e)
-            return Response(status=status.HTTP_400_BAD_REQUEST)
+        # except (KeyError, ValueError, ValidationError, AttributeError) as e:
+        #     print(e)
+        #     return Response(status=status.HTTP_400_BAD_REQUEST)
         # end try-except
     # end if
 # end def

@@ -25,6 +25,8 @@ from .models import (
 from common.models import Member, Partner
 from common.serializers import NestedBaseUserSerializer, MemberSerializer
 
+import random
+
 # Assessment related
 
 
@@ -156,11 +158,30 @@ class QuestionGroupSerializer(serializers.ModelSerializer):
 
 class QuizSerializer(serializers.ModelSerializer):
     question_groups = QuestionGroupSerializer(many=True)
+    questions = serializers.SerializerMethodField('get_questions')
 
     class Meta:
         model = Quiz
-        fields = ('id', 'passing_marks', 'course', 'course_material', 'instructions', 'is_randomized', 'question_groups',)
+        fields = ('id', 'passing_marks', 'course', 'course_material', 'instructions', 'is_randomized', 'question_groups', 'questions')
     # end Meta
+
+    def get_questions(self, obj):
+        request = self.context.get('request')
+        try:
+            member = request.user.member
+            random.seed(int(member.id))
+            questions = []
+
+            for question_group in obj.question_groups.all():
+                tmp = random.sample(list(question_group.question_bank.questions.all()), k=question_group.count)
+                questions += tmp
+            # end for
+            return QuestionSerializer(questions, many=True, context=self.context).data
+        except Exception as e:
+            print(str(e))
+            return []
+        # end try-except
+    # end def
 # end class
 
 
