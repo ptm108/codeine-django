@@ -285,33 +285,6 @@ def all_quiz_view(request):
 # end def
 
 
-@api_view(['DELETE'])
-@permission_classes((IsPartnerOnly,))
-def delete_question_group_view(request, quiz_id):
-    '''
-    Deletes the question group
-    '''
-    if request.method == 'DELETE':
-        user = request.user
-        data = request.data
-        try:
-            partner = user.partner
-
-            quiz = Quiz.objects.filter(Q(course__partner=partner) | Q(course_material__chapter__course__partner=partner)).get(pk=quiz_id)
-            question_group = QuestionGroup.objects.filter(quiz=quiz).get(label=data['label'])
-            question_group.delete()
-
-            return Response(status=status.HTTP_200_OK)
-        except ObjectDoesNotExist:
-            return Response(status=status.HTTP_404_NOT_FOUND)
-        except (ValueError, IntegrityError, KeyError) as e:
-            print(e)
-            return Response(status=status.HTTP_400_BAD_REQUEST)
-        # end try-except
-    # end if
-# end def
-
-
 @api_view(['GET', 'POST'])
 @permission_classes((IsPartnerOnly,))
 def question_bank_view(request, course_id):
@@ -416,4 +389,85 @@ def single_question_bank_view(request, course_id, qb_id):
             return Response(status=status.HTTP_400_BAD_REQUEST)
         # end try-except
     # end if
+# end def
+
+
+@api_view(['PUT', 'DELETE'])
+@permission_classes((IsPartnerOnly,))
+def question_group_view(request, quiz_id):
+    user = request.user
+    data = request.data
+
+    '''
+    Add a question bank to the quiz
+    returns update quiz
+    '''
+    if request.method == 'PUT':
+        try:
+            partner = user.partner
+            quiz = Quiz.objects.filter(
+                Q(course__partner=partner) |
+                Q(course_material__chapter__course__partner=partner)
+            ).get(pk=quiz_id)
+            course = Course.objects.filter(
+                Q(assessment__id=quiz_id) |
+                Q(chapters__course_materials__quiz__id=quiz_id)
+            ).first()
+
+            question_bank = QuestionBank.objects.filter(course=course).get(pk=data['qb_id'])
+            question_group = QuestionGroup.objects.filter(Q(quiz=quiz) & Q(question_bank=question_bank)).first()
+
+            if question_group is None:
+                QuestionGroup(
+                    count=data['count'],
+                    order=quiz.question_groups.count() + 1,
+                    quiz=quiz,
+                    question_bank=question_bank
+                ).save()
+            else:
+                question_group.count = data['count']
+                question_group.save()
+            # end if-else
+
+            quiz = Quiz.objects.get(pk=quiz_id)
+            serializer = QuizSerializer(quiz, context={'request': request})
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except ObjectDoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        except (ValueError, IntegrityError, KeyError) as e:
+            print(e)
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+        # end try-except
+    # end if
+
+    '''
+    Delete a question group
+    returns updated quiz
+    '''
+    if request.method == 'DELETE':
+        try:
+            partner = user.partner
+            quiz = Quiz.objects.filter(
+                Q(course__partner=partner) |
+                Q(course_material__chapter__course__partner=partner)
+            ).get(pk=quiz_id)
+            course = Course.objects.filter(
+                Q(assessment__id=quiz_id) |
+                Q(chapters__course_materials__quiz__id=quiz_id)
+            ).first()
+
+            question_bank = QuestionBank.objects.filter(course=course).get(pk=data['qb_id'])
+
+            question_group = QuestionGroup.objects.filter(Q(quiz=quiz) & Q(question_bank=question_bank)).first()
+            question_group.delete()
+
+            quiz = Quiz.objects.get(pk=quiz_id)
+            serializer = QuizSerializer(quiz, context={'request': request})
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except ObjectDoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        except (ValueError, IntegrityError, KeyError) as e:
+            print(e)
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+        # end try-except
 # end def

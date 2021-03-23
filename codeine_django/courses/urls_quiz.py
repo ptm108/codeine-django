@@ -14,5 +14,5 @@ urlpatterns = [
     path('/<slug:quiz_id>/results', views_quiz_result.quiz_result_views, name='Create/Submit quiz result'),
 
     # question group view
-    path('/<slug:quiz_id>/question-groups', views_quiz.delete_question_group_view, name='Delete question group'),
+    path('/<slug:quiz_id>/question-groups', views_quiz.question_group_view, name='Put/Delete question group'),
 ]
