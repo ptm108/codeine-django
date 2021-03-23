@@ -9,7 +9,7 @@ from rest_framework.permissions import (
     IsAdminUser,
 )
 
-@api_view(['GET', 'POST'])
+@api_view(['GET', 'POST', 'DELETE'])
 @permission_classes((IsAdminUser,))
 def achievement_requirement_view(request, pk):
     '''
@@ -48,6 +48,21 @@ def achievement_requirement_view(request, pk):
         except (KeyError, TypeError, ValueError) as e:
             print(e)
             return Response(status=status.HTTP_400_BAD_REQUEST)
+        # end try-except
+    # end if
+
+    '''
+    Delete all Achievement Requirements by Achievement 
+    '''
+    if request.method == 'DELETE':
+        try:
+            achievement = Achievement.objects.get(pk=pk)
+            requirements = AchievementRequirement.objects.filter(achievement=achievement)
+
+            requirements.delete()
+            return Response(status=status.HTTP_200_OK)
+        except ObjectDoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
         # end try-except
     # end if
 # end def
