@@ -219,6 +219,9 @@ class QuestionGroup(models.Model):
     # ref to question bank
     question_bank = models.ForeignKey('QuestionBank', null=True, blank=True, on_delete=models.CASCADE, related_name='+')
 
+    class Meta:
+        ordering = ['order']
+    # end Meta
 # end class
 
 
