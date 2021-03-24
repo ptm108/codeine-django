@@ -57,7 +57,7 @@ def course_view(request):
                 courses = courses.order_by(rating_sort)
             # end if
 
-            if coding_language is not None: 
+            if coding_language is not None:
                 courses = courses.filter(coding_languages__icontains=coding_language)
             # end if
 
@@ -276,7 +276,8 @@ def assessment_view(request, course_id):
                 quiz = Quiz(
                     course=course,
                     instructions=data['instructions'],
-                    passing_marks=int(data['passing_marks'])
+                    passing_marks=int(data['passing_marks']),
+                    is_randomized=data['is_randomized']
                 )
                 quiz.save()
 
@@ -313,6 +314,7 @@ def single_assessment_view(request, course_id, assessment_id):
 
                 quiz.passing_marks = int(data['passing_marks'])
                 quiz.instructions = data['instructions']
+                quiz.is_randomized = data['is_randomized']
                 quiz.save()
 
                 serializer = QuizSerializer(quiz)

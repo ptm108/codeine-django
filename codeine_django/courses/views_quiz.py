@@ -329,9 +329,12 @@ def question_bank_view(request, course_id):
             return Response(serializer.data, status=status.HTTP_200_OK)
         except ObjectDoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
-        except (ValueError, IntegrityError, KeyError) as e:
+        except (ValueError, KeyError) as e:
             print(e)
             return Response(status=status.HTTP_400_BAD_REQUEST)
+        except IntegrityError as e:
+            print(e)
+            return Response(status=status.HTTP_409_CONFLICT)
         # end try-except
     # end if
 # end def
