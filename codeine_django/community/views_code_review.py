@@ -27,8 +27,9 @@ def code_review_view(request):
         search = request.query_params.get('search', None)
 
         if search is not None:
-            articles = articles.filter(
-                Q(user__id__icontains=search) |
+            code_reviews = articles.filter(
+                Q(user__first_name__icontains=search) |
+                Q(user__last_name__icontains=search) |
                 Q(title__icontains=search) |
                 Q(code__icontains=search) |
                 Q(coding_languages__icontains=search) |

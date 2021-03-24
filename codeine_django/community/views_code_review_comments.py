@@ -42,8 +42,8 @@ def code_review_comment_view(request, code_review_id):
         if search is not None:
             code_review_comments = code_review_comments.filter(
                 Q(comment__icontains=search) |
-                Q(user__id__icontains=search) |
-                Q(code_review__id__icontains=search)
+                Q(user__first_name__icontains=search) |
+                Q(user__last_name__icontains=search)
             )
         # end if
         serializer = NestedCodeReviewCommentSerializer(

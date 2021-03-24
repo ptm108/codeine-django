@@ -26,17 +26,19 @@ def article_view(request):
     '''
     if request.method == 'GET':
         articles = Article.objects
-
-        # admin users are able to get ALL articles
+        user = request.user
+        # admin users are able to get published articles, can be activated or deactivated
         # normal users are only able to get is_published and is_activated articles
-        if request.user.is_anonymous is False:
-            if request.user.is_admin is False:
-                articles = articles.filter(
-                    Q(is_published=True))
-            # end if
-        else:
+        if user.is_anonymous is True:
             articles = articles.filter(
                 Q(is_published=True) & Q(is_activated=True))
+        else:
+            if user.is_admin is True:
+                articles = articles.filter(
+                    Q(is_published=True))
+            else:
+                articles = articles.filter(
+                    Q(is_published=True) & Q(is_activated=True))
         # end if
 
         # extract query params
