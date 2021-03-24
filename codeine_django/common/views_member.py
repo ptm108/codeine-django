@@ -349,8 +349,7 @@ def public_member_course_view(request, pk):
     '''
     if request.method == 'GET':
         try:
-            user_id = request.query_params.get('user_id', None)
-            user = BaseUser.objects.get(pk=user_id)
+            user = BaseUser.objects.get(pk=pk)
             courses = Course.objects.filter(enrollments__member__user=user)
 
             serializer = CourseSerializer(courses.all(), many=True, context={'request': request})
