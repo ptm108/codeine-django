@@ -313,8 +313,8 @@ def single_assessment_view(request, course_id, assessment_id):
                 quiz = Quiz.objects.filter(course__partner=partner).get(pk=assessment_id)
 
                 quiz.passing_marks = int(data['passing_marks'])
-                quiz.instructions = data['instructions']
-                quiz.is_randomized = data['is_randomized']
+                quiz.instructions = data['instructions'] if 'instructions' in data else quiz.instructions
+                quiz.is_randomized = data['is_randomized'] if 'is_randomized' in data else quiz.is_randomized
                 quiz.save()
 
                 serializer = QuizSerializer(quiz)
