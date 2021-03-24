@@ -65,7 +65,7 @@ class Article(models.Model):
     # end def
 
     class Meta:
-        ordering = ['-date_edited']
+        ordering = ['date_edited']
     # end class
 # end class
 

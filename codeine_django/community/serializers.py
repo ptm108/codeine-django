@@ -247,7 +247,6 @@ class ArticleSerializer(serializers.ModelSerializer):
 
     def get_current_user_liked(self, obj):
         request = self.context.get("request")
-        print(request.user)
         if request.user.is_anonymous:
             return None
         else:
