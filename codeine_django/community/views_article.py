@@ -25,8 +25,19 @@ def article_view(request):
     Retrieves all articles
     '''
     if request.method == 'GET':
-        articles = Article.objects.filter(
-            Q(is_published=True) & Q(is_activated=True))
+        articles = Article.objects
+
+        # admin users are able to get ALL articles
+        # normal users are only able to get is_published and is_activated articles
+        if request.user.is_anonymous is False:
+            if request.user.is_admin is False:
+                articles = articles.filter(
+                    Q(is_published=True))
+            # end if
+        else:
+            articles = articles.filter(
+                Q(is_published=True) & Q(is_activated=True))
+        # end if
 
         # extract query params
         search = request.query_params.get('search', None)
@@ -81,8 +92,8 @@ def article_view(request):
 # def
 
 
-@api_view(['GET', 'PUT', 'DELETE'])
-@permission_classes((IsAuthenticatedOrReadOnly,))
+@ api_view(['GET', 'PUT', 'DELETE'])
+@ permission_classes((IsAuthenticatedOrReadOnly,))
 def single_article_view(request, pk):
     '''
     Get an article by primary key/ id
@@ -158,8 +169,8 @@ def single_article_view(request, pk):
 # def
 
 
-@api_view(['GET'])
-@permission_classes((IsAuthenticatedOrReadOnly,))
+@ api_view(['GET'])
+@ permission_classes((IsAuthenticatedOrReadOnly,))
 def user_article_view(request):
     '''
     Retrieves all of user's code reviews
@@ -174,8 +185,8 @@ def user_article_view(request):
 # def
 
 
-@api_view(['PATCH'])
-@permission_classes((IsAuthenticatedOrReadOnly,))
+@ api_view(['PATCH'])
+@ permission_classes((IsAuthenticatedOrReadOnly,))
 def publish_article_view(request, pk):
     '''
     Publish article by primary key/ id
@@ -203,8 +214,8 @@ def publish_article_view(request, pk):
 # def
 
 
-@api_view(['PATCH'])
-@permission_classes((IsAuthenticatedOrReadOnly,))
+@ api_view(['PATCH'])
+@ permission_classes((IsAuthenticatedOrReadOnly,))
 def unpublish_article_view(request, pk):
     '''
     Unpublish article by primary key/ id
@@ -232,8 +243,8 @@ def unpublish_article_view(request, pk):
 # def
 
 
-@api_view(['POST', 'DELETE'])
-@permission_classes((IsAuthenticatedOrReadOnly,))
+@ api_view(['POST', 'DELETE'])
+@ permission_classes((IsAuthenticatedOrReadOnly,))
 def article_engagement_view(request, pk):
     '''
     Like an Article
@@ -286,8 +297,8 @@ def article_engagement_view(request, pk):
 # end def
 
 
-@api_view(['PATCH'])
-@permission_classes((AdminOrReadOnly,))
+@ api_view(['PATCH'])
+@ permission_classes((AdminOrReadOnly,))
 def activate_article_view(request, pk):
     '''
     Activate article by primary key/ id
@@ -311,8 +322,8 @@ def activate_article_view(request, pk):
 # def
 
 
-@api_view(['PATCH'])
-@permission_classes((AdminOrReadOnly,))
+@ api_view(['PATCH'])
+@ permission_classes((AdminOrReadOnly,))
 def deactivate_article_view(request, pk):
     '''
     Deactivate article by primary key/ id
