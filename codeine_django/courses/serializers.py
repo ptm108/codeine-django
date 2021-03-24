@@ -178,8 +178,17 @@ class QuizSerializer(serializers.ModelSerializer):
             # end for
             return QuestionSerializer(questions, many=True, context=self.context).data
         except Exception as e:
-            print(str(e))
-            return []
+            try:
+                partner = request.user.partner
+                questions = []
+
+                for question_group in obj.question_groups.all():
+                    questions += question_group.question_bank.questions.all()
+                # end for
+                return QuestionSerializer(questions, many=True, context=self.context).data
+            except Exception as e:
+                print(str(e))
+                return []
         # end try-except
     # end def
 # end class
