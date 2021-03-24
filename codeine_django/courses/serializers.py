@@ -18,11 +18,14 @@ from .models import (
     CourseReview,
     CourseComment,
     CourseCommentEngagement,
-    QuestionGroup
+    QuestionGroup,
+    QuestionBank
 )
 
 from common.models import Member, Partner
 from common.serializers import NestedBaseUserSerializer, MemberSerializer
+
+import random
 
 # Assessment related
 
@@ -84,11 +87,11 @@ class QuestionSerializer(serializers.ModelSerializer):
     mcq = MCQSerializer()
     mrq = MRQAnswerSerializer()
     image = serializers.SerializerMethodField()
-    group_label = serializers.SerializerMethodField('get_group_label')
+    question_bank = serializers.SerializerMethodField('get_label')
 
     class Meta:
         model = Question
-        fields = ('id', 'title', 'subtitle', 'shortanswer', 'mcq', 'mrq', 'order', 'image', 'group_label')
+        fields = ('id', 'title', 'subtitle', 'shortanswer', 'mcq', 'mrq', 'order', 'image', 'question_bank',)
     # end class
 
     def get_image(self, obj):
@@ -98,13 +101,23 @@ class QuestionSerializer(serializers.ModelSerializer):
         # end if
     # end def
 
-    def get_group_label(self, obj):
-        if obj.group:
-            return obj.group.label
+    def get_label(self, obj):
+        if obj.question_bank:
+            return obj.question_bank.label
         else:
             return None
         # end if-else
     # end def
+# end class
+
+
+class QuestionBankSerializer(serializers.ModelSerializer):
+    questions = QuestionSerializer(many=True)
+
+    class Meta:
+        model = QuestionBank
+        fields = '__all__'
+    # end Meta
 # end class
 
 
@@ -133,31 +146,41 @@ class CourseVideoSerializer(serializers.ModelSerializer):
 # end class
 
 
-class QuizSerializer(serializers.ModelSerializer):
-    questions = QuestionSerializer(many=True)
-    question_groups = serializers.SerializerMethodField()
-
-    class Meta:
-        model = Quiz
-        fields = ('id', 'passing_marks', 'course', 'course_material', 'questions', 'instructions', 'is_randomized', 'question_groups',)
-    # end Meta
-
-    def get_question_groups(self, obj):
-        return [group.label for group in obj.question_groups.all()]
-    # end def
-# end class
-
-
 class QuestionGroupSerializer(serializers.ModelSerializer):
-    question_count = serializers.SerializerMethodField('get_question_count')
+    question_bank = QuestionBankSerializer()
 
     class Meta:
         model = QuestionGroup
-        fields = ('label', 'question_count', 'quiz',)
+        fields = ('id', 'count', 'order', 'question_bank')
+    # end Meta
+# end class
+
+
+class QuizSerializer(serializers.ModelSerializer):
+    question_groups = QuestionGroupSerializer(many=True)
+    questions = serializers.SerializerMethodField('get_questions')
+
+    class Meta:
+        model = Quiz
+        fields = ('id', 'passing_marks', 'course', 'course_material', 'instructions', 'is_randomized', 'question_groups', 'questions')
     # end Meta
 
-    def get_question_count(self, obj):
-        return Question.objects.filter(group=obj).count()
+    def get_questions(self, obj):
+        request = self.context.get('request')
+        try:
+            member = request.user.member
+            random.seed(int(member.id))
+            questions = []
+
+            for question_group in obj.question_groups.all():
+                tmp = random.sample(list(question_group.question_bank.questions.all()), k=question_group.count)
+                questions += tmp
+            # end for
+            return QuestionSerializer(questions, many=True, context=self.context).data
+        except Exception as e:
+            print(str(e))
+            return []
+        # end try-except
     # end def
 # end class
 

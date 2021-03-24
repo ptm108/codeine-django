@@ -92,6 +92,9 @@ class Course(models.Model):
     class Meta:
         ordering = ['is_deleted', 'published_date']
     # end Meta
+
+    def __str__(self):
+        return f'{self.title}; {self.id}'
 # end class
 
 
@@ -185,18 +188,39 @@ class Quiz(models.Model):
     course = models.OneToOneField('Course',  on_delete=models.CASCADE, related_name='assessment', null=True, blank=True)
 # end class
 
-class QuestionGroup(models.Model):
+
+class QuestionBank(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, unique=True)
     label = models.CharField(max_length=255)
+
+    course = models.ForeignKey('Course', on_delete=models.CASCADE, related_name="question_banks")
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=['course', 'label'], name='Course_QuestionBank Unique Constraint: label')
+        ]
+    # end Meta
+
+    def __str__(self):
+        return f'{self.label}; {self.id}'
+    # end def
+
+# end class
+
+
+class QuestionGroup(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, unique=True)
     count = models.PositiveSmallIntegerField(default=1)
+    order = models.PositiveSmallIntegerField(default=0)
 
     # ref to quiz
     quiz = models.ForeignKey('Quiz', on_delete=models.CASCADE, related_name='question_groups')
 
+    # ref to question bank
+    question_bank = models.ForeignKey('QuestionBank', null=True, blank=True, on_delete=models.CASCADE, related_name='+')
+
     class Meta:
-        constraints = [
-            models.UniqueConstraint(fields=['quiz', 'label'], name='QuestionGroup Unique Constraint: quiz_label')
-        ]
+        ordering = ['order']
     # end Meta
 # end class
 
@@ -208,11 +232,8 @@ class Question(models.Model):
     order = models.PositiveSmallIntegerField()
     image = models.ImageField(null=True, blank=True, default=None)
 
-    # ref to Quiz
-    quiz = models.ForeignKey('Quiz', on_delete=models.CASCADE, null=True, blank=True, related_name='questions')
-
     # ref to group -- for question banks
-    group = models.ForeignKey('QuestionGroup', on_delete=models.SET_NULL, null=True, blank=True, related_name='questions')
+    question_bank = models.ForeignKey('QuestionBank', null=True, blank=True, on_delete=models.CASCADE, related_name='questions')
 
     class Meta:
         ordering = ['order']

@@ -331,7 +331,6 @@ def quiz_views(request, chapter_id):
                     course_material=course_material,
                     instructions=data['instructions'],
                     passing_marks=data['passing_marks'], 
-                    labels=data['labels'], 
                     is_randomized=data['is_randomized']
                 )
                 quiz.save()
@@ -380,8 +379,6 @@ def update_quiz_view(request, material_id):
                     quiz.passing_marks = data['passing_marks']
                 if 'instructions' in data:
                     quiz.instructions = data['instructions']
-                if 'labels' in data: 
-                    quiz.labels = data['labels']
                 if 'is_randomized' in data:
                     quiz.is_randomized = data['is_randomized']
                 # end ifs
