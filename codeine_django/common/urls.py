@@ -17,6 +17,8 @@ urlpatterns = [
          views_achievement.get_member_achievements, name='Get member\'s achievements'),
     path('members/<slug:pk>/suspend', views_member.suspend_user_view,
          name='Suspend/Unsuspend member'),
+    path('members/<slug:pk>/courses', views_member.public_member_course_view,
+         name='Get members courses (public)'),
 
     # member CVs views
     path('cvs', views_cv.cv_view,

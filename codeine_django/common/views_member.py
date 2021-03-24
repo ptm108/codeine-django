@@ -7,22 +7,25 @@ from rest_framework.decorators import api_view, permission_classes, parser_class
 from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
-
 from rest_framework.permissions import (
     IsAuthenticated,
     AllowAny,
     IsAuthenticatedOrReadOnly,
     IsAdminUser
 )
-from .models import BaseUser, Member
-from .serializers import MemberSerializer, NestedBaseUserSerializer
-from .permissions import IsMemberOnly, IsMemberOrAdminOrReadOnly
+
 import json
 import jwt
 import os
 from django.template.loader import render_to_string
 from django.core.mail import send_mail
 from codeine_django import settings
+
+from .models import BaseUser, Member
+from .serializers import MemberSerializer, NestedBaseUserSerializer
+from .permissions import IsMemberOnly, IsMemberOrAdminOrReadOnly
+from courses.models import Course
+from courses.serializers import CourseSerializer
 
 
 @api_view(['GET', 'POST'])
@@ -141,9 +144,9 @@ def single_member_view(request, pk):
                 user.email = data['email']
             if 'profile_photo' in data:
                 user.profile_photo = data['profile_photo']
-            if 'age' in data: 
+            if 'age' in data:
                 user.age = data['age']
-            if 'gender' in data: 
+            if 'gender' in data:
                 user.gender = data['gender']
             if 'location' in data:
                 user.location = data['location']
@@ -331,6 +334,28 @@ def suspend_user_view(request, pk):
         except ObjectDoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
         except (KeyError, ValueError) as e:
+            print(e)
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+        # end try-except
+    # end if
+# end def
+
+
+@api_view(['GET'])
+@permission_classes((AllowAny,))
+def public_member_course_view(request, pk):
+    '''
+    Public view to get member's courses
+    '''
+    if request.method == 'GET':
+        try:
+            user_id = request.query_params.get('user_id', None)
+            user = BaseUser.objects.get(pk=user_id)
+            courses = Course.objects.filter(enrollments__member__user=user)
+
+            serializer = CourseSerializer(courses.all(), many=True, context={'request': request})
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except Exception as e:
             print(e)
             return Response(status=status.HTTP_400_BAD_REQUEST)
         # end try-except
