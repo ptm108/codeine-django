@@ -19,8 +19,8 @@ def notification_view(request):
     Get all Notifications 
     '''
     if request.method == 'GET':
-        user = request.user
         notifications = Notification.objects
+        user = request.user
 
         # extract query params
         search = request.query_params.get('search', None)

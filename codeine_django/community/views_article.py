@@ -308,9 +308,6 @@ def activate_article_view(request, pk):
     if request.method == 'PATCH':
         try:
             article = Article.objects.get(pk=pk)
-
-            user = request.user
-
             article.is_activated = True
             article.save()
             serializer = ArticleSerializer(
@@ -333,9 +330,6 @@ def deactivate_article_view(request, pk):
     if request.method == 'PATCH':
         try:
             article = Article.objects.get(pk=pk)
-
-            user = request.user
-
             article.is_activated = False
             article.save()
             serializer = ArticleSerializer(

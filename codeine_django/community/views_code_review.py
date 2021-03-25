@@ -25,9 +25,10 @@ def code_review_view(request):
 
         # extract query params
         search = request.query_params.get('search', None)
+        date_sort = request.query_params.get('sortDate', None)
 
         if search is not None:
-            code_reviews = articles.filter(
+            code_reviews = code_reviews.filter(
                 Q(user__first_name__icontains=search) |
                 Q(user__last_name__icontains=search) |
                 Q(title__icontains=search) |
@@ -36,6 +37,11 @@ def code_review_view(request):
                 Q(categories__icontains=search)
             )
         # end if
+
+        if date_sort is not None:
+            code_reviews = code_reviews.order_by(date_sort)
+        # end if
+
         serializer = CodeReviewSerializer(
             code_reviews.all(), many=True, context={'request': request})
 
