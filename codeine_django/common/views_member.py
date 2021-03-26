@@ -24,8 +24,8 @@ from codeine_django import settings
 from .models import BaseUser, Member
 from .serializers import MemberSerializer, NestedBaseUserSerializer
 from .permissions import IsMemberOnly, IsMemberOrAdminOrReadOnly
-from courses.models import Course
-from courses.serializers import CourseSerializer
+from courses.models import Enrollment
+from courses.serializers import NestedEnrollmentSerializer
 
 
 @api_view(['GET', 'POST'])
@@ -350,9 +350,9 @@ def public_member_course_view(request, pk):
     if request.method == 'GET':
         try:
             user = BaseUser.objects.get(pk=pk)
-            courses = Course.objects.filter(enrollments__member__user=user)
+            enrollments = Enrollment.objects.filter(member__user=user)
 
-            serializer = CourseSerializer(courses.all(), many=True, context={'request': request})
+            serializer = NestedEnrollmentSerializer(enrollments.all(), many=True, context={'request': request})
             return Response(serializer.data, status=status.HTTP_200_OK)
         except Exception as e:
             print(e)
