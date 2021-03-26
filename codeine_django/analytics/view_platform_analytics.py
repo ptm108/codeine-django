@@ -34,7 +34,7 @@ def platform_health_check_view(request):
             days = int(request.query_params.get('days', 30))
             _date = timezone.now() - timedelta(days=days)
 
-            hours_of_content = Course.objects.filter(published_date__date__gte=_date).count()
+            hours_of_content = Course.objects.filter(published_date__date__gte=_date).aggregate(Sum('duration'))['duration__sum']
             new_consultation_slots = ConsultationSlot.objects.filter(start_time__date__gte=_date).count()
             new_industry_projects = IndustryProject.objects.filter(date_listed__date__gte=_date).count()
             new_pro_members = MembershipSubscription.objects.values('member').filter(payment_transaction__timestamp__date__gte=_date).order_by().annotate(Count('id')).filter(id__count=1).count()
