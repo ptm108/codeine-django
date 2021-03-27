@@ -69,7 +69,7 @@ def course_assessment_performance_view(request):
                 active_courses += 1
 
                 average_score = course_quiz_results.aggregate(Avg('score'))
-                total_score = course_quiz_results.annotate(total_score=Sum('quiz__questions__shortanswer__marks') + Sum('quiz__questions__mcq__marks') + Sum('quiz__questions__mrq__marks'))[0].total_score
+                total_score = course_quiz_results.annotate(total_score=Sum('quiz__question_groups__question_bank__questions__shortanswer__marks') + Sum('quiz__question_groups__question_bank__questions__mcq__marks') + Sum('quiz__question_groups__question_bank__questions__mrq__marks'))[0].total_score
                 # print(average_score['score__avg']/total_score)
                 tmp_course['average_score'] = average_score['score__avg'] / total_score if total_score > 0 else 0
 
@@ -83,7 +83,7 @@ def course_assessment_performance_view(request):
 
                 course_material_quiz_results = quiz_results.filter(quiz__course_material__chapter__course=course).values('quiz').order_by()
                 average_score = course_material_quiz_results.annotate(Avg('score'))
-                total_score = course_material_quiz_results.annotate(total_score=Sum('quiz__questions__shortanswer__marks') + Sum('quiz__questions__mcq__marks') + Sum('quiz__questions__mrq__marks'))
+                total_score = course_material_quiz_results.annotate(total_score=Sum('quiz__question_groups__question_bank__questions__shortanswer__marks') + Sum('quiz__question_groups__question_bank__questions__mcq__marks') + Sum('quiz__question_groups__question_bank__questions__mrq__marks'))
 
                 for i in range(len(average_score.all())):
                     cm = CourseMaterial.objects.get(quiz__pk=average_score[i]['quiz'])
