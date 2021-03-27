@@ -7,11 +7,35 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from .permissions import (
     IsMemberOnly,
-    IsMemberOrReadOnly
+    IsMemberOrReadOnly, 
 )
+from rest_framework.permissions import AllowAny
 from .models import CV, Member
 from .serializers import CVSerializer
 
+
+@api_view(['GET'])
+@permission_classes((AllowAny,))
+def public_cv_view(request, pk):
+    '''
+    Get all Member's CVs
+    '''
+    if request.method == 'GET':
+        try:
+            user = BaseUser.objects.get(pk=pk)
+            member = Member.objects.get(user=user)
+
+            cvs = CV.objects.filter(member=member)
+            serializer = CVSerializer(
+                cvs.all(), many=True, context={"request": request})
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except (ValueError) as e:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+        except ObjectDoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        # end try-except
+    # end if
+# end def
 
 @api_view(['GET', 'POST'])
 @permission_classes((IsMemberOrReadOnly,))

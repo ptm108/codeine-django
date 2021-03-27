@@ -19,6 +19,8 @@ urlpatterns = [
          name='Suspend/Unsuspend member'),
     path('members/<slug:pk>/courses', views_member.public_member_course_view,
          name='Get members courses (public)'),
+    path('members/<slug:pk>/cvs', views_cv.public_cv_view,
+         name='Get members cvs'),
 
     # member CVs views
     path('cvs', views_cv.cv_view,
