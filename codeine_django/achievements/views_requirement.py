@@ -1,5 +1,3 @@
-from .models import Achievement, AchievementRequirement
-from .serializer import AchievementRequirementSerializer
 from django.db.models import Q
 from django.core.exceptions import ObjectDoesNotExist
 from rest_framework.decorators import api_view, permission_classes
@@ -9,6 +7,8 @@ from rest_framework.permissions import (
     IsAdminUser,
 )
 
+from .models import Achievement, AchievementRequirement
+from .serializers import AchievementRequirementSerializer
 
 @api_view(['GET', 'POST', 'DELETE'])
 @permission_classes((IsAdminUser,))

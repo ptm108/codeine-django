@@ -1,5 +1,3 @@
-from .models import Achievement
-from .serializer import AchievementSerializer
 from django.db.models import Q
 from django.core.exceptions import ObjectDoesNotExist
 from rest_framework.decorators import api_view, permission_classes, parser_classes
@@ -8,6 +6,8 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import IsAdminUser, AllowAny
 
+from .models import Achievement
+from .serializers import AchievementSerializer
 from utils.member_utils import get_member_stats
 
 
