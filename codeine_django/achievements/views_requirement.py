@@ -9,6 +9,7 @@ from rest_framework.permissions import (
     IsAdminUser,
 )
 
+
 @api_view(['GET', 'POST', 'DELETE'])
 @permission_classes((IsAdminUser,))
 def achievement_requirement_view(request, pk):
@@ -35,14 +36,42 @@ def achievement_requirement_view(request, pk):
     if request.method == 'POST':
         try:
             data = request.data
+            print(data['stat'])
 
             achievement = Achievement.objects.get(pk=pk)
+            stat = data['stat']
+            if stat == 'Machine Learning':
+                stat = 'ML'
+            if stat == 'Database Administration':
+                stat = 'DB'
+            if stat == 'Security':
+                stat = 'SEC'
+            if stat == 'UI/UX':
+                stat = 'UI'
+            if stat == 'Frontend':
+                stat =  "FE"
+            if stat == 'Backend':
+                stat = 'BE'
+            if stat == 'Python':
+                stat = 'PY'
+            if stat == 'Java':
+                stat = 'JAVA'
+            if stat == 'Javascript':
+                stat = 'JS'
+            if stat == 'C++':
+                stat = 'CPP'
+            if stat == 'C#':
+                stat = 'CS'
+            if stat == 'Ruby':
+                stat = 'RUBY'
+
             requirement = AchievementRequirement(
-                stat = data['stat'],
+                stat = stat,
                 experience_point = data['experience_point'],
                 achievement=achievement
             )
             requirement.save()
+            print(requirement)
 
             return Response(AchievementRequirementSerializer(requirement, context={'request': request}).data, status=status.HTTP_200_OK)
         except (KeyError, TypeError, ValueError) as e:
