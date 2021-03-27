@@ -339,24 +339,3 @@ def suspend_user_view(request, pk):
         # end try-except
     # end if
 # end def
-
-
-@api_view(['GET'])
-@permission_classes((AllowAny,))
-def public_member_course_view(request, pk):
-    '''
-    Public view to get member's courses
-    '''
-    if request.method == 'GET':
-        try:
-            user = BaseUser.objects.get(pk=pk)
-            enrollments = Enrollment.objects.filter(member__user=user)
-
-            serializer = NestedEnrollmentSerializer(enrollments.all(), many=True, context={'request': request})
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        except Exception as e:
-            print(e)
-            return Response(status=status.HTTP_400_BAD_REQUEST)
-        # end try-except
-    # end if
-# end def

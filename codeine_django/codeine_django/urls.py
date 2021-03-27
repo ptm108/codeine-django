@@ -31,6 +31,7 @@ urlpatterns = [
 
     # common infra endpoints
     path('auth/', include('common.urls'), name='Common infra end points'),
+    path('members/', include('common.urls_member_profile'), name='Public member endpoints'),
 
     # consultation endpoints
     path('consultations', include('consultations.urls_consultations'),
