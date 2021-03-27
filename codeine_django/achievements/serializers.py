@@ -1,8 +1,10 @@
 from rest_framework import serializers
 from .models import (
-    Achievement, 
-    AchievementRequirement
+    Achievement,
+    AchievementRequirement,
+    MemberAchievement
 )
+
 
 class AchievementRequirementSerializer(serializers.ModelSerializer):
     class Meta:
@@ -10,6 +12,7 @@ class AchievementRequirementSerializer(serializers.ModelSerializer):
         fields = '__all__'
     # end Meta
 # end class
+
 
 class AchievementSerializer(serializers.ModelSerializer):
     achievement_requirements = AchievementRequirementSerializer(many=True)
@@ -26,4 +29,14 @@ class AchievementSerializer(serializers.ModelSerializer):
             return request.build_absolute_uri(obj.badge.url)
         # end if
     # end def
+# end class
+
+
+class MemberAchievementSerializer(serializers.ModelSerializer):
+    achievement = AchievementSerializer()
+
+    class Meta:
+        model = MemberAchievement
+        fields = ('achievement',)
+    # end Meta
 # end class
