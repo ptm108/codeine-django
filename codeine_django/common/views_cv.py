@@ -12,6 +12,7 @@ from .permissions import (
 from rest_framework.permissions import AllowAny
 from .models import CV, Member
 from .serializers import CVSerializer
+from common.models import BaseUser
 
 
 @api_view(['GET'])
