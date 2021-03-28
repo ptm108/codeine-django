@@ -7,7 +7,7 @@ from rest_framework import status
 from rest_framework.permissions import IsAdminUser, AllowAny
 
 from .models import Achievement
-from .serializers import AchievementSerializer
+from .serializers import AchievementSerializer, FullAchievementSerializer
 from common.permissions import IsMemberOrAdminOrReadOnly
 from utils.member_utils import get_member_stats
 
@@ -32,7 +32,7 @@ def achievement_view(request):
                 )
             # end if
 
-            serializer = AchievementSerializer(achievements.all(), many=True, context={"request": request})
+            serializer = FullAchievementSerializer(achievements.all(), many=True, context={"request": request})
             return Response(serializer.data, status=status.HTTP_200_OK)
         except (ValueError) as e:
             return Response(status=status.HTTP_400_BAD_REQUEST)
