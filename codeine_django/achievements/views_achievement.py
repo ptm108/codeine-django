@@ -8,11 +8,12 @@ from rest_framework.permissions import IsAdminUser, AllowAny
 
 from .models import Achievement
 from .serializers import AchievementSerializer
+from common.permissions import IsMemberOrAdminOrReadOnly
 from utils.member_utils import get_member_stats
 
 
 @api_view(['GET', 'POST'])
-@permission_classes((IsAdminUser,))
+@permission_classes((IsMemberOrAdminOrReadOnly,))
 @parser_classes((MultiPartParser, FormParser))
 def achievement_view(request):
     '''
