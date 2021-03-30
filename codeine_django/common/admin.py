@@ -11,7 +11,8 @@ class UserCreationForm(forms.ModelForm):
     """A form for creating new users. Includes all the required
     fields, plus a repeated password."""
     password1 = forms.CharField(label='Password', widget=forms.PasswordInput)
-    password2 = forms.CharField(label='Password confirmation', widget=forms.PasswordInput)
+    password2 = forms.CharField(
+        label='Password confirmation', widget=forms.PasswordInput)
 
     class Meta:
         model = BaseUser
@@ -53,7 +54,8 @@ class UserChangeForm(forms.ModelForm):
 
     class Meta:
         model = BaseUser
-        fields = ('email', 'password', 'is_active', 'is_admin', 'first_name', 'last_name', 'age', 'gender', 'location')
+        fields = ('email', 'password', 'is_active', 'is_admin',
+                  'first_name', 'last_name', 'age', 'gender', 'location')
     # end class
 
     def clean_password(self):
@@ -91,7 +93,8 @@ class UserAdmin(BaseUserAdmin):
     # The fields to be used in displaying the User model.
     # These override the definitions on the base UserAdmin
     # that reference specific fields on auth.User.
-    list_display = ('id', 'email', 'is_admin', 'is_active', 'is_suspended', 'profile_photo', 'age', 'gender', 'location')
+    list_display = ('id', 'email', 'is_admin', 'is_active',
+                    'is_suspended', 'profile_photo', 'age', 'gender', 'location')
     list_filter = ('is_admin',)
     fieldsets = (
         (None, {'fields': ('email', 'password')}),
@@ -129,21 +132,20 @@ class OrganizationAdmin(admin.ModelAdmin):
 
 
 class PaymentTransactionAdmin(admin.ModelAdmin):
-    list_display = ('id', 'timestamp', 'payment_amount', 'payment_status', 'payment_type')
+    list_display = ('id', 'timestamp', 'payment_amount',
+                    'payment_status', 'payment_type')
 # end class
 
 
 class MembershipSubscriptionAdmin(admin.ModelAdmin):
-    list_display = ('id', 'payment_transaction', 'month_duration', 'expiry_date', 'member')
+    list_display = ('id', 'payment_transaction',
+                    'month_duration', 'expiry_date', 'member')
 # end class
 
 
 class NotificationAdmin(admin.ModelAdmin):
-    list_display = ('id', 'title', 'description', 'timestamp', 'is_read', 'get_receivers')
-
-    def get_receivers(self, obj):
-        return "\n".join([receiver.id for receiver in self.receivers.all()])
-      
+    list_display = ('id', 'title', 'description', 'timestamp',
+                    'is_read', 'notification_type', 'receiver', 'sender')
 # end class
 
 
