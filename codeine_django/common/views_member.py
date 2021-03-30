@@ -7,22 +7,25 @@ from rest_framework.decorators import api_view, permission_classes, parser_class
 from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
-
 from rest_framework.permissions import (
     IsAuthenticated,
     AllowAny,
     IsAuthenticatedOrReadOnly,
     IsAdminUser
 )
-from .models import BaseUser, Member
-from .serializers import MemberSerializer, NestedBaseUserSerializer
-from .permissions import IsMemberOnly, IsMemberOrAdminOrReadOnly
+
 import json
 import jwt
 import os
 from django.template.loader import render_to_string
 from django.core.mail import send_mail
 from codeine_django import settings
+
+from .models import BaseUser, Member
+from .serializers import MemberSerializer, NestedBaseUserSerializer
+from .permissions import IsMemberOnly, IsMemberOrAdminOrReadOnly
+from courses.models import Enrollment
+from courses.serializers import NestedEnrollmentSerializer
 
 
 @api_view(['GET', 'POST'])
@@ -141,9 +144,9 @@ def single_member_view(request, pk):
                 user.email = data['email']
             if 'profile_photo' in data:
                 user.profile_photo = data['profile_photo']
-            if 'age' in data: 
+            if 'age' in data:
                 user.age = data['age']
-            if 'gender' in data: 
+            if 'gender' in data:
                 user.gender = data['gender']
             if 'location' in data:
                 user.location = data['location']

@@ -8,9 +8,8 @@ from rest_framework.response import Response
 from rest_framework.permissions import (
     IsAuthenticatedOrReadOnly,
 )
-from .models import CodeReview
+from .models import CodeReview, CodeReviewEngagement
 from .serializers import CodeReviewSerializer
-from common.models import Member
 
 # Create your views here.
 
@@ -26,16 +25,23 @@ def code_review_view(request):
 
         # extract query params
         search = request.query_params.get('search', None)
+        date_sort = request.query_params.get('sortDate', None)
 
         if search is not None:
-            articles = articles.filter(
-                Q(member__user__id__icontains=search) |
+            code_reviews = code_reviews.filter(
+                Q(user__first_name__icontains=search) |
+                Q(user__last_name__icontains=search) |
                 Q(title__icontains=search) |
                 Q(code__icontains=search) |
                 Q(coding_languages__icontains=search) |
                 Q(categories__icontains=search)
             )
         # end if
+
+        if date_sort is not None:
+            code_reviews = code_reviews.order_by(date_sort)
+        # end if
+
         serializer = CodeReviewSerializer(
             code_reviews.all(), many=True, context={'request': request})
 
@@ -48,7 +54,6 @@ def code_review_view(request):
     if request.method == 'POST':
         user = request.user
         data = request.data
-        member = Member.objects.get(user=user)
 
         try:
             code_review = CodeReview(
@@ -57,7 +62,7 @@ def code_review_view(request):
                 coding_languages=data['coding_languages'],
                 languages=data['languages'],
                 categories=data['categories'],
-                member=member
+                user=user
             )
             code_review.save()
 
@@ -132,3 +137,70 @@ def single_code_review_view(request, pk):
         # end try-except
     # end if
 # def
+
+
+@api_view(['GET'])
+@permission_classes((IsAuthenticatedOrReadOnly,))
+def user_code_review_view(request):
+    '''
+    Retrieves all of user's code reviews
+    '''
+    if request.method == 'GET':
+        user = request.user
+        code_reviews = CodeReview.objects.filter(user=user)
+        serializer = CodeReviewSerializer(
+            code_reviews.all(), many=True, context={'request': request})
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    # end if
+# def
+
+
+@api_view(['POST', 'DELETE'])
+@permission_classes((IsAuthenticatedOrReadOnly,))
+def code_review_engagement_view(request, pk):
+    '''
+    Like a code review
+    '''
+    if request.method == 'POST':
+        user = request.user
+        try:
+            code_review = CodeReview.objects.get(pk=pk)
+
+            if CodeReviewEngagement.objects.filter(code_review=code_review).filter(user=user).exists():
+                return Response(CodeReviewSerializer(code_review, context={'request': request, 'recursive': True}).data, status=status.HTTP_409_CONFLICT)
+            # end if
+
+            code_review_engagement = CodeReviewEngagement(
+                user=user,
+                code_review=code_review
+            )
+            code_review_engagement.save()
+
+            serializer = CodeReviewSerializer(code_review, context={'request': request, 'recursive': True})
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except ObjectDoesNotExist as e:
+            print(e)
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        # end try-except
+    # end if
+
+    '''
+    Unlike a code review
+    '''
+    if request.method == 'DELETE':
+        user = request.user
+        try:
+            code_review = CodeReview.objects.get(pk=pk)
+
+            engagement = CodeReviewEngagement.objects.filter(code_review=code_review).get(user=user)
+            engagement.delete()
+            code_review.save()
+
+            serializer = CodeReviewSerializer(code_review, context={'request': request, 'recursive': True})
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except ObjectDoesNotExist as e:
+            print(e)
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        # end try-except
+    # end if
+# end def

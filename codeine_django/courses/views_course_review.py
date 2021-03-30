@@ -40,7 +40,7 @@ def course_review_views(request, course_id):
                 member=member)
             course_review.save()
 
-            serializer = CourseReviewSerializer(course_review)
+            serializer = CourseReviewSerializer(course_review, context={'request': request})
             return Response(serializer.data, status=status.HTTP_200_OK)
         except Member.DoesNotExist:
             return Response("Invalid member", status=status.HTTP_404_NOT_FOUND)

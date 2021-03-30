@@ -10,7 +10,6 @@ from rest_framework.permissions import (
 )
 from .models import Article, ArticleEngagement
 from .serializers import ArticleEngagementSerializer
-from common.models import Member
 
 # Create your views here.
 
@@ -25,16 +24,18 @@ def article_engagement_view(request, article_id):
         article = Article.objects.get(pk=article_id)
         article_engagements = ArticleEngagement.objects.filter(article=article)
 
-        # extract query params
-        is_user = request.query_params.get('is_user', None)
 
-        if is_user is not None:
-            if is_user:
-                user = request.user
-                member = Member.objects.get(user=user)
-                article_engagements = article_engagements.filter(
-                    Q(member=member)
-                )
+        if request.user.is_anonymous is False:
+            # extract query params
+            is_user = request.query_params.get('is_user', None)
+
+            if is_user is not None:
+                if is_user:
+                    user = request.user
+                    article_engagements = article_engagements.filter(
+                        Q(user=user)
+                    )
+            # end if            
         # end if
 
         serializer = ArticleEngagementSerializer(
@@ -48,17 +49,16 @@ def article_engagement_view(request, article_id):
     if request.method == 'POST':
         user = request.user
         data = request.data
-        member = Member.objects.get(user=user)
         article = Article.objects.get(pk=article_id)
 
-        if ArticleEngagement.objects.filter(Q(member=member) & Q(article=article)).exists():
+        if ArticleEngagement.objects.filter(Q(user=user) & Q(article=article)).exists():
             # ArticleEngagement not unique
             return Response(status=status.HTTP_403_FORBIDDEN)
         # end if
         try:
             article_engagement = ArticleEngagement(
                 like=data['like'],
-                member=member,
+                user=user,
                 article=article
             )
             article_engagement.save()
@@ -83,6 +83,7 @@ def single_article_engagement_view(request, pk, article_id):
     if request.method == 'GET':
         try:
             article_engagement = ArticleEngagement.objects.get(pk=pk)
+
             serializer = ArticleEngagementSerializer(
                 article_engagement, context={'request': request})
             return Response(serializer.data)
@@ -91,13 +92,19 @@ def single_article_engagement_view(request, pk, article_id):
             return Response(status=status.HTTP_400_BAD_REQUEST)
         # end try-except
     # end if
+
     '''
     Update Article Engagement - like
     '''
     if request.method == 'PUT':
         data = request.data
+        
         try:
             article_engagement = ArticleEngagement.objects.get(pk=pk)
+            user = request.user
+            if article_engagement.user != user:
+                return Response(status=status.HTTP_401_UNAUTHORIZED)
+            # end if
 
             if 'like' in data:
                 article_engagement.like = data['like']
@@ -118,6 +125,11 @@ def single_article_engagement_view(request, pk, article_id):
     if request.method == 'DELETE':
         try:
             article_engagement = ArticleEngagement.objects.get(pk=pk)
+            user = request.user
+            if article_engagement.user != user:
+                return Response(status=status.HTTP_401_UNAUTHORIZED)
+            # end if
+
             article_engagement.delete()
             return Response(status=status.HTTP_200_OK)
         except ArticleEngagement.DoesNotExist:

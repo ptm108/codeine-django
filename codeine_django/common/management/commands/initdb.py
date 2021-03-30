@@ -3,7 +3,7 @@ from django.core.files import File
 from django.core.files.images import ImageFile
 from django.utils import timezone
 
-from common.models import BaseUser, Member, Partner, Organization, BankDetail
+from common.models import BaseUser, Member, Partner, Organization, BankDetail, MembershipSubscription, PaymentTransaction
 from courses.models import (
     Course,
     Chapter,
@@ -16,13 +16,17 @@ from courses.models import (
     ShortAnswer,
     MCQ,
     MRQ,
-    CourseComment
+    CourseComment,
+    QuestionBank,
+    QuestionGroup,
 )
 from consultations.models import ConsultationSlot
 from analytics.models import EventLog
+from industry_projects.models import IndustryProject
 
 import sys
-from datetime import timedelta
+from datetime import timedelta, datetime
+from random import randint
 
 
 class Command(BaseCommand):
@@ -68,6 +72,19 @@ class Command(BaseCommand):
 
             m = Member(user=u)
             m.save()
+
+            pt = PaymentTransaction(
+                payment_amount=5.99,
+                payment_type='AMEX'
+            )
+            pt.save()
+
+            now = timezone.now()
+            MembershipSubscription(
+                payment_transaction=pt,
+                expiry_date=timezone.make_aware(datetime(now.year, now.month+1, 1)),
+                member=m
+            ).save()
 
             u = BaseUser.objects.create_user(
                 'm2@m2.com',
@@ -194,7 +211,7 @@ class Command(BaseCommand):
             u.save()
 
             p = Partner(user=u, job_title='Lecturer', bio='ML is my passion', org_admin=True, organization=o)
-            p.save() 
+            p.save()
 
             bd = BankDetail(
                 bank_account='1234567890',
@@ -236,7 +253,7 @@ class Command(BaseCommand):
             c.thumbnail.save('courseimage.png', ImageFile(open('./codeine_django/common/management/demo_assets/course1/courseimage.png', 'rb')))
             c.save()
 
-            # create some fake views 
+            # create some fake views
             for u in BaseUser.objects.all():
                 EventLog(
                     payload='course view',
@@ -324,17 +341,17 @@ class Command(BaseCommand):
             )
             cm.save()
 
-            q = Quiz(
-                course_material=cm,
-                passing_marks=0,
+            qb = QuestionBank(
+                label='Easy',
+                course=c,
             )
-            q.save()
+            qb.save()
 
             qn = Question(
                 title='How do you start your local development server?',
                 subtitle='Hint: it\'s the same with ReactJS',
-                order=q.questions.count(),
-                quiz=q
+                order=qb.questions.count(),
+                question_bank=qb
             )
             qn.save()
 
@@ -348,8 +365,8 @@ class Command(BaseCommand):
 
             qn = Question(
                 title='How do you install npm packages?',
-                order=q.questions.count(),
-                quiz=q
+                order=qb.questions.count(),
+                question_bank=qb
             )
             qn.save()
 
@@ -361,10 +378,16 @@ class Command(BaseCommand):
             )
             mrq.save()
 
+            qb2 = QuestionBank(
+                label='Hard',
+                course=c,
+            )
+            qb2.save()
+
             qn = Question(
                 title='Who is the creator of these videos?',
-                order=q.questions.count(),
-                quiz=q
+                order=qb2.questions.count(),
+                question_bank=qb2
             )
             qn.save()
 
@@ -374,6 +397,42 @@ class Command(BaseCommand):
                 keywords=['Net', 'Ninja', 'NetNinja']
             )
             sa.save()
+
+            qn = Question(
+                title='Who is your mother?',
+                order=qb2.questions.count(),
+                question_bank=qb2
+            )
+            qn.save()
+
+            sa = ShortAnswer(
+                question=qn,
+                marks=1,
+                keywords=['Net', 'Ninja', 'NetNinja']
+            )
+            sa.save()
+
+            q = Quiz(
+                course_material=cm,
+                passing_marks=0,
+            )
+            q.save()
+
+            qg = QuestionGroup(
+                count=2,
+                order=q.question_groups.count() + 1,
+                quiz=q,
+                question_bank=qb
+            )
+            qg.save()
+
+            qg = QuestionGroup(
+                count=1,
+                order=q.question_groups.count() + 1,
+                quiz=q,
+                question_bank=qb2
+            )
+            qg.save()
 
             chap = Chapter(
                 title='React Native App Forms',
@@ -557,17 +616,17 @@ class Command(BaseCommand):
             )
             cv.save()
 
-            q = Quiz(
+            qb = QuestionBank(
+                label='Easy - Final Assessment',
                 course=c,
-                passing_marks=1,
             )
-            q.save()
+            qb.save()
 
             qn = Question(
                 title='How do you start your local development server?',
                 subtitle='Hint: it\'s the same with ReactJS',
-                order=q.questions.count(),
-                quiz=q
+                order=qb.questions.count(),
+                question_bank=qb
             )
             qn.save()
 
@@ -581,8 +640,8 @@ class Command(BaseCommand):
 
             qn = Question(
                 title='How do you install npm packages?',
-                order=q.questions.count(),
-                quiz=q
+                order=qb.questions.count(),
+                question_bank=qb
             )
             qn.save()
 
@@ -594,10 +653,16 @@ class Command(BaseCommand):
             )
             mrq.save()
 
+            qb2 = QuestionBank(
+                label='Hard - Final Assessment',
+                course=c,
+            )
+            qb2.save()
+
             qn = Question(
                 title='Who is the creator of these videos?',
-                order=q.questions.count(),
-                quiz=q
+                order=qb2.questions.count(),
+                question_bank=qb2
             )
             qn.save()
 
@@ -607,6 +672,42 @@ class Command(BaseCommand):
                 keywords=['Net', 'Ninja', 'NetNinja']
             )
             sa.save()
+
+            qn = Question(
+                title='Who is your mother?',
+                order=qb2.questions.count(),
+                question_bank=qb2
+            )
+            qn.save()
+
+            sa = ShortAnswer(
+                question=qn,
+                marks=1,
+                keywords=['Net', 'Ninja', 'NetNinja']
+            )
+            sa.save()
+
+            q = Quiz(
+                course=c,
+                passing_marks=1,
+            )
+            q.save()
+
+            qg = QuestionGroup(
+                count=2,
+                order=q.question_groups.count() + 1,
+                quiz=q,
+                question_bank=qb
+            )
+            qg.save()
+
+            qg = QuestionGroup(
+                count=1,
+                order=q.question_groups.count() + 1,
+                quiz=q,
+                question_bank=qb2
+            )
+            qg.save()
 
             self.stdout.write(f'{self.style.SUCCESS("Success")}: React Native Course created')
         except:
@@ -637,7 +738,7 @@ class Command(BaseCommand):
             c.thumbnail.save('courseimage.png', ImageFile(open('./codeine_django/common/management/demo_assets/course2/course2.jpg', 'rb')))
             c.save()
 
-            # create some fake views 
+            # create some fake views
             for u in BaseUser.objects.all():
                 EventLog(
                     payload='course view',
@@ -992,17 +1093,17 @@ class Command(BaseCommand):
             )
             cv.save()
 
-            q = Quiz(
+            qb = QuestionBank(
+                label='Easy',
                 course=c,
-                passing_marks=1,
             )
-            q.save()
+            qb.save()
 
             qn = Question(
                 title='Which of the following are machine learning algorithms',
                 subtitle='You should know this...',
-                order=q.questions.count(),
-                quiz=q
+                order=qb.questions.count(),
+                question_bank=qb
             )
             qn.save()
 
@@ -1016,8 +1117,8 @@ class Command(BaseCommand):
 
             qn = Question(
                 title='Risheng is...',
-                order=q.questions.count(),
-                quiz=q
+                order=qb.questions.count(),
+                question_bank=qb
             )
             qn.save()
 
@@ -1029,10 +1130,30 @@ class Command(BaseCommand):
             )
             mrq.save()
 
+            qb2 = QuestionBank(
+                label='Hard',
+                course=c,
+            )
+            qb2.save()
+
+            qn = Question(
+                title='Who is the creator of these videos?',
+                order=qb2.questions.count(),
+                question_bank=qb2
+            )
+            qn.save()
+
+            sa = ShortAnswer(
+                question=qn,
+                marks=1,
+                keywords=['Net', 'Ninja', 'NetNinja']
+            )
+            sa.save()
+
             qn = Question(
                 title='Who is Andrew Ng',
-                order=q.questions.count(),
-                quiz=q
+                order=qb2.questions.count(),
+                question_bank=qb2
             )
             qn.save()
 
@@ -1042,6 +1163,28 @@ class Command(BaseCommand):
                 keywords=['Pope']
             )
             sa.save()
+
+            q = Quiz(
+                course=c,
+                passing_marks=1,
+            )
+            q.save()
+
+            qg = QuestionGroup(
+                count=2,
+                order=q.question_groups.count() + 1,
+                quiz=q,
+                question_bank=qb
+            )
+            qg.save()
+
+            qg = QuestionGroup(
+                count=1,
+                order=q.question_groups.count() + 1,
+                quiz=q,
+                question_bank=qb2
+            )
+            qg.save()
 
             self.stdout.write(f'{self.style.SUCCESS("Success")}: Machine Learning Course created')
         except:
@@ -1071,7 +1214,7 @@ class Command(BaseCommand):
             c.thumbnail.save('courseimage.png', ImageFile(open('./codeine_django/common/management/demo_assets/course3/course3.png', 'rb')))
             c.save()
 
-            # create some fake views 
+            # create some fake views
             for u in BaseUser.objects.all():
                 EventLog(
                     payload='course view',
@@ -1234,17 +1377,17 @@ class Command(BaseCommand):
             )
             cv.save()
 
-            q = Quiz(
+            qb = QuestionBank(
+                label='Easy',
                 course=c,
-                passing_marks=1,
             )
-            q.save()
+            qb.save()
 
             qn = Question(
                 title='Which of the following are machine learning algorithms',
                 subtitle='You should know this...',
-                order=q.questions.count(),
-                quiz=q
+                order=qb.questions.count(),
+                question_bank=qb
             )
             qn.save()
 
@@ -1258,8 +1401,8 @@ class Command(BaseCommand):
 
             qn = Question(
                 title='Risheng is...',
-                order=q.questions.count(),
-                quiz=q
+                order=qb.questions.count(),
+                question_bank=qb
             )
             qn.save()
 
@@ -1271,10 +1414,30 @@ class Command(BaseCommand):
             )
             mrq.save()
 
+            qb2 = QuestionBank(
+                label='Hard',
+                course=c,
+            )
+            qb2.save()
+
+            qn = Question(
+                title='Who is the creator of these videos?',
+                order=qb2.questions.count(),
+                question_bank=qb2
+            )
+            qn.save()
+
+            sa = ShortAnswer(
+                question=qn,
+                marks=1,
+                keywords=['Net', 'Ninja', 'NetNinja']
+            )
+            sa.save()
+
             qn = Question(
                 title='Who is Andrew Ng',
-                order=q.questions.count(),
-                quiz=q
+                order=qb2.questions.count(),
+                question_bank=qb2
             )
             qn.save()
 
@@ -1284,6 +1447,28 @@ class Command(BaseCommand):
                 keywords=['Pope']
             )
             sa.save()
+
+            q = Quiz(
+                course=c,
+                passing_marks=1,
+            )
+            q.save()
+
+            qg = QuestionGroup(
+                count=2,
+                order=q.question_groups.count() + 1,
+                quiz=q,
+                question_bank=qb
+            )
+            qg.save()
+
+            qg = QuestionGroup(
+                count=1,
+                order=q.question_groups.count() + 1,
+                quiz=q,
+                question_bank=qb2
+            )
+            qg.save()
 
             self.stdout.write(f'{self.style.SUCCESS("Success")}: Django Course created')
         except:
@@ -1313,7 +1498,7 @@ class Command(BaseCommand):
             c.thumbnail.save('courseimage.png', ImageFile(open('./codeine_django/common/management/demo_assets/course4/course4.png', 'rb')))
             c.save()
 
-            # create some fake views 
+            # create some fake views
             for u in BaseUser.objects.all():
                 EventLog(
                     payload='course view',
@@ -1507,17 +1692,17 @@ class Command(BaseCommand):
             )
             cv.save()
 
-            q = Quiz(
+            qb = QuestionBank(
+                label='Easy',
                 course=c,
-                passing_marks=1,
             )
-            q.save()
+            qb.save()
 
             qn = Question(
                 title='Which of the following are machine learning algorithms',
                 subtitle='You should know this...',
-                order=q.questions.count(),
-                quiz=q
+                order=qb.questions.count(),
+                question_bank=qb
             )
             qn.save()
 
@@ -1531,8 +1716,8 @@ class Command(BaseCommand):
 
             qn = Question(
                 title='Risheng is...',
-                order=q.questions.count(),
-                quiz=q
+                order=qb.questions.count(),
+                question_bank=qb
             )
             qn.save()
 
@@ -1544,10 +1729,30 @@ class Command(BaseCommand):
             )
             mrq.save()
 
+            qb2 = QuestionBank(
+                label='Hard',
+                course=c,
+            )
+            qb2.save()
+
+            qn = Question(
+                title='Who is the creator of these videos?',
+                order=qb2.questions.count(),
+                question_bank=qb2
+            )
+            qn.save()
+
+            sa = ShortAnswer(
+                question=qn,
+                marks=1,
+                keywords=['Net', 'Ninja', 'NetNinja']
+            )
+            sa.save()
+
             qn = Question(
                 title='Who is Andrew Ng',
-                order=q.questions.count(),
-                quiz=q
+                order=qb2.questions.count(),
+                question_bank=qb2
             )
             qn.save()
 
@@ -1557,6 +1762,28 @@ class Command(BaseCommand):
                 keywords=['Pope']
             )
             sa.save()
+
+            q = Quiz(
+                course=c,
+                passing_marks=1,
+            )
+            q.save()
+
+            qg = QuestionGroup(
+                count=2,
+                order=q.question_groups.count() + 1,
+                quiz=q,
+                question_bank=qb
+            )
+            qg.save()
+
+            qg = QuestionGroup(
+                count=1,
+                order=q.question_groups.count() + 1,
+                quiz=q,
+                question_bank=qb2
+            )
+            qg.save()
 
             self.stdout.write(f'{self.style.SUCCESS("Success")}: Next Course created')
         except:
@@ -1586,7 +1813,7 @@ class Command(BaseCommand):
             c.thumbnail.save('courseimage.png', ImageFile(open('./codeine_django/common/management/demo_assets/course5/course5.png', 'rb')))
             c.save()
 
-            # create some fake views 
+            # create some fake views
             for u in BaseUser.objects.all():
                 EventLog(
                     payload='course view',
@@ -1780,17 +2007,17 @@ class Command(BaseCommand):
             )
             cv.save()
 
-            q = Quiz(
+            qb = QuestionBank(
+                label='Easy',
                 course=c,
-                passing_marks=1,
             )
-            q.save()
+            qb.save()
 
             qn = Question(
                 title='Which of the following are machine learning algorithms',
                 subtitle='You should know this...',
-                order=q.questions.count(),
-                quiz=q
+                order=qb.questions.count(),
+                question_bank=qb
             )
             qn.save()
 
@@ -1804,8 +2031,8 @@ class Command(BaseCommand):
 
             qn = Question(
                 title='Risheng is...',
-                order=q.questions.count(),
-                quiz=q
+                order=qb.questions.count(),
+                question_bank=qb
             )
             qn.save()
 
@@ -1817,10 +2044,30 @@ class Command(BaseCommand):
             )
             mrq.save()
 
+            qb2 = QuestionBank(
+                label='Hard',
+                course=c,
+            )
+            qb2.save()
+
+            qn = Question(
+                title='Who is the creator of these videos?',
+                order=qb2.questions.count(),
+                question_bank=qb2
+            )
+            qn.save()
+
+            sa = ShortAnswer(
+                question=qn,
+                marks=1,
+                keywords=['Net', 'Ninja', 'NetNinja']
+            )
+            sa.save()
+
             qn = Question(
                 title='Who is Andrew Ng',
-                order=q.questions.count(),
-                quiz=q
+                order=qb2.questions.count(),
+                question_bank=qb2
             )
             qn.save()
 
@@ -1830,6 +2077,28 @@ class Command(BaseCommand):
                 keywords=['Pope']
             )
             sa.save()
+
+            q = Quiz(
+                course=c,
+                passing_marks=1,
+            )
+            q.save()
+
+            qg = QuestionGroup(
+                count=2,
+                order=q.question_groups.count() + 1,
+                quiz=q,
+                question_bank=qb
+            )
+            qg.save()
+
+            qg = QuestionGroup(
+                count=1,
+                order=q.question_groups.count() + 1,
+                quiz=q,
+                question_bank=qb2
+            )
+            qg.save()
 
             self.stdout.write(f'{self.style.SUCCESS("Success")}: Docker Course created')
         except:
@@ -1858,7 +2127,7 @@ class Command(BaseCommand):
             c.thumbnail.save('courseimage.png', ImageFile(open('./codeine_django/common/management/demo_assets/course6/course6.png', 'rb')))
             c.save()
 
-            # create some fake views 
+            # create some fake views
             for u in BaseUser.objects.all():
                 EventLog(
                     payload='course view',
@@ -2052,17 +2321,17 @@ class Command(BaseCommand):
             )
             cv.save()
 
-            q = Quiz(
+            qb = QuestionBank(
+                label='Easy',
                 course=c,
-                passing_marks=1,
             )
-            q.save()
+            qb.save()
 
             qn = Question(
                 title='Which of the following are machine learning algorithms',
                 subtitle='You should know this...',
-                order=q.questions.count(),
-                quiz=q
+                order=qb.questions.count(),
+                question_bank=qb
             )
             qn.save()
 
@@ -2076,8 +2345,8 @@ class Command(BaseCommand):
 
             qn = Question(
                 title='Risheng is...',
-                order=q.questions.count(),
-                quiz=q
+                order=qb.questions.count(),
+                question_bank=qb
             )
             qn.save()
 
@@ -2089,10 +2358,30 @@ class Command(BaseCommand):
             )
             mrq.save()
 
+            qb2 = QuestionBank(
+                label='Hard',
+                course=c,
+            )
+            qb2.save()
+
+            qn = Question(
+                title='Who is the creator of these videos?',
+                order=qb2.questions.count(),
+                question_bank=qb2
+            )
+            qn.save()
+
+            sa = ShortAnswer(
+                question=qn,
+                marks=1,
+                keywords=['Net', 'Ninja', 'NetNinja']
+            )
+            sa.save()
+
             qn = Question(
                 title='Who is Andrew Ng',
-                order=q.questions.count(),
-                quiz=q
+                order=qb2.questions.count(),
+                question_bank=qb2
             )
             qn.save()
 
@@ -2102,6 +2391,28 @@ class Command(BaseCommand):
                 keywords=['Pope']
             )
             sa.save()
+
+            q = Quiz(
+                course=c,
+                passing_marks=1,
+            )
+            q.save()
+
+            qg = QuestionGroup(
+                count=2,
+                order=q.question_groups.count() + 1,
+                quiz=q,
+                question_bank=qb
+            )
+            qg.save()
+
+            qg = QuestionGroup(
+                count=1,
+                order=q.question_groups.count() + 1,
+                quiz=q,
+                question_bank=qb2
+            )
+            qg.save()
 
             self.stdout.write(f'{self.style.SUCCESS("Success")}: Infosec Course created')
         except:
@@ -2219,10 +2530,67 @@ class Command(BaseCommand):
             for i in range(99):
                 EventLog(
                     payload='search course',
-                    search_string=searches[i%4]
+                    search_string=searches[randint(0, 3)]
+                ).save()
+            # end for
+            searches = ['ui designer', 'frontend dev', 'devops engineer', 'ML sexpert']
+            for i in range(99):
+                EventLog(
+                    payload='search industry project',
+                    search_string=searches[randint(0, 3)]
                 ).save()
             # end for
             self.stdout.write(f'{self.style.SUCCESS("Success")}: Mock search stats initiated')
+
+            # generate event logs for courses
+            self.stdout.write('Generating course-related event logs...')
+            members = BaseUser.objects.exclude(member=None).all()
+            for cm in CourseMaterial.objects.all():
+                for i in range(4):
+                    EventLog(
+                        payload='continue course material',
+                        user=members[randint(0, 1)],
+                        course_material=cm
+                    ).save()
+                    EventLog(
+                        payload='stop course material',
+                        user=members[randint(0, 1)],
+                        course_material=cm,
+                        duration=randint(60, 2400),
+                    ).save()
+                # end for
+            # end for
+            self.stdout.write(f'{self.style.SUCCESS("Success")}: Event logs initiated')
+
+        except:
+            e = sys.exc_info()[0]
+            self.stdout.write(f'{self.style.ERROR("ERROR")}: {repr(e)}')
+        # end try-except
+
+        try:
+            # initiate some industry projects
+            self.stdout.write('Initiating some industry projects...')
+            now = timezone.now()
+
+            IndustryProject(
+                title='Finance Dashboard',
+                description='Build a dashboard using the MERN stack',
+                start_date=now + timedelta(days=120),
+                end_date=now + timedelta(days=240),
+                application_deadline=now + timedelta(days=60),
+                categories=['FE', 'BE']
+            ).save()
+
+            IndustryProject(
+                title='Finetune our ranking algorithm!',
+                description='Flex your ML skills! KNN!',
+                start_date=now + timedelta(days=140),
+                end_date=now + timedelta(days=300),
+                application_deadline=now + timedelta(days=20),
+                categories=['ML', 'BE']
+            ).save()
+
+            self.stdout.write(f'{self.style.SUCCESS("Success")}: Industry projects initiated')
         except:
             e = sys.exc_info()[0]
             self.stdout.write(f'{self.style.ERROR("ERROR")}: {repr(e)}')

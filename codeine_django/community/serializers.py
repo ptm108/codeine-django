@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from .models import Article, ArticleComment, ArticleEngagement, CodeReview, CodeReviewComment, ArticleCommentEngagement
+from .models import Article, ArticleComment, ArticleEngagement, CodeReview, CodeReviewComment, ArticleCommentEngagement, CodeReviewEngagement, CodeReviewCommentEngagement
 from common.serializers import NestedBaseUserSerializer
 
 
@@ -25,6 +25,8 @@ class NestedCodeReviewCommentSerializer(serializers.ModelSerializer):
     replies = serializers.SerializerMethodField('get_replies')
     parent_comment = ParentCodeReviewCommentSerializer()
     reply_count = serializers.SerializerMethodField('get_reply_count')
+    likes = serializers.SerializerMethodField('get_likes')
+    current_user_liked = serializers.SerializerMethodField('get_current_user_liked')
 
     class Meta:
         model = CodeReviewComment
@@ -54,6 +56,20 @@ class NestedCodeReviewCommentSerializer(serializers.ModelSerializer):
         # end def
 
         return rec_reply_count(obj) - 1 # minus self
+    # end def
+
+    def get_likes(self, obj):
+        return CodeReviewCommentEngagement.objects.filter(comment=obj).count()
+    # end def
+
+    def get_current_user_liked(self, obj):
+        request = self.context.get("request")
+        if request.user.is_anonymous:
+            return None
+        else:
+            user = request.user
+            return CodeReviewCommentEngagement.objects.filter(comment=obj).filter(user=user).exists()
+        # end if-else
     # end def
 # end class
 
@@ -110,9 +126,12 @@ class NestedArticleCommentSerializer(serializers.ModelSerializer):
 
     def get_current_user_liked(self, obj):
         request = self.context.get("request")
-        user = request.user
-        return ArticleCommentEngagement.objects.filter(comment=obj).filter(user=user).exists()
-        # end if
+        if request.user.is_anonymous:
+            return None
+        else:
+            user = request.user
+            return ArticleCommentEngagement.objects.filter(comment=obj).filter(user=user).exists()
+        # end if-else
     # end def
 # end class
 
@@ -139,6 +158,32 @@ class ArticleCommentSerializer(serializers.ModelSerializer):
             return None
         else:
             return ParentArticleCommentSerializer(obj.parent_comment, context={'request': request}).data
+        # end if-else
+    # end def
+
+    def get_reply_count(self, obj):
+        def rec_reply_count(comment):
+            if len(comment.replies.all()) == 0:
+                return 1
+            else:
+                count = 1
+                for reply in comment.replies.all():
+                    count += rec_reply_count(reply)
+                # end for
+                return count
+            # end if else
+        # end def
+
+        return rec_reply_count(obj) - 1 # minus self
+    # end def
+
+    def get_current_user_liked(self, obj):
+        request = self.context.get("request")
+        if request.user.is_anonymous:
+            return None
+        else:
+            user = request.user
+            return ArticleCommentEngagement.objects.filter(comment=obj).filter(user=user).exists()
         # end if-else
     # end def
 # end class
@@ -171,20 +216,20 @@ class CodeReviewCommentSerializer(serializers.ModelSerializer):
 
 
 class ArticleSerializer(serializers.ModelSerializer):
-    member = serializers.SerializerMethodField('get_member')
+    user = serializers.SerializerMethodField('get_user')
     top_level_comments = serializers.SerializerMethodField(
         'get_top_level_comments')
     engagements = serializers.SerializerMethodField('get_engagements')
-    current_member_liked = serializers.SerializerMethodField('get_current_member_liked')
+    current_user_liked = serializers.SerializerMethodField('get_current_user_liked')
 
     class Meta:
         model = Article
         fields = '__all__'
     # end Meta
 
-    def get_member(self, obj):
+    def get_user(self, obj):
         request = self.context.get("request")
-        return NestedBaseUserSerializer(obj.member.user, context={'request': request}).data
+        return NestedBaseUserSerializer(obj.user, context={'request': request}).data
     # end def
 
     def get_top_level_comments(self, obj):
@@ -200,28 +245,29 @@ class ArticleSerializer(serializers.ModelSerializer):
         return ArticleEngagementSerializer(engagements, many=True, context={'request': request}).data
     # end def
 
-    def get_current_member_liked(self, obj):
+    def get_current_user_liked(self, obj):
         request = self.context.get("request")
-
-        if hasattr(request.user, 'member'):
-            member = request.user.member
-            return ArticleEngagement.objects.filter(article=obj).filter(member=member).exists()
+        if request.user.is_anonymous:
+            return None
+        else:
+            user = request.user
+            return ArticleEngagement.objects.filter(article=obj).filter(user=user).exists()
         # end if
     # end def
 # end class
 
 
 class ArticleEngagementSerializer(serializers.ModelSerializer):
-    member = serializers.SerializerMethodField('get_member')
+    user = serializers.SerializerMethodField('get_user')
 
     class Meta:
         model = ArticleEngagement
         fields = '__all__'
     # end Meta
 
-    def get_member(self, obj):
+    def get_user(self, obj):
         request = self.context.get("request")
-        return NestedBaseUserSerializer(obj.member.user, context={'request': request}).data
+        return NestedBaseUserSerializer(obj.user, context={'request': request}).data
     # end def
 # end class
 
@@ -229,7 +275,9 @@ class ArticleEngagementSerializer(serializers.ModelSerializer):
 class CodeReviewSerializer(serializers.ModelSerializer):
     top_level_comments = serializers.SerializerMethodField(
         'get_top_level_comments')
-    member = serializers.SerializerMethodField('get_member')
+    user = serializers.SerializerMethodField('get_user')
+    likes = serializers.SerializerMethodField('get_likes')
+    current_user_liked = serializers.SerializerMethodField('get_current_user_liked')
 
     class Meta:
         model = CodeReview
@@ -243,8 +291,38 @@ class CodeReviewSerializer(serializers.ModelSerializer):
         return CodeReviewCommentSerializer(top_level_comments, many=True, context={'request': request}).data
     # end def
 
-    def get_member(self, obj):
+    def get_user(self, obj):
         request = self.context.get("request")
-        return NestedBaseUserSerializer(obj.member.user, context={'request': request}).data
+        return NestedBaseUserSerializer(obj.user, context={'request': request}).data
+    # end def
+
+    def get_likes(self, obj):
+        return CodeReviewEngagement.objects.filter(code_review=obj).count()
+    # end def
+
+    def get_current_user_liked(self, obj):
+        request = self.context.get("request")
+        if request.user.is_anonymous:
+            return None
+        else:
+            user = request.user
+            return CodeReviewEngagement.objects.filter(code_review=obj).filter(user=user).exists()
+        # end if-else
     # end def
 # end class
+
+
+class CodeReviewEngagementSerializer(serializers.ModelSerializer):
+    user = serializers.SerializerMethodField('get_user')
+
+    class Meta:
+        model = CodeReviewEngagement
+        fields = '__all__'
+    # end Meta
+
+    def get_user(self, obj):
+        request = self.context.get("request")
+        return NestedBaseUserSerializer(obj.user, context={'request': request}).data
+    # end def
+# end class
+

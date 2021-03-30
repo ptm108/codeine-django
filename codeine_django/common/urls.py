@@ -1,6 +1,6 @@
 from django.urls import path
 
-from . import views_member, views_partners, views_organization, views_admin, views_bank_detail, views_membership_subscription, views_notifications
+from . import views_member, views_partners, views_organization, views_admin, views_bank_detail, views_membership_subscription, views_notifications, views_cv
 from achievements import views_achievement
 
 urlpatterns = [
@@ -17,6 +17,14 @@ urlpatterns = [
          views_achievement.get_member_achievements, name='Get member\'s achievements'),
     path('members/<slug:pk>/suspend', views_member.suspend_user_view,
          name='Suspend/Unsuspend member'),
+    path('members/<slug:pk>/cvs', views_cv.public_cv_view,
+         name='Get members cvs'),
+
+    # member CVs views
+    path('cvs', views_cv.cv_view,
+         name='Create/Get all CVs by member'),
+    path('cvs/<slug:pk>', views_cv.single_cv_view,
+         name='Read/Update/Delete CV'),
 
     # membership-subscriptions views
     path('membership-subscriptions', views_membership_subscription.membership_subscription_view,
@@ -58,7 +66,8 @@ urlpatterns = [
          name='Read/Update/Change PW/Delete Admin User'),
 
     # notification views
-    path('notifications', views_notifications.notification_view, name='Get all/Search Notifications'),
+    path('notifications', views_notifications.notification_view,
+         name='Get all/Search Notifications'),
     path('notifications/<slug:pk>', views_notifications.single_notification_view,
          name='Read/Update/Delete Notificaiton'),
 

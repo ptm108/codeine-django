@@ -2,7 +2,7 @@ from django.db import transaction
 from django.db.utils import IntegrityError
 from django.utils import timezone
 from django.core.exceptions import ValidationError, ObjectDoesNotExist
-from django.db.models import Q, Sum, Avg, Count
+from django.db.models import Q, Sum, Avg, Count, F
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
@@ -17,7 +17,7 @@ from datetime import timedelta
 from .models import EventLog
 from .serializers import EventLogSerializer
 from common.permissions import IsPartnerOrAdminOnly
-from common.models import Partner, BaseUser
+from common.models import Partner, Member, BaseUser
 from common.serializers import NestedBaseUserSerializer
 from courses.models import Course, CourseMaterial, Quiz, Enrollment
 from courses.serializers import CourseSerializer
@@ -39,6 +39,7 @@ def post_log_view(request):
         course_material = CourseMaterial.objects.filter(pk=query_params.get('course_material_id', None)).first()
         quiz = Quiz.objects.filter(pk=query_params.get('quiz_id', None)).first()
         industry_project = IndustryProject.objects.filter(pk=query_params.get('industry_project_id', None)).first()
+        search_string = query_params.get('search_string', None)
 
         try:
             with transaction.atomic():
@@ -49,6 +50,7 @@ def post_log_view(request):
                     course_material=course_material,
                     quiz=quiz,
                     industry_project=industry_project,
+                    search_string=search_string
                 )
 
                 # duration logging for course material
@@ -151,27 +153,17 @@ def course_conversion_rate_view(request):
             overall_view = EventLog.objects
             enrollments = Enrollment.objects
 
-            period = request.query_params.get('period', None)
+            days = int(request.query_params.get('days', 120))
             now = timezone.now()
 
-            if period == 'day':
-                overall_view = overall_view.filter(timestamp__date=now)
-                enrollments = enrollments.filter(date_created__date=now)
-            elif period == 'week':
-                week = now.isocalendar()[1]
-                overall_view = overall_view.filter(timestamp__week=week)
-                enrollments = enrollments.filter(date_created__week=week)
-            elif period == 'month':
-                overall_view = overall_view.filter(timestamp__month=now.month)
-                enrollments = enrollments.filter(date_created__month=now.month)
-            elif period == 'year':
-                overall_view = overall_view.filter(timestamp__year=now.year)
-                enrollments = enrollments.filter(date_created__year=now.year)
-            # end if-else
+            overall_view = overall_view.filter(timestamp__date__gte=now - timedelta(days=days))
+            enrollments = enrollments.filter(date_created__date__gte=now - timedelta(days=days))
+            total_enrollments = Enrollment.objects
 
-            if not user.is_admin and partner is not None:
+            if partner is not None:
                 overall_view = overall_view.filter(course__partner=partner)
                 enrollments = enrollments.filter(course__partner=partner)
+                total_enrollments = total_enrollments.filter(course__partner=partner)
             # end if
 
             view_count = overall_view.count()
@@ -181,9 +173,11 @@ def course_conversion_rate_view(request):
             res['overall_conversion_rate'] = enrollment_count / view_count if view_count > 0 else 0
             res['overall_view'] = view_count
             res['enrollments'] = enrollment_count
+            res['total_enrollments'] = total_enrollments.count()
 
             breakdown = []
-            for course in partner.courses.all():
+            courses = partner.courses.all() if partner is not None else Course.objects.all()
+            for course in courses:
                 tmp = {}
                 tmp['course_id'] = course.id
                 tmp['title'] = course.title
@@ -372,7 +366,7 @@ def course_member_stats_view(request):
                 Q(date_created__lte=timezone.now() - timedelta(days=days)) &
                 Q(progress=0)
             ).count()
-            false_starter_percentage = false_starter_count / total_count
+            false_starter_percentage = false_starter_count / total_count if total_count > 0 else 0
 
             active_count = 0
             for enrollment in course.enrollments.exclude(progress=100).all():
@@ -386,7 +380,7 @@ def course_member_stats_view(request):
                     active_count += 1
                 # end if
             # end for
-            active_members_percentage = active_count / total_count
+            active_members_percentage = active_count / total_count if total_count > 0 else 0
 
             return Response({'false_starter_percentage': false_starter_percentage, 'active_members_percentage': active_members_percentage}, status=status.HTTP_200_OK)
         except ObjectDoesNotExist as e:
@@ -414,10 +408,13 @@ def member_demographics_view(request):
             course_id = request.query_params.get('course_id', None)
             partner_id = request.query_params.get('partner_id', None)
 
-            if partner is None:
+            members = BaseUser.objects
+            if partner is not None:
+                members = BaseUser.objects.filter(member__enrollments__course__partner=partner)
+            if partner is None and partner_id is not None:
                 partner = Partner.objects.get(pk=partner_id)
+                members = BaseUser.objects.filter(member__enrollments__course__partner=partner)
             # end if
-            members = BaseUser.objects.filter(member__enrollments__course__partner=partner)
 
             course = Course.objects.filter(pk=course_id).first()
             if course is not None:
@@ -437,6 +434,54 @@ def member_demographics_view(request):
             print(str(e))
             return Response(status=status.HTTP_404_NOT_FOUND)
         except (ValueError, KeyError) as e:
+            print(str(e))
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+        # end try-except
+    # end if
+# end def
+
+
+@api_view(['GET'])
+@permission_classes((IsAuthenticated,))
+def course_first_enrollment_count_view(request):
+    '''
+    Get the number of first enrollments in each course
+    '''
+    if request.method == 'GET':
+        try:
+            members = Member.objects.all()
+            ranking = {}
+            days = int(request.query_params.get('days', 999))
+
+            for member in members:
+                first_enrollment = member.enrollments.first()
+
+                if first_enrollment.date_created < timezone.now() - timedelta(days=days):
+                    continue
+                # end if
+
+                if first_enrollment is not None:
+                    course = first_enrollment.course
+                    try:
+                        ranking[str(course.id)] += 1
+                    except KeyError:
+                        ranking[str(course.id)] = 1
+                # end if
+            # end for
+            ranking = dict(sorted(ranking.items(), key=lambda item: item[1], reverse=True))
+            res = []
+
+            for key in list(ranking.keys())[:10]:
+                course = Course.objects.get(pk=key)
+                res.append({
+                    'course_id': key,
+                    'course_title': course.title,
+                    'first_enrollment_count': ranking[key],
+                })
+            # end for
+
+            return Response(res, status=status.HTTP_200_OK)
+        except ObjectDoesNotExist as e:
             print(str(e))
             return Response(status=status.HTTP_400_BAD_REQUEST)
         # end try-except

@@ -45,7 +45,7 @@ class Article(models.Model):
     date_edited = models.DateTimeField(auto_now=True)
 
     # availability
-    is_published = models.BooleanField(default=True)
+    is_published = models.BooleanField(default=False)
     is_activated = models.BooleanField(default=True)
 
     # enums
@@ -54,15 +54,18 @@ class Article(models.Model):
     categories = MultiSelectField(choices=CATEGORIES)
 
     # ref
-    member = models.ForeignKey(
-        'common.Member', on_delete=models.CASCADE, related_name='articles')
+    # member = models.ForeignKey(
+    #     'common.Member', on_delete=models.CASCADE, related_name='articles')
+    user = models.ForeignKey(
+        'common.BaseUser', on_delete=models.CASCADE, related_name='articles', null=True, default=None)
+
 
     def __str__(self):
         return f'Article: {self.id}, Title: {self.title}'
     # end def
 
     class Meta:
-        ordering = ['-date_edited']
+        ordering = ['date_edited']
     # end class
 # end class
 
@@ -73,7 +76,7 @@ class ArticleComment(models.Model):
     display_id = models.PositiveIntegerField()
     comment = models.TextField()
     timestamp = models.DateTimeField(auto_now_add=True)
-    time_edited = models.DateTimeField(default=None, null=True, blank=True)
+    time_edited = models.DateTimeField(auto_now=True)
     pinned = models.BooleanField(default=False)
 
     # ref
@@ -97,17 +100,19 @@ class ArticleComment(models.Model):
 class ArticleEngagement(models.Model):
     id = models.UUIDField(
         primary_key=True, default=uuid.uuid4, editable=False, unique=True)
-    like = models.IntegerField()
+    # like = models.IntegerField()
     timestamp = models.DateTimeField(auto_now_add=True)
 
     # ref
-    member = models.ForeignKey(
-        'common.Member', on_delete=models.CASCADE, related_name='engagements')
+    # member = models.ForeignKey(
+    #     'common.Member', on_delete=models.CASCADE, related_name='article_engagements')
+    user = models.ForeignKey(
+        'common.BaseUser', on_delete=models.CASCADE, related_name='article_engagements', null=True, default=None)
     article = models.ForeignKey(
         'community.Article', on_delete=models.CASCADE, related_name='engagements')
 
     def __str__(self):
-        return f'Article Engagement {self.id} for Article {self.article.id} from {self.member.user.id}'
+        return f'Article Engagement {self.id} for Article {self.article.id} from {self.user.id}'
     # end def
 
     class Meta:
@@ -164,11 +169,13 @@ class CodeReview(models.Model):
     categories = MultiSelectField(choices=CATEGORIES)
 
     # ref
-    member = models.ForeignKey(
-        'common.Member', on_delete=models.CASCADE, related_name='code_reviews')
+    # member = models.ForeignKey(
+    #     'common.Member', on_delete=models.CASCADE, related_name='code_reviews')
+    user = models.ForeignKey(
+        'common.BaseUser', on_delete=models.CASCADE, related_name='code_reviews', null=True, default=None)
 
     def __str__(self):
-        return f'Code Review {self.id} request from {self.member.user.id}'
+        return f'Code Review {self.id}'
     # end def
 
     class Meta:
@@ -204,4 +211,37 @@ class CodeReviewComment(models.Model):
     class Meta:
         ordering = ['-timestamp']
     # end class
+# end class
+
+
+class CodeReviewEngagement(models.Model):
+    id = models.UUIDField(
+        primary_key=True, default=uuid.uuid4, editable=False, unique=True)
+    # like = models.IntegerField()
+    timestamp = models.DateTimeField(auto_now_add=True)
+
+    # ref
+    # member = models.ForeignKey(
+    #     'common.Member', on_delete=models.CASCADE, related_name='code_review_engagements')
+    user = models.ForeignKey(
+        'common.BaseUser', on_delete=models.CASCADE, related_name='code_review_engagements', null=True, default=None)
+    code_review = models.ForeignKey(
+        'community.CodeReview', on_delete=models.CASCADE, related_name='engagements')
+
+    def __str__(self):
+        return f'Code Review Engagement {self.id} for Code Review {self.code_review.id} '
+    # end def
+
+    class Meta:
+        ordering = ['-timestamp']
+    # end class
+# end class
+
+
+class CodeReviewCommentEngagement(models.Model):
+    timestamp = models.DateTimeField(auto_now_add=True)
+
+    # ref
+    comment = models.ForeignKey('CodeReviewComment', on_delete=models.CASCADE, related_name='engagements')
+    user = models.ForeignKey('common.BaseUser', on_delete=models.CASCADE, related_name='+')
 # end class

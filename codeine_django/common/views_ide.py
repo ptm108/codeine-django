@@ -26,8 +26,8 @@ def init_ide(request):
             git_url = request.query_params.get('git_url', None)
             course_name = request.query_params.get('course_name', None)
 
-            if git_url is None:
-                return Response('git_url is missing', status=status.HTTP_400_BAD_REQUEST)
+            # if git_url is None:
+            #     return Response('git_url is missing', status=status.HTTP_400_BAD_REQUEST)
             # end if
 
             container = client.containers.run(

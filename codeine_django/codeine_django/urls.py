@@ -31,6 +31,7 @@ urlpatterns = [
 
     # common infra endpoints
     path('auth/', include('common.urls'), name='Common infra end points'),
+    path('members/', include('common.urls_member_profile'), name='Public member endpoints'),
 
     # consultation endpoints
     path('consultations', include('consultations.urls_consultations'),
@@ -52,6 +53,8 @@ urlpatterns = [
          name='Quiz and question endpoints'),
     path('quiz-results', include('courses.urls_quiz_results'),
          name='QuizResult endpoints'),
+    path('question-banks', include('courses.urls_question_banks'),
+         name='Question Bank endpoints'),
 
     # enrollment endpoints
     path('enrollments', include('courses.urls_enrollments'),

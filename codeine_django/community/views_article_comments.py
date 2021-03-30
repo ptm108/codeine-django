@@ -11,7 +11,6 @@ from rest_framework.permissions import (
 )
 from .models import Article, ArticleComment, ArticleCommentEngagement
 from .serializers import NestedArticleCommentSerializer
-from common.models import Member
 
 # Create your views here.
 
@@ -28,12 +27,14 @@ def article_comment_view(request, article_id):
 
         # return first two levels of comments under article
         article_comments = article_comments.filter(reply_to=None)
-        
+
         # extract query params
         search = request.query_params.get('search', None)
 
         if search is not None:
             article_comments = article_comments.filter(
+                Q(user__first_name__icontains=search) |
+                Q(user__last_name__icontains=search) |
                 Q(comment__icontains=search)
             )
         # end if
@@ -52,9 +53,10 @@ def article_comment_view(request, article_id):
 
         try:
             article = Article.objects.get(pk=article_id)
-            comment_count = ArticleComment.objects.filter(article=article).count()
+            comment_count = ArticleComment.objects.filter(
+                article=article).count()
             reply_to = None
-        
+
             if 'reply_to' in data:
                 reply_to = ArticleComment.objects.get(
                     pk=data['reply_to'])
@@ -129,7 +131,7 @@ def single_article_comment_view(request, article_id, pk):
     if request.method == 'DELETE':
         try:
             article_comment = ArticleComment.objects.get(pk=pk)
-            
+
             if article_comment.user != request.user:
                 return Response(status=status.HTTP_401_UNAUTHORIZED)
             # end if
@@ -141,6 +143,7 @@ def single_article_comment_view(request, article_id, pk):
         # end try-except
     # end if
 # def
+
 
 @api_view(['PATCH'])
 @permission_classes((IsAuthenticatedOrReadOnly,))
@@ -203,6 +206,7 @@ def unpin_comment_view(request, article_id, pk):
     # end if
 # end def
 
+
 @api_view(['POST', 'DELETE'])
 @permission_classes((IsAuthenticatedOrReadOnly,))
 def article_comment_engagement_view(request, article_id, pk):
@@ -225,7 +229,8 @@ def article_comment_engagement_view(request, article_id, pk):
             engagement.save()
             article_comment.save()
 
-            serializer = NestedArticleCommentSerializer(article_comment, context={'request': request, 'recursive': True})
+            serializer = NestedArticleCommentSerializer(
+                article_comment, context={'request': request, 'recursive': True})
             return Response(serializer.data, status=status.HTTP_200_OK)
         except ObjectDoesNotExist as e:
             print(e)
@@ -241,11 +246,13 @@ def article_comment_engagement_view(request, article_id, pk):
         try:
             article_comment = ArticleComment.objects.get(pk=pk)
 
-            engagement = ArticleCommentEngagement.objects.filter(comment=article_comment).get(user=user)
+            engagement = ArticleCommentEngagement.objects.filter(
+                comment=article_comment).get(user=user)
             engagement.delete()
             article_comment.save()
 
-            serializer = NestedArticleCommentSerializer(article_comment, context={'request': request, 'recursive': True})
+            serializer = NestedArticleCommentSerializer(
+                article_comment, context={'request': request, 'recursive': True})
             return Response(serializer.data, status=status.HTTP_200_OK)
         except ObjectDoesNotExist as e:
             print(e)
@@ -253,4 +260,3 @@ def article_comment_engagement_view(request, article_id, pk):
         # end try-except
     # end if
 # end def
-
