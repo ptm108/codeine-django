@@ -31,4 +31,5 @@ if [ "${COURSE_NAME-}" ]; then
   fi
 fi
 
+sudo chmod -R 777 /home/coder/codeine-ide
 dumb-init /home/coder/bin/code-server --home=http://localhost:3000 --auth none "$@"
