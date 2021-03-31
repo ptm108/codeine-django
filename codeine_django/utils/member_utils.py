@@ -70,10 +70,8 @@ def get_default_member_stats():
 
 def get_membership_tier(member):
     try:
-        subscription = MembershipSubscription.objects.get(
-            member=member, payment_transaction__payment_status='COMPLETED')
-        print(subscription.expiry_date)
-        print(timezone.now().today())
+        subscription = MembershipSubscription.objects.filter(
+            member=member, payment_transaction__payment_status='COMPLETED').first()
         if subscription.expiry_date < pytz.utc.localize(timezone.now().today()):
             member.membership_tier = 'FREE'
             member.save()
