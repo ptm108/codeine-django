@@ -55,7 +55,7 @@ def ticket_message_view(request, ticket_id):
                 )
                 ticket_message.save()
 
-                serializer = TicketMessageSerializer(ticket_message)
+                serializer = TicketMessageSerializer(ticket_message, context={"request": request})
 
                 return Response(serializer.data, status=status.HTTP_201_CREATED)
             except (IntegrityError, ValueError, KeyError) as e:
@@ -74,7 +74,7 @@ def single_ticket_message_view(request, pk):
     if request.method == 'GET':
         try:
             ticket_message = TicketMessage.objects.get(pk=pk)
-            serializer = TicketMessageSerializer(ticket_message)
+            serializer = TicketMessageSerializer(ticket_message, context={"request": request})
             return Response(serializer.data)
         except (ObjectDoesNotExist, KeyError, ValueError) as e:
             print(e)
@@ -95,7 +95,7 @@ def single_ticket_message_view(request, pk):
                 ticket_message.save()
             # end with
 
-            serializer = TicketMessageSerializer(ticket_message)
+            serializer = TicketMessageSerializer(ticket_message, context={"request": request})
             return Response(serializer.data, status=status.HTTP_200_OK)
         except TicketMessage.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
