@@ -5,7 +5,7 @@ from . import views_tickets, views_ticket_messages
 urlpatterns = [
     # ticket views
     path('/tickets', views_tickets.ticket_view, name='Create ticket, Get all/Search tickets'),
-    path('/tickets/<slug:pk>', views_tickets.single_ticket_view, name="Get Ticket, Update Ticket Details, Delete Ticket"),
+    path('/tickets/<slug:pk>', views_tickets.single_ticket_view, name="Get Ticket, Delete Ticket"),
     path('/tickets/<slug:pk>/resolve', views_tickets.resolve_ticket_view, name='Admin resolves ticket'),
 
     # ticket message views

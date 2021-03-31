@@ -113,31 +113,33 @@ def single_ticket_view(request, pk):
             print(e)
             return Response(status=status.HTTP_400_BAD_REQUEST)
     # end if
-    '''
-    Updates description and ticket type
-    '''
-    if request.method == 'PUT':
-        data = request.data
-        try:
-            ticket = Ticket.objects.get(pk=pk)
 
-            if 'description' in data:
-                ticket.description = data['description']
-            # end if
+    # '''
+    # Updates description and ticket type
+    # '''
+    # if request.method == 'PUT':
+    #     data = request.data
+    #     try:
+    #         ticket = Ticket.objects.get(pk=pk)
 
-            if 'ticket_type' in data:
-                ticket.ticket_type = data['ticket_type']
-            # end if
+    #         if 'description' in data:
+    #             ticket.description = data['description']
+    #         # end if
 
-            ticket.save()
-            serializer = TicketSerializer(ticket, context={"request": request})
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        except Ticket.DoesNotExist:
-            return Response(status=status.HTTP_404_NOT_FOUND)
-        except (KeyError, ValueError) as e:
-            return Response(status=status.HTTP_400_BAD_REQUEST)
-        # end try-except
-    # end if
+    #         if 'ticket_type' in data:
+    #             ticket.ticket_type = data['ticket_type']
+    #         # end if
+
+    #         ticket.save()
+    #         serializer = TicketSerializer(ticket, context={"request": request})
+    #         return Response(serializer.data, status=status.HTTP_200_OK)
+    #     except Ticket.DoesNotExist:
+    #         return Response(status=status.HTTP_404_NOT_FOUND)
+    #     except (KeyError, ValueError) as e:
+    #         return Response(status=status.HTTP_400_BAD_REQUEST)
+    #     # end try-except
+    # # end if
+
     '''
     Deletes a ticket
     '''
