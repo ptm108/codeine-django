@@ -114,8 +114,8 @@ def single_ticket_view(request, pk):
     if request.method == 'GET':
         try:
             ticket = Ticket.objects.get(pk=pk)
-            serializer = TicketSerializer(ticket)
-            return Response(serializer.data, context={"request": request})
+            serializer = TicketSerializer(ticket, context={"request": request})
+            return Response(serializer.data)
         except (ObjectDoesNotExist, KeyError, ValueError) as e:
             print(e)
             return Response(status=status.HTTP_400_BAD_REQUEST)
