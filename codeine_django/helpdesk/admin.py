@@ -3,6 +3,8 @@ from django.contrib import admin
 from .models import Ticket, TicketMessage
 
 # Register your models here.
+
+
 class TicketInline(admin.StackedInline):
     model = Ticket
     can_delete = False
@@ -18,13 +20,15 @@ class TicketMessageInline(admin.StackedInline):
 
 
 class TicketAdmin(admin.ModelAdmin):
-    list_display = ('id', 'description', 'timestamp', 'ticket_status', 'ticket_type', 'base_user')
+    list_display = ('id', 'description', 'timestamp', 'photo', 'ticket_status', 'ticket_type',
+                    'base_user', 'transaction', 'course', 'article', 'industry_project', 'consultation_slot')
 # end class
 
 
 class TicketMessageAdmin(admin.ModelAdmin):
     list_display = ('id', 'message', 'timestamp', 'base_user', 'ticket')
 # end class
+
 
 admin.site.register(Ticket, TicketAdmin)
 admin.site.register(TicketMessage, TicketMessageAdmin)

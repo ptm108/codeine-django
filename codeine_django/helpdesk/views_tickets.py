@@ -5,6 +5,7 @@ from django.db.models import Q
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes, parser_classes, renderer_classes
 from rest_framework.response import Response
+from rest_framework.parsers import MultiPartParser, FormParser
 
 from rest_framework.permissions import (
     IsAuthenticated,
@@ -12,10 +13,17 @@ from rest_framework.permissions import (
 )
 from .models import Ticket
 from .serializers import TicketSerializer
+from common.models import BaseUser, PaymentTransaction
+from courses.models import Course
+from community.models import Article
+from industry_projects.models import IndustryProject
+from consultations.models import ConsultationSlot
+
 
 # Create your views here.
 @api_view(['GET', 'POST'])
 @permission_classes((IsAuthenticated,))
+@parser_classes((MultiPartParser, FormParser))
 def ticket_view(request):
     '''
     Retrieves all tickets
@@ -41,8 +49,7 @@ def ticket_view(request):
             )
         # end if
 
-
-        serializer = TicketSerializer(tickets.all(), many=True)
+        serializer = TicketSerializer(tickets.all(), many=True, context={"request": request})
         return Response(serializer.data, status=status.HTTP_200_OK)
     # end if
 
@@ -55,19 +62,41 @@ def ticket_view(request):
 
         try:
             ticket = Ticket(
-                description = data['description'],
-                ticket_type = data['ticket_type'],
-                base_user = user
+                description=data['description'],
+                ticket_type=data['ticket_type'],
+                base_user=user
             )
+
+            if 'photo' in data:
+                ticket.photo = data['photo']
+            if 'transaction_id' in data:
+                transaction_id = data['transaction_id']
+                ticket.transaction = PaymentTransaction.objects.get(pk=transaction_id)
+            if 'course_id' in data:
+                course_id = data['course_id']
+                ticket.course = Course.objects.get(pk=course_id)
+            if 'article_id' in data:
+                article_id = data['article_id']
+                ticket.article = Article.objects.get(pk=article_id)
+            if 'industry_project_id' in data:
+                industry_project_id = data['industry_project_id']
+                ticket.industry_project = IndustryProject.objects.get(pk=industry_project_id)
+            if 'consultation_slot_id' in data:
+                consultation_slot_id = data['consultation_slot_id']
+                ticket.consultation_slot = ConsultationSlot.objects.get(pk=consultation_slot_id)
+            # end ifs
+
             ticket.save()
 
-            serializer = TicketSerializer(ticket)
+            serializer = TicketSerializer(ticket, context={"request": request})
             return Response(serializer.data, status=status.HTTP_201_CREATED)
-        except (IntegrityError, ValueError, KeyError) as e:
+        except (ObjectDoesNotExist, IntegrityError, ValueError, KeyError) as e:
             print(e)
             return Response(status=status.HTTP_400_BAD_REQUEST)
+        # end try-except
     # end if
 # def
+
 
 @api_view(['GET', 'PUT', 'DELETE'])
 @permission_classes((IsAuthenticated,))
@@ -79,7 +108,7 @@ def single_ticket_view(request, pk):
         try:
             ticket = Ticket.objects.get(pk=pk)
             serializer = TicketSerializer(ticket)
-            return Response(serializer.data)
+            return Response(serializer.data, context={"request": request})
         except (ObjectDoesNotExist, KeyError, ValueError) as e:
             print(e)
             return Response(status=status.HTTP_400_BAD_REQUEST)
@@ -94,11 +123,14 @@ def single_ticket_view(request, pk):
 
             if 'description' in data:
                 ticket.description = data['description']
+            # end if
+
             if 'ticket_type' in data:
                 ticket.ticket_type = data['ticket_type']
+            # end if
 
             ticket.save()
-            serializer = TicketSerializer(ticket)
+            serializer = TicketSerializer(ticket, context={"request": request})
             return Response(serializer.data, status=status.HTTP_200_OK)
         except Ticket.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
@@ -123,6 +155,7 @@ def single_ticket_view(request, pk):
     # end if
 # def
 
+
 @api_view(['PATCH'])
 @permission_classes((IsAdminUser,))
 def resolve_ticket_view(request, pk):
@@ -137,7 +170,7 @@ def resolve_ticket_view(request, pk):
             ticket.ticket_status = 'RESOLVED'
             ticket.save()
 
-            serializer = TicketSerializer(ticket)
+            serializer = TicketSerializer(ticket, context={"request": request})
             return Response(serializer.data, status=status.HTTP_200_OK)
         except ObjectDoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
