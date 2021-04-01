@@ -11,7 +11,7 @@ from rest_framework.permissions import IsAdminUser
 
 import json
 
-from .models import Course, Quiz
+from .models import Course, Quiz, Chapter, CourseMaterial, CourseFile, Video
 from .serializers import CourseSerializer, QuizSerializer
 from common.models import Partner
 from common.permissions import IsPartnerOrReadOnly, IsPartnerOnly
@@ -84,24 +84,81 @@ def course_view(request):
             data = request.data
 
             # print(type(json.loads(data['list'])))
+            with transaction.atomic():
+                course = Course(
+                    title=data['title'],
+                    learning_objectives=json.loads(data['learning_objectives']),
+                    requirements=json.loads(data['requirements']),
+                    description=data['description'],
+                    introduction_video_url=data['introduction_video_url'],
+                    thumbnail=data['thumbnail'],
+                    coding_languages=json.loads(data['coding_languages']),
+                    languages=json.loads(data['languages']),
+                    categories=json.loads(data['categories']),
+                    exp_points=data['exp_points'],
+                    pro=data['pro'] == 'true',
+                    duration=data['duration'],
+                    github_repo=data['github_repo'] if 'github_repo' in data else None,
+                    partner=partner
+                )
+                course.save()
 
-            course = Course(
-                title=data['title'],
-                learning_objectives=json.loads(data['learning_objectives']),
-                requirements=json.loads(data['requirements']),
-                description=data['description'],
-                introduction_video_url=data['introduction_video_url'],
-                thumbnail=data['thumbnail'],
-                coding_languages=json.loads(data['coding_languages']),
-                languages=json.loads(data['languages']),
-                categories=json.loads(data['categories']),
-                exp_points=data['exp_points'],
-                pro=data['pro'] == 'true',
-                duration=data['duration'],
-                github_repo=data['github_repo'] if 'github_repo' in data else None,
-                partner=partner
-            )
-            course.save()
+                chapter = Chapter(
+                    title='Sample Chapter',
+                    overview='This is how a chapter can be structured',
+                    order=1,
+                    course=course
+                )
+                chapter.save()
+
+                course_material = CourseMaterial(
+                    title='Sample File',
+                    description='This is where you can upload files or add a link to necessary files',
+                    material_type='FILE',
+                    order=chapter.course_materials.count(),
+                    chapter=chapter,
+                )
+                course_material.save()
+
+                course_file = CourseFile(
+                    course_material=course_material,
+                    zip_file=None,
+                    google_drive_url=None,
+                )
+                course_file.save()
+
+                course_material = CourseMaterial(
+                    title='Sample Video',
+                    description='Link your videos here, our video player wraps your videos with more tooling for students',
+                    material_type='VIDEO',
+                    order=chapter.course_materials.count(),
+                    chapter=chapter,
+                )
+                course_material.save()
+
+                video = Video(
+                    course_material=course_material,
+                    video_url='https://youtu.be/fbL5BPOlQ5A'
+                )
+                video.save()
+
+                course_material = CourseMaterial(
+                    title='Sample Quiz',
+                    description='You can add quizzes to your chapters',
+                    material_type='QUIZ',
+                    order=chapter.course_materials.count(),
+                    chapter=chapter
+                )
+                course_material.save()
+
+                quiz = Quiz(
+                    course_material=course_material,
+                    instructions="",
+                    passing_marks=2,
+                    is_randomized=True
+                )
+                quiz.save()
+            # end with
 
             return Response(CourseSerializer(course, context={'request': request}).data, status=status.HTTP_200_OK)
         except (KeyError, TypeError, ValueError) as e:
