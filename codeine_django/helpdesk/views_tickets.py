@@ -34,10 +34,10 @@ def ticket_view(request):
         # extract query params
         search = request.query_params.get('search', None)
         ticket_status = request.query_params.get('ticket_status', None)
+        is_user = request.query_params.get('is_user', None)
 
         if search is not None:
             tickets = tickets.filter(
-                Q(base_user__user__id__exact=search) |
                 Q(description__icontains=search) |
                 Q(ticket_type__icontains=search)
             )
@@ -47,6 +47,13 @@ def ticket_view(request):
             tickets = tickets.filter(
                 Q(ticket_status__icontains=ticket_status)
             )
+        # end if
+
+        if is_user is not None:
+            if is_user:
+                user = request.user
+                tickets = tickets.filter(base_user=user)
+            # end if
         # end if
 
         serializer = TicketSerializer(tickets.all(), many=True, context={"request": request})
@@ -107,8 +114,8 @@ def single_ticket_view(request, pk):
     if request.method == 'GET':
         try:
             ticket = Ticket.objects.get(pk=pk)
-            serializer = TicketSerializer(ticket)
-            return Response(serializer.data, context={"request": request})
+            serializer = TicketSerializer(ticket, context={"request": request})
+            return Response(serializer.data)
         except (ObjectDoesNotExist, KeyError, ValueError) as e:
             print(e)
             return Response(status=status.HTTP_400_BAD_REQUEST)
