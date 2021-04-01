@@ -3,7 +3,7 @@ from rest_framework import serializers
 from .models import Ticket, TicketMessage
 from common.serializers import NestedBaseUserSerializer, PaymentTransactionSerializer
 from courses.serializers import CourseSerializer
-from community.serializers import ArticleSerializer
+from community.serializers import ArticleSerializer, CodeReviewSerializer
 from industry_projects.serializers import IndustryProjectSerializer
 from consultations.serializers import ConsultationSlotSerializer
 
@@ -28,6 +28,7 @@ class TicketSerializer(serializers.ModelSerializer):
         'get_industry_project')
     consultation_slot = serializers.SerializerMethodField(
         'get_consultation_slot')
+    code_review = serializers.SerializerMethodField('get_code_review')
 
     class Meta:
         model = Ticket
@@ -78,6 +79,13 @@ class TicketSerializer(serializers.ModelSerializer):
         request = self.context.get("request")
         if obj.consultation_slot:
             return ConsultationSlotSerializer(obj.consultation_slot, context={'request': request}).data
+        # end if
+    # end def
+
+    def get_code_review(self, obj):
+        request = self.context.get("request")
+        if obj.code_review:
+            return CodeReviewSerializer(obj.code_review, context={'request': request}).data
         # end if
     # end def
 # end class
