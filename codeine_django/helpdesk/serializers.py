@@ -11,13 +11,22 @@ from consultations.serializers import ConsultationSlotSerializer
 class NestedTicketMessageSerializer(serializers.ModelSerializer):
     class Meta:
         model = TicketMessage
-        fields = ('id', 'description', 'timestamp')
+        fields = '__all__'
+    # end Meta
+# end class
+
+
+class NestedTicketSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Ticket
+        fields = '__all__'
     # end Meta
 # end class
 
 
 class TicketMessageSerializer(serializers.ModelSerializer):
     file = serializers.SerializerMethodField('get_file')
+    base_user = serializers.SerializerMethodField('get_base_user')
 
     class Meta:
         model = TicketMessage
@@ -30,16 +39,11 @@ class TicketMessageSerializer(serializers.ModelSerializer):
             return request.build_absolute_uri(obj.file.url)
         # end if
     # end def
-# end class
 
-
-class NestedTicketSerializer(serializers.ModelSerializer):
-    ticket_messages = TicketMessageSerializer(many=True)
-
-    class Meta:
-        model = Ticket
-        fields = '__all__'
-    # end Meta
+    def get_base_user(self, obj):
+        request = self.context.get("request")
+        return NestedBaseUserSerializer(obj.base_user, context={'request': request}).data
+    # end def
 # end class
 
 
