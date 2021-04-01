@@ -31,7 +31,8 @@ urlpatterns = [
 
     # common infra endpoints
     path('auth/', include('common.urls'), name='Common infra end points'),
-    path('members/', include('common.urls_member_profile'), name='Public member endpoints'),
+    path('members/', include('common.urls_member_profile'),
+         name='Public member endpoints'),
 
     # consultation endpoints
     path('consultations', include('consultations.urls_consultations'),
@@ -82,13 +83,20 @@ urlpatterns = [
 
     # organization end points
     path('events', include('organization.urls_events'), name='Event endpoints'),
-    path('contributions', include('organization.urls_contribution_payments'), name='Contribution endpoints'),
+    path('contributions', include(
+        'organization.urls_contribution_payments'), name='Contribution endpoints'),
 
     # IDE views
     path('ide', include('common.urls_ide'), name='IDE endpoints'),
 
     # Analytics views
     path('analytics', include('analytics.urls'), name='Analytics endpoints'),
+
+    # Notifications views
+    path('notifications', include('notifications.urls_notifications'),
+         name='Notification endpoints'),
+    path('notification-objects', include('notifications.urls_notification_objects'),
+         name='Notification endpoints'),
 ]
 
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

@@ -14,6 +14,8 @@ from .models import Ticket, TicketMessage
 from .serializers import TicketMessageSerializer
 
 # Create your views here.
+
+
 @api_view(['GET', 'POST'])
 @permission_classes((IsAuthenticated,))
 def ticket_message_view(request, ticket_id):
@@ -33,7 +35,8 @@ def ticket_message_view(request, ticket_id):
             )
         # end if
 
-        serializer = TicketMessageSerializer(ticket_messages.all(), many=True, context={"request": request})
+        serializer = TicketMessageSerializer(
+            ticket_messages.all(), many=True, context={"request": request})
         return Response(serializer.data, status=status.HTTP_200_OK)
     # end if
 
@@ -49,13 +52,14 @@ def ticket_message_view(request, ticket_id):
                 ticket = Ticket.objects.get(pk=ticket_id)
 
                 ticket_message = TicketMessage(
-                    message = data['message'],
-                    base_user = user,
-                    ticket = ticket
+                    message=data['message'],
+                    base_user=user,
+                    ticket=ticket
                 )
                 ticket_message.save()
 
-                serializer = TicketMessageSerializer(ticket_message, context={"request": request})
+                serializer = TicketMessageSerializer(
+                    ticket_message, context={"request": request})
 
                 return Response(serializer.data, status=status.HTTP_201_CREATED)
             except (IntegrityError, ValueError, KeyError) as e:
@@ -64,6 +68,7 @@ def ticket_message_view(request, ticket_id):
         # end with
     # end if
 # def
+
 
 @api_view(['GET', 'PUT', 'DELETE'])
 @permission_classes((IsAuthenticated,))
@@ -74,7 +79,8 @@ def single_ticket_message_view(request, pk):
     if request.method == 'GET':
         try:
             ticket_message = TicketMessage.objects.get(pk=pk)
-            serializer = TicketMessageSerializer(ticket_message, context={"request": request})
+            serializer = TicketMessageSerializer(
+                ticket_message, context={"request": request})
             return Response(serializer.data)
         except (ObjectDoesNotExist, KeyError, ValueError) as e:
             print(e)
@@ -86,8 +92,14 @@ def single_ticket_message_view(request, pk):
     if request.method == 'PUT':
         data = request.data
         try:
+            user = request.user
+
             with transaction.atomic():
                 ticket_message = TicketMessage.objects.get(pk=pk)
+
+                if ticket_message.base_user != user:
+                    return Response(status=status.HTTP_401_UNAUTHORIZED)
+                # end if
 
                 if 'message' in data:
                     ticket_message.message = data['message']
@@ -109,6 +121,12 @@ def single_ticket_message_view(request, pk):
     if request.method == 'DELETE':
         try:
             ticket_message = TicketMessage.objects.get(pk=pk)
+            
+            user = request.user
+            if ticket_message.base_user != user:
+                return Response(status=status.HTTP_401_UNAUTHORIZED)
+            # end if
+
             ticket_message.delete()
             return Response(status=status.HTTP_200_OK)
         except TicketMessage.DoesNotExist:

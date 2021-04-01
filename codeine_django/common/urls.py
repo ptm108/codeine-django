@@ -1,6 +1,6 @@
 from django.urls import path
 
-from . import views_member, views_partners, views_organization, views_admin, views_bank_detail, views_membership_subscription, views_notifications, views_cv
+from . import views_member, views_partners, views_organization, views_admin, views_bank_detail, views_membership_subscription, views_cv
 from achievements import views_achievement
 
 urlpatterns = [
@@ -64,11 +64,4 @@ urlpatterns = [
     path('admins', views_admin.admin_view, name='Get all/Search Admin Users'),
     path('admins/<slug:pk>', views_admin.single_admin_view,
          name='Read/Update/Change PW/Delete Admin User'),
-
-    # notification views
-    path('notifications', views_notifications.notification_view,
-         name='Get all/Search Notifications'),
-    path('notifications/<slug:pk>', views_notifications.single_notification_view,
-         name='Read/Update/Delete Notificaiton'),
-
 ]

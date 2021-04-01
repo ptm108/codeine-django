@@ -7,6 +7,8 @@ from django.core.exceptions import ValidationError
 import uuid
 
 # Create your models here.
+
+
 def img_directory_path(instance, filename):
     return 'user_{0}/helpdesk/{1}'.format(instance.id, filename)
 # end def
@@ -26,6 +28,7 @@ class Ticket(models.Model):
         ('PAYMENT', 'Payments'),
         ('COURSE', 'Courses'),
         ('ARTICLE', 'Articles'),
+        ('CODE_REVIEWS', 'Code Reviews'),
         ('INDUSTRY_PROJECT', 'Industry Projects'),
         ('CONSULTATION', 'Consultations'),
     )
@@ -54,7 +57,8 @@ class Ticket(models.Model):
         'industry_projects.IndustryProject', on_delete=models.SET_NULL, related_name='tickets', null=True, blank=True)
     consultation_slot = models.ForeignKey(
         'consultations.ConsultationSlot', on_delete=models.SET_NULL, related_name='tickets', null=True, blank=True)
-
+    code_review = models.ForeignKey(
+        'community.CodeReview', on_delete=models.SET_NULL, related_name='tickets', null=True, blank=True)
 
     def __str__(self):
         return f'Ticket: {self.id}, Status: {self.ticket_status}, Type: {self.ticket_type}'

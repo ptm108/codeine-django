@@ -1,37 +1,45 @@
 from rest_framework import serializers
 
-from .models import Ticket, TicketMessage
+from .models import Notification, NotificationObject
 from common.serializers import NestedBaseUserSerializer, PaymentTransactionSerializer
 from courses.serializers import CourseSerializer
 from community.serializers import ArticleSerializer, CodeReviewSerializer
 from industry_projects.serializers import IndustryProjectSerializer
 from consultations.serializers import ConsultationSlotSerializer
+from helpdesk.serializers import TicketSerializer
 
 
-class TicketMessageSerializer(serializers.ModelSerializer):
+class NestedNotificationSerializer(serializers.ModelSerializer):
     class Meta:
-        model = TicketMessage
-        fields = ('id', 'description', 'timestamp')
+        model = Notification
+        fields = '__all__'
     # end Meta
 # end class
 
 
-class TicketSerializer(serializers.ModelSerializer):
-    ticket_messages = TicketMessageSerializer(many=True)
+class NestedNotificationOjbectSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = NotificationObject
+        fields = '__all__'
+    # end Meta
+# end class
 
+
+class NotificationSerializer(serializers.ModelSerializer):
     photo = serializers.SerializerMethodField('get_photo_url')
-    base_user = serializers.SerializerMethodField('get_base_user')
-    transaction = serializers.SerializerMethodField('get_transaction')
+    sender = serializers.SerializerMethodField('get_sender')
     course = serializers.SerializerMethodField('get_course')
     article = serializers.SerializerMethodField('get_article')
-    industry_project = serializers.SerializerMethodField(
-        'get_industry_project')
+    code_review = serializers.SerializerMethodField('get_code_review')
+    transaction = serializers.SerializerMethodField('get_transaction')
     consultation_slot = serializers.SerializerMethodField(
         'get_consultation_slot')
-    code_review = serializers.SerializerMethodField('get_code_review')
+    ticket = serializers.SerializerMethodField('get_ticket')
+    industry_project = serializers.SerializerMethodField(
+        'get_industry_project')
 
     class Meta:
-        model = Ticket
+        model = Notification
         fields = '__all__'
     # end Meta
 
@@ -42,9 +50,9 @@ class TicketSerializer(serializers.ModelSerializer):
         # end if
     # end def
 
-    def get_base_user(self, obj):
+    def get_sender(self, obj):
         request = self.context.get("request")
-        return NestedBaseUserSerializer(obj.base_user, context={'request': request}).data
+        return NestedBaseUserSerializer(obj.sender, context={'request': request}).data
     # end def
 
     def get_transaction(self, obj):
@@ -88,14 +96,32 @@ class TicketSerializer(serializers.ModelSerializer):
             return CodeReviewSerializer(obj.code_review, context={'request': request}).data
         # end if
     # end def
+
+    def get_ticket(self, obj):
+        request = self.context.get("request")
+        if obj.ticket:
+            return TicketSerializer(obj.ticket, context={'request': request}).data
+        # end if
+    # end def
 # end class
 
 
-class NestedTicketSerializer(serializers.ModelSerializer):
-    ticket_messages = TicketMessageSerializer(many=True)
+class NotificationObjectSerializer(serializers.ModelSerializer):
+    receiver = serializers.SerializerMethodField('get_receiver')
+    notification = serializers.SerializerMethodField('get_notification')
 
     class Meta:
-        model = Ticket
+        model = NotificationObject
         fields = '__all__'
     # end Meta
+
+    def get_receiver(self, obj):
+        request = self.context.get("request")
+        return NestedBaseUserSerializer(obj.receiver, context={'request': request}).data
+    # end def
+
+    def get_notification(self, obj):
+        request = self.context.get("request")
+        return NotificationSerializer(obj.notification, context={'request': request}).data
+    # end def
 # end class

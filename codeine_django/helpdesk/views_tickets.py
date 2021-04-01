@@ -15,7 +15,7 @@ from .models import Ticket
 from .serializers import TicketSerializer
 from common.models import BaseUser, PaymentTransaction
 from courses.models import Course
-from community.models import Article
+from community.models import Article, CodeReview
 from industry_projects.models import IndustryProject
 from consultations.models import ConsultationSlot
 
@@ -91,6 +91,9 @@ def ticket_view(request):
             if 'consultation_slot_id' in data:
                 consultation_slot_id = data['consultation_slot_id']
                 ticket.consultation_slot = ConsultationSlot.objects.get(pk=consultation_slot_id)
+            if 'code_review_id' in data:
+                code_review_id = data['code_review_id']
+                ticket.code_review = CodeReview.objects.get(pk=code_review_id)
             # end ifs
 
             ticket.save()
@@ -154,6 +157,11 @@ def single_ticket_view(request, pk):
         try:
             ticket = Ticket.objects.get(pk=pk)
             if ticket.ticket_status == 'OPEN':
+                user = request.user
+                if ticket.base_user != user:
+                    return Response(status=status.HTTP_401_UNAUTHORIZED)
+                # end if
+
                 ticket.delete()
                 return Response(status=status.HTTP_200_OK)
             else:
