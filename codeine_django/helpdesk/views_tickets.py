@@ -157,6 +157,11 @@ def single_ticket_view(request, pk):
         try:
             ticket = Ticket.objects.get(pk=pk)
             if ticket.ticket_status == 'OPEN':
+                user = request.user
+                if ticket.base_user != user:
+                    return Response(status=status.HTTP_401_UNAUTHORIZED)
+                # end if
+
                 ticket.delete()
                 return Response(status=status.HTTP_200_OK)
             else:
