@@ -285,7 +285,7 @@ def all_quiz_view(request):
 # end def
 
 
-@api_view(['GET', 'POST'])
+@api_view(['GET', 'POST', 'PUT'])
 @permission_classes((IsPartnerOnly,))
 def question_bank_view(request, course_id):
     user = request.user
@@ -323,6 +323,70 @@ def question_bank_view(request, course_id):
                 label=data['label'],
                 course=course
             ).save()
+            question_banks = QuestionBank.objects.filter(course=course)
+
+            serializer = QuestionBankSerializer(question_banks.all(), many=True, context={'request': request})
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except ObjectDoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        except (ValueError, KeyError) as e:
+            print(e)
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+        except IntegrityError as e:
+            print(e)
+            return Response(status=status.HTTP_409_CONFLICT)
+        # end try-except
+    # end if
+
+    '''
+    Imports a question bank .json file
+    Adds the question bank to the course
+    '''
+    if request.method == 'PUT':
+        try:
+            partner = user.partner
+            course = Course.objects.filter(partner=partner).get(pk=course_id)
+
+            qb = QuestionBank.objects.get(pk=data['id'])
+
+            with transaction.atomic():
+                qb.id = None
+                qb.label = data['label']
+                qb.save()
+
+                for qn in data['questions']:
+                    question = Question.objects.get(pk=qn['id'])
+                    question.id = None
+                    question.question_bank = qb
+                    question.save()
+
+                    if qn['mcq'] is not None:
+                        mcq = MCQ(
+                            question=question,
+                            marks=qn['mcq']['marks'],
+                            options=qn['mcq']['options'],
+                            correct_answer=qn['mcq']['correct_answer']
+                        )
+                        mcq.save()
+                    elif qn['mrq'] is not None:
+                        mrq = MRQ(
+                            question=question,
+                            marks=qn['mrq']['marks'],
+                            options=qn['mrq']['options'],
+                            correct_answer=qn['mrq']['correct_answer']
+                        )
+                        mrq.save()
+                    elif qn['shortanswer'] is not None:
+                        sa = ShortAnswer(
+                            question=question,
+                            marks=qn['shortanswer']['marks'],
+                            keywords=qn['shortanswer']['keywords']
+                        )
+                        sa.save()
+                    # end if-else
+                # end for
+            # end with
+
             question_banks = QuestionBank.objects.filter(course=course)
 
             serializer = QuestionBankSerializer(question_banks.all(), many=True, context={'request': request})
