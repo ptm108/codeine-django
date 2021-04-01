@@ -8,10 +8,37 @@ from industry_projects.serializers import IndustryProjectSerializer
 from consultations.serializers import ConsultationSlotSerializer
 
 
-class TicketMessageSerializer(serializers.ModelSerializer):
+class NestedTicketMessageSerializer(serializers.ModelSerializer):
     class Meta:
         model = TicketMessage
         fields = ('id', 'description', 'timestamp')
+    # end Meta
+# end class
+
+
+class TicketMessageSerializer(serializers.ModelSerializer):
+    file = serializers.SerializerMethodField('get_file')
+
+    class Meta:
+        model = TicketMessage
+        fields = '__all__'
+    # end Meta
+
+    def get_file(self, obj):
+        request = self.context.get("request")
+        if obj.file and hasattr(obj.file, 'url'):
+            return request.build_absolute_uri(obj.file.url)
+        # end if
+    # end def
+# end class
+
+
+class NestedTicketSerializer(serializers.ModelSerializer):
+    ticket_messages = TicketMessageSerializer(many=True)
+
+    class Meta:
+        model = Ticket
+        fields = '__all__'
     # end Meta
 # end class
 
@@ -90,12 +117,3 @@ class TicketSerializer(serializers.ModelSerializer):
     # end def
 # end class
 
-
-class NestedTicketSerializer(serializers.ModelSerializer):
-    ticket_messages = TicketMessageSerializer(many=True)
-
-    class Meta:
-        model = Ticket
-        fields = '__all__'
-    # end Meta
-# end class

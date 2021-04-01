@@ -15,7 +15,7 @@ from .models import Course, Quiz, Chapter, CourseMaterial, CourseFile, Video
 from .serializers import CourseSerializer, QuizSerializer
 from common.models import Partner
 from common.permissions import IsPartnerOrReadOnly, IsPartnerOnly
-
+from notifications.models import Notification, NotificationObject
 
 @api_view(['GET', 'POST'])
 @permission_classes((IsPartnerOrReadOnly,))
@@ -422,6 +422,19 @@ def activate_course_view(request, course_id):
             course.is_available = True
             course.save()
 
+            photo = course.thumbnail
+            notification_type = 'COURSE'
+            title = f'Course {course.title} activated!'
+            description = f'The admin team has activated your course {course.title}'
+            notification = Notification(
+                title=title, description=description, notification_type=notification_type, course=course)
+            notification.photo = photo
+            notification.save()
+
+            receiver = course.partner.user
+            notification_object = NotificationObject(receiver=receiver, notification=notification)
+            notification_object.save()
+
             return Response(CourseSerializer(course, context={'request': request}).data, status=status.HTTP_200_OK)
         except ObjectDoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
@@ -442,6 +455,19 @@ def deactivate_course_view(request, course_id):
 
             course.is_available = False
             course.save()
+
+            photo = course.thumbnail
+            notification_type = 'COURSE'
+            title = f'Course {course.title} deactivated!'
+            description = f'The admin team has deactivated your course {course.title}'
+            notification = Notification(
+                title=title, description=description, notification_type=notification_type, course=course)
+            notification.photo = photo
+            notification.save()
+
+            receiver = course.partner.user
+            notification_object = NotificationObject(receiver=receiver, notification=notification)
+            notification_object.save()
 
             return Response(CourseSerializer(course, context={'request': request}).data, status=status.HTTP_200_OK)
         except ObjectDoesNotExist:

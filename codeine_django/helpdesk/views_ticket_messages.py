@@ -5,6 +5,7 @@ from django.db.models import Q
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes, parser_classes, renderer_classes
 from rest_framework.response import Response
+from rest_framework.parsers import MultiPartParser, FormParser
 
 from rest_framework.permissions import (
     IsAuthenticated,
@@ -18,6 +19,7 @@ from .serializers import TicketMessageSerializer
 
 @api_view(['GET', 'POST'])
 @permission_classes((IsAuthenticated,))
+@parser_classes((MultiPartParser, FormParser))
 def ticket_message_view(request, ticket_id):
     '''
     Retrieves all ticket message for a ticket
@@ -30,7 +32,6 @@ def ticket_message_view(request, ticket_id):
 
         if search is not None:
             ticket_messages = ticket_messages.filter(
-                Q(base_user__user__id__exact=search) |
                 Q(message__icontains=search)
             )
         # end if
@@ -56,6 +57,11 @@ def ticket_message_view(request, ticket_id):
                     base_user=user,
                     ticket=ticket
                 )
+
+                if 'file' in data:
+                    ticket_message.file = data['file']
+                # end if
+                
                 ticket_message.save()
 
                 serializer = TicketMessageSerializer(
@@ -103,6 +109,9 @@ def single_ticket_message_view(request, pk):
 
                 if 'message' in data:
                     ticket_message.message = data['message']
+                if 'file' in data:
+                    ticket_message.file = data['file']
+                # end ifs
 
                 ticket_message.save()
             # end with
