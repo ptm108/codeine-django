@@ -69,7 +69,7 @@ class TicketSerializer(serializers.ModelSerializer):
     # end def
 
     def get_industry_project(self, obj):
-        request = self.context.get("request")z
+        request = self.context.get("request")
         if obj.industry_project:
             return IndustryProjectSerializer(obj.industry_project, context={'request': request}).data
         # end if
