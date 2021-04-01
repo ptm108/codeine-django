@@ -194,3 +194,27 @@ def resolve_ticket_view(request, pk):
         # end try-except
     # end if
 # end def
+
+
+@api_view(['PATCH'])
+@permission_classes((IsAdminUser,))
+def open_ticket_view(request, pk):
+    '''
+    Admin resolves a ticket
+    '''
+    if request.method == 'PATCH':
+        data = request.data
+        try:
+            ticket = Ticket.objects.get(pk=pk)
+
+            ticket.ticket_status = 'OPEN'
+            ticket.save()
+
+            serializer = TicketSerializer(ticket, context={"request": request})
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except ObjectDoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        # end try-except
+    # end if
+# end def
+

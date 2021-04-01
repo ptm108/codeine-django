@@ -10,7 +10,12 @@ import uuid
 
 
 def img_directory_path(instance, filename):
-    return 'user_{0}/helpdesk/{1}'.format(instance.id, filename)
+    return 'user_{0}/helpdesk/{1}/{2}'.format(instance.base_user.id, instance.id, filename)
+# end def
+
+
+def file_directory_path(instance, filename):
+    return 'user_{0}/helpdesk/{1}/{2}'.format(instance.ticket.base_user.id, instance.ticket.id, filename)
 # end def
 
 
@@ -75,6 +80,7 @@ class TicketMessage(models.Model):
         primary_key=True, default=uuid.uuid4, editable=False, unique=True)
     message = models.TextField()
     timestamp = models.DateTimeField(default=timezone.now)
+    file = models.FileField(upload_to=file_directory_path, max_length=255, null=True, blank=True)
 
     # ref
     base_user = models.ForeignKey('common.BaseUser', on_delete=models.SET_NULL,
