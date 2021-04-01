@@ -93,6 +93,6 @@ class TicketMessage(models.Model):
     # end def
 
     class Meta:
-        ordering = ['-timestamp']
+        ordering = ['timestamp']
     # end class
 # end class
