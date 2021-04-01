@@ -2,7 +2,7 @@ from rest_framework import serializers
 from django.db.models import Q
 
 from .models import ConsultationSlot, ConsultationPayment, ConsultationApplication
-from common.serializers import NestedBaseUserSerializer, MemberSerializer, PaymentTransactionSerializer, MemberApplicationSerializer
+from common.serializers import NestedBaseUserSerializer, MemberSerializer, NestedPaymentTransactionSerializer, MemberApplicationSerializer
 from common.models import Member
 
 
@@ -134,7 +134,7 @@ class ConsultationSlotSerializer(serializers.ModelSerializer):
 
 
 class ConsultationPaymentSerializer(serializers.ModelSerializer):
-    payment_transaction = PaymentTransactionSerializer()
+    payment_transaction = NestedPaymentTransactionSerializer()
     consultation_slot = serializers.SerializerMethodField(
         'get_consultation_slot')
     member_name = serializers.SerializerMethodField('get_member_name')

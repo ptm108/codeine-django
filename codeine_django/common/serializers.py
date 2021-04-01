@@ -71,7 +71,6 @@ class NestedBaseUserSerializer(serializers.ModelSerializer):
             return request.build_absolute_uri(obj.profile_photo.url)
         # end if
     # end def
-
 # end class
 
 
@@ -114,7 +113,7 @@ class PartnerSerializer(serializers.ModelSerializer):
 # end class
 
 
-class PaymentTransactionSerializer(serializers.ModelSerializer):
+class NestedPaymentTransactionSerializer(serializers.ModelSerializer):
     class Meta:
         model = PaymentTransaction
         fields = '__all__'
@@ -176,7 +175,7 @@ class MemberApplicationSerializer(serializers.ModelSerializer):
 
 
 class MembershipSubscriptionSerializer(serializers.ModelSerializer):
-    payment_transaction = PaymentTransactionSerializer()
+    payment_transaction = NestedPaymentTransactionSerializer()
     member = MemberSerializer()
 
     class Meta:
@@ -189,6 +188,16 @@ class MembershipSubscriptionSerializer(serializers.ModelSerializer):
 class CVSerializer(serializers.ModelSerializer):
     class Meta:
         model = CV
+        fields = '__all__'
+    # end Meta
+# end class
+
+
+class PaymentTransactionSerializer(serializers.ModelSerializer):
+    membership_subscription = MembershipSubscriptionSerializer()
+    
+    class Meta:
+        model = PaymentTransaction
         fields = '__all__'
     # end Meta
 # end class

@@ -1,7 +1,7 @@
 from rest_framework import serializers
 
 from .models import Notification, NotificationObject
-from common.serializers import NestedBaseUserSerializer, PaymentTransactionSerializer
+from common.serializers import NestedBaseUserSerializer, NestedPaymentTransactionSerializer
 from courses.serializers import CourseSerializer
 from community.serializers import ArticleSerializer, CodeReviewSerializer
 from industry_projects.serializers import IndustryProjectSerializer
@@ -58,7 +58,7 @@ class NotificationSerializer(serializers.ModelSerializer):
     def get_transaction(self, obj):
         request = self.context.get("request")
         if obj.transaction:
-            return PaymentTransactionSerializer(obj.transaction, context={'request': request}).data
+            return NestedPaymentTransactionSerializer(obj.transaction, context={'request': request}).data
         # end if
     # end def
 
