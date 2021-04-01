@@ -2,7 +2,7 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.db.models import Avg
 
-from .models import CourseReview, Course, QuizResult, CourseMaterial, Enrollment, Chapter
+from .models import CourseReview, Course, QuizResult, CourseMaterial, Enrollment, Chapter, CourseComment
 from notifications.models import Notification, NotificationObject
 from achievements.models import Achievement, MemberAchievement
 from utils.member_utils import get_member_stats
@@ -51,11 +51,17 @@ def update_stats(sender, instance, **kwargs):
 
 
 @receiver(post_save, sender=CourseMaterial)
-def update_course_material(sender, instance, **kwargs):
+def update_course_material(sender, instance, created, **kwargs):
     course = instance.chapter.course
     enrollments = Enrollment.objects.filter(course=course)
     title = f'Course {course.title} updated!'
-    description = f'New/updated course material for chapter {instance.chapter.title}'
+
+    if created:
+        description = f'New course material for chapter {instance.chapter.title}'
+    else:
+        description = f'Updated course material for chapter {instance.chapter.title}'
+    # end if-else
+
     photo = course.thumbnail
     notification_type = 'COURSE'
     notification = Notification(
@@ -73,11 +79,17 @@ def update_course_material(sender, instance, **kwargs):
 
 
 @receiver(post_save, sender=Chapter)
-def update_course_chapter(sender, instance, **kwargs):
+def update_course_chapter(sender, instance, created, **kwargs):
     course = instance.course
     enrollments = Enrollment.objects.filter(course=course)
     title = f'Course {course.title} updated!'
-    description = f'New/updated chapter for course {course.title}!'
+
+    if created:
+        description = f'New chapter for course {course.title}!'
+    else:
+        description = f'Updated chapter for course {course.title}!'
+    # end if-else
+
     photo = course.thumbnail
     notification_type = 'COURSE'
     notification = Notification(
@@ -91,3 +103,68 @@ def update_course_chapter(sender, instance, **kwargs):
         notification_object.save()
     # end for
 # end def
+
+
+@receiver(post_save, sender=CourseComment)
+def update_course_comment(sender, instance, created, **kwargs):
+    course = instance.course_material.chapter.course
+
+    if created:
+        title = f'New comment on Course {course.title}!'
+        description = f'New course comment on {instance.course_material}!'
+    else:
+        title = f'Updated comment on Course {course.title}!'
+        description = f'Updated course comment on {instance.course_material}!'
+    # end if-else
+
+    photo = course.thumbnail
+    notification_type = 'COURSE'
+    notification = Notification(
+        title=title, description=description, notification_type=notification_type, course=course)
+    notification.photo = photo
+    notification.save()
+
+    receiver = course.partner.user
+    notification_object = NotificationObject(receiver=receiver, notification=notification)
+    notification_object.save()
+
+    if instance.reply_to is not None:
+        title = f'New reply for comment on Course {course.title}!'
+        description = f'New reply for course comment on {instance.course_material}!'
+        photo = course.thumbnail
+        notification_type = 'COURSE'
+        notification = Notification(
+            title=title, description=description, notification_type=notification_type, course=course)
+        notification.photo = photo
+        notification.save()
+
+        receiver = instance.reply_to.user
+        notification_object = NotificationObject(receiver=receiver, notification=notification)
+        notification_object.save()
+    # end if
+# end def
+
+
+# @receiver(post_save, sender=Course)
+# def update_course(sender, instance, created, update_fields, **kwargs):
+#     course = instance
+#     title = f'Course {course.title} updated!'
+
+#     if created:
+#         description = f'New chapter for course {course.title}!'
+#     else:
+#         description = f'Updated chapter for course {course.title}!'
+#     # end if-else
+    
+#     photo = course.thumbnail
+#     notification_type = 'COURSE'
+#     notification = Notification(
+#         title=title, description=description, notification_type=notification_type, course=course)
+#     notification.photo = photo
+#     notification.save()
+
+    # receiver = course.partner.user
+    # notification_object = NotificationObject(receiver=receiver, notification=notification)
+    # notification_object.save()
+# end def
+
