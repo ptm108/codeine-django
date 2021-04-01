@@ -8,6 +8,7 @@ from .models import (
     CourseFile,
     Quiz,
     Question,
+    QuestionBank,
     QuestionGroup,
     ShortAnswer,
     MCQ,
@@ -94,6 +95,15 @@ class QuestionAdmin(admin.ModelAdmin):
         'order',
         'image',
         'question_bank',
+    )
+# end class
+
+
+class QuestionBankAdmin(admin.ModelAdmin):
+    list_display = (
+        'id',
+        'label',
+        'course',
     )
 # end class
 
@@ -208,6 +218,7 @@ admin.site.register(CourseFile, CourseFileAdmin)
 admin.site.register(Video, VideoAdmin)
 admin.site.register(Quiz, QuizAdmin)
 admin.site.register(Question, QuestionAdmin)
+admin.site.register(QuestionBank, QuestionBankAdmin)
 admin.site.register(QuestionGroup, QuestionGroupAdmin)
 admin.site.register(ShortAnswer, ShortAnswerAdmin)
 admin.site.register(MCQ, MCQAdmin)
