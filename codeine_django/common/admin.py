@@ -4,7 +4,7 @@ from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.contrib.auth.forms import ReadOnlyPasswordHashField
 from django.core.exceptions import ValidationError
 
-from .models import BaseUser, Member, Partner, Organization, PaymentTransaction, MembershipSubscription, Notification
+from .models import BaseUser, Member, Partner, Organization, PaymentTransaction, MembershipSubscription
 
 
 class UserCreationForm(forms.ModelForm):
@@ -143,16 +143,9 @@ class MembershipSubscriptionAdmin(admin.ModelAdmin):
 # end class
 
 
-class NotificationAdmin(admin.ModelAdmin):
-    list_display = ('id', 'title', 'description', 'timestamp',
-                    'is_read', 'notification_type', 'receiver', 'sender')
-# end class
-
-
 admin.site.register(BaseUser, UserAdmin)
 admin.site.register(Member, MemberAdmin)
 admin.site.register(Partner, PartnerAdmin)
 admin.site.register(Organization, OrganizationAdmin)
 admin.site.register(PaymentTransaction, PaymentTransactionAdmin)
 admin.site.register(MembershipSubscription, MembershipSubscriptionAdmin)
-admin.site.register(Notification, NotificationAdmin)

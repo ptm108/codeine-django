@@ -89,6 +89,9 @@ urlpatterns = [
 
     # Analytics views
     path('analytics', include('analytics.urls'), name='Analytics endpoints'),
+
+    # Notifications views
+    path('notifications', include('notifications.urls'), name='Notification endpoints'),
 ]
 
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

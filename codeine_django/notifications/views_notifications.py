@@ -7,8 +7,9 @@ from rest_framework.response import Response
 
 import json
 
-from .permissions import AdminOrReadOnly
-from .models import Notification, BaseUser
+from common.permissions import AdminOrReadOnly
+from .models import Notification
+from common.models import BaseUser
 from .serializers import NotificationSerializer
 
 
