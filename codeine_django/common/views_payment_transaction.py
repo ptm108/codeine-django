@@ -8,7 +8,7 @@ from rest_framework.response import Response
 
 from .permissions import IsAdminOnly
 from .models import PaymentTransaction
-from .serializers import PaymentTransactionSerializer
+from .serializers import NestedPaymentTransactionSerializer
 
 
 @api_view(['GET'])
@@ -19,7 +19,7 @@ def payment_transaction_view(request):
     '''
     if request.method == 'GET':
         payment_transactions = PaymentTransaction.objects
-        serializer = PaymentTransactionSerializer(payment_transactions.all(), many=True, context={"request": request})
+        serializer = NestedPaymentTransactionSerializer(payment_transactions.all(), many=True, context={"request": request})
         return Response(serializer.data, status=status.HTTP_200_OK)
     # end if
 # end def

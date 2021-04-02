@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Article, ArticleComment, ArticleEngagement, CodeReview, CodeReviewComment, CodeReviewEngagement
+from .models import Article, ArticleComment, ArticleEngagement, CodeReview, CodeReviewComment, CodeReviewEngagement, CodeReviewCommentEngagement, ArticleCommentEngagement
 
 # Register your models here.
 
@@ -57,6 +57,11 @@ class ArticleEngagementAdmin(admin.ModelAdmin):
 # end class
 
 
+class ArticleCommentEngagementAdmin(admin.ModelAdmin):
+    list_display = ('timestamp', 'comment', 'user')
+# end class
+
+
 class CodeReviewAdmin(admin.ModelAdmin):
     list_display = ('id', 'title', 'code', 'timestamp',
                     'coding_languages', 'categories', 'user')
@@ -78,9 +83,17 @@ class CodeReviewEngagementAdmin(admin.ModelAdmin):
 # end class
 
 
+class CodeReviewCommentEngagementAdmin(admin.ModelAdmin):
+    list_display = ('timestamp', 'comment', 'user')
+# end class
+
+
 admin.site.register(Article, ArticleAdmin)
 admin.site.register(ArticleComment, ArticleCommentAdmin)
 admin.site.register(ArticleEngagement, ArticleEngagementAdmin)
+admin.site.register(ArticleCommentEngagement, ArticleCommentEngagementAdmin)
+
 admin.site.register(CodeReview, CodeReviewAdmin)
 admin.site.register(CodeReviewComment, CodeReviewCommentAdmin)
 admin.site.register(CodeReviewEngagement, CodeReviewEngagementAdmin)
+admin.site.register(CodeReviewCommentEngagement, CodeReviewCommentEngagementAdmin)

@@ -2,7 +2,7 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.db.models import Avg
 
-from .models import CourseReview, Course, QuizResult, CourseMaterial, Enrollment, Chapter, CourseComment
+from .models import CourseReview, Course, QuizResult, CourseMaterial, Enrollment, Chapter, CourseComment, CourseCommentEngagement
 from notifications.models import Notification, NotificationObject
 from achievements.models import Achievement, MemberAchievement
 from utils.member_utils import get_member_stats
@@ -72,7 +72,8 @@ def update_course_material(sender, instance, created, **kwargs):
     for enrollment in enrollments:
         print(enrollment)
         receiver = enrollment.member.user
-        notification_object = NotificationObject(receiver=receiver, notification=notification)
+        notification_object = NotificationObject(
+            receiver=receiver, notification=notification)
         notification_object.save()
     # end for
 # end def
@@ -99,7 +100,8 @@ def update_course_chapter(sender, instance, created, **kwargs):
 
     for enrollment in enrollments:
         receiver = enrollment.member.user
-        notification_object = NotificationObject(receiver=receiver, notification=notification)
+        notification_object = NotificationObject(
+            receiver=receiver, notification=notification)
         notification_object.save()
     # end for
 # end def
@@ -125,12 +127,13 @@ def update_course_comment(sender, instance, created, **kwargs):
     notification.save()
 
     receiver = course.partner.user
-    notification_object = NotificationObject(receiver=receiver, notification=notification)
+    notification_object = NotificationObject(
+        receiver=receiver, notification=notification)
     notification_object.save()
 
     if instance.reply_to is not None:
-        title = f'New reply for comment on Course {course.title}!'
-        description = f'New reply for course comment on {instance.course_material}!'
+        title = f'New reply for comment on Course: {course.title}!'
+        description = f'{instance.user} left a reply to your comment on {course.title}!\n {instance.comment}'
         photo = course.thumbnail
         notification_type = 'COURSE'
         notification = Notification(
@@ -139,7 +142,31 @@ def update_course_comment(sender, instance, created, **kwargs):
         notification.save()
 
         receiver = instance.reply_to.user
-        notification_object = NotificationObject(receiver=receiver, notification=notification)
+        notification_object = NotificationObject(
+            receiver=receiver, notification=notification)
+        notification_object.save()
+    # end if
+# end def
+
+
+@receiver(post_save, sender=CourseCommentEngagement)
+def update_course_comment_engagement(sender, instance, created, **kwargs):
+    course = instance.comment.course_material.chapter.course
+    member = instance.member
+
+    if created:
+        title = f'New like for your comment on {course}!'
+        description = f'{member} liked your course comment on {course}!'
+        photo = course.thumbnail
+        notification_type = 'COURSE'
+        notification = Notification(
+            title=title, description=description, notification_type=notification_type, course=course)
+        notification.photo = photo
+        notification.save()
+
+        receiver = instance.comment.user
+        notification_object = NotificationObject(
+            receiver=receiver, notification=notification)
         notification_object.save()
     # end if
 # end def
@@ -155,7 +182,7 @@ def update_course_comment(sender, instance, created, **kwargs):
 #     else:
 #         description = f'Updated chapter for course {course.title}!'
 #     # end if-else
-    
+
 #     photo = course.thumbnail
 #     notification_type = 'COURSE'
 #     notification = Notification(
@@ -167,4 +194,3 @@ def update_course_comment(sender, instance, created, **kwargs):
     # notification_object = NotificationObject(receiver=receiver, notification=notification)
     # notification_object.save()
 # end def
-
