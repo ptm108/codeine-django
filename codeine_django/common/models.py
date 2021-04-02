@@ -260,4 +260,8 @@ class CV(models.Model):
 
     member = models.ForeignKey(
         'Member', on_delete=models.CASCADE, related_name='cvs')
+
+    class Meta:
+        ordering = ['-end_date', '-start_date']
+    # end Meta
 # end class
