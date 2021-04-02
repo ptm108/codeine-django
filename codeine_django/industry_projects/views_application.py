@@ -8,6 +8,7 @@ from rest_framework import status
 from common.models import Member
 from common.permissions import IsPartnerOrReadOnly, IsMemberOrReadOnly
 from datetime import date
+from notifications.models import Notification, NotificationObject
 
 @api_view(['GET', 'POST'])
 @permission_classes((IsMemberOrReadOnly,))
@@ -92,13 +93,32 @@ def single_application_view(request, pk, app_id):
             application = IndustryProjectApplication.objects.get(pk=app_id)
 
             data = request.data
+            user = request.user
+            industry_project = application.industry_project
+            title = f''
+
             if 'is_accepted' in data:
                 application.is_accepted = True
+                title = f'Application for Industry Project {industry_project.title} accepted!'
+                description = f'Partner {user} has accepted your application for Industry Project {industry_project.title}'
             if 'is_rejected' in data:
                 application.is_rejected = True
+                title = f'Application for Industry Project {industry_project.title} rejeceted!'
+                description = f'Partner {user} has rejected your application for Industry Project {industry_project.title}'
             # end ifs
                                     
             application.save() 
+
+            # notify member
+            notification_type = 'CONSULTATION'
+            notification = Notification(
+                title=title, description=description, notification_type=notification_type, industry_project=industry_project)
+            notification.save()
+
+            receiver = application.member.user
+            notification_object = NotificationObject(
+                receiver=receiver, notification=notification)
+            notification_object.save()
 
             serializer = IndustryProjectApplicationSerializer(application, context={"request": request})
             return Response(serializer.data, status=status.HTTP_200_OK)
