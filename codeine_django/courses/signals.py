@@ -171,26 +171,27 @@ def update_course_comment_engagement(sender, instance, created, **kwargs):
     # end if
 # end def
 
+@receiver(post_save, sender=Course)
+def update_course(sender, instance, created, update_fields, **kwargs):
+    partner = instance.partner
 
-# @receiver(post_save, sender=Course)
-# def update_course(sender, instance, created, update_fields, **kwargs):
-#     course = instance
-#     title = f'Course {course.title} updated!'
+    if created:
+        title = f'New Course {instance.title} available!'
+        notification_type = 'COURSE'
 
-#     if created:
-#         description = f'New chapter for course {course.title}!'
-#     else:
-#         description = f'Updated chapter for course {course.title}!'
-#     # end if-else
-
-#     photo = course.thumbnail
-#     notification_type = 'COURSE'
-#     notification = Notification(
-#         title=title, description=description, notification_type=notification_type, course=course)
-#     notification.photo = photo
-#     notification.save()
-
-    # receiver = course.partner.user
-    # notification_object = NotificationObject(receiver=receiver, notification=notification)
-    # notification_object.save()
+        courses = Course.objects.filter(partner=partner)
+        for course in courses:
+            description = f'New Course {instance.title} available by the instructor of {course}!'
+            notification = Notification(
+                title=title, description=description, notification_type=notification_type, course=instance)
+            notification.save()
+            enrollments = Enrollment.objects.filter(course=course)
+            for enrollment in enrollments:
+                receiver = enrollment.member.user
+                notification_object = NotificationObject(
+                    receiver=receiver, notification=notification)
+                notification_object.save()
+            # end for
+        # end for
+    # end if
 # end def
