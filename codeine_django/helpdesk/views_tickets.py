@@ -18,6 +18,7 @@ from courses.models import Course
 from community.models import Article, CodeReview
 from industry_projects.models import IndustryProject
 from consultations.models import ConsultationSlot
+from notifications.models import  Notification, NotificationObject
 
 
 # Create your views here.
@@ -56,7 +57,8 @@ def ticket_view(request):
             # end if
         # end if
 
-        serializer = TicketSerializer(tickets.all(), many=True, context={"request": request})
+        serializer = TicketSerializer(
+            tickets.all(), many=True, context={"request": request})
         return Response(serializer.data, status=status.HTTP_200_OK)
     # end if
 
@@ -78,7 +80,8 @@ def ticket_view(request):
                 ticket.photo = data['photo']
             if 'transaction_id' in data:
                 transaction_id = data['transaction_id']
-                ticket.transaction = PaymentTransaction.objects.get(pk=transaction_id)
+                ticket.transaction = PaymentTransaction.objects.get(
+                    pk=transaction_id)
             if 'course_id' in data:
                 course_id = data['course_id']
                 ticket.course = Course.objects.get(pk=course_id)
@@ -87,10 +90,12 @@ def ticket_view(request):
                 ticket.article = Article.objects.get(pk=article_id)
             if 'industry_project_id' in data:
                 industry_project_id = data['industry_project_id']
-                ticket.industry_project = IndustryProject.objects.get(pk=industry_project_id)
+                ticket.industry_project = IndustryProject.objects.get(
+                    pk=industry_project_id)
             if 'consultation_slot_id' in data:
                 consultation_slot_id = data['consultation_slot_id']
-                ticket.consultation_slot = ConsultationSlot.objects.get(pk=consultation_slot_id)
+                ticket.consultation_slot = ConsultationSlot.objects.get(
+                    pk=consultation_slot_id)
             if 'code_review_id' in data:
                 code_review_id = data['code_review_id']
                 ticket.code_review = CodeReview.objects.get(pk=code_review_id)
@@ -187,6 +192,19 @@ def resolve_ticket_view(request, pk):
             ticket.ticket_status = 'RESOLVED'
             ticket.save()
 
+            # notify user
+            title = f'Ticket {ticket} has been marked as resolved!'
+            description = f'Ticket {ticket} has been marked as resolved by the Codeine admin team'
+            notification_type = 'HELPDESK'
+            notification = Notification(
+                title=title, description=description, notification_type=notification_type, ticket=ticket)
+            notification.save()
+
+            receiver = ticket.base_user
+            notification_object = NotificationObject(
+                receiver=receiver, notification=notification)
+            notification_object.save()
+
             serializer = TicketSerializer(ticket, context={"request": request})
             return Response(serializer.data, status=status.HTTP_200_OK)
         except ObjectDoesNotExist:
@@ -200,7 +218,7 @@ def resolve_ticket_view(request, pk):
 @permission_classes((IsAdminUser,))
 def open_ticket_view(request, pk):
     '''
-    Admin resolves a ticket
+    Admin open a ticket
     '''
     if request.method == 'PATCH':
         data = request.data
@@ -210,6 +228,19 @@ def open_ticket_view(request, pk):
             ticket.ticket_status = 'OPEN'
             ticket.save()
 
+            # notify user
+            title = f'Ticket {ticket} has been marked as open!'
+            description = f'Ticket {ticket} has been marked as open by the Codeine admin team'
+            notification_type = 'HELPDESK'
+            notification = Notification(
+                title=title, description=description, notification_type=notification_type, ticket=ticket)
+            notification.save()
+
+            receiver = ticket.base_user
+            notification_object = NotificationObject(
+                receiver=receiver, notification=notification)
+            notification_object.save()
+
             serializer = TicketSerializer(ticket, context={"request": request})
             return Response(serializer.data, status=status.HTTP_200_OK)
         except ObjectDoesNotExist:
@@ -217,4 +248,3 @@ def open_ticket_view(request, pk):
         # end try-except
     # end if
 # end def
-

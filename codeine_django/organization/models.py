@@ -45,7 +45,7 @@ class EventApplication(models.Model):
 
 class EventPayment(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, unique=True)
-    payment_transaction = models.OneToOneField('common.PaymentTransaction', on_delete=models.CASCADE)
+    payment_transaction = models.OneToOneField('common.PaymentTransaction', on_delete=models.CASCADE, related_name="event_payment")
 
     # ref
     event_application = models.ForeignKey(EventApplication, on_delete=models.SET_NULL, related_name='event_payments', null=True, blank=True)
@@ -58,7 +58,7 @@ class EventPayment(models.Model):
 
 class ContributionPayment(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, unique=True)
-    payment_transaction = models.OneToOneField('common.PaymentTransaction', on_delete=models.CASCADE)
+    payment_transaction = models.OneToOneField('common.PaymentTransaction', on_delete=models.CASCADE, related_name="contribution_payment")
     timestamp = models.DateTimeField(auto_now_add=True)
     # month_duration = models.PositiveSmallIntegerField(default=1)
     # expiry_date = models.DateTimeField()

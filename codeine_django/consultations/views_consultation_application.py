@@ -178,6 +178,22 @@ def cancel_consultation_application(request, pk):
             consultation_application.is_cancelled = True
             consultation_application.save()
 
+            # notify partner
+            consultation_slot = consultation_application.consultation_slot
+            partner = consultation_slot.partner
+
+            title = f'Application for consultation slot {consultation_slot} cancelled!'
+            description = f'Member {member} has cancelled their application for consultation slot {consultation_slot}'
+            notification_type = 'CONSULTATION'
+            notification = Notification(
+                title=title, description=description, notification_type=notification_type, consultation_slot=consultation_slot)
+            notification.save()
+
+            receiver = partner.user
+            notification_object = NotificationObject(
+                receiver=receiver, notification=notification)
+            notification_object.save()
+
             serializer = ConsultationApplicationSerializer(
                 consultation_application, context={"request": request})
             return Response(serializer.data, status=status.HTTP_200_OK)
@@ -219,6 +235,21 @@ def reject_consultation_application(request, pk):
 
             consultation_application.is_rejected = True
             consultation_application.save()
+
+            # notify member
+            consultation_slot = consultation_application.consultation_slot
+
+            title = f'Application for consultation slot {consultation_slot} rejeceted!'
+            description = f'Partner {partner} has rejected your application for consultation slot {consultation_slot}'
+            notification_type = 'CONSULTATION'
+            notification = Notification(
+                title=title, description=description, notification_type=notification_type, consultation_slot=consultation_slot)
+            notification.save()
+
+            receiver = consultation_application.member.user
+            notification_object = NotificationObject(
+                receiver=receiver, notification=notification)
+            notification_object.save()
 
             serializer = ConsultationApplicationSerializer(
                 consultation_application, context={"request": request})

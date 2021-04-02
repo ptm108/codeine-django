@@ -1,6 +1,5 @@
 from django.db.models.signals import post_save
 from django.dispatch import receiver
-from django.db.models import Avg
 
 from .models import ConsultationApplication, ConsultationSlot
 from courses.models import Course, Enrollment
@@ -13,8 +12,8 @@ def update_consultation_application(sender, instance, created, **kwargs):
     partner = consultation_slot.partner
 
     if created:
-        title = f'New application for consultation slot {consultation_slot}!'
-        description = f'New application for consultation slot {consultation_slot} made by {instance.member}'
+        title = f'New application for consultation slot {consultation_slot.title}!'
+        description = f'New application for consultation slot {consultation_slot.title} made by {instance.member}'
     # end if
 
     notification_type = 'CONSULTATION'
@@ -36,11 +35,7 @@ def update_consultation_slot(sender, instance, created, **kwargs):
 
     if created:
         title = f'New consultation slot {consultation_slot} available!'
-        description = f'New consultation slot {consultation_slot} available by the instructor of!'
-
         notification_type = 'CONSULTATION'
-        notification = Notification(
-            title=title, description=description, notification_type=notification_type, consultation_slot=consultation_slot)
 
         courses = Course.objects.filter(partner=partner)
         for course in courses:
