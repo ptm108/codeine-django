@@ -14,7 +14,7 @@ from rest_framework.permissions import (
 from common.permissions import AdminOrReadOnly
 from .models import Article, ArticleEngagement
 from .serializers import ArticleSerializer
-
+from notifications.models import Notification, NotificationObject
 # Create your views here.
 
 
@@ -310,6 +310,19 @@ def activate_article_view(request, pk):
             article = Article.objects.get(pk=pk)
             article.is_activated = True
             article.save()
+
+            # notify user
+            notification_type = 'ARTICLE'
+            title = f'Article {article.title} activated!'
+            description = f'The admin team has activated your article {article.title}'
+            notification = Notification(
+                title=title, description=description, notification_type=notification_type, article=article)
+            notification.save()
+
+            receiver = article.user
+            notification_object = NotificationObject(receiver=receiver, notification=notification)
+            notification_object.save()
+
             serializer = ArticleSerializer(
                 article, context={'request': request})
             return Response(serializer.data, status=status.HTTP_200_OK)
@@ -332,6 +345,19 @@ def deactivate_article_view(request, pk):
             article = Article.objects.get(pk=pk)
             article.is_activated = False
             article.save()
+
+            # notify user
+            notification_type = 'ARTICLE'
+            title = f'Article {article.title} deactivated!'
+            description = f'The admin team has deactivated your article {article.title}'
+            notification = Notification(
+                title=title, description=description, notification_type=notification_type, article=article)
+            notification.save()
+
+            receiver = article.user
+            notification_object = NotificationObject(receiver=receiver, notification=notification)
+            notification_object.save()
+
             serializer = ArticleSerializer(
                 article, context={'request': request})
             return Response(serializer.data, status=status.HTTP_200_OK)
