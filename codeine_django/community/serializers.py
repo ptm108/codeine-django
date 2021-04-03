@@ -221,6 +221,7 @@ class ArticleSerializer(serializers.ModelSerializer):
         'get_top_level_comments')
     engagements = serializers.SerializerMethodField('get_engagements')
     current_user_liked = serializers.SerializerMethodField('get_current_user_liked')
+    num_comments = serializers.SerializerMethodField('get_num_comments')
 
     class Meta:
         model = Article
@@ -253,6 +254,12 @@ class ArticleSerializer(serializers.ModelSerializer):
             user = request.user
             return ArticleEngagement.objects.filter(article=obj).filter(user=user).exists()
         # end if
+    # end def
+
+    def get_num_comments(self, obj):
+        request = self.context.get("request")
+        count = ArticleComment.objects.filter(article=obj).count()
+        return count
     # end def
 # end class
 
