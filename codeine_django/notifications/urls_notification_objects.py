@@ -16,4 +16,8 @@ urlpatterns = [
          name="Mark multiple notification objects as read"),
     path('/mark/multiple-unread', views_notification_objects.mark_multiple_as_unread,
          name="Mark multiple notification objects as unread"),
+    path('/mark/all-read', views_notification_objects.mark_all_as_read,
+         name="Mark all notification objects as read"),
+    path('/mark/all-unread', views_notification_objects.mark_all_as_unread,
+         name="Mark all notification objects as unread"),
 ]
