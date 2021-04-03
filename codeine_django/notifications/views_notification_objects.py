@@ -207,3 +207,92 @@ def mark_multiple_as_unread(request):
         # end try-except
     # end if
 # end def
+
+
+@api_view(['PATCH'])
+@permission_classes((IsAuthenticated,))
+def mark_multiple_as_read(request):
+    '''
+    Mark multiple notification object as read
+    '''
+    if request.method == 'PATCH':
+        try:
+            data = request.data
+            user = request.user
+            notification_objects = NotificationObject.objects.filter(receiver=user)
+
+            if 'notification_object_ids' in data:
+                notification_object_ids = data['notification_object_ids']
+                for index, notification_object_id in enumerate(notification_object_ids):
+                    notification_object = NotificationObject.objects.get(pk=notification_object_id)
+                    if notification_object not in notification_objects:
+                        print(notification_object_id)
+                        return Response(status=status.HTTP_401_UNAUTHORIZED)
+                    else:
+                        notification_object.is_read = True
+                        notification_object.save()
+                    # end if-else
+                # end for
+            # end if
+
+            serializer = NotificationObjectSerializer(
+                notification_objects.all(), many=True, context={"request": request})
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except (ObjectDoesNotExist, KeyError, ValueError) as e:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+        # end try-except
+    # end if
+# end def
+
+@api_view(['PATCH'])
+@permission_classes((IsAuthenticated,))
+def mark_all_as_read(request):
+    '''
+    Mark all notification objects as read
+    '''
+    if request.method == 'PATCH':
+        try:
+            data = request.data
+            user = request.user
+            notification_objects = NotificationObject.objects.filter(receiver=user)
+
+            for notification_object in notification_objects:
+                notification_object.is_read = True
+                notification_object.save()
+            # end for
+
+            serializer = NotificationObjectSerializer(
+                notification_objects.all(), many=True, context={"request": request})
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except (ObjectDoesNotExist, KeyError, ValueError) as e:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+        # end try-except
+    # end if
+# end def
+
+
+@api_view(['PATCH'])
+@permission_classes((IsAuthenticated,))
+def mark_all_as_unread(request):
+    '''
+    Mark all notification objects as unread
+    '''
+    if request.method == 'PATCH':
+        try:
+            data = request.data
+            user = request.user
+            notification_objects = NotificationObject.objects.filter(receiver=user)
+
+            for notification_object in notification_objects:
+                notification_object.is_read = False
+                notification_object.save()
+            # end for
+
+            serializer = NotificationObjectSerializer(
+                notification_objects.all(), many=True, context={"request": request})
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except (ObjectDoesNotExist, KeyError, ValueError) as e:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+        # end try-except
+    # end if
+# end def
