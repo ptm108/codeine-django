@@ -109,6 +109,7 @@ class NotificationSerializer(serializers.ModelSerializer):
 class NotificationObjectSerializer(serializers.ModelSerializer):
     receiver = serializers.SerializerMethodField('get_receiver')
     notification = serializers.SerializerMethodField('get_notification')
+    num_unread = serializers.SerializerMethodField('get_num_unread')
 
     class Meta:
         model = NotificationObject
@@ -123,5 +124,11 @@ class NotificationObjectSerializer(serializers.ModelSerializer):
     def get_notification(self, obj):
         request = self.context.get("request")
         return NotificationSerializer(obj.notification, context={'request': request}).data
+    # end def
+
+    def get_num_unread(self, obj):
+        receiver = obj.receiver
+        num_unread = NotificationObject.objects.filter(receiver=receiver).filter(is_read=False).count()
+        return num_unread
     # end def
 # end class
