@@ -221,6 +221,7 @@ class ArticleSerializer(serializers.ModelSerializer):
         'get_top_level_comments')
     engagements = serializers.SerializerMethodField('get_engagements')
     current_user_liked = serializers.SerializerMethodField('get_current_user_liked')
+    num_comments = serializers.SerializerMethodField('get_num_comments')
 
     class Meta:
         model = Article
@@ -254,6 +255,12 @@ class ArticleSerializer(serializers.ModelSerializer):
             return ArticleEngagement.objects.filter(article=obj).filter(user=user).exists()
         # end if
     # end def
+
+    def get_num_comments(self, obj):
+        request = self.context.get("request")
+        count = ArticleComment.objects.filter(article=obj).count()
+        return count
+    # end def
 # end class
 
 
@@ -278,6 +285,7 @@ class CodeReviewSerializer(serializers.ModelSerializer):
     user = serializers.SerializerMethodField('get_user')
     likes = serializers.SerializerMethodField('get_likes')
     current_user_liked = serializers.SerializerMethodField('get_current_user_liked')
+    num_comments = serializers.SerializerMethodField('get_num_comments')
 
     class Meta:
         model = CodeReview
@@ -308,6 +316,12 @@ class CodeReviewSerializer(serializers.ModelSerializer):
             user = request.user
             return CodeReviewEngagement.objects.filter(code_review=obj).filter(user=user).exists()
         # end if-else
+    # end def
+
+    def get_num_comments(self, obj):
+        request = self.context.get("request")
+        count = CodeReviewComment.objects.filter(code_review=obj).count()
+        return count
     # end def
 # end class
 
