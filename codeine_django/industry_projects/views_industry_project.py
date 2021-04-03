@@ -127,6 +127,8 @@ def single_industry_project_view(request, pk):
                 industry_project.application_deadline=data['application_deadline'] 
             if 'categories' in data:
                 industry_project.categories=json.loads(data['categories'])
+            if 'is_available' in data:
+                industry_project.is_available=data['is_available']
             # end ifs
             
             industry_project.save() 
