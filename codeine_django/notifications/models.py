@@ -56,7 +56,7 @@ class Notification(models.Model):
     # end def
 
     class Meta:
-        ordering = ['timestamp']
+        ordering = ['-timestamp']
     # end Meta
 # end class
 
@@ -78,6 +78,6 @@ class NotificationObject(models.Model):
     # end def
 
     class Meta:
-        ordering = ['timestamp']
+        ordering = ['-timestamp']
     # end Meta
 # end class
