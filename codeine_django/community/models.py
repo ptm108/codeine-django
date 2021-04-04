@@ -7,9 +7,13 @@ from multiselectfield import MultiSelectField
 import json
 import uuid
 
+
+def article_directory_path(instance, filename):
+    return 'article_{0}/{1}'.format(instance.id, filename)
+# end def
+
+
 # Create your models here.
-
-
 class Article(models.Model):
     CODING_LANGUAGES = (
         ('PY', 'Python'),
@@ -43,6 +47,8 @@ class Article(models.Model):
     content = models.TextField()
     date_created = models.DateTimeField(auto_now_add=True)
     date_edited = models.DateTimeField(auto_now=True)
+    thumbnail = models.ImageField(
+        upload_to=article_directory_path, max_length=100, blank=True, null=True, default=None)
 
     # availability
     is_published = models.BooleanField(default=False)

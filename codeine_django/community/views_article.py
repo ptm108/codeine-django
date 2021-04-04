@@ -5,6 +5,7 @@ from django.db.models import Q
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes, parser_classes, renderer_classes
 from rest_framework.response import Response
+from rest_framework.parsers import MultiPartParser, FormParser
 
 import json
 
@@ -20,6 +21,7 @@ from notifications.models import Notification, NotificationObject
 
 @api_view(['GET', 'POST'])
 @permission_classes((IsAuthenticatedOrReadOnly,))
+@parser_classes((MultiPartParser, FormParser))
 def article_view(request):
     '''
     Retrieves all articles
@@ -81,6 +83,11 @@ def article_view(request):
                 categories=data['categories'],
                 user=user
             )
+
+            if 'thumbnail' in data:
+                article.thumbnail = data['thumbnail']
+            # end if
+            
             article.save()
 
             serializer = ArticleSerializer(
@@ -96,6 +103,7 @@ def article_view(request):
 
 @ api_view(['GET', 'PUT', 'DELETE'])
 @ permission_classes((IsAuthenticatedOrReadOnly,))
+@parser_classes((MultiPartParser, FormParser))
 def single_article_view(request, pk):
     '''
     Get an article by primary key/ id
@@ -138,6 +146,9 @@ def single_article_view(request, pk):
                 article.languages = data['languages']
             if 'categories' in data:
                 article.categories = data['categories']
+            if 'thumbnail' in data:
+                article.thumbnail = data['thumbnail']
+            # end ifs
 
             article.save()
             serializer = ArticleSerializer(

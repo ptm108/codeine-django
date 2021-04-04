@@ -9,6 +9,7 @@ urlpatterns = [
 
     # application views
     path('/<slug:pk>/applications', views_application.application_view, name='Get All by Applications by Industry Project/Create Application'),
+    path('/applications/member', views_application.member_application_view, name='Get All by Applications by Member'),
     path('/<slug:pk>/applications/<slug:app_id>', views_application.single_application_view, name='Read/Accept Application'),
     path('/<slug:pk>/applications/<slug:app_id>/delete', views_application.delete_application_view, name='Delete Application'),
 ]

@@ -222,6 +222,7 @@ class ArticleSerializer(serializers.ModelSerializer):
     engagements = serializers.SerializerMethodField('get_engagements')
     current_user_liked = serializers.SerializerMethodField('get_current_user_liked')
     num_comments = serializers.SerializerMethodField('get_num_comments')
+    thumbnail = serializers.SerializerMethodField('get_thumbnail')
 
     class Meta:
         model = Article
@@ -260,6 +261,13 @@ class ArticleSerializer(serializers.ModelSerializer):
         request = self.context.get("request")
         count = ArticleComment.objects.filter(article=obj).count()
         return count
+    # end def
+
+    def get_thumbnail(self, obj):
+        request = self.context.get("request")
+        if obj.thumbnail and hasattr(obj.thumbnail, 'url'):
+            return request.build_absolute_uri(obj.thumbnail.url)
+        # end if
     # end def
 # end class
 
