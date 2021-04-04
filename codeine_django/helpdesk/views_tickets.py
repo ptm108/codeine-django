@@ -193,8 +193,8 @@ def resolve_ticket_view(request, pk):
             ticket.save()
 
             # notify user
-            title = f'Ticket {ticket} has been marked as resolved!'
-            description = f'Ticket {ticket} has been marked as resolved by the Codeine admin team'
+            title = f'Helpdesk: Ticket has been resolved!'
+            description = f'Ticket {ticket} has been marked as resolved by the Codeine admin team! Feel free to contact us if you have any further questions.'
             notification_type = 'HELPDESK'
             notification = Notification(
                 title=title, description=description, notification_type=notification_type, ticket=ticket)
@@ -229,8 +229,8 @@ def open_ticket_view(request, pk):
             ticket.save()
 
             # notify user
-            title = f'Ticket {ticket} has been marked as open!'
-            description = f'Ticket {ticket} has been marked as open by the Codeine admin team'
+            title = f'Helpdesk: Ticket has been opened!'
+            description = f'Ticket {ticket.description} has been marked as opened by the Codeine admin team!'
             notification_type = 'HELPDESK'
             notification = Notification(
                 title=title, description=description, notification_type=notification_type, ticket=ticket)

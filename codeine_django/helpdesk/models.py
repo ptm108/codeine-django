@@ -10,12 +10,12 @@ import uuid
 
 
 def img_directory_path(instance, filename):
-    return 'user_{0}/helpdesk/{1}/{2}'.format(instance.base_user.id, instance.id, filename)
+    return 'helpdesk/{0}/{1}'.format(instance.id, filename)
 # end def
 
 
 def file_directory_path(instance, filename):
-    return 'user_{0}/helpdesk/{1}/{2}'.format(instance.ticket.base_user.id, instance.ticket.id, filename)
+    return 'helpdesk/{0}/{1}'.format(instance.ticket.id, filename)
 # end def
 
 

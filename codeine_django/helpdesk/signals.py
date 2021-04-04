@@ -12,16 +12,20 @@ def update_ticket_message(sender, instance, created, **kwargs):
     ticket = instance.ticket
 
     if created:
-        title = f'New reply for ticket {ticket}!'
-        description = f'{instance.message}'
-        notification_type = 'HELPDESK'
-        notification = Notification(
-            title=title, description=description, notification_type=notification_type, ticket=ticket)
-        notification.save()
+        sender = instance.base_user
+        ticket_owner = instance.ticket.base_user
+        if sender.id != ticket_owner.id:
+            title = f'Helpdesk: New reply for {ticket.description}!'
+            description = f'{instance.message}'
+            notification_type = 'HELPDESK'
+            notification = Notification(
+                title=title, description=description, notification_type=notification_type, ticket=ticket)
+            notification.save()
 
-        receiver = ticket.base_user
-        notification_object = NotificationObject(
-            receiver=receiver, notification=notification)
-        notification_object.save()
+            receiver = ticket.base_user
+            notification_object = NotificationObject(
+                receiver=receiver, notification=notification)
+            notification_object.save()
+        # end if
     # end if
 # end def

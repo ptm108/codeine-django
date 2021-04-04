@@ -184,6 +184,7 @@ def update_course(sender, instance, created, update_fields, **kwargs):
             description = f'New Course {instance.title} available by the instructor of {course}!'
             notification = Notification(
                 title=title, description=description, notification_type=notification_type, course=instance)
+            notification.photo = instance.thumbnail
             notification.save()
             enrollments = Enrollment.objects.filter(course=course)
             for enrollment in enrollments:
