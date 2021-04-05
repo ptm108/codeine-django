@@ -13,7 +13,7 @@ def update_industry_project_application(sender, instance, created, **kwargs):
 
     if created:
         title = f'New application for Industry Project {industry_project.title}!'
-        description = f'New application for Industry Project {industry_project.title} made by {instance.member}'
+        description = f'New application for Industry Project {industry_project.title} made by {instance.member.user.first_name} {instance.member.user.last_name}'
         notification_type = 'INDUSTRY_PROJECTS'
         notification = Notification(
             title=title, description=description, notification_type=notification_type, industry_project=industry_project)
@@ -38,7 +38,7 @@ def update_industry_project(sender, instance, created, **kwargs):
 
         courses = Course.objects.filter(partner=partner)
         for course in courses:
-            description = f'New Industry Project {industry_project.title} available by the instructor of {course}!'
+            description = f'New Industry Project {industry_project.title} available by the instructor of {course.title}!'
             notification = Notification(
                 title=title, description=description, notification_type=notification_type, industry_project=industry_project)
             notification.save()

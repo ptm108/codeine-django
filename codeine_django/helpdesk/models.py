@@ -10,12 +10,12 @@ import uuid
 
 
 def img_directory_path(instance, filename):
-    return 'user_{0}/helpdesk/{1}/{2}'.format(instance.base_user.id, instance.id, filename)
+    return 'helpdesk/{0}/{1}'.format(instance.id, filename)
 # end def
 
 
 def file_directory_path(instance, filename):
-    return 'user_{0}/helpdesk/{1}/{2}'.format(instance.ticket.base_user.id, instance.ticket.id, filename)
+    return 'helpdesk/{0}/{1}'.format(instance.ticket.id, filename)
 # end def
 
 
@@ -47,7 +47,7 @@ class Ticket(models.Model):
 
     # enums
     ticket_status = models.TextField(choices=TICKET_STATUSES, default='OPEN')
-    ticket_type = MultiSelectField(choices=TICKET_TYPES)
+    ticket_type = models.TextField(choices=TICKET_TYPES)
 
     # ref
     base_user = models.ForeignKey(
@@ -64,6 +64,8 @@ class Ticket(models.Model):
         'consultations.ConsultationSlot', on_delete=models.SET_NULL, related_name='tickets', null=True, blank=True)
     code_review = models.ForeignKey(
         'community.CodeReview', on_delete=models.SET_NULL, related_name='tickets', null=True, blank=True)
+    assigned_admin = models.ForeignKey(
+        'common.BaseUser', on_delete=models.SET_NULL, related_name='assigned_tickets', null=True, blank=True)
 
     def __str__(self):
         return f'Ticket: {self.id}, Status: {self.ticket_status}, Type: {self.ticket_type}'

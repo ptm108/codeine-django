@@ -1,7 +1,7 @@
 from rest_framework import serializers
 
 from .models import Member, BaseUser, Partner, Organization, PaymentTransaction, BankDetail, MembershipSubscription, CV
-
+from utils.member_utils import get_membership_tier
 
 class OrganizationSerializer(serializers.ModelSerializer):
     organization_photo = serializers.SerializerMethodField(
@@ -32,7 +32,7 @@ class NestedPartnerSerializer(serializers.ModelSerializer):
 # end class
 
 
-class NestedMemberSerializer(serializers.ModelSerializer):
+class NestedMemberSerializer(serializers.ModelSerializer):    
     class Meta:
         model = Member
         fields = ('id', 'stats', 'membership_tier')
@@ -42,7 +42,7 @@ class NestedMemberSerializer(serializers.ModelSerializer):
 
 class NestedBaseUserSerializer(serializers.ModelSerializer):
     partner = NestedPartnerSerializer()
-    member = NestedMemberSerializer()
+    member = serializers.SerializerMethodField('get_member')
     profile_photo = serializers.SerializerMethodField('get_profile_photo_url')
 
     class Meta:
@@ -69,6 +69,14 @@ class NestedBaseUserSerializer(serializers.ModelSerializer):
         request = self.context.get("request")
         if obj.profile_photo and hasattr(obj.profile_photo, 'url'):
             return request.build_absolute_uri(obj.profile_photo.url)
+        # end if
+    # end def
+
+    def get_member(self, obj):
+        request = self.context.get("request")
+        if obj.member:
+            get_membership_tier(obj.member)
+            return NestedMemberSerializer(obj.member, context={'request': request}).data
         # end if
     # end def
 # end class
@@ -174,6 +182,14 @@ class MemberApplicationSerializer(serializers.ModelSerializer):
 # end class
 
 
+class NestedMembershipSubscriptionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = MembershipSubscription
+        fields = '__all__'
+    # end Meta
+# end class
+
+
 class MembershipSubscriptionSerializer(serializers.ModelSerializer):
     payment_transaction = NestedPaymentTransactionSerializer()
     member = MemberSerializer()
@@ -194,21 +210,8 @@ class CVSerializer(serializers.ModelSerializer):
 
 
 class PaymentTransactionSerializer(serializers.ModelSerializer):
-    membership_subscription = serializers.SerializerMethodField('get_membership_subscription')
-    # event_payment = EventPaymentSerializer()
-    # contribution_payment = ContributionPaymentSerializer()
-    consultation_payment = serializers.SerializerMethodField('get_consultation_payment')
-
     class Meta:
         model = PaymentTransaction
         fields = '__all__'
     # end Meta
-
-    def get_membership_subscription(self, obj):
-        return obj.membership_subscription.id
-    # end def
-
-    def get_consultation_payment(self, obj):
-        return obj.consultation_payment.id
-    # end def
 # end class

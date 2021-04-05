@@ -18,7 +18,9 @@ from courses.models import Course
 from community.models import Article, CodeReview
 from industry_projects.models import IndustryProject
 from consultations.models import ConsultationSlot
-from notifications.models import  Notification, NotificationObject
+from notifications.models import Notification, NotificationObject
+
+import json
 
 
 # Create your views here.
@@ -36,6 +38,8 @@ def ticket_view(request):
         search = request.query_params.get('search', None)
         ticket_status = request.query_params.get('ticket_status', None)
         is_user = request.query_params.get('is_user', None)
+        is_assigned_admin = request.query_params.get('is_assigned_admin', None)
+        is_assigned = request.query_params.get('is_assigned', None)
 
         if search is not None:
             tickets = tickets.filter(
@@ -51,9 +55,28 @@ def ticket_view(request):
         # end if
 
         if is_user is not None:
+            is_user = json.loads(is_user.lower())
             if is_user:
                 user = request.user
                 tickets = tickets.filter(base_user=user)
+            # end if
+        # end if
+
+        if is_assigned_admin is not None:
+            is_assigned_admin = json.loads(is_assigned_admin.lower())
+            if is_assigned_admin:
+                user = request.user
+                tickets = tickets.filter(assigned_admin=user)
+            # end if
+        # end if
+
+        if is_assigned is not None:
+            is_assigned = json.loads(is_assigned.lower())
+            if is_assigned:
+                print('halo')
+                tickets = tickets.filter(assigned_admin__isnull=False)
+            else:
+                tickets = tickets.filter(assigned_admin__isnull=True)
             # end if
         # end if
 
@@ -193,8 +216,8 @@ def resolve_ticket_view(request, pk):
             ticket.save()
 
             # notify user
-            title = f'Ticket {ticket} has been marked as resolved!'
-            description = f'Ticket {ticket} has been marked as resolved by the Codeine admin team'
+            title = f'Helpdesk: Ticket has been resolved!'
+            description = f'Ticket has been marked as resolved by the Codeine admin team! Feel free to contact us if you have any further questions.'
             notification_type = 'HELPDESK'
             notification = Notification(
                 title=title, description=description, notification_type=notification_type, ticket=ticket)
@@ -229,8 +252,8 @@ def open_ticket_view(request, pk):
             ticket.save()
 
             # notify user
-            title = f'Ticket {ticket} has been marked as open!'
-            description = f'Ticket {ticket} has been marked as open by the Codeine admin team'
+            title = f'Helpdesk: Ticket has been opened!'
+            description = f'Ticket has been marked as opened by the Codeine admin team!'
             notification_type = 'HELPDESK'
             notification = Notification(
                 title=title, description=description, notification_type=notification_type, ticket=ticket)
@@ -242,6 +265,89 @@ def open_ticket_view(request, pk):
             notification_object.save()
 
             serializer = TicketSerializer(ticket, context={"request": request})
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except ObjectDoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        # end try-except
+    # end if
+# end def
+
+
+@api_view(['PATCH'])
+@permission_classes((IsAdminUser,))
+def assign_ticket_view(request, pk):
+    '''
+    Admin assigns a ticket
+    '''
+    if request.method == 'PATCH':
+        data = request.data
+        try:
+            if 'admin_id' in data:
+                ticket = Ticket.objects.get(pk=pk)
+                admin_id = data['admin_id']
+
+                admin = BaseUser.objects.get(pk=admin_id)
+
+                if admin.is_admin is False:
+                    return Response(status=status.HTTP_400_BAD_REQUEST)
+                # end if
+
+                ticket.assigned_admin = admin
+                ticket.save()
+
+                # notify assigned admin
+                title = f'Helpdesk: A new ticket has been assigned to you!'
+                description = f'Ticket {ticket.description}'
+                notification_type = 'HELPDESK'
+                notification = Notification(
+                    title=title, description=description, notification_type=notification_type, ticket=ticket)
+                notification.save()
+
+                notification_object = NotificationObject(
+                    receiver=admin, notification=notification)
+                notification_object.save()
+
+                serializer = TicketSerializer(
+                    ticket, context={"request": request})
+                return Response(serializer.data, status=status.HTTP_200_OK)
+            else:
+                return Response(status=status.HTTP_400_BAD_REQUEST)
+            # end if-else
+        except ObjectDoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        # end try-except
+    # end if
+# end def
+
+
+@api_view(['PATCH'])
+@permission_classes((IsAdminUser,))
+def unassign_ticket_view(request, pk):
+    '''
+    Admin unassigns a ticket
+    '''
+    if request.method == 'PATCH':
+        data = request.data
+        try:
+            ticket = Ticket.objects.get(pk=pk)
+            prev_admin = ticket.assigned_admin
+            ticket.assigned_admin = None
+            ticket.save()
+
+            # notify unassigned admin
+            title = f'Helpdesk: A new ticket has been unassigned from you!'
+            description = f'Ticket {ticket.description}'
+            notification_type = 'HELPDESK'
+            notification = Notification(
+                title=title, description=description, notification_type=notification_type, ticket=ticket)
+            notification.save()
+
+            notification_object = NotificationObject(
+                receiver=prev_admin, notification=notification)
+            notification_object.save()
+
+            serializer = TicketSerializer(
+                ticket, context={"request": request})
             return Response(serializer.data, status=status.HTTP_200_OK)
         except ObjectDoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)

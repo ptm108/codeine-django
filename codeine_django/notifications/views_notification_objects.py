@@ -155,7 +155,6 @@ def mark_multiple_as_read(request):
                 for index, notification_object_id in enumerate(notification_object_ids):
                     notification_object = NotificationObject.objects.get(pk=notification_object_id)
                     if notification_object not in notification_objects:
-                        print(notification_object_id)
                         return Response(status=status.HTTP_401_UNAUTHORIZED)
                     else:
                         notification_object.is_read = True
@@ -190,7 +189,6 @@ def mark_multiple_as_unread(request):
                 for index, notification_object_id in enumerate(notification_object_ids):
                     notification_object = NotificationObject.objects.get(pk=notification_object_id)
                     if notification_object not in notification_objects:
-                        print(notification_object_id)
                         return Response(status=status.HTTP_401_UNAUTHORIZED)
                     else:
                         notification_object.is_read = False
@@ -226,7 +224,6 @@ def mark_multiple_as_read(request):
                 for index, notification_object_id in enumerate(notification_object_ids):
                     notification_object = NotificationObject.objects.get(pk=notification_object_id)
                     if notification_object not in notification_objects:
-                        print(notification_object_id)
                         return Response(status=status.HTTP_401_UNAUTHORIZED)
                     else:
                         notification_object.is_read = True

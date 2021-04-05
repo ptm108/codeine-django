@@ -11,8 +11,8 @@ def update_code_review_comment_engagement(sender, instance, created, **kwargs):
     base_user = instance.user
 
     if created:
-        title = f'New like for your comment on {code_review}!'
-        description = f'{base_user} liked your code review comment on {code_review}!'
+        title = f'New like for your comment on Code Review {code_review.title}!'
+        description = f'{base_user.first_name} {base_user.last_name} liked your Code Review comment on {code_review.title}!'
         notification_type = 'CODE_REVIEW'
         notification = Notification(
             title=title, description=description, notification_type=notification_type, code_review=code_review)
@@ -32,8 +32,8 @@ def update_code_review_comment(sender, instance, created, **kwargs):
     base_user = instance.user
 
     if created:
-        title = f'New comment on your Code Review: {code_review}!'
-        description = f'{base_user} left a comment on your {code_review}!\n {instance.comment}'
+        title = f'New comment on your Code Review {code_review.title}!'
+        description = f'{base_user.first_name} {base_user.last_name} left a comment on your Code Review {code_review.title}!'
         notification_type = 'CODE_REVIEW'
         notification = Notification(
             title=title, description=description, notification_type=notification_type, code_review=code_review)
@@ -53,8 +53,8 @@ def update_code_review_engagement(sender, instance, created, **kwargs):
     base_user = instance.user
 
     if created:
-        title = f'New like on your Code Review: {code_review}!'
-        description = f'{base_user} liked your Code Review: {code_review}!'
+        title = f'New like on your Code Review {code_review.title}!'
+        description = f'{base_user.first_name} {base_user.last_name} liked your Code Review {code_review.title}!'
         notification_type = 'CODE_REVIEW'
         notification = Notification(
             title=title, description=description, notification_type=notification_type, code_review=code_review)
@@ -74,8 +74,8 @@ def update_article_comment_engagement(sender, instance, created, **kwargs):
     base_user = instance.user
 
     if created:
-        title = f'New like for your comment on {article}!'
-        description = f'{base_user} liked your article comment on {article}!'
+        title = f'New like for your comment on Article {article.title}!'
+        description = f'{base_user.first_name} {base_user.last_name} liked your Article comment on {article.title}!'
         notification_type = 'ARTICLE'
         notification = Notification(
             title=title, description=description, notification_type=notification_type, article=article)
@@ -95,8 +95,8 @@ def update_article_comment(sender, instance, created, **kwargs):
     base_user = instance.user
 
     if created:
-        title = f'New comment on your Article: {article}!'
-        description = f'{base_user} left a comment on your {article}!\n {instance.comment}'
+        title = f'New comment on your Article {article.title}!'
+        description = f'{base_user.first_name} {base_user.last_name} left a comment on your Article {article.title}!'
         notification_type = 'ARTICLE'
         notification = Notification(
             title=title, description=description, notification_type=notification_type, article=article)
@@ -108,8 +108,8 @@ def update_article_comment(sender, instance, created, **kwargs):
         notification_object.save()
 
         if instance.reply_to is not None:
-            title = f'New reply for comment on Article: {article}!'
-            description = f'{base_user} left a reply to your comment on {article}!\n {instance.comment}'
+            title = f'New reply on to your comment on Article {article.title}!'
+            description = f'{base_user.first_name} {base_user.last_name} left a reply to your comment on Article {article.title}!'
             notification_type = 'ARTICLE'
             notification = Notification(
                 title=title, description=description, notification_type=notification_type, article=article)
@@ -130,8 +130,8 @@ def update_article_engagement(sender, instance, created, **kwargs):
     base_user = instance.user
 
     if created:
-        title = f'New like on your Article: {article}!'
-        description = f'{base_user} liked your Article: {article}!'
+        title = f'New like on your Article {article.title}!'
+        description = f'{base_user.first_name} {base_user.last_name} liked your Article {article.title}!'
         notification_type = 'ARTICLE'
         notification = Notification(
             title=title, description=description, notification_type=notification_type, article=article)
