@@ -48,7 +48,6 @@ class PaymentTransactionSerializer(serializers.ModelSerializer):
         request = self.context.get("request")
         try:
             if obj.contribution_payment:
-                print('true')
                 return NestedContributionPaymentSerializer(obj.contribution_payment, context={'request': request}).data
             # end if
         except:

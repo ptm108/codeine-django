@@ -332,7 +332,6 @@ def unassign_ticket_view(request, pk):
             ticket = Ticket.objects.get(pk=pk)
             prev_admin = ticket.assigned_admin
             ticket.assigned_admin = None
-            print(ticket.assigned_admin)
             ticket.save()
 
             # notify unassigned admin
