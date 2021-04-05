@@ -16,7 +16,6 @@ pillow = "*"
 django-multiselectfield = "*"
 django-cors-headers = "*"
 docker = "*"
-schedule = "*"
 
 [requires]
 python_version = "3.8"
