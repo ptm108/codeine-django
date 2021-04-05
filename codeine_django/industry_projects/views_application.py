@@ -1,5 +1,5 @@
 from .models import IndustryProject, IndustryProjectApplication
-from .serializers import IndustryProjectApplicationSerializer
+from .serializers import IndustryProjectApplicationSerializer, NestedIndustryProjectApplicationSerializer
 from django.db.models import Q
 from django.core.exceptions import ObjectDoesNotExist
 from rest_framework.decorators import api_view, permission_classes
@@ -22,7 +22,7 @@ def member_application_view(request):
             member = Member.objects.get(user=user)
             applications = IndustryProjectApplication.objects.filter(member=member)
 
-            serializer = IndustryProjectApplicationSerializer(applications, many=True, context={"request": request})
+            serializer = NestedIndustryProjectApplicationSerializer(applications, many=True, context={"request": request})
             return Response(serializer.data, status=status.HTTP_200_OK)
         except (ValueError) as e:
             return Response(status=status.HTTP_400_BAD_REQUEST)
