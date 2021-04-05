@@ -12,7 +12,7 @@ def update_payment_transaction(sender, instance, created, **kwargs):
         print('new payment transaction')
     else:
         title = f'Payment transaction updated!'
-        description = f'Updated payment transaction'
+        description = f'Status changed to {instance.payment_status}'
 
         notification_type = 'PAYMENT'
         notification = Notification(
