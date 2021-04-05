@@ -174,6 +174,14 @@ class MemberApplicationSerializer(serializers.ModelSerializer):
 # end class
 
 
+class NestedMembershipSubscriptionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = MembershipSubscription
+        fields = '__all__'
+    # end Meta
+# end class
+
+
 class MembershipSubscriptionSerializer(serializers.ModelSerializer):
     payment_transaction = NestedPaymentTransactionSerializer()
     member = MemberSerializer()
@@ -194,21 +202,8 @@ class CVSerializer(serializers.ModelSerializer):
 
 
 class PaymentTransactionSerializer(serializers.ModelSerializer):
-    membership_subscription = serializers.SerializerMethodField('get_membership_subscription')
-    # event_payment = EventPaymentSerializer()
-    # contribution_payment = ContributionPaymentSerializer()
-    consultation_payment = serializers.SerializerMethodField('get_consultation_payment')
-
     class Meta:
         model = PaymentTransaction
         fields = '__all__'
     # end Meta
-
-    def get_membership_subscription(self, obj):
-        return obj.membership_subscription.id
-    # end def
-
-    def get_consultation_payment(self, obj):
-        return obj.consultation_payment.id
-    # end def
 # end class

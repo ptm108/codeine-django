@@ -25,7 +25,6 @@ def update_ticket_message(sender, instance, created, **kwargs):
         notification.save()
 
         for participant_id in participant_ids:
-            print(participant_id)
             if sender.id != participant_id:
                 receiver = BaseUser.objects.get(pk=participant_id)
                 notification_object = NotificationObject(
