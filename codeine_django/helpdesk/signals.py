@@ -1,8 +1,7 @@
 from django.db.models.signals import post_save
 from django.dispatch import receiver
-from django.db.models import Avg
 
-from .models import TicketMessage
+from .models import TicketMessage, Ticket
 from common.models import BaseUser
 from courses.models import Course, Enrollment
 from notifications.models import Notification, NotificationObject
@@ -55,6 +54,46 @@ def update_ticket_message(sender, instance, created, **kwargs):
                         notification_object.save()
                     # end if
                 # end if
+            # end for
+        except:
+            print('error')
+        # end try-except
+    # end if
+# end def
+
+
+
+@receiver(post_save, sender=Ticket)
+def update_ticket_message(sender, instance, created, **kwargs):
+    if created:
+        title = f''
+        try:
+            if instance.transaction:
+                title = f'Helpdesk: New Transaction Enquiry created!'
+            if instance.course:
+                title = f'Helpdesk: New Enquiry about Course {instance.course.title} created!'
+            if instance.article:
+                title = f'Helpdesk: New Enquiry about Article {instance.article.title} created!'
+            if instance.industry_project:
+                title = f'Helpdesk: New Enquiry about Industry Project {instance.industry_project.title}!'
+            if instance.consultation_slot:
+                title = f'Helpdesk: New Enquiry about Consultation Slot {instance.consultation_slot.title}!'
+            if instance.code_review:
+                title = f'Helpdesk: New Enquiry about Code Review {instance.code_review.title}!'
+            # end ifs
+
+            description = f'{instance.description}'
+            notification_type = 'HELPDESK'
+            notification = Notification(
+                title=title, description=description, notification_type=notification_type, ticket=instance)
+            notification.save()
+
+            admins = BaseUser.objects.filter(is_admin=True)
+
+            for admin in admins:
+                notification_object = NotificationObject(
+                    receiver=admin, notification=notification)
+                notification_object.save()
             # end for
         except:
             print('error')
