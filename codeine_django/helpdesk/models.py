@@ -64,6 +64,8 @@ class Ticket(models.Model):
         'consultations.ConsultationSlot', on_delete=models.SET_NULL, related_name='tickets', null=True, blank=True)
     code_review = models.ForeignKey(
         'community.CodeReview', on_delete=models.SET_NULL, related_name='tickets', null=True, blank=True)
+    assigned_admin = models.ForeignKey(
+        'common.BaseUser', on_delete=models.SET_NULL, related_name='assigned_tickets', null=True, blank=True)
 
     def __str__(self):
         return f'Ticket: {self.id}, Status: {self.ticket_status}, Type: {self.ticket_type}'
