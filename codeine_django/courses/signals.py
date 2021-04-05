@@ -181,7 +181,7 @@ def update_course(sender, instance, created, update_fields, **kwargs):
 
         courses = Course.objects.filter(partner=partner)
         for course in courses:
-            description = f'New Course {instance.title} available by the instructor of {course}!'
+            description = f'New Course {instance.title} available by the instructor of {course.title}!'
             notification = Notification(
                 title=title, description=description, notification_type=notification_type, course=instance)
             notification.photo = instance.thumbnail

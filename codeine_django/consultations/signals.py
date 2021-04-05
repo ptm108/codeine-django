@@ -12,19 +12,19 @@ def update_consultation_application(sender, instance, created, **kwargs):
     partner = consultation_slot.partner
 
     if created:
-        title = f'New application for consultation slot {consultation_slot.title}!'
-        description = f'New application for consultation slot {consultation_slot.title} made by {instance.member}'
+        title = f'New application for your consultation slot {consultation_slot.title}!'
+        description = f'New application for consultation slot {consultation_slot.title} made by {instance.member.user.first_name} {instance.member.user.last_name}'
+
+        notification_type = 'CONSULTATION'
+        notification = Notification(
+            title=title, description=description, notification_type=notification_type, consultation_slot=consultation_slot)
+        notification.save()
+
+        receiver = partner.user
+        notification_object = NotificationObject(
+            receiver=receiver, notification=notification)
+        notification_object.save()
     # end if
-
-    notification_type = 'CONSULTATION'
-    notification = Notification(
-        title=title, description=description, notification_type=notification_type, consultation_slot=consultation_slot)
-    notification.save()
-
-    receiver = partner.user
-    notification_object = NotificationObject(
-        receiver=receiver, notification=notification)
-    notification_object.save()
 # end def
 
 
