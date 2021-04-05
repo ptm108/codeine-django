@@ -47,7 +47,7 @@ class Ticket(models.Model):
 
     # enums
     ticket_status = models.TextField(choices=TICKET_STATUSES, default='OPEN')
-    ticket_type = MultiSelectField(choices=TICKET_TYPES)
+    ticket_type = models.TextField(choices=TICKET_TYPES)
 
     # ref
     base_user = models.ForeignKey(

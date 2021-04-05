@@ -1,7 +1,8 @@
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+from django.db.models import Avg
 
-from .models import TicketMessage, Ticket
+from .models import TicketMessage
 from common.models import BaseUser
 from courses.models import Course, Enrollment
 from notifications.models import Notification, NotificationObject
@@ -15,6 +16,7 @@ def update_ticket_message(sender, instance, created, **kwargs):
         sender = instance.base_user
         ticket = instance.ticket
         ticket_owner = ticket.base_user
+        ticket_admin = ticket.assigned_admin
         participant_ids = TicketMessage.objects.filter(
             ticket=instance.ticket).order_by().values_list('base_user', flat=True).distinct()
         title = f''
@@ -33,6 +35,14 @@ def update_ticket_message(sender, instance, created, **kwargs):
                 title = f'Helpdesk: New reply for Enquiry about Code Review {ticket.code_review.title}!'
             # end ifs
 
+            print(ticket.ticket_type)
+            if ticket.ticket_type == 'ACCOUNT':
+                title = f'Helpdesk: New reply for Enquiry about your Account!'
+            if ticket.ticket_type == 'GENERAL':
+                title = f'Helpdesk: New reply for your General Enquiry!'
+            if ticket.ticket_type == 'TECHNICAL':
+                title = f'Helpdesk: New reply for your Technical Enquiry!'
+
             description = f'{instance.message}'
             notification_type = 'HELPDESK'
             notification = Notification(
@@ -45,56 +55,24 @@ def update_ticket_message(sender, instance, created, **kwargs):
                 notification_object.save()
             # end if
 
-            for participant_id in participant_ids:
-                if ticket_owner.id != participant_id:
-                    if sender.id != participant_id:
-                        receiver = BaseUser.objects.get(pk=participant_id)
-                        notification_object = NotificationObject(
-                            receiver=receiver, notification=notification)
-                        notification_object.save()
-                    # end if
+            if ticket_admin:
+                if sender.id != ticket_admin.id:
+                    notification_object = NotificationObject(
+                        receiver=ticket_admin, notification=notification)
+                    notification_object.save()
                 # end if
-            # end for
-        except:
-            print('error')
-        # end try-except
-    # end if
-# end def
+            # end if
 
-
-
-@receiver(post_save, sender=Ticket)
-def update_ticket_message(sender, instance, created, **kwargs):
-    if created:
-        title = f''
-        try:
-            if instance.transaction:
-                title = f'Helpdesk: New Transaction Enquiry created!'
-            if instance.course:
-                title = f'Helpdesk: New Enquiry about Course {instance.course.title} created!'
-            if instance.article:
-                title = f'Helpdesk: New Enquiry about Article {instance.article.title} created!'
-            if instance.industry_project:
-                title = f'Helpdesk: New Enquiry about Industry Project {instance.industry_project.title}!'
-            if instance.consultation_slot:
-                title = f'Helpdesk: New Enquiry about Consultation Slot {instance.consultation_slot.title}!'
-            if instance.code_review:
-                title = f'Helpdesk: New Enquiry about Code Review {instance.code_review.title}!'
-            # end ifs
-
-            description = f'{instance.description}'
-            notification_type = 'HELPDESK'
-            notification = Notification(
-                title=title, description=description, notification_type=notification_type, ticket=instance)
-            notification.save()
-
-            admins = BaseUser.objects.filter(is_admin=True)
-
-            for admin in admins:
-                notification_object = NotificationObject(
-                    receiver=admin, notification=notification)
-                notification_object.save()
-            # end for
+            # for participant_id in participant_ids:
+            #     if ticket_owner.id != participant_id:
+            #         if sender.id != participant_id:
+            #             receiver = BaseUser.objects.get(pk=participant_id)
+            #             notification_object = NotificationObject(
+            #                 receiver=receiver, notification=notification)
+            #             notification_object.save()
+            #         # end if
+            #     # end if
+            # # end for
         except:
             print('error')
         # end try-except
