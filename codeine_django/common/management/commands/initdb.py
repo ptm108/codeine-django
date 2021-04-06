@@ -27,6 +27,7 @@ from industry_projects.models import IndustryProject
 import sys
 from datetime import timedelta, datetime
 from random import randint
+from hashids import Hashids
 
 
 class Command(BaseCommand):
@@ -38,6 +39,8 @@ class Command(BaseCommand):
 
         # global refs
         admin = None
+        hashids = Hashids(min_length=5)
+        print(hashids.encode('oi'))
 
         # instantiate admins
         self.stdout.write('Creating superuser...')
@@ -70,7 +73,7 @@ class Command(BaseCommand):
             u.profile_photo.save('m1.jpeg', ImageFile(open('./codeine_django/common/management/demo_assets/m1.jpeg', 'rb')))
             u.save()
 
-            m = Member(user=u)
+            m = Member(user=u, unique_id=hashids.encode(int(u.id)))
             m.save()
 
             pt = PaymentTransaction(
@@ -96,7 +99,7 @@ class Command(BaseCommand):
             u.profile_photo.save('m2.jpeg', ImageFile(open('./codeine_django/common/management/demo_assets/m2.jpeg', 'rb')))
             u.save()
 
-            m = Member(user=u)
+            m = Member(user=u, unique_id=hashids.encode(int(u.id)))
             m.save()
             self.stdout.write(f'{self.style.SUCCESS("Success")}: {Member.objects.count()} members instantiated')
         except:
