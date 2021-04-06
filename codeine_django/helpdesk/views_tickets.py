@@ -37,8 +37,9 @@ def ticket_view(request):
         # extract query params
         search = request.query_params.get('search', None)
         ticket_status = request.query_params.get('ticket_status', None)
-        is_user = request.query_params.get('is_user', None)
-        is_assigned_admin = request.query_params.get('is_assigned_admin', None)
+        is_user = request.query_params.get('is_user', False)
+        is_assigned_admin = request.query_params.get(
+            'is_assigned_admin', False)
         is_assigned = request.query_params.get('is_assigned', None)
 
         if search is not None:
@@ -54,25 +55,33 @@ def ticket_view(request):
             )
         # end if
 
+        # assumes GET request is made by an user
+        # if is_user is None, return all tickets
+        # if is_user is True, return all tickets where base_user is request user
         if is_user is not None:
             is_user = json.loads(is_user.lower())
-            if is_user:
+            if is_user is True:
                 user = request.user
                 tickets = tickets.filter(base_user=user)
             # end if
-        # end if
 
+        # assumes GET request is made by an admin
+        # if is_assigned_admin is None, return all tickets
+        # if is_assigned_admin is True, return all tickets where assigned_admin is request user
         if is_assigned_admin is not None:
             is_assigned_admin = json.loads(is_assigned_admin.lower())
-            if is_assigned_admin:
+            if is_assigned_admin is True:
                 user = request.user
                 tickets = tickets.filter(assigned_admin=user)
             # end if
         # end if
 
+        # if is_assigned is None, return all tickets
+        # if is_assigned is True, return all assigned tickets
+        # if is_assigned is False, return all unassigned tickets
         if is_assigned is not None:
             is_assigned = json.loads(is_assigned.lower())
-            if is_assigned:
+            if is_assigned is True:
                 tickets = tickets.filter(assigned_admin__isnull=False)
             else:
                 tickets = tickets.filter(assigned_admin__isnull=True)

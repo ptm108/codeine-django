@@ -80,7 +80,8 @@ class NestedBaseUserSerializer(serializers.ModelSerializer):
                 return NestedMemberSerializer(obj.member, context={'request': request}).data
             # end if
         except Exception as e:
-            print(str(e))
+            pass
+            # print(str(e))
         # end try-except
     # end def
 # end class
