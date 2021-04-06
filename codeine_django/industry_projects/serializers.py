@@ -32,3 +32,25 @@ class IndustryProjectSerializer(serializers.ModelSerializer):
         return NestedBaseUserSerializer(obj.partner.user, context={'request': request}).data
     # end def
 # end class
+
+class PartnerIndustryProjectSerializer(serializers.ModelSerializer):
+    partner = serializers.SerializerMethodField('get_base_user')
+    class Meta:
+        model = IndustryProject
+        fields = '__all__'
+    # end Meta
+
+    def get_base_user(self, obj):
+        request = self.context.get("request")
+        return NestedBaseUserSerializer(obj.partner.user, context={'request': request}).data
+    # end def
+# end class
+
+class NestedIndustryProjectApplicationSerializer(serializers.ModelSerializer):
+    industry_project = PartnerIndustryProjectSerializer()
+    
+    class Meta:
+        model = IndustryProjectApplication
+        fields = '__all__'
+    # end Meta
+# end class
