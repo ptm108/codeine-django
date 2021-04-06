@@ -23,8 +23,14 @@ def public_member_course_view(request, pk):
     '''
     if request.method == 'GET':
         try:
-            user = BaseUser.objects.filter(pk=pk).first()
+            user = None
             member = None
+
+            try:
+                user = BaseUser.objects.filter(pk=pk).first()
+            except:
+                pass
+            # end try-except
 
             if user is None:
                 member = Member.objects.get(unique_id=pk)
