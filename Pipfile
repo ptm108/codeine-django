@@ -7,7 +7,7 @@ verify_ssl = true
 autopep8 = "*"
 
 [packages]
-django = "*"
+django = "==3.1.7"
 djangorestframework = "*"
 markdown = "*"
 django-filter = "*"
@@ -16,6 +16,7 @@ pillow = "*"
 django-multiselectfield = "*"
 django-cors-headers = "*"
 docker = "*"
+hashids = "*"
 
 [requires]
 python_version = "3.8"
