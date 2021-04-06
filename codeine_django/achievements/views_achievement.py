@@ -54,7 +54,7 @@ def achievement_view(request):
 
             return Response(AchievementSerializer(achievement, context={'request': request}).data, status=status.HTTP_200_OK)
         except (KeyError, TypeError, ValueError) as e:
-            print(e)
+            # print(e)
             return Response(status=status.HTTP_400_BAD_REQUEST)
         # end try-except
     # end if
