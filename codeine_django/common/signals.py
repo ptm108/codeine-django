@@ -9,7 +9,7 @@ from notifications.models import Notification, NotificationObject
 def update_payment_transaction(sender, instance, created, **kwargs):
 
     if created:
-        print('new payment transaction')
+        # print('new payment transaction')
     else:
         title = f'Payment transaction updated!'
         description = f'Status changed to {instance.payment_status}'
