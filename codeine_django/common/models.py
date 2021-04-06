@@ -6,6 +6,7 @@ from django.utils.translation import gettext_lazy as _
 from django.utils import timezone
 
 import uuid
+from hashids import Hashids
 
 
 def user_directory_path(instance, filename):
@@ -36,6 +37,7 @@ def get_default_member_stats():
         'ML': 0,
     }
 # end def
+
 
 
 class CustomUserManager(BaseUserManager):
@@ -83,8 +85,7 @@ class BaseUser(AbstractBaseUser, PermissionsMixin):
         ('U', 'Unknown')
     )
 
-    id = models.UUIDField(
-        primary_key=True, default=uuid.uuid4, editable=False, unique=True)
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, unique=True)
     email = models.EmailField(_('email address'), unique=True)
     is_admin = models.BooleanField(default=False)
     is_active = models.BooleanField(default=False)
@@ -92,8 +93,7 @@ class BaseUser(AbstractBaseUser, PermissionsMixin):
     date_joined = models.DateTimeField(default=timezone.now)
     first_name = models.CharField(max_length=150, null=True)
     last_name = models.CharField(max_length=150, null=True)
-    profile_photo = models.ImageField(
-        upload_to=user_directory_path, max_length=100, blank=True, null=True, default=None)
+    profile_photo = models.ImageField(upload_to=user_directory_path, max_length=100, blank=True, null=True, default=None)
     age = models.PositiveIntegerField(null=True)
     gender = models.CharField(max_length=10, choices=GENDER, null=True)
     location = models.CharField(max_length=150, null=True)
@@ -129,14 +129,15 @@ class Member(models.Model):
         ('PRO', 'Pro')
     )
 
-    id = models.UUIDField(
-        primary_key=True, default=uuid.uuid4, editable=False, unique=True)
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, unique=True)
     user = models.OneToOneField(BaseUser, on_delete=models.CASCADE, null=True)
     stats = models.JSONField(default=get_default_member_stats)
 
+    # unique id
+    unique_id = models.CharField(max_length=10, unique=True, default=None, null=True)
+
     # enums
-    membership_tier = models.TextField(
-        choices=MEMBERSHIP_TIERS, default='FREE')
+    membership_tier = models.TextField(choices=MEMBERSHIP_TIERS, default='FREE')
 
     def __str__(self):
         return f'{self.user}'
@@ -145,11 +146,9 @@ class Member(models.Model):
 
 
 class Organization(models.Model):
-    id = models.UUIDField(
-        primary_key=True, default=uuid.uuid4, editable=False, unique=True)
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, unique=True)
     organization_name = models.CharField(max_length=255, unique=True)
-    organization_photo = models.ImageField(
-        upload_to=org_directory_path, max_length=100, blank=True, null=True, default=None)
+    organization_photo = models.ImageField(upload_to=org_directory_path, max_length=100, blank=True, null=True, default=None)
 
     def __str__(self):
         return self.organization_name
@@ -158,18 +157,14 @@ class Organization(models.Model):
 
 
 class Partner(models.Model):
-    id = models.UUIDField(
-        primary_key=True, default=uuid.uuid4, editable=False, unique=True)
-    user = models.OneToOneField(
-        BaseUser, on_delete=models.CASCADE, null=True, related_name='partner')
-    job_title = models.CharField(
-        max_length=150, null=True, default='', blank=True)
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, unique=True)
+    user = models.OneToOneField(BaseUser, on_delete=models.CASCADE, null=True, related_name='partner')
+    job_title = models.CharField(max_length=150, null=True, default='', blank=True)
     bio = models.TextField(null=True, default='', blank=True)
     # consultation_rate = models.DecimalField(max_digits=5, decimal_places=2, default=0.0)
     org_admin = models.BooleanField(default=False)
 
-    organization = models.ForeignKey('Organization', on_delete=models.CASCADE,
-                                     related_name='partners', null=True, default=None, blank=True)
+    organization = models.ForeignKey('Organization', on_delete=models.CASCADE, related_name='partners', null=True, default=None, blank=True)
 
     def __str__(self):
         return f'{self.user}'
@@ -192,15 +187,12 @@ class PaymentTransaction(models.Model):
         ('AMEX', 'American Express')
     )
 
-    id = models.UUIDField(
-        primary_key=True, default=uuid.uuid4, editable=False, unique=True)
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, unique=True)
     timestamp = models.DateTimeField(auto_now_add=True)
-    payment_amount = models.DecimalField(
-        max_digits=10, decimal_places=2, default=0.0)
+    payment_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0.0)
 
     # enums
-    payment_status = models.TextField(
-        choices=PAYMENT_STATUSES, default='PENDING_COMPLETION')
+    payment_status = models.TextField(choices=PAYMENT_STATUSES, default='PENDING_COMPLETION')
     payment_type = models.TextField(choices=PAYMENT_TYPES)
 
     def __str__(self):
@@ -214,8 +206,7 @@ class PaymentTransaction(models.Model):
 
 
 class BankDetail(models.Model):
-    id = models.UUIDField(
-        primary_key=True, default=uuid.uuid4, editable=False, unique=True)
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, unique=True)
     bank_account = models.CharField(max_length=50)
     bank_name = models.CharField(max_length=255)
     swift_code = models.CharField(max_length=20)
@@ -228,16 +219,13 @@ class BankDetail(models.Model):
 
 
 class MembershipSubscription(models.Model):
-    id = models.UUIDField(
-        primary_key=True, default=uuid.uuid4, editable=False, unique=True)
-    payment_transaction = models.OneToOneField(
-        PaymentTransaction, on_delete=models.CASCADE, related_name="membership_subscription")
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, unique=True)
+    payment_transaction = models.OneToOneField(PaymentTransaction, on_delete=models.CASCADE, related_name="membership_subscription")
     month_duration = models.PositiveSmallIntegerField(default=1)
     expiry_date = models.DateTimeField()
 
     # ref
-    member = models.ForeignKey(
-        Member, on_delete=models.SET_NULL, related_name='membership_subscriptions', null=True, blank=True)
+    member = models.ForeignKey(Member, on_delete=models.SET_NULL, related_name='membership_subscriptions', null=True, blank=True)
 
     def __str__(self):
         return f'{self.payment_transaction} for {self.member}'
@@ -250,16 +238,14 @@ class MembershipSubscription(models.Model):
 
 
 class CV(models.Model):
-    id = models.UUIDField(
-        primary_key=True, default=uuid.uuid4, editable=False, unique=True)
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, unique=True)
     title = models.CharField(max_length=150)
     description = models.CharField(max_length=255)
     organisation = models.CharField(max_length=100)
     start_date = models.DateField(null=True, default=None)
     end_date = models.DateField(null=True, default=None)
 
-    member = models.ForeignKey(
-        'Member', on_delete=models.CASCADE, related_name='cvs')
+    member = models.ForeignKey('Member', on_delete=models.CASCADE, related_name='cvs')
 
     class Meta:
         ordering = ['-end_date', '-start_date']
