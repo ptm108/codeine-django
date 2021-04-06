@@ -36,7 +36,7 @@ def achievement_requirement_view(request, pk):
     if request.method == 'POST':
         try:
             data = request.data
-            print(data['stat'])
+            # print(data['stat'])
 
             achievement = Achievement.objects.get(pk=pk)
             stat = data['stat']
@@ -71,7 +71,7 @@ def achievement_requirement_view(request, pk):
                 achievement=achievement
             )
             requirement.save()
-            print(requirement)
+            # print(requirement)
 
             return Response(AchievementRequirementSerializer(requirement, context={'request': request}).data, status=status.HTTP_200_OK)
         except (KeyError, TypeError, ValueError) as e:

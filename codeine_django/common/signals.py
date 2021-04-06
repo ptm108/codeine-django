@@ -34,8 +34,8 @@ def update_payment_transaction(sender, instance, created, **kwargs):
             notification_object = NotificationObject(
                 receiver=receiver, notification=notification)
             notification_object.save()
-        except:
-            print('error')
+        except Exception as e:
+            print(str(e))
         # end try-except
     # end if-else
 # end def

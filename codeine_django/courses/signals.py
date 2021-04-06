@@ -36,7 +36,7 @@ def update_stats(sender, instance, **kwargs):
         # check through requirements
         for requirement in non_achievement.achievement_requirements.all():
             if requirement.stat in stats and stats[requirement.stat] < requirement.experience_point:
-                print(requirement)
+                # print(requirement)
                 passed = False
                 break
             # end if
@@ -70,7 +70,7 @@ def update_course_material(sender, instance, created, **kwargs):
     notification.save()
 
     for enrollment in enrollments:
-        print(enrollment)
+        # print(enrollment)
         receiver = enrollment.member.user
         notification_object = NotificationObject(
             receiver=receiver, notification=notification)

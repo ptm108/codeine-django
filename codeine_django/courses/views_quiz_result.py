@@ -44,7 +44,7 @@ def quiz_result_views(request, quiz_id):
                 Q(submitted=False)
             ).first()
             if quiz_result is not None:
-                print(quiz_result)
+                # print(quiz_result)
                 return Response(QuizResultSerializer(quiz_result).data, status=status.HTTP_202_ACCEPTED)
             # end if
 

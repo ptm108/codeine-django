@@ -73,7 +73,6 @@ def ticket_view(request):
         if is_assigned is not None:
             is_assigned = json.loads(is_assigned.lower())
             if is_assigned:
-                print('halo')
                 tickets = tickets.filter(assigned_admin__isnull=False)
             else:
                 tickets = tickets.filter(assigned_admin__isnull=True)

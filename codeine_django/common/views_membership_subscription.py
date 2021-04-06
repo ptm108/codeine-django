@@ -30,7 +30,7 @@ def membership_subscription_view(request):
             try:
                 # check if there is a pending completion
                 if MembershipSubscription.objects.filter(payment_transaction__payment_status='PENDING_COMPLETION'):
-                    print('payment is pending completion!')
+                    # print('payment is pending completion!')
                     return Response(status=status.HTTP_400_BAD_REQUEST)
                 # end if
 

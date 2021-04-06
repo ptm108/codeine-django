@@ -45,14 +45,14 @@ def partner_earnings_report_view(request):
                 Q(consultationpayment__consultation_application__consultation_slot__end_time__lte=today) &
                 Q(payment_status='COMPLETED')
             ).aggregate(Sum('payment_amount'))
-            print(consultation_earnings)
+            # print(consultation_earnings)
 
             pending_consultation_earnings = PaymentTransaction.objects.filter(
                 Q(consultationpayment__consultation_application__consultation_slot__end_time__month=today.month) &
                 Q(consultationpayment__consultation_application__consultation_slot__end_time__gt=today) &
                 Q(payment_status='COMPLETED')
             ).aggregate(Sum('payment_amount'))
-            print(pending_consultation_earnings)
+            # print(pending_consultation_earnings)
 
             return Response({
                 'month': today.month,

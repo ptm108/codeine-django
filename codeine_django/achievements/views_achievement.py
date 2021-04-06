@@ -129,7 +129,7 @@ def get_member_achievements(request, pk):
     Returns all member achievements
     '''
     if request.method == 'GET':
-        print(get_member_stats(pk))
+        # print(get_member_stats(pk))
         return Response()
     # end if
 # end def

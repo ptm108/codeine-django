@@ -257,7 +257,6 @@ def reset_member_password_view(request):
 
         try:
             data = request.data
-            print(data)
             email = data['email']
             user = BaseUser.objects.get(email=email)
             name = user.first_name + ' ' + user.last_name
