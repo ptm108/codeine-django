@@ -74,10 +74,14 @@ class NestedBaseUserSerializer(serializers.ModelSerializer):
 
     def get_member(self, obj):
         request = self.context.get("request")
-        if obj.member:
-            get_membership_tier(obj.member)
-            return NestedMemberSerializer(obj.member, context={'request': request}).data
-        # end if
+        try:
+            if obj.member:
+                get_membership_tier(obj.member)
+                return NestedMemberSerializer(obj.member, context={'request': request}).data
+            # end if
+        except:
+            print('member does not exist')
+        # end try-except
     # end def
 # end class
 
