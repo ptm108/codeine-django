@@ -36,9 +36,9 @@ class NestedCodeReviewCommentSerializer(serializers.ModelSerializer):
     def get_replies(self, obj):
         request = self.context.get("request")
         if self.context.get("recursive"):
-            return NestedCodeReviewCommentSerializer(obj.replies, many=True, context={'request': request}).data
+            return NestedCodeReviewCommentSerializer(obj.replies.order_by("timestamp"), many=True, context={'request': request, 'recursive': True}).data
         else:
-            return CodeReviewCommentSerializer(obj.replies, many=True, context={'request': request}).data
+            return CodeReviewCommentSerializer(obj.replies.order_by("timestamp"), many=True, context={'request': request}).data
         # end if else
     # end def
 
@@ -55,7 +55,7 @@ class NestedCodeReviewCommentSerializer(serializers.ModelSerializer):
             # end if else
         # end def
 
-        return rec_reply_count(obj) - 1 # minus self
+        return rec_reply_count(obj) - 1  # minus self
     # end def
 
     def get_likes(self, obj):
@@ -121,7 +121,7 @@ class NestedArticleCommentSerializer(serializers.ModelSerializer):
             # end if else
         # end def
 
-        return rec_reply_count(obj) - 1 # minus self
+        return rec_reply_count(obj) - 1  # minus self
     # end def
 
     def get_current_user_liked(self, obj):
@@ -174,7 +174,7 @@ class ArticleCommentSerializer(serializers.ModelSerializer):
             # end if else
         # end def
 
-        return rec_reply_count(obj) - 1 # minus self
+        return rec_reply_count(obj) - 1  # minus self
     # end def
 
     def get_current_user_liked(self, obj):
@@ -347,4 +347,3 @@ class CodeReviewEngagementSerializer(serializers.ModelSerializer):
         return NestedBaseUserSerializer(obj.user, context={'request': request}).data
     # end def
 # end class
-

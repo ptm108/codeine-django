@@ -65,7 +65,6 @@ class Article(models.Model):
     user = models.ForeignKey(
         'common.BaseUser', on_delete=models.CASCADE, related_name='articles', null=True, default=None)
 
-
     def __str__(self):
         return f'Article: {self.id}, Title: {self.title}'
     # end def
@@ -110,12 +109,8 @@ class ArticleEngagement(models.Model):
     timestamp = models.DateTimeField(auto_now_add=True)
 
     # ref
-    # member = models.ForeignKey(
-    #     'common.Member', on_delete=models.CASCADE, related_name='article_engagements')
-    user = models.ForeignKey(
-        'common.BaseUser', on_delete=models.CASCADE, related_name='article_engagements', null=True, default=None)
-    article = models.ForeignKey(
-        'community.Article', on_delete=models.CASCADE, related_name='engagements')
+    user = models.ForeignKey('common.BaseUser', on_delete=models.CASCADE, related_name='article_engagements', null=True, default=None)
+    article = models.ForeignKey('community.Article', on_delete=models.CASCADE, related_name='engagements')
 
     def __str__(self):
         return f'Article Engagement {self.id} for Article {self.article.id} from {self.user.id}'
@@ -163,8 +158,7 @@ class CodeReview(models.Model):
         ('ML', 'Machine Learning'),
     )
 
-    id = models.UUIDField(
-        primary_key=True, default=uuid.uuid4, editable=False, unique=True)
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, unique=True)
     title = models.CharField(max_length=255)
     code = models.TextField()
     timestamp = models.DateTimeField(auto_now_add=True)
@@ -175,10 +169,7 @@ class CodeReview(models.Model):
     categories = MultiSelectField(choices=CATEGORIES)
 
     # ref
-    # member = models.ForeignKey(
-    #     'common.Member', on_delete=models.CASCADE, related_name='code_reviews')
-    user = models.ForeignKey(
-        'common.BaseUser', on_delete=models.CASCADE, related_name='code_reviews', null=True, default=None)
+    user = models.ForeignKey('common.BaseUser', on_delete=models.CASCADE, related_name='code_reviews', null=True, default=None)
 
     def __str__(self):
         return f'Code Review {self.id}'
@@ -191,24 +182,17 @@ class CodeReview(models.Model):
 
 
 class CodeReviewComment(models.Model):
-    id = models.UUIDField(
-        primary_key=True, default=uuid.uuid4, editable=False, unique=True)
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, unique=True)
     comment = models.TextField()
     timestamp = models.DateTimeField(auto_now_add=True)
     time_edited = models.DateTimeField(auto_now=True)
 
-    # KIV
-    # highlighted_code = models.TextField()
-    # start_index = models.IntegerField(null=True, blank=True)
-    # end_index = models.IntegerField(null=True, blank=True)
+    code_line_index = models.PositiveIntegerField()
 
     # ref
-    user = models.ForeignKey(
-        'common.BaseUser', on_delete=models.CASCADE, related_name='code_review_comments')
-    code_review = models.ForeignKey(
-        'community.CodeReview', on_delete=models.CASCADE, related_name='code_review_comments')
-    parent_comment = models.ForeignKey(
-        'community.CodeReviewComment', on_delete=models.SET_NULL, related_name='replies', null=True, blank=True)
+    user = models.ForeignKey('common.BaseUser', on_delete=models.CASCADE, related_name='code_review_comments')
+    code_review = models.ForeignKey('community.CodeReview', on_delete=models.CASCADE, related_name='code_review_comments')
+    parent_comment = models.ForeignKey('community.CodeReviewComment', on_delete=models.SET_NULL, related_name='replies', null=True, blank=True)
 
     def __str__(self):
         return f'Code Review Comment {self.id} for Code Review {self.code_review.id} from {self.user.id}'
@@ -221,18 +205,12 @@ class CodeReviewComment(models.Model):
 
 
 class CodeReviewEngagement(models.Model):
-    id = models.UUIDField(
-        primary_key=True, default=uuid.uuid4, editable=False, unique=True)
-    # like = models.IntegerField()
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, unique=True)
     timestamp = models.DateTimeField(auto_now_add=True)
 
     # ref
-    # member = models.ForeignKey(
-    #     'common.Member', on_delete=models.CASCADE, related_name='code_review_engagements')
-    user = models.ForeignKey(
-        'common.BaseUser', on_delete=models.CASCADE, related_name='code_review_engagements', null=True, default=None)
-    code_review = models.ForeignKey(
-        'community.CodeReview', on_delete=models.CASCADE, related_name='engagements')
+    user = models.ForeignKey('common.BaseUser', on_delete=models.CASCADE, related_name='code_review_engagements', null=True, default=None)
+    code_review = models.ForeignKey('community.CodeReview', on_delete=models.CASCADE, related_name='engagements')
 
     def __str__(self):
         return f'Code Review Engagement {self.id} for Code Review {self.code_review.id} '
