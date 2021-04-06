@@ -141,7 +141,6 @@ class NestedConsultationPaymentSerializer(serializers.ModelSerializer):
 # end class
 
 
-
 class ConsultationPaymentSerializer(serializers.ModelSerializer):
     payment_transaction = NestedPaymentTransactionSerializer()
     consultation_slot = serializers.SerializerMethodField(

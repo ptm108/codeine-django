@@ -3,13 +3,14 @@ from rest_framework import serializers
 from common.models import Member
 from common.serializers import NestedBaseUserSerializer
 from .models import (
-    IndustryProject, 
+    IndustryProject,
     IndustryProjectApplication
 )
 
+
 class IndustryProjectApplicationSerializer(serializers.ModelSerializer):
     member = serializers.SerializerMethodField('get_base_user')
-    
+
     class Meta:
         model = IndustryProjectApplication
         fields = '__all__'
@@ -21,10 +22,12 @@ class IndustryProjectApplicationSerializer(serializers.ModelSerializer):
     # end def
 # end class
 
+
 class IndustryProjectSerializer(serializers.ModelSerializer):
     industry_project_applications = IndustryProjectApplicationSerializer(many=True)
     partner = serializers.SerializerMethodField('get_base_user')
     is_applied = serializers.SerializerMethodField('get_application')
+
     class Meta:
         model = IndustryProject
         fields = '__all__'
@@ -55,8 +58,10 @@ class IndustryProjectSerializer(serializers.ModelSerializer):
     # end def
 # end class
 
+
 class PartnerIndustryProjectSerializer(serializers.ModelSerializer):
     partner = serializers.SerializerMethodField('get_base_user')
+
     class Meta:
         model = IndustryProject
         fields = '__all__'
@@ -68,9 +73,10 @@ class PartnerIndustryProjectSerializer(serializers.ModelSerializer):
     # end def
 # end class
 
+
 class NestedIndustryProjectApplicationSerializer(serializers.ModelSerializer):
     industry_project = PartnerIndustryProjectSerializer()
-    
+
     class Meta:
         model = IndustryProjectApplication
         fields = '__all__'

@@ -68,6 +68,6 @@ urlpatterns = [
     # payment transaction views
     path('transactions', views_payment_transaction.payment_transaction_view,
          name='Get all payment transactions'),
-     path('transactions/<slug:pk>', views_payment_transaction.single_payment_transaction_view,
+    path('transactions/<slug:pk>', views_payment_transaction.single_payment_transaction_view,
          name='Delete payment transaction'),
 ]

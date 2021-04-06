@@ -58,7 +58,7 @@ def course_view(request):
                 courses = courses.order_by(date_sort)
             if rating_sort is not None:
                 courses = courses.order_by(rating_sort)
-            if coding_language is not None: 
+            if coding_language is not None:
                 courses = courses.filter(coding_languages__icontains=coding_language)
             # end if
 

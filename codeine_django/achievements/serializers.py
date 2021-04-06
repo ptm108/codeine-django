@@ -5,6 +5,7 @@ from .models import (
     MemberAchievement
 )
 
+
 class AchievementRequirementSerializer(serializers.ModelSerializer):
     class Meta:
         model = AchievementRequirement
@@ -15,11 +16,12 @@ class AchievementRequirementSerializer(serializers.ModelSerializer):
 
 class FullAchievementRequirementSerializer(serializers.ModelSerializer):
     stat = serializers.SerializerMethodField('get_full_stat')
+
     class Meta:
         model = AchievementRequirement
         fields = '__all__'
     # end Meta
-    
+
     def get_full_stat(self, obj):
         if obj.stat == "PY":
             return "Python"

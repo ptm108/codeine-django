@@ -26,7 +26,6 @@ def consultation_slot_view(request):
         partner = Partner.objects.get(user=user)
         data = request.data
 
-
         with transaction.atomic():
             try:
                 consultation_slot = ConsultationSlot(

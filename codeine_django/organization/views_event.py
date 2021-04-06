@@ -13,6 +13,8 @@ from .models import Event, EventApplication
 from .serializers import EventSerializer
 
 # Create your views here.
+
+
 @api_view(['GET', 'POST'])
 @permission_classes((IsPartnerOrReadOnly,))
 def event_view(request):
@@ -32,13 +34,13 @@ def event_view(request):
         with transaction.atomic():
             try:
                 event = Event(
-                    title = data['title'],
-                    start_time = data['start_time'],
-                    end_time = data['end_time'],
-                    meeting_link = data['meeting_link'],
-                    price_per_pax = data['price_per_pax'],
-                    max_members = data['max_members'],
-                    organization = organization
+                    title=data['title'],
+                    start_time=data['start_time'],
+                    end_time=data['end_time'],
+                    meeting_link=data['meeting_link'],
+                    price_per_pax=data['price_per_pax'],
+                    max_members=data['max_members'],
+                    organization=organization
                 )
 
                 event.save()
@@ -88,6 +90,7 @@ def event_view(request):
     # end if
 # end def
 
+
 @api_view(['GET', 'PUT', 'DELETE'])
 @permission_classes((IsPartnerOrReadOnly,))
 @parser_classes((MultiPartParser, FormParser, JSONParser))
@@ -113,9 +116,9 @@ def single_event_view(request, pk):
             with transaction.atomic():
                 event = Event.objects.get(pk=pk)
                 organization = event.organization
-                
-                user =  request.user
-                partner = Partner.objects.get(user=user)                
+
+                user = request.user
+                partner = Partner.objects.get(user=user)
 
                 if partner.organization is None:
                     return Response(status=status.HTTP_400_BAD_REQUEST)
@@ -156,6 +159,7 @@ def single_event_view(request, pk):
     # end if
 # end def
 
+
 @api_view(['PATCH'])
 @permission_classes((IsPartnerOnly,))
 def cancel_event(request, pk):
@@ -166,12 +170,12 @@ def cancel_event(request, pk):
         try:
             event = Event.objects.get(pk=pk)
             organization = event.organization
-                
-            user =  request.user
-            partner = Partner.objects.get(user=user)                
+
+            user = request.user
+            partner = Partner.objects.get(user=user)
 
             if partner.organization is None:
-               return Response(status=status.HTTP_400_BAD_REQUEST)
+                return Response(status=status.HTTP_400_BAD_REQUEST)
             # end if
 
             # assert requesting partner is confirming their organization's event

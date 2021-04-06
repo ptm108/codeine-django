@@ -64,7 +64,7 @@ class PaymentTransactionSerializer(serializers.ModelSerializer):
         except:
             pass
         # end try-except
-    # end def 
+    # end def
 # end class
 
 

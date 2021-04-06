@@ -143,7 +143,7 @@ def single_notification_view(request, pk):
     if request.method == 'DELETE':
         try:
             notification = Notification.objects.get(pk=pk)
-            
+
             user = request.user
             if notification.sender != user:
                 return Response(status=status.HTTP_401_UNAUTHORIZED)

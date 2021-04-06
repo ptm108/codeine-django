@@ -87,7 +87,7 @@ def article_view(request):
             if 'thumbnail' in data:
                 article.thumbnail = data['thumbnail']
             # end if
-            
+
             article.save()
 
             serializer = ArticleSerializer(

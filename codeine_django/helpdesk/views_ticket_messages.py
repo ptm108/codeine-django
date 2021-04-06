@@ -61,7 +61,7 @@ def ticket_message_view(request, ticket_id):
                 if 'file' in data:
                     ticket_message.file = data['file']
                 # end if
-                
+
                 ticket_message.save()
 
                 serializer = TicketMessageSerializer(
@@ -130,7 +130,7 @@ def single_ticket_message_view(request, pk):
     if request.method == 'DELETE':
         try:
             ticket_message = TicketMessage.objects.get(pk=pk)
-            
+
             user = request.user
             if ticket_message.base_user != user:
                 return Response(status=status.HTTP_401_UNAUTHORIZED)

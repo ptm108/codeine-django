@@ -22,8 +22,8 @@ urlpatterns = [
          name='Like/Unlike article comments'),
 
     # code review engagement views
-#     path('/<slug:code_review_id>/engagement', views_code_review_engagement.code_review_engagement_view,
-#          name='Create/Get all/Search Engagements'),
-#     path('/<slug:code_review_id>/engagement/<slug:pk>',
-#          views_code_review_engagement.single_code_review_engagement_view, name='Read/update/delete for Engagements'),
+    #     path('/<slug:code_review_id>/engagement', views_code_review_engagement.code_review_engagement_view,
+    #          name='Create/Get all/Search Engagements'),
+    #     path('/<slug:code_review_id>/engagement/<slug:pk>',
+    #          views_code_review_engagement.single_code_review_engagement_view, name='Read/update/delete for Engagements'),
 ]

@@ -11,10 +11,10 @@ from common.models import BaseUser
 
 import json
 
+
 @api_view(['GET', 'POST'])
 @permission_classes((IsPartnerOrReadOnly,))
 def industry_project_view(request):
-
     '''
     Get all Industry Projects
     '''
@@ -27,17 +27,17 @@ def industry_project_view(request):
             partner_id = request.query_params.get('partner_id', None)
             is_available = request.query_params.get('isAvailable', None)
             is_completed = request.query_params.get('isCompleted', None)
-            
+
             if search is not None:
                 industry_projects = industry_projects.filter(
-                    Q(title__icontains=search) | 
-                    Q(description__icontains=search) | 
-                    Q(categories__icontains=search) 
+                    Q(title__icontains=search) |
+                    Q(description__icontains=search) |
+                    Q(categories__icontains=search)
                 )
             # get partner's industry projects
             if partner_id is not None:
                 user = BaseUser.objects.get(pk=partner_id)
-                industry_projects = industry_projects.filter(partner=user.partner)  
+                industry_projects = industry_projects.filter(partner=user.partner)
             if is_available is not None:
                 available = json.loads(is_available.lower())
                 industry_projects = industry_projects.filter(is_available=available)
@@ -68,8 +68,8 @@ def industry_project_view(request):
                 start_date=data['start_date'],
                 end_date=data['end_date'],
                 application_deadline=data['application_deadline'],
-                categories=json.loads(data['categories']),        
-                partner = partner,
+                categories=json.loads(data['categories']),
+                partner=partner,
             )
             industry_project.save()
 
@@ -82,10 +82,10 @@ def industry_project_view(request):
     # end if
 # end def
 
+
 @api_view(['GET', 'PATCH', 'DELETE', 'POST'])
 @permission_classes((IsPartnerOrAdminOrReadOnly,))
 def single_industry_project_view(request, pk):
-
     '''
     Get Industry Project by ID
     '''
@@ -118,22 +118,22 @@ def single_industry_project_view(request, pk):
             if 'title' in data:
                 industry_project.title = data['title']
             if 'description' in data:
-                industry_project.description=data['description']
+                industry_project.description = data['description']
             if 'start_date' in data:
-                industry_project.start_date=data['start_date']
+                industry_project.start_date = data['start_date']
             if 'end_date' in data:
-                industry_project.end_date=data['end_date']
+                industry_project.end_date = data['end_date']
             if 'application_deadline' in data:
-                industry_project.application_deadline=data['application_deadline'] 
+                industry_project.application_deadline = data['application_deadline']
             if 'categories' in data:
-                industry_project.categories=json.loads(data['categories'])
+                industry_project.categories = json.loads(data['categories'])
             if 'is_available' in data:
-                industry_project.is_available=data['is_available']
+                industry_project.is_available = data['is_available']
             if 'is_completed' in data:
-                industry_project.is_completed=data['is_completed']
+                industry_project.is_completed = data['is_completed']
             # end ifs
-            
-            industry_project.save() 
+
+            industry_project.save()
 
             serializer = IndustryProjectSerializer(industry_project, context={"request": request})
             return Response(serializer.data, status=status.HTTP_200_OK)
@@ -151,7 +151,7 @@ def single_industry_project_view(request, pk):
         try:
             industry_project = IndustryProject.objects.get(pk=pk)
             industry_project.is_available = False
-            industry_project.save() 
+            industry_project.save()
 
             serializer = IndustryProjectSerializer(industry_project, context={"request": request})
             return Response(serializer.data, status=status.HTTP_200_OK)
@@ -167,7 +167,7 @@ def single_industry_project_view(request, pk):
         try:
             industry_project = IndustryProject.objects.get(pk=pk)
             industry_project.is_available = True
-            industry_project.save() 
+            industry_project.save()
 
             serializer = IndustryProjectSerializer(industry_project, context={"request": request})
             return Response(serializer.data, status=status.HTTP_200_OK)

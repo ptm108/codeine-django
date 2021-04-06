@@ -3,6 +3,7 @@ from rest_framework import serializers
 from .models import Member, BaseUser, Partner, Organization, PaymentTransaction, BankDetail, MembershipSubscription, CV
 from utils.member_utils import get_membership_tier
 
+
 class OrganizationSerializer(serializers.ModelSerializer):
     organization_photo = serializers.SerializerMethodField(
         'get_organization_photo_url')
@@ -32,7 +33,7 @@ class NestedPartnerSerializer(serializers.ModelSerializer):
 # end class
 
 
-class NestedMemberSerializer(serializers.ModelSerializer):    
+class NestedMemberSerializer(serializers.ModelSerializer):
     class Meta:
         model = Member
         fields = ('id', 'stats', 'membership_tier')

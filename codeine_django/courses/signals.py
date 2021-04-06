@@ -171,6 +171,7 @@ def update_course_comment_engagement(sender, instance, created, **kwargs):
     # end if
 # end def
 
+
 @receiver(post_save, sender=Course)
 def update_course(sender, instance, created, update_fields, **kwargs):
     partner = instance.partner

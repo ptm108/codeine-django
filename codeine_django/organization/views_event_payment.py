@@ -14,6 +14,8 @@ from .models import EventPayment, EventApplication
 from .serializers import EventPaymentSerializer
 
 # Create your views here.
+
+
 @api_view(['GET', 'POST'])
 @permission_classes((IsMemberOrReadOnly,))
 def event_payment_view(request, event_application_id):
@@ -34,7 +36,7 @@ def event_payment_view(request, event_application_id):
         prev_payments = EventPayment.objects.filter(
             Q(event_application=event_application) &
             (Q(payment_transaction__payment_status='PENDING_COMPLETION') |
-            Q(payment_transaction__payment_status='COMPLETED'))
+             Q(payment_transaction__payment_status='COMPLETED'))
         )
 
         # check if application already has a payment, and is not failed
@@ -45,14 +47,14 @@ def event_payment_view(request, event_application_id):
         with transaction.atomic():
             try:
                 payment_transaction = PaymentTransaction(
-                    payment_amount = data['payment_amount'],
-                    payment_type = data['payment_type']
+                    payment_amount=data['payment_amount'],
+                    payment_type=data['payment_type']
                 )
                 payment_transaction.save()
 
                 event_payment = EventPayment(
-                    payment_transaction = payment_transaction,
-                    event_application = event_application
+                    payment_transaction=payment_transaction,
+                    event_application=event_application
                 )
                 event_payment.save()
 
@@ -82,6 +84,7 @@ def event_payment_view(request, event_application_id):
     # end if
 # end def
 
+
 @api_view(['GET'])
 @permission_classes((IsMemberOrReadOnly,))
 @parser_classes((MultiPartParser, FormParser, JSONParser))
@@ -98,7 +101,8 @@ def single_event_payment_view(request, pk):
             print(e)
             return Response(status=status.HTTP_400_BAD_REQUEST)
     # end if
-#end def
+# end def
+
 
 @api_view(['PATCH'])
 @permission_classes((IsMemberOrAdminOrReadOnly,))

@@ -39,7 +39,6 @@ def get_default_member_stats():
 # end def
 
 
-
 class CustomUserManager(BaseUserManager):
     """
     Custom user model manager where email is the unique identifiers

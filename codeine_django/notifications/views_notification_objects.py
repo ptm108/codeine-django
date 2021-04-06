@@ -172,6 +172,7 @@ def mark_multiple_as_read(request):
     # end if
 # end def
 
+
 @api_view(['PATCH'])
 @permission_classes((IsAuthenticated,))
 def mark_multiple_as_unread(request):
@@ -240,6 +241,7 @@ def mark_multiple_as_read(request):
         # end try-except
     # end if
 # end def
+
 
 @api_view(['PATCH'])
 @permission_classes((IsAuthenticated,))

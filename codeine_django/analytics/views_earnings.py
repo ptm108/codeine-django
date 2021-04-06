@@ -85,13 +85,13 @@ def admin_earnings_report_view(request):
             today = timezone.now()
 
             total_subscription_revenue = MembershipSubscription.objects.filter(
-                Q(expiry_date__date__gte=today-timedelta(days=days)) &
+                Q(expiry_date__date__gte=today - timedelta(days=days)) &
                 Q(payment_transaction__payment_status='COMPLETED')
             ).count() * 5.99
             user_count = BaseUser.objects.count()
             expenses = user_count * 0.38 + 2700
             total_contribution_income = PaymentTransaction.objects.filter(
-                Q(contributionpayment__timestamp__date__gte=today-timedelta(days=days)) &
+                Q(contributionpayment__timestamp__date__gte=today - timedelta(days=days)) &
                 Q(payment_status='COMPLETED')
             ).aggregate(Sum('payment_amount'))
 

@@ -85,7 +85,7 @@ class Command(BaseCommand):
             now = timezone.now()
             MembershipSubscription(
                 payment_transaction=pt,
-                expiry_date=timezone.make_aware(datetime(now.year, now.month+1, 1)),
+                expiry_date=timezone.make_aware(datetime(now.year, now.month + 1, 1)),
                 member=m
             ).save()
 

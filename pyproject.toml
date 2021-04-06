@@ -1,0 +1,3 @@
+[tool.autopep8]
+max_line_length = 5000
+ignore = ["E501"]

@@ -17,6 +17,7 @@ django-multiselectfield = "*"
 django-cors-headers = "*"
 docker = "*"
 hashids = "*"
+pycodestyle = "*"
 
 [requires]
 python_version = "3.8"

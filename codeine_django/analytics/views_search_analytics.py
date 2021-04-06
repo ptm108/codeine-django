@@ -67,4 +67,3 @@ def ip_search_ranking_view(request):
         # end try-except
     # end if
 # end def
-
