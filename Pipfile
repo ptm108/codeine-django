@@ -16,6 +16,7 @@ pillow = "*"
 django-multiselectfield = "*"
 django-cors-headers = "*"
 docker = "*"
+celery = "*"
 
 [requires]
 python_version = "3.8"
