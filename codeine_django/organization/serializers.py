@@ -6,6 +6,17 @@ from common.serializers import NestedPaymentTransactionSerializer, OrganizationS
 from common.models import Organization
 
 
+class NestedContributionPaymentSerializer(serializers.ModelSerializer):
+    organization = OrganizationSerializer()
+    made_by = PartnerSerializer()
+
+    class Meta:
+        model = ContributionPayment
+        fields = '__all__'
+    # end Meta
+# end class
+
+
 class ContributionPaymentSerializer(serializers.ModelSerializer):
     payment_transaction = NestedPaymentTransactionSerializer()
     organization = OrganizationSerializer()
@@ -48,8 +59,19 @@ class EventApplicationSerializer(serializers.ModelSerializer):
 # end class
 
 
+class NestedEventPaymentSerializer(serializers.ModelSerializer):
+    event_application = EventApplicationSerializer()
+
+    class Meta:
+        model = EventPayment
+        fields = '__all__'
+    # end Meta
+# end class
+
+
 class EventPaymentSerializer(serializers.ModelSerializer):
     payment_transaction = NestedPaymentTransactionSerializer()
+    event_application = EventApplicationSerializer()
 
     class Meta:
         model = EventPayment

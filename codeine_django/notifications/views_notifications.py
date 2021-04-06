@@ -18,6 +18,8 @@ from industry_projects.models import IndustryProject
 from consultations.models import ConsultationSlot
 from helpdesk.models import Ticket
 
+import json
+
 
 @api_view(['GET', 'POST'])
 @permission_classes((IsPartnerOrAdminOrReadOnly,))
@@ -40,6 +42,7 @@ def notification_view(request):
             )
 
         if is_sender is not None:
+            is_sender = json.loads(is_sender.lower())
             if is_sender:
                 notifications = notifications.filter(sender=user)
             # end if

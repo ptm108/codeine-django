@@ -182,8 +182,8 @@ def cancel_consultation_application(request, pk):
             consultation_slot = consultation_application.consultation_slot
             partner = consultation_slot.partner
 
-            title = f'Application for consultation slot {consultation_slot} cancelled!'
-            description = f'Member {member} has cancelled their application for consultation slot {consultation_slot}'
+            title = f'Application for consultation slot {consultation_slot.title} cancelled!'
+            description = f'Member {member.user.first_name} {member.user.last_name} has cancelled their application for consultation slot {consultation_slot.title}'
             notification_type = 'CONSULTATION'
             notification = Notification(
                 title=title, description=description, notification_type=notification_type, consultation_slot=consultation_slot)
@@ -239,8 +239,8 @@ def reject_consultation_application(request, pk):
             # notify member
             consultation_slot = consultation_application.consultation_slot
 
-            title = f'Application for consultation slot {consultation_slot} rejeceted!'
-            description = f'Partner {partner} has rejected your application for consultation slot {consultation_slot}'
+            title = f'Application for consultation slot {consultation_slot.title} rejeceted!'
+            description = f'Partner {partner.user.first_name} {partner.user.last_name} has rejected your application for consultation slot {consultation_slot.title}'
             notification_type = 'CONSULTATION'
             notification = Notification(
                 title=title, description=description, notification_type=notification_type, consultation_slot=consultation_slot)

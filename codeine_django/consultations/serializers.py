@@ -133,6 +133,15 @@ class ConsultationSlotSerializer(serializers.ModelSerializer):
 # end class
 
 
+class NestedConsultationPaymentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ConsultationPayment
+        fields = '__all__'
+    # end Meta
+# end class
+
+
+
 class ConsultationPaymentSerializer(serializers.ModelSerializer):
     payment_transaction = NestedPaymentTransactionSerializer()
     consultation_slot = serializers.SerializerMethodField(
