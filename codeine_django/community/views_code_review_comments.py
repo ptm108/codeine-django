@@ -45,7 +45,7 @@ def code_review_comment_view(request, code_review_id):
             )
         # end if
         serializer = NestedCodeReviewCommentSerializer(
-            code_review_comments.all(), many=True, context={'request': request})
+            code_review_comments.all(), many=True, context={'request': request, 'recursive': True})
         return Response(serializer.data, status=status.HTTP_200_OK)
     # end if
 
