@@ -12,19 +12,19 @@ def update_consultation_application(sender, instance, created, **kwargs):
     partner = consultation_slot.partner
 
     if created:
-        title = f'New application for consultation slot {consultation_slot.title}!'
-        description = f'New application for consultation slot {consultation_slot.title} made by {instance.member}'
+        title = f'New application for your consultation slot {consultation_slot.title}!'
+        description = f'New application for consultation slot {consultation_slot.title} made by {instance.member.user.first_name} {instance.member.user.last_name}'
+
+        notification_type = 'CONSULTATION'
+        notification = Notification(
+            title=title, description=description, notification_type=notification_type, consultation_slot=consultation_slot)
+        notification.save()
+
+        receiver = partner.user
+        notification_object = NotificationObject(
+            receiver=receiver, notification=notification)
+        notification_object.save()
     # end if
-
-    notification_type = 'CONSULTATION'
-    notification = Notification(
-        title=title, description=description, notification_type=notification_type, consultation_slot=consultation_slot)
-    notification.save()
-
-    receiver = partner.user
-    notification_object = NotificationObject(
-        receiver=receiver, notification=notification)
-    notification_object.save()
 # end def
 
 
@@ -34,12 +34,12 @@ def update_consultation_slot(sender, instance, created, **kwargs):
     partner = instance.partner
 
     if created:
-        title = f'New consultation slot {consultation_slot} available!'
+        title = f'New consultation slot {consultation_slot.title} available!'
         notification_type = 'CONSULTATION'
 
         courses = Course.objects.filter(partner=partner)
         for course in courses:
-            description = f'New consultation slot {consultation_slot} available by the instructor of {course}!'
+            description = f'New consultation slot {consultation_slot.title} available by the instructor of {course.title}!'
             notification = Notification(
                 title=title, description=description, notification_type=notification_type, consultation_slot=consultation_slot)
             notification.save()

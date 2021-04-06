@@ -21,7 +21,7 @@ class TicketMessageInline(admin.StackedInline):
 
 class TicketAdmin(admin.ModelAdmin):
     list_display = ('id', 'description', 'timestamp', 'photo', 'ticket_status', 'ticket_type',
-                    'base_user', 'transaction', 'course', 'article', 'industry_project', 'consultation_slot')
+                    'base_user', 'transaction', 'course', 'article', 'industry_project', 'consultation_slot', 'assigned_admin')
 # end class
 
 

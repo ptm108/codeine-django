@@ -72,13 +72,18 @@ def get_membership_tier(member):
     try:
         subscription = MembershipSubscription.objects.filter(
             member=member, payment_transaction__payment_status='COMPLETED').first()
-        if subscription.expiry_date < pytz.utc.localize(timezone.now().today()):
+        if subscription:
+            if subscription.expiry_date < pytz.utc.localize(timezone.now().today()):
+                member.membership_tier = 'FREE'
+                member.save()
+            else:
+                member.membership_tier = 'PRO'
+                member.save()
+            # end if-else
+        else:
             member.membership_tier = 'FREE'
             member.save()
-        else:
-            member.membership_tier = 'PRO'
-            member.save()
-        # end if
+        # end if-else
     except ObjectDoesNotExist:
         member.membership_tier = 'FREE'
         member.save()

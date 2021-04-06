@@ -61,6 +61,8 @@ class TicketSerializer(serializers.ModelSerializer):
         'get_consultation_slot')
     code_review = serializers.SerializerMethodField('get_code_review')
 
+    assigned_admin = serializers.SerializerMethodField('get_assigned_admin')
+
     class Meta:
         model = Ticket
         fields = '__all__'
@@ -117,6 +119,13 @@ class TicketSerializer(serializers.ModelSerializer):
         request = self.context.get("request")
         if obj.code_review:
             return CodeReviewSerializer(obj.code_review, context={'request': request}).data
+        # end if
+    # end def
+
+    def get_assigned_admin(self, obj):
+        request = self.context.get("request")
+        if obj.assigned_admin:
+            return NestedBaseUserSerializer(obj.assigned_admin, context={'request': request}).data
         # end if
     # end def
 # end class
