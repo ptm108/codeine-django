@@ -6,7 +6,7 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework import status
 from common.models import Partner
-from common.permissions import IsPartnerOrReadOnly
+from common.permissions import IsPartnerOrAdminOrReadOnly, IsPartnerOrReadOnly
 from common.models import BaseUser
 
 import json
@@ -83,7 +83,7 @@ def industry_project_view(request):
 # end def
 
 @api_view(['GET', 'PATCH', 'DELETE', 'POST'])
-@permission_classes((IsPartnerOrReadOnly,))
+@permission_classes((IsPartnerOrAdminOrReadOnly,))
 def single_industry_project_view(request, pk):
 
     '''
@@ -110,8 +110,8 @@ def single_industry_project_view(request, pk):
             industry_project = IndustryProject.objects.get(pk=pk)
             partner = industry_project.partner
 
-            # assert that requesting partner is the owner of the industry project
-            if partner.user != user:
+            # assert that requesting partner is the owner of the industry project or is an admin user
+            if partner.user != user and not request.user.is_admin:
                 return Response(status=status.HTTP_401_UNAUTHORIZED)
             # end if
 
