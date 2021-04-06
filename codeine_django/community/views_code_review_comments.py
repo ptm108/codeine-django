@@ -24,7 +24,7 @@ def code_review_comment_view(request, code_review_id):
     '''
     if request.method == 'GET':
         code_review = CodeReview.objects.get(pk=code_review_id)
-        code_review_comments = CodeReviewComment.objects.filter(code_review=code_review)
+        code_review_comments = CodeReviewComment.objects.filter(code_review=code_review).filter(parent_comment=None).order_by("timestamp")
 
         # extract query params
         search = request.query_params.get('search', None)
