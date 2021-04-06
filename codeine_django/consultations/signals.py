@@ -43,7 +43,6 @@ def update_consultation_slot(sender, instance, created, **kwargs):
             notification = Notification(
                 title=title, description=description, notification_type=notification_type, consultation_slot=consultation_slot)
             notification.save()
-            print('in courses')
             enrollments = Enrollment.objects.filter(course=course)
             for enrollment in enrollments:
                 receiver = enrollment.member.user
