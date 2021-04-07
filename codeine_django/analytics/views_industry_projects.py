@@ -161,7 +161,7 @@ def applicant_demographics_view(request):
             }
 
             for ip in industry_projects:
-                tmp_members = members.filter(industry_project_applications__industry_project=ip)
+                tmp_members = members.filter(member__industry_project_applications__industry_project=ip)
                 gender = members.values('gender').order_by().annotate(Count('id'))
                 location = members.values('location').order_by().annotate(Count('id'))
                 age = members.aggregate(Avg('age'))

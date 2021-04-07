@@ -167,7 +167,7 @@ USE_TZ = True
 
 # Silence warnings
 
-SILENCED_SYSTEM_CHECKS = ["urls.W002"]
+SILENCED_SYSTEM_CHECKS = ["urls.W002", "models.W042"]
 
 
 # Static files (CSS, JavaScript, Images)

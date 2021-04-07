@@ -140,4 +140,3 @@ def single_admin_view(request, pk):
         # end try-except
     # end if
 # end def
-

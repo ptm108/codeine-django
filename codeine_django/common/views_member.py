@@ -2,6 +2,8 @@ from django.db import transaction
 from django.db.utils import IntegrityError
 from django.core.exceptions import ValidationError, ObjectDoesNotExist
 from django.db.models import Q
+from django.template.loader import render_to_string
+from django.core.mail import send_mail
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes, parser_classes
 from rest_framework.parsers import MultiPartParser, FormParser
@@ -13,13 +15,12 @@ from rest_framework.permissions import (
     IsAuthenticatedOrReadOnly,
     IsAdminUser
 )
+from codeine_django import settings
 
 import json
 import jwt
 import os
-from django.template.loader import render_to_string
-from django.core.mail import send_mail
-from codeine_django import settings
+from hashids import Hashids
 
 from .models import BaseUser, Member
 from .serializers import MemberSerializer, NestedBaseUserSerializer
@@ -36,13 +37,14 @@ def member_view(request):
     '''
     if request.method == 'POST':
         data = request.data
+        hashids = Hashids(min_length=5)
 
         with transaction.atomic():
             try:
                 user = BaseUser.objects.create_user(data['email'], data['password'], first_name=data['first_name'], last_name=data['last_name'])
                 user.save()
 
-                member = Member(user=user)
+                member = Member(user=user, unique_id=hashids(int(user.id)))
                 member.save()
 
                 name = user.first_name + ' ' + user.last_name
@@ -153,6 +155,12 @@ def single_member_view(request, pk):
             # end ifs
             user.save()
 
+            member = user.member
+
+            if 'unique_id' in data:
+                member.unique_id = data['unique_id']
+            # end if
+
             return Response(NestedBaseUserSerializer(user, context={"request": request}).data, status=status.HTTP_200_OK)
         except Member.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
@@ -249,7 +257,6 @@ def reset_member_password_view(request):
 
         try:
             data = request.data
-            print(data)
             email = data['email']
             user = BaseUser.objects.get(email=email)
             name = user.first_name + ' ' + user.last_name

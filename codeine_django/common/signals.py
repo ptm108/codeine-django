@@ -9,7 +9,8 @@ from notifications.models import Notification, NotificationObject
 def update_payment_transaction(sender, instance, created, **kwargs):
 
     if created:
-        print('new payment transaction')
+        # print('new payment transaction')
+        pass
     else:
         title = f'Payment transaction updated!'
         description = f'Status changed to {instance.payment_status}'
@@ -33,8 +34,8 @@ def update_payment_transaction(sender, instance, created, **kwargs):
             notification_object = NotificationObject(
                 receiver=receiver, notification=notification)
             notification_object.save()
-        except:
-            print('error')
+        except Exception as e:
+            print(str(e))
         # end try-except
     # end if-else
 # end def

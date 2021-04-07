@@ -512,7 +512,7 @@ def question_group_view(request, quiz_id):
     returns updated quiz
     '''
     if request.method == 'DELETE':
-        print(data)
+        # print(data)
         try:
             partner = user.partner
             quiz = Quiz.objects.filter(

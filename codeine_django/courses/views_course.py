@@ -17,6 +17,7 @@ from common.models import Partner
 from common.permissions import IsPartnerOrReadOnly, IsPartnerOnly
 from notifications.models import Notification, NotificationObject
 
+
 @api_view(['GET', 'POST'])
 @permission_classes((IsPartnerOrReadOnly,))
 def course_view(request):

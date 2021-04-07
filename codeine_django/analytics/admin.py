@@ -1,6 +1,8 @@
 from django.contrib import admin
 
 from .models import EventLog
+
+
 class EventLogAdmin(admin.ModelAdmin):
     list_display = (
         'timestamp',
@@ -13,5 +15,6 @@ class EventLogAdmin(admin.ModelAdmin):
         'industry_project',
     )
 # end class
+
 
 admin.site.register(EventLog, EventLogAdmin)

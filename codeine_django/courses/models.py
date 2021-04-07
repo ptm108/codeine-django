@@ -185,7 +185,7 @@ class Quiz(models.Model):
 
     # extends course material or mapped to course
     course_material = models.OneToOneField('CourseMaterial', on_delete=models.CASCADE, null=True, blank=True)
-    course = models.OneToOneField('Course',  on_delete=models.CASCADE, related_name='assessment', null=True, blank=True)
+    course = models.OneToOneField('Course', on_delete=models.CASCADE, related_name='assessment', null=True, blank=True)
 # end class
 
 

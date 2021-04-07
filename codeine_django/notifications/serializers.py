@@ -29,7 +29,7 @@ class PaymentTransactionSerializer(serializers.ModelSerializer):
                 return NestedMembershipSubscriptionSerializer(obj.membership_subscription, context={'request': request}).data
             # end if
         except:
-            print('membership subscription does not exist')
+            pass
         # end try-except
     # end def
 
@@ -40,7 +40,7 @@ class PaymentTransactionSerializer(serializers.ModelSerializer):
                 return NestedEventPaymentSerializer(obj.event_payment, context={'request': request}).data
             # end if
         except:
-            print('event payment does not exist')
+            pass
         # end try-except
     # end def
 
@@ -51,7 +51,7 @@ class PaymentTransactionSerializer(serializers.ModelSerializer):
                 return NestedContributionPaymentSerializer(obj.contribution_payment, context={'request': request}).data
             # end if
         except:
-            print('contribution payment does not exist')
+            pass
         # end try-except
     # end def
 
@@ -62,9 +62,9 @@ class PaymentTransactionSerializer(serializers.ModelSerializer):
                 return NestedConsultationPaymentSerializer(obj.consultation_payment, context={'request': request}).data
             # end if
         except:
-            print('consultation payment does not exist')
+            pass
         # end try-except
-    # end def 
+    # end def
 # end class
 
 

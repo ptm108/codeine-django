@@ -24,7 +24,6 @@ def article_engagement_view(request, article_id):
         article = Article.objects.get(pk=article_id)
         article_engagements = ArticleEngagement.objects.filter(article=article)
 
-
         if request.user.is_anonymous is False:
             # extract query params
             is_user = request.query_params.get('is_user', None)
@@ -35,7 +34,7 @@ def article_engagement_view(request, article_id):
                     article_engagements = article_engagements.filter(
                         Q(user=user)
                     )
-            # end if            
+            # end if
         # end if
 
         serializer = ArticleEngagementSerializer(
@@ -98,7 +97,7 @@ def single_article_engagement_view(request, pk, article_id):
     '''
     if request.method == 'PUT':
         data = request.data
-        
+
         try:
             article_engagement = ArticleEngagement.objects.get(pk=pk)
             user = request.user

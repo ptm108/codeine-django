@@ -11,6 +11,7 @@ def image_directory_path(instance, filename):
     return 'achievement_{0}/image_{1}'.format(instance.id, filename)
 # end def
 
+
 class Achievement(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, unique=True)
     title = models.CharField(max_length=255)
@@ -19,6 +20,7 @@ class Achievement(models.Model):
     is_deleted = models.BooleanField(default=False)
 
 # end class
+
 
 class AchievementRequirement(models.Model):
     STATS = (
@@ -44,6 +46,7 @@ class AchievementRequirement(models.Model):
 
     achievement = models.ForeignKey('Achievement', on_delete=models.CASCADE, related_name='achievement_requirements')
 # end class
+
 
 class MemberAchievement(models.Model):
     achievement = models.ForeignKey('Achievement', on_delete=models.CASCADE, related_name='members_achievements')

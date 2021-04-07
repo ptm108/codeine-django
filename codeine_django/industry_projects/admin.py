@@ -1,6 +1,8 @@
 from django.contrib import admin
 
 from .models import IndustryProject, IndustryProjectApplication
+
+
 class IndustryProjectAdmin(admin.ModelAdmin):
     list_display = (
         'id',
@@ -14,10 +16,11 @@ class IndustryProjectAdmin(admin.ModelAdmin):
 class IndustryProjectApplicationAdmin(admin.ModelAdmin):
     list_display = (
         'id',
-        'is_accepted', 
+        'is_accepted',
         'member',
     )
 # end class
+
 
 admin.site.register(IndustryProject, IndustryProjectAdmin)
 admin.site.register(IndustryProjectApplication, IndustryProjectApplicationAdmin)

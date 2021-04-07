@@ -7,7 +7,7 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from .permissions import (
     IsMemberOnly,
-    IsMemberOrReadOnly, 
+    IsMemberOrReadOnly,
 )
 from rest_framework.permissions import AllowAny
 from .models import CV, Member
@@ -37,6 +37,7 @@ def public_cv_view(request, pk):
         # end try-except
     # end if
 # end def
+
 
 @api_view(['GET', 'POST'])
 @permission_classes((IsMemberOrReadOnly,))

@@ -35,7 +35,7 @@ def update_ticket_message(sender, instance, created, **kwargs):
                 title = f'Helpdesk: New reply for Enquiry about Code Review {ticket.code_review.title}!'
             # end ifs
 
-            print(ticket.ticket_type)
+            # print(ticket.ticket_type)
             if ticket.ticket_type == 'ACCOUNT':
                 title = f'Helpdesk: New reply for Enquiry about your Account!'
             if ticket.ticket_type == 'GENERAL':
@@ -73,8 +73,8 @@ def update_ticket_message(sender, instance, created, **kwargs):
             #         # end if
             #     # end if
             # # end for
-        except:
-            print('error')
+        except Exception as e:
+            print(str(e))
         # end try-except
     # end if
 # end def

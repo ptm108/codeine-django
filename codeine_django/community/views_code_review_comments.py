@@ -24,8 +24,7 @@ def code_review_comment_view(request, code_review_id):
     '''
     if request.method == 'GET':
         code_review = CodeReview.objects.get(pk=code_review_id)
-        code_review_comments = CodeReviewComment.objects.filter(
-            code_review=code_review)
+        code_review_comments = CodeReviewComment.objects.filter(code_review=code_review).filter(parent_comment=None).order_by("timestamp")
 
         # extract query params
         search = request.query_params.get('search', None)
@@ -38,7 +37,6 @@ def code_review_comment_view(request, code_review_id):
         #         Q(code_review__id__icontains=search)
         #     )
 
-
         if search is not None:
             code_review_comments = code_review_comments.filter(
                 Q(comment__icontains=search) |
@@ -47,7 +45,7 @@ def code_review_comment_view(request, code_review_id):
             )
         # end if
         serializer = NestedCodeReviewCommentSerializer(
-            code_review_comments.all(), many=True, context={'request': request})
+            code_review_comments.all(), many=True, context={'request': request, 'recursive': True})
         return Response(serializer.data, status=status.HTTP_200_OK)
     # end if
 
@@ -61,43 +59,21 @@ def code_review_comment_view(request, code_review_id):
         try:
             code_review = CodeReview.objects.get(pk=code_review_id)
             parent_comment = None
-            # start_index = None
-            # end_index = None
 
             if 'parent_comment_id' in data:
-                parent_comment = CodeReviewComment.objects.get(
-                    pk=data['parent_comment_id'])
+                parent_comment = CodeReviewComment.objects.get(pk=data['parent_comment_id'])
             # end if
-            
-            # else:
-            #     if data['start_index'] > data['end_index']:
-            #         return Response(status=status.HTTP_400_BAD_REQUEST)
-            #     else:
-            #         start_index = data['start_index']
-            #         end_index = data['end_index']
-                # end if-else
-            # end if-else
 
-            # code_review_comment = CodeReviewComment(
-            #     highlighted_code=data['highlighted_code'],
-            #     comment=data['comment'],
-            #     start_index=start_index,
-            #     end_index=end_index,
-            #     user=user,
-            #     code_review=code_review,
-            #     parent_comment=parent_comment
-            # )
-            
             code_review_comment = CodeReviewComment(
                 comment=data['comment'],
                 user=user,
                 code_review=code_review,
-                parent_comment=parent_comment
+                parent_comment=parent_comment,
+                code_line_index=data['code_line_index']
             )
 
             code_review_comment.save()
-            serializer = NestedCodeReviewCommentSerializer(
-                code_review_comment, context={'request': request})
+            serializer = NestedCodeReviewCommentSerializer(code_review_comment, context={'request': request})
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         except (IntegrityError, ValueError, KeyError) as e:
             print(e)
@@ -105,7 +81,6 @@ def code_review_comment_view(request, code_review_id):
         # end try-except
     # end if
 # def
-
 
 
 @api_view(['GET', 'PUT', 'DELETE'])
@@ -136,14 +111,12 @@ def single_code_review_comment_view(request, code_review_id, pk):
                 return Response(status=status.HTTP_401_UNAUTHORIZED)
             # end if
 
-            # if 'highlighted_code' in data:
-            #     code_review_comment.highlighted_code = data['highlighted_code']
             if 'comment' in data:
                 code_review_comment.comment = data['comment']
+            # end if
 
             code_review_comment.save()
-            serializer = NestedCodeReviewCommentSerializer(
-                code_review_comment, context={'request': request})
+            serializer = NestedCodeReviewCommentSerializer(code_review_comment, context={'request': request})
             return Response(serializer.data, status=status.HTTP_200_OK)
         except CodeReviewComment.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
@@ -158,7 +131,7 @@ def single_code_review_comment_view(request, code_review_id, pk):
     if request.method == 'DELETE':
         try:
             code_review_comment = CodeReviewComment.objects.get(pk=pk)
-            
+
             user = request.user
             if code_review_comment.user != user:
                 return Response(status=status.HTTP_401_UNAUTHORIZED)

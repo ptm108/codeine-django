@@ -10,6 +10,7 @@ from rest_framework.permissions import (
 from .models import Achievement, AchievementRequirement
 from .serializers import AchievementRequirementSerializer
 
+
 @api_view(['GET', 'POST', 'DELETE'])
 @permission_classes((IsAdminUser,))
 def achievement_requirement_view(request, pk):
@@ -36,7 +37,7 @@ def achievement_requirement_view(request, pk):
     if request.method == 'POST':
         try:
             data = request.data
-            print(data['stat'])
+            # print(data['stat'])
 
             achievement = Achievement.objects.get(pk=pk)
             stat = data['stat']
@@ -49,7 +50,7 @@ def achievement_requirement_view(request, pk):
             if stat == 'UI/UX':
                 stat = 'UI'
             if stat == 'Frontend':
-                stat =  "FE"
+                stat = "FE"
             if stat == 'Backend':
                 stat = 'BE'
             if stat == 'Python':
@@ -66,16 +67,16 @@ def achievement_requirement_view(request, pk):
                 stat = 'RUBY'
 
             requirement = AchievementRequirement(
-                stat = stat,
-                experience_point = data['experience_point'],
+                stat=stat,
+                experience_point=data['experience_point'],
                 achievement=achievement
             )
             requirement.save()
-            print(requirement)
+            # print(requirement)
 
             return Response(AchievementRequirementSerializer(requirement, context={'request': request}).data, status=status.HTTP_200_OK)
         except (KeyError, TypeError, ValueError) as e:
-            print(e)
+            # print(e)
             return Response(status=status.HTTP_400_BAD_REQUEST)
         # end try-except
     # end if
@@ -96,10 +97,10 @@ def achievement_requirement_view(request, pk):
     # end if
 # end def
 
+
 @api_view(['GET', 'PATCH', 'DELETE'])
 @permission_classes((IsAdminUser,))
 def single_achievement_requirement_view(request, pk, req_id):
-
     '''
     Get Achievement Requirement by ID
     '''
@@ -123,12 +124,12 @@ def single_achievement_requirement_view(request, pk, req_id):
             data = request.data
 
             if 'stat' in data:
-                requirement.category=data['stat']
+                requirement.category = data['stat']
             if 'experience_point' in data:
-                requirement.experience_point=data['experience_point']
-            # end if 
+                requirement.experience_point = data['experience_point']
+            # end if
 
-            requirement.save() 
+            requirement.save()
 
             serializer = AchievementRequirementSerializer(requirement, context={"request": request})
             return Response(serializer.data, status=status.HTTP_200_OK)
