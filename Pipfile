@@ -19,6 +19,8 @@ docker = "*"
 hashids = "*"
 pycodestyle = "*"
 celery = "*"
+flower = "*"
+django-celery-beat = "*"
 
 [requires]
 python_version = "3.8"
