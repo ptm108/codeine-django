@@ -19,7 +19,6 @@ docker = "*"
 hashids = "*"
 pycodestyle = "*"
 celery = "*"
-flower = "*"
 django-celery-beat = "*"
 
 [requires]
