@@ -1,10 +1,9 @@
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 
-from .models import PaymentTransaction, MembershipSubscription, Member
+from .models import PaymentTransaction
 from notifications.models import Notification, NotificationObject
-from datetime import timedelta
-from .tasks import subscription_reminder
+
 
 @receiver(post_save, sender=PaymentTransaction)
 def update_payment_transaction(sender, instance, created, **kwargs):
@@ -39,13 +38,4 @@ def update_payment_transaction(sender, instance, created, **kwargs):
             print(str(e))
         # end try-except
     # end if-else
-# end def
-
-
-@receiver(post_save, sender=MembershipSubscription)
-def update_payment_transaction(sender, instance, created, **kwargs):
-    if created:
-        reminder_time = instance.expiry_date - timedelta(days=7)
-        subscription_reminder.apply_async(eta=reminder_time, args=(instance.member.user.id,))
-    # end if
 # end def
