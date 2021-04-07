@@ -158,9 +158,3 @@ cython_debug/
 code-server-3.9.0-linux-amd64/
 
 */.vscode/
-
-codeine_django/celerybeat-schedule.bak
-
-codeine_django/celerybeat-schedule.dat
-
-codeine_django/celerybeat-schedule.dir
