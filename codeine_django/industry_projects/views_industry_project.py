@@ -27,6 +27,7 @@ def industry_project_view(request):
             partner_id = request.query_params.get('partner_id', None)
             is_available = request.query_params.get('isAvailable', None)
             is_completed = request.query_params.get('isCompleted', None)
+            date_sort = request.query_params.get('sortDate', None)
 
             if search is not None:
                 industry_projects = industry_projects.filter(
@@ -44,6 +45,8 @@ def industry_project_view(request):
             if is_completed is not None:
                 completed = json.loads(is_completed.lower())
                 industry_projects = industry_projects.filter(is_completed=completed)
+            if date_sort is not None:
+                industry_projects = industry_projects.order_by(date_sort)
             # end ifs
 
             serializer = IndustryProjectSerializer(industry_projects.all(), many=True, context={"request": request})
