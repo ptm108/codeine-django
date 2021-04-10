@@ -118,7 +118,7 @@ class NotificationSerializer(serializers.ModelSerializer):
     def get_transaction(self, obj):
         request = self.context.get("request")
         if obj.transaction:
-            return NestedPaymentTransactionSerializer(obj.transaction, context={'request': request}).data
+            return PaymentTransactionSerializer(obj.transaction, context={'request': request}).data
         # end if
     # end def
 

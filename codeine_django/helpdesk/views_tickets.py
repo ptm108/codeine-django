@@ -37,9 +37,8 @@ def ticket_view(request):
         # extract query params
         search = request.query_params.get('search', None)
         ticket_status = request.query_params.get('ticket_status', None)
-        is_user = request.query_params.get('is_user', False)
-        is_assigned_admin = request.query_params.get(
-            'is_assigned_admin', False)
+        is_user = request.query_params.get('is_user', None)
+        is_assigned_admin = request.query_params.get('is_assigned_admin', None)
         is_assigned = request.query_params.get('is_assigned', None)
 
         if search is not None:
@@ -64,6 +63,7 @@ def ticket_view(request):
                 user = request.user
                 tickets = tickets.filter(base_user=user)
             # end if
+        # end if
 
         # assumes GET request is made by an admin
         # if is_assigned_admin is None, return all tickets

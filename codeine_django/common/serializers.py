@@ -36,7 +36,7 @@ class NestedPartnerSerializer(serializers.ModelSerializer):
 class NestedMemberSerializer(serializers.ModelSerializer):
     class Meta:
         model = Member
-        fields = ('id', 'stats', 'membership_tier')
+        fields = ('id', 'stats', 'membership_tier', 'unique_id')
     # end Meta
 # end class
 
