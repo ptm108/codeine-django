@@ -20,6 +20,7 @@ def consultation_slot_reminder(consultation_slot_id):
         title=title, description=description, notification_type=notification_type, consultation_slot=consultation_slot)
     notification.save()
     notification_object = NotificationObject(receiver=partner.user, notification=notification)
+    notification_object.save()
 # end def
 
 
@@ -36,4 +37,5 @@ def consultation_application_reminder(consultation_application_id):
         title=title, description=description, notification_type=notification_type, consultation_slot=consultation_slot)
     notification.save()
     notification_object = NotificationObject(receiver=member.user, notification=notification)
+    notification_object.save()
 # end def

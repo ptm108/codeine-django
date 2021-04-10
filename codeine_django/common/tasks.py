@@ -19,4 +19,5 @@ def subscription_reminder(base_user_id):
         title=title, description=description, notification_type=notification_type)
     notification.save()
     notification_object = NotificationObject(receiver=base_user, notification=notification)
+    notification_object.save()
 # end def
