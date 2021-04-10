@@ -18,6 +18,8 @@ django-cors-headers = "*"
 docker = "*"
 hashids = "*"
 pycodestyle = "*"
+celery = "*"
+django-celery-beat = "*"
 
 [requires]
 python_version = "3.8"
