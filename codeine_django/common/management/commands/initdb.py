@@ -2460,6 +2460,17 @@ class Command(BaseCommand):
             now = timezone.now()
 
             cs = ConsultationSlot(
+                title='React Native 0.5',
+                start_time=(now + timedelta(minutes=20)),
+                end_time=(now + timedelta(minutes=60)),
+                meeting_link='https://meet.google.com/meo-fymy-oae',
+                price_per_pax=0,
+                max_members=2,
+                partner=p
+            )
+            cs.save()
+
+            cs = ConsultationSlot(
                 title='React Native 1',
                 start_time=(now + timedelta(days=2)).replace(hour=2, minute=0),
                 end_time=(now + timedelta(days=2)).replace(hour=2, minute=30),
