@@ -83,3 +83,29 @@ def public_member_course_view(request, pk):
         # end try-except
     # end if
 # end def
+
+
+@api_view(['GET'])
+@permission_classes((AllowAny,))
+def check_unique_id_view(request, unique_id):
+    '''
+    Checks if unique id is taken
+    Returns 200 OK if not taken, 409 otherwise
+    '''
+    if request.method == 'GET':
+        unique_id_check = Member.objects.filter(unique_id=unique_id).exists()
+        id_check = False
+
+        try:
+            id_check = BaseUser.objects.filter(id=unique_id).exists()
+        except ValidationError:
+            pass
+        # end try-except
+        
+        if unique_id_check or id_check:
+            return Response(status=status.HTTP_409_CONFLICT)
+        else:
+            return Response(status=status.HTTP_200_OK)
+        # end if-else
+    # end if
+# end def
