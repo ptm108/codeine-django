@@ -23,6 +23,12 @@ def member_application_view(request):
             member = Member.objects.get(user=user)
             applications = IndustryProjectApplication.objects.filter(member=member)
 
+            # extract query params
+            date_sort = request.query_params.get('sortDate', None)
+
+            if date_sort is not None:
+                applications = applications.order_by(date_sort)
+
             serializer = NestedIndustryProjectApplicationSerializer(applications, many=True, context={"request": request})
             return Response(serializer.data, status=status.HTTP_200_OK)
         except (ValueError) as e:
