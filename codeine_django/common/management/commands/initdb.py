@@ -20,6 +20,7 @@ from courses.models import (
     QuestionBank,
     QuestionGroup,
 )
+from community.models import CodeReview, CodeReviewComment
 from consultations.models import ConsultationSlot
 from analytics.models import EventLog
 from industry_projects.models import IndustryProject
@@ -99,7 +100,7 @@ class Command(BaseCommand):
             u.profile_photo.save('m2.jpeg', ImageFile(open('./codeine_django/common/management/demo_assets/m2.jpeg', 'rb')))
             u.save()
 
-            m = Member(user=u, unique_id=hashids.encode(int(u.id)))
+            m = Member(user=u, unique_id=hashids.encode(int(u.id)), membership_tier='PRO')
             m.save()
             self.stdout.write(f'{self.style.SUCCESS("Success")}: {Member.objects.count()} members instantiated')
         except:
@@ -2605,6 +2606,108 @@ class Command(BaseCommand):
             ).save()
 
             self.stdout.write(f'{self.style.SUCCESS("Success")}: Industry projects initiated')
+        except:
+            e = sys.exc_info()[0]
+            self.stdout.write(f'{self.style.ERROR("ERROR")}: {repr(e)}')
+        # end try-except
+
+        try:
+            # initiate some code reviews
+            self.stdout.write('Initiating some code reviews...')
+            now = timezone.now()
+            u1 = BaseUser.objects.get(email='m1@m1.com')
+
+            cr = CodeReview(
+                title="Random Questions Subset Algo",
+                code="class QuizSerializer(serializers.ModelSerializer):\r\n    question_groups = QuestionGroupSerializer(many=True)\r\n    questions = serializers.SerializerMethodField('get_questions')\r\n\r\n    class Meta:\r\n        model = Quiz\r\n        fields = ('id', 'passing_marks', 'course', 'course_material', 'instructions', 'is_randomized', 'question_groups', 'questions')\r\n    # end Meta\r\n\r\n    def get_questions(self, obj):\r\n        request = self.context.get('request')\r\n        try:\r\n            member = request.user.member\r\n            random.seed(int(member.id))\r\n            questions = []\r\n\r\n            for question_group in obj.question_groups.all():\r\n                tmp = random.sample(list(question_group.question_bank.questions.all()), k=question_group.count)\r\n                questions += tmp\r\n            # end for\r\n            return QuestionSerializer(questions, many=True, context=self.context).data\r\n        except Exception as e:\r\n            try:\r\n                partner = request.user.partner\r\n                questions = []\r\n\r\n                for question_group in obj.question_groups.all():\r\n                    questions += question_group.question_bank.questions.all()\r\n                # end for\r\n                return QuestionSerializer(questions, many=True, context=self.context).data\r\n            except Exception as e:\r\n                print(str(e))\r\n                return []\r\n        # end try-except\r\n    # end def\r\n# end class",
+                coding_languages=['PY'],
+                languages=['ENG'],
+                categories=['BE'],
+                user=u1,
+                timestamp=now - timedelta(hours=2)
+            )
+            cr.save()
+            
+            cr_c1 = CodeReviewComment(
+                comment="<p>What is this serializer for?</p>",
+                user=u1,
+                code_review=cr,
+                parent_comment=None,
+                code_line_index=1,
+            )
+            cr_c1.save()
+
+            cr_c2 = CodeReviewComment(
+                comment="<p>This serializes the quiz and a random subset of questions for each quiz</p>",
+                user=u,
+                code_review=cr,
+                parent_comment=cr_c1,
+                code_line_index=1,
+            )
+            cr_c2.save()
+
+
+            u2 = BaseUser.objects.get(email='m2@m2.com')
+
+            cr = CodeReview(
+                title="JS Date Formatter",
+                code="export const calculateDateInterval = (timestamp) => {\r\n  const dateBefore = new Date(timestamp);\r\n  const dateNow = new Date();\r\n\r\n  let seconds = Math.floor((dateNow - dateBefore) / 1000);\r\n  let minutes = Math.floor(seconds / 60);\r\n  let hours = Math.floor(minutes / 60);\r\n  let days = Math.floor(hours / 24);\r\n\r\n  hours = hours - days * 24;\r\n  minutes = minutes - days * 24 * 60 - hours * 60;\r\n  seconds = seconds - days * 24 * 60 * 60 - hours * 60 * 60 - minutes * 60;\r\n\r\n  if (days === 0) {\r\n    if (hours === 0) {\r\n      if (minutes === 0) {\r\n        return `${seconds} seconds ago`;\r\n      }\r\n\r\n      if (minutes === 1) {\r\n        return `${minutes} minute ago`;\r\n      }\r\n      return `${minutes} minutes ago`;\r\n    }\r\n\r\n    if (hours === 1) {\r\n      return `${hours} hour ago`;\r\n    }\r\n    return `${hours} hours ago`;\r\n  }\r\n\r\n  if (days === 1) {\r\n    return `${days} day ago`;\r\n  }\r\n  return `${days} days ago`;\r\n};",
+                coding_languages=['JS'],
+                languages=['ENG'],
+                categories=['FE'],
+                user=u2,
+                timestamp=now - timedelta(hours=2)
+            )
+            cr.save()
+            
+            cr_c1 = CodeReviewComment(
+                comment="<p>Looking for improvements...</p>",
+                user=u2,
+                code_review=cr,
+                parent_comment=None,
+                code_line_index=1,
+            )
+            cr_c1.save()
+
+            cr_c2 = CodeReviewComment(
+                comment="<p>Use typescript fag</p>",
+                user=u1,
+                code_review=cr,
+                parent_comment=cr_c1,
+                code_line_index=1,
+            )
+            cr_c2.save()
+
+            cr_c3 = CodeReviewComment(
+                comment="<p>Don't be rude, son</p>",
+                user=u,
+                code_review=cr,
+                parent_comment=cr_c2,
+                code_line_index=1,
+            )
+            cr_c3.save()
+
+            cr_c1 = CodeReviewComment(
+                comment="<p>3 nested ifs....</p>",
+                user=u,
+                code_review=cr,
+                parent_comment=None,
+                code_line_index=14,
+            )
+            cr_c1.save()
+
+            cr = CodeReview(
+                title="Buffer Overflow Attack",
+                code="#include <signal.h>\r\n#include <stdio.h>\r\n#include <string.h>\r\nint main(){\r\n\tchar realPassword[20];\r\n\tchar givenPassword[20];\r\n\r\n\tstrncpy(realPassword, \"ddddddddddddddd\", 20);\r\n\tgets(givenPassword);\r\n\t\r\n\tif (0 == strncmp(givenPassword, realPassword, 20)){\r\n\t\tprintf(\"SUCCESS!\\n\");\r\n\t}else{\r\n\t\tprintf(\"FAILURE!\\n\");\r\n\t}\r\n\traise(SIGINT);\r\n\tprintf(\"givenPassword: %s\\n\", givenPassword);\r\n\tprintf(\"realPassword: %s\\n\", realPassword);\r\n\treturn 0;\r\n}",
+                coding_languages=['CPP'],
+                languages=['ENG'],
+                categories=['SEC'],
+                user=u,
+                timestamp=now - timedelta(hours=2)
+            )
+            cr.save()
+
+            self.stdout.write(f'{self.style.SUCCESS("Success")}: Code Reviews initiated')
         except:
             e = sys.exc_info()[0]
             self.stdout.write(f'{self.style.ERROR("ERROR")}: {repr(e)}')
