@@ -25,6 +25,7 @@ from consultations.models import ConsultationSlot
 from analytics.models import EventLog
 from industry_projects.models import IndustryProject
 from helpdesk.models import Ticket, TicketMessage
+from achievements.models import Achievement, AchievementRequirement
 
 import sys
 from datetime import timedelta, datetime
@@ -2755,7 +2756,6 @@ class Command(BaseCommand):
                 is_published=True,
                 date_created=now - timedelta(days=2),
             )
-            a.save()
             a.thumbnail.save('article1.png', ImageFile(open('./codeine_django/common/management/demo_assets/articles/article1.png', 'rb')))
             a.save()
 
@@ -2768,11 +2768,301 @@ class Command(BaseCommand):
                 user=ep2,
                 is_published=True,
             )
-            a.save()
             a.thumbnail.save('article2.jpeg', ImageFile(open('./codeine_django/common/management/demo_assets/articles/article2.jpeg', 'rb')))
             a.save()
 
             self.stdout.write(f'{self.style.SUCCESS("Success")}: Articles created')
+        except:
+            e = sys.exc_info()[0]
+            self.stdout.write(f'{self.style.ERROR("ERROR")}: {repr(e)}')
+        # end try-except
+
+
+        try:
+            # initiate some badges
+            self.stdout.write('Creating some achievement badges...')
+            now = timezone.now()
+
+            ach = Achievement(
+                title='Django Newbie',
+            )
+            ach.badge.save('dj1.png', ImageFile(open('./codeine_django/common/management/demo_assets/badges/dj1.png', 'rb')))
+            ach.save()
+
+            AchievementRequirement(
+                stat='PY',
+                experience_point=200,
+                achievement=ach,
+            ).save()
+            AchievementRequirement(
+                stat='BE',
+                experience_point=200,
+                achievement=ach,
+            ).save()
+            AchievementRequirement(
+                stat='DB',
+                experience_point=200,
+                achievement=ach,
+            ).save()
+
+            ach = Achievement(
+                title='Django Enthusiast',
+            )
+            ach.badge.save('dj2.png', ImageFile(open('./codeine_django/common/management/demo_assets/badges/dj2.png', 'rb')))
+            ach.save()
+
+            AchievementRequirement(
+                stat='PY',
+                experience_point=600,
+                achievement=ach,
+            ).save()
+            AchievementRequirement(
+                stat='BE',
+                experience_point=600,
+                achievement=ach,
+            ).save()
+            AchievementRequirement(
+                stat='DB',
+                experience_point=600,
+                achievement=ach,
+            ).save()
+
+            ach = Achievement(
+                title='Django Expert',
+            )
+            ach.badge.save('dj3.png', ImageFile(open('./codeine_django/common/management/demo_assets/badges/dj3.png', 'rb')))
+            ach.save()
+
+            AchievementRequirement(
+                stat='PY',
+                experience_point=800,
+                achievement=ach,
+            ).save()
+            AchievementRequirement(
+                stat='BE',
+                experience_point=1500,
+                achievement=ach,
+            ).save()
+            AchievementRequirement(
+                stat='DB',
+                experience_point=200,
+                achievement=ach,
+            ).save()
+
+            ach = Achievement(
+                title='Frontend Rookie',
+            )
+            ach.badge.save('fe1.png', ImageFile(open('./codeine_django/common/management/demo_assets/badges/fe1.png', 'rb')))
+            ach.save()
+
+            AchievementRequirement(
+                stat='FE',
+                experience_point=300,
+                achievement=ach,
+            ).save()
+            AchievementRequirement(
+                stat='HTML',
+                experience_point=200,
+                achievement=ach,
+            ).save()
+            AchievementRequirement(
+                stat='CSS',
+                experience_point=200,
+                achievement=ach,
+            ).save()
+            AchievementRequirement(
+                stat='JS',
+                experience_point=200,
+                achievement=ach,
+            ).save()
+
+            ach = Achievement(
+                title='Frontend Developer',
+            )
+            ach.badge.save('fe2.png', ImageFile(open('./codeine_django/common/management/demo_assets/badges/fe2.png', 'rb')))
+            ach.save()
+
+            AchievementRequirement(
+                stat='FE',
+                experience_point=1200,
+                achievement=ach,
+            ).save()
+            AchievementRequirement(
+                stat='HTML',
+                experience_point=800,
+                achievement=ach,
+            ).save()
+            AchievementRequirement(
+                stat='CSS',
+                experience_point=800,
+                achievement=ach,
+            ).save()
+            AchievementRequirement(
+                stat='JS',
+                experience_point=800,
+                achievement=ach,
+            ).save()
+
+            ach = Achievement(
+                title='Frontend Sexpert',
+            )
+            ach.badge.save('fe3.png', ImageFile(open('./codeine_django/common/management/demo_assets/badges/fe3.png', 'rb')))
+            ach.save()
+
+            AchievementRequirement(
+                stat='FE',
+                experience_point=40000,
+                achievement=ach,
+            ).save()
+            AchievementRequirement(
+                stat='HTML',
+                experience_point=40000,
+                achievement=ach,
+            ).save()
+            AchievementRequirement(
+                stat='CSS',
+                experience_point=40000,
+                achievement=ach,
+            ).save()
+            AchievementRequirement(
+                stat='JS',
+                experience_point=40000,
+                achievement=ach,
+            ).save()
+
+            ach = Achievement(
+                title='Pretty good at Javascript',
+            )
+            ach.badge.save('js1.png', ImageFile(open('./codeine_django/common/management/demo_assets/badges/js1.png', 'rb')))
+            ach.save()
+
+            AchievementRequirement(
+                stat='FE',
+                experience_point=250,
+                achievement=ach,
+            ).save()
+            AchievementRequirement(
+                stat='JS',
+                experience_point=500,
+                achievement=ach,
+            ).save()
+
+            ach = Achievement(
+                title='Pretty darn good at Javascript',
+            )
+            ach.badge.save('js2.png', ImageFile(open('./codeine_django/common/management/demo_assets/badges/js2.png', 'rb')))
+            ach.save()
+
+            AchievementRequirement(
+                stat='FE',
+                experience_point=500,
+                achievement=ach,
+            ).save()
+            AchievementRequirement(
+                stat='JS',
+                experience_point=800,
+                achievement=ach,
+            ).save()
+
+            ach = Achievement(
+                title='Pretty damn good at Javascript',
+            )
+            ach.badge.save('js3.png', ImageFile(open('./codeine_django/common/management/demo_assets/badges/js3.png', 'rb')))
+            ach.save()
+
+            AchievementRequirement(
+                stat='FE',
+                experience_point=800,
+                achievement=ach,
+            ).save()
+            AchievementRequirement(
+                stat='JS',
+                experience_point=1800,
+                achievement=ach,
+            ).save()
+
+            ach = Achievement(
+                title='React Rookie',
+            )
+            ach.badge.save('r1.png', ImageFile(open('./codeine_django/common/management/demo_assets/badges/r1.png', 'rb')))
+            ach.save()
+
+            AchievementRequirement(
+                stat='FE',
+                experience_point=200,
+                achievement=ach,
+            ).save()
+            AchievementRequirement(
+                stat='JS',
+                experience_point=500,
+                achievement=ach,
+            ).save()
+            AchievementRequirement(
+                stat='HTML',
+                experience_point=300,
+                achievement=ach,
+            ).save()
+            AchievementRequirement(
+                stat='CSS',
+                experience_point=300,
+                achievement=ach,
+            ).save()
+
+            ach = Achievement(
+                title='React-Ready',
+            )
+            ach.badge.save('r2.png', ImageFile(open('./codeine_django/common/management/demo_assets/badges/r2.png', 'rb')))
+            ach.save()
+
+            AchievementRequirement(
+                stat='FE',
+                experience_point=500,
+                achievement=ach,
+            ).save()
+            AchievementRequirement(
+                stat='JS',
+                experience_point=800,
+                achievement=ach,
+            ).save()
+            AchievementRequirement(
+                stat='HTML',
+                experience_point=500,
+                achievement=ach,
+            ).save()
+            AchievementRequirement(
+                stat='CSS',
+                experience_point=500,
+                achievement=ach,
+            ).save()
+
+            ach = Achievement(
+                title='React Ragnarok',
+            )
+            ach.badge.save('r3.png', ImageFile(open('./codeine_django/common/management/demo_assets/badges/r3.png', 'rb')))
+            ach.save()
+
+            AchievementRequirement(
+                stat='FE',
+                experience_point=2000,
+                achievement=ach,
+            ).save()
+            AchievementRequirement(
+                stat='JS',
+                experience_point=5000,
+                achievement=ach,
+            ).save()
+            AchievementRequirement(
+                stat='HTML',
+                experience_point=2000,
+                achievement=ach,
+            ).save()
+            AchievementRequirement(
+                stat='CSS',
+                experience_point=2000,
+                achievement=ach,
+            ).save()
+
+            self.stdout.write(f'{self.style.SUCCESS("Success")}: Achievement badges created')
         except:
             e = sys.exc_info()[0]
             self.stdout.write(f'{self.style.ERROR("ERROR")}: {repr(e)}')

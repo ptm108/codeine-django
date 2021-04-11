@@ -18,7 +18,6 @@ class Achievement(models.Model):
     badge = models.ImageField(upload_to=image_directory_path, max_length=100, null=True, default=None)
     timestamp = models.DateTimeField(auto_now_add=True)
     is_deleted = models.BooleanField(default=False)
-
 # end class
 
 
