@@ -24,6 +24,7 @@ from community.models import CodeReview, CodeReviewComment
 from consultations.models import ConsultationSlot
 from analytics.models import EventLog
 from industry_projects.models import IndustryProject
+from helpdesk.models import Ticket, TicketMessage
 
 import sys
 from datetime import timedelta, datetime
@@ -2627,7 +2628,7 @@ class Command(BaseCommand):
                 timestamp=now - timedelta(hours=2)
             )
             cr.save()
-            
+
             cr_c1 = CodeReviewComment(
                 comment="<p>What is this serializer for?</p>",
                 user=u1,
@@ -2646,7 +2647,6 @@ class Command(BaseCommand):
             )
             cr_c2.save()
 
-
             u2 = BaseUser.objects.get(email='m2@m2.com')
 
             cr = CodeReview(
@@ -2659,7 +2659,7 @@ class Command(BaseCommand):
                 timestamp=now - timedelta(hours=2)
             )
             cr.save()
-            
+
             cr_c1 = CodeReviewComment(
                 comment="<p>Looking for improvements...</p>",
                 user=u2,
@@ -2708,6 +2708,30 @@ class Command(BaseCommand):
             cr.save()
 
             self.stdout.write(f'{self.style.SUCCESS("Success")}: Code Reviews initiated')
+        except:
+            e = sys.exc_info()[0]
+            self.stdout.write(f'{self.style.ERROR("ERROR")}: {repr(e)}')
+        # end try-except
+
+        try:
+            # initiate some tickets
+            self.stdout.write('Initiating some helpdesk tickets...')
+            now = timezone.now()
+
+            t = Ticket(
+                description='My code review got banned...',
+                ticket_type='GENERAL',
+                base_user=u
+            )
+            t.save()
+
+            TicketMessage(
+                message='Can I check why my code review has been deactivated?',
+                base_user=u,
+                ticket=t
+            ).save()
+
+            self.stdout.write(f'{self.style.SUCCESS("Success")}: Helpdesk tickets created')
         except:
             e = sys.exc_info()[0]
             self.stdout.write(f'{self.style.ERROR("ERROR")}: {repr(e)}')
