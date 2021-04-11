@@ -20,9 +20,12 @@ from courses.models import (
     QuestionBank,
     QuestionGroup,
 )
+from community.models import CodeReview, CodeReviewComment, Article
 from consultations.models import ConsultationSlot
 from analytics.models import EventLog
 from industry_projects.models import IndustryProject
+from helpdesk.models import Ticket, TicketMessage
+from achievements.models import Achievement, AchievementRequirement
 
 import sys
 from datetime import timedelta, datetime
@@ -99,7 +102,7 @@ class Command(BaseCommand):
             u.profile_photo.save('m2.jpeg', ImageFile(open('./codeine_django/common/management/demo_assets/m2.jpeg', 'rb')))
             u.save()
 
-            m = Member(user=u, unique_id=hashids.encode(int(u.id)))
+            m = Member(user=u, unique_id=hashids.encode(int(u.id)), membership_tier='PRO')
             m.save()
             self.stdout.write(f'{self.style.SUCCESS("Success")}: {Member.objects.count()} members instantiated')
         except:
@@ -2605,6 +2608,461 @@ class Command(BaseCommand):
             ).save()
 
             self.stdout.write(f'{self.style.SUCCESS("Success")}: Industry projects initiated')
+        except:
+            e = sys.exc_info()[0]
+            self.stdout.write(f'{self.style.ERROR("ERROR")}: {repr(e)}')
+        # end try-except
+
+        try:
+            # initiate some code reviews
+            self.stdout.write('Initiating some code reviews...')
+            now = timezone.now()
+            u1 = BaseUser.objects.get(email='m1@m1.com')
+
+            cr = CodeReview(
+                title="Random Questions Subset Algo",
+                code="class QuizSerializer(serializers.ModelSerializer):\r\n    question_groups = QuestionGroupSerializer(many=True)\r\n    questions = serializers.SerializerMethodField('get_questions')\r\n\r\n    class Meta:\r\n        model = Quiz\r\n        fields = ('id', 'passing_marks', 'course', 'course_material', 'instructions', 'is_randomized', 'question_groups', 'questions')\r\n    # end Meta\r\n\r\n    def get_questions(self, obj):\r\n        request = self.context.get('request')\r\n        try:\r\n            member = request.user.member\r\n            random.seed(int(member.id))\r\n            questions = []\r\n\r\n            for question_group in obj.question_groups.all():\r\n                tmp = random.sample(list(question_group.question_bank.questions.all()), k=question_group.count)\r\n                questions += tmp\r\n            # end for\r\n            return QuestionSerializer(questions, many=True, context=self.context).data\r\n        except Exception as e:\r\n            try:\r\n                partner = request.user.partner\r\n                questions = []\r\n\r\n                for question_group in obj.question_groups.all():\r\n                    questions += question_group.question_bank.questions.all()\r\n                # end for\r\n                return QuestionSerializer(questions, many=True, context=self.context).data\r\n            except Exception as e:\r\n                print(str(e))\r\n                return []\r\n        # end try-except\r\n    # end def\r\n# end class",
+                coding_languages=['PY'],
+                languages=['ENG'],
+                categories=['BE'],
+                user=u1,
+                timestamp=now - timedelta(hours=2)
+            )
+            cr.save()
+
+            cr_c1 = CodeReviewComment(
+                comment="<p>What is this serializer for?</p>",
+                user=u1,
+                code_review=cr,
+                parent_comment=None,
+                code_line_index=1,
+            )
+            cr_c1.save()
+
+            cr_c2 = CodeReviewComment(
+                comment="<p>This serializes the quiz and a random subset of questions for each quiz</p>",
+                user=u,
+                code_review=cr,
+                parent_comment=cr_c1,
+                code_line_index=1,
+            )
+            cr_c2.save()
+
+            u2 = BaseUser.objects.get(email='m2@m2.com')
+
+            cr = CodeReview(
+                title="JS Date Formatter",
+                code="export const calculateDateInterval = (timestamp) => {\r\n  const dateBefore = new Date(timestamp);\r\n  const dateNow = new Date();\r\n\r\n  let seconds = Math.floor((dateNow - dateBefore) / 1000);\r\n  let minutes = Math.floor(seconds / 60);\r\n  let hours = Math.floor(minutes / 60);\r\n  let days = Math.floor(hours / 24);\r\n\r\n  hours = hours - days * 24;\r\n  minutes = minutes - days * 24 * 60 - hours * 60;\r\n  seconds = seconds - days * 24 * 60 * 60 - hours * 60 * 60 - minutes * 60;\r\n\r\n  if (days === 0) {\r\n    if (hours === 0) {\r\n      if (minutes === 0) {\r\n        return `${seconds} seconds ago`;\r\n      }\r\n\r\n      if (minutes === 1) {\r\n        return `${minutes} minute ago`;\r\n      }\r\n      return `${minutes} minutes ago`;\r\n    }\r\n\r\n    if (hours === 1) {\r\n      return `${hours} hour ago`;\r\n    }\r\n    return `${hours} hours ago`;\r\n  }\r\n\r\n  if (days === 1) {\r\n    return `${days} day ago`;\r\n  }\r\n  return `${days} days ago`;\r\n};",
+                coding_languages=['JS'],
+                languages=['ENG'],
+                categories=['FE'],
+                user=u2,
+                timestamp=now - timedelta(hours=2)
+            )
+            cr.save()
+
+            cr_c1 = CodeReviewComment(
+                comment="<p>Looking for improvements...</p>",
+                user=u2,
+                code_review=cr,
+                parent_comment=None,
+                code_line_index=1,
+            )
+            cr_c1.save()
+
+            cr_c2 = CodeReviewComment(
+                comment="<p>Use typescript fag</p>",
+                user=u1,
+                code_review=cr,
+                parent_comment=cr_c1,
+                code_line_index=1,
+            )
+            cr_c2.save()
+
+            cr_c3 = CodeReviewComment(
+                comment="<p>Don't be rude, son</p>",
+                user=u,
+                code_review=cr,
+                parent_comment=cr_c2,
+                code_line_index=1,
+            )
+            cr_c3.save()
+
+            cr_c1 = CodeReviewComment(
+                comment="<p>3 nested ifs....</p>",
+                user=u,
+                code_review=cr,
+                parent_comment=None,
+                code_line_index=14,
+            )
+            cr_c1.save()
+
+            cr = CodeReview(
+                title="Buffer Overflow Attack",
+                code="#include <signal.h>\r\n#include <stdio.h>\r\n#include <string.h>\r\nint main(){\r\n\tchar realPassword[20];\r\n\tchar givenPassword[20];\r\n\r\n\tstrncpy(realPassword, \"ddddddddddddddd\", 20);\r\n\tgets(givenPassword);\r\n\t\r\n\tif (0 == strncmp(givenPassword, realPassword, 20)){\r\n\t\tprintf(\"SUCCESS!\\n\");\r\n\t}else{\r\n\t\tprintf(\"FAILURE!\\n\");\r\n\t}\r\n\traise(SIGINT);\r\n\tprintf(\"givenPassword: %s\\n\", givenPassword);\r\n\tprintf(\"realPassword: %s\\n\", realPassword);\r\n\treturn 0;\r\n}",
+                coding_languages=['CPP'],
+                languages=['ENG'],
+                categories=['SEC'],
+                user=u,
+                timestamp=now - timedelta(hours=2)
+            )
+            cr.save()
+
+            self.stdout.write(f'{self.style.SUCCESS("Success")}: Code Reviews initiated')
+        except:
+            e = sys.exc_info()[0]
+            self.stdout.write(f'{self.style.ERROR("ERROR")}: {repr(e)}')
+        # end try-except
+
+        try:
+            # initiate some tickets
+            self.stdout.write('Initiating some helpdesk tickets...')
+            now = timezone.now()
+
+            t = Ticket(
+                description='My code review got banned...',
+                ticket_type='GENERAL',
+                base_user=u
+            )
+            t.save()
+
+            TicketMessage(
+                message='Can I check why my code review has been deactivated?',
+                base_user=u,
+                ticket=t
+            ).save()
+
+            self.stdout.write(f'{self.style.SUCCESS("Success")}: Helpdesk tickets created')
+        except:
+            e = sys.exc_info()[0]
+            self.stdout.write(f'{self.style.ERROR("ERROR")}: {repr(e)}')
+        # end try-except
+
+        try:
+            # initiate some articles
+            self.stdout.write('Initiating some articles...')
+            now = timezone.now()
+
+            ep1 = BaseUser.objects.get(email='ep1@ep1.com')
+            ep2 = BaseUser.objects.get(email='ep2@ep2.com')
+
+            a = Article(
+                content='''<h2>Building Full Stack dApps with React, Ethers.js, Solidity, and Hardhat</h2><blockquote>The code for this project is located&nbsp;<a href=\"https://github.com/dabit3/full-stack-ethereum\" rel=\"noopener noreferrer\" target=\"_blank\" style=\"color: var(--accent-brand);\">here</a></blockquote><p>I recently joined&nbsp;<a href=\"https://twitter.com/edgeandnode\" rel=\"noopener noreferrer\" target=\"_blank\" style=\"color: var(--accent-brand);\">Edge &amp; Node</a>&nbsp;as a Developer Relations Engineer and have been diving deeper into smart contract development with Ethereum. I have settled upon what I think is the best stack for building full stack dApps with Solidity:</p><p>▶︎ Client Framework -&nbsp;<strong>React</strong></p><p>▶︎ Ethereum development environment -&nbsp;<a href=\"https://hardhat.org/\" rel=\"noopener noreferrer\" target=\"_blank\" style=\"color: var(--accent-brand);\"><strong>Hardhat</strong></a></p><p>▶︎ Ethereum Web Client Library -&nbsp;<a href=\"https://docs.ethers.io/v5/\" rel=\"noopener noreferrer\" target=\"_blank\" style=\"color: var(--accent-brand);\"><strong>Ethers.js</strong></a></p><p>▶︎ API layer -&nbsp;<a href=\"https://thegraph.com/\" rel=\"noopener noreferrer\" target=\"_blank\" style=\"color: var(--accent-brand);\">The Graph Protocol</a></p><p>The problem that I ran into though while learning this was that while there was fairly good documentation out there for each of these things individually, there was nothing really out there for how to put all of these things together and understand how they worked with each other. There are some really good boilerplates out there like&nbsp;<a href=\"https://github.com/austintgriffith/scaffold-eth\" rel=\"noopener noreferrer\" target=\"_blank\" style=\"color: var(--accent-brand);\">scaffold-eth</a>&nbsp;(which also includes Ethers, Hardhat, and The Graph), but may be too much to pick up for people just getting started.</p><p>I wanted an end to end guide to show me how to build full stack Ethereum apps using the most up to date resources, libraries, and tooling.</p><p>The things I was interested in were this:</p><ol><li>How to create, deploy, and test Ethereum smart contracts to local, test, and mainnet</li><li>How to switch between local, test, and production environments / networks</li><li>How to connect to and interact with the contracts using various environments from a front end like React, Vue, Svelte, or Angular</li></ol><p>After spending some time figuring all of this out and getting going with the stack that I felt really happy with, I thought it would be nice to write up how to build and test a full stack Ethereum app using this stack not only for other people out there who may be interested in this stack, but also for myself for future reference. This is that reference.</p><h2>The pieces</h2><p>Let's go over the main pieces we will be using and how they fit into the stack.</p><h3>1. Ethereum development environment</h3><p>When building smart contracts, you will need a way to deploy your contracts, run tests, and debug Solidity code without dealing with live environments.</p><p>You will also need a way to compile your Solidity code into code that can be run in a client-side application –&nbsp;in our case, a React app. We'll learn more about how this works a little later.</p><p>Hardhat is an Ethereum development environment and framework designed for full stack development and is the framework that I will be using for this tutorial.</p><p>Other similar tools in the ecosystem are&nbsp;<a href=\"https://www.trufflesuite.com/ganache\" rel=\"noopener noreferrer\" target=\"_blank\" style=\"color: var(--accent-brand);\">Ganache</a>&nbsp;and&nbsp;<a href=\"https://www.trufflesuite.com/\" rel=\"noopener noreferrer\" target=\"_blank\" style=\"color: var(--accent-brand);\">Truffle</a>.</p><h3>2. Ethereum Web Client Library</h3><p>In our React app, we will need a way to interact with the smart contracts that have been deployed. We will need a way to read for data as well as send new transactions.</p><p><a href=\"https://docs.ethers.io/v5/\" rel=\"noopener noreferrer\" target=\"_blank\" style=\"color: var(--accent-brand);\">ethers.js</a>&nbsp;aims to be a complete and compact library for interacting with the Ethereum Blockchain and its ecosystem from client-side JavaScript applications like React, Vue, Angular, or Svelte. It is the library we'll be using.</p><p>Another popular option in the ecosystem is&nbsp;<a href=\"https://web3js.readthedocs.io/en/v1.3.4/\" rel=\"noopener noreferrer\" target=\"_blank\" style=\"color: var(--accent-brand);\">web3.js</a></p><h3>3. Metamask</h3><p><a href=\"https://metamask.io/download.html\" rel=\"noopener noreferrer\" target=\"_blank\" style=\"color: var(--accent-brand);\">Metamask</a>&nbsp;helps to handle account management and connecting the current user to the blockchain. MetaMask enables users to manage their accounts and keys in a few different ways while isolating them from the site context.</p><p>Once a user has connected their MetaMask wallet, you as a developer can interact with the globally available Ethereum API (<code style=\"color: var(--color-body-color); background-color: rgba(0, 0, 0, 0.1);\">window.ethereum</code>) that identifies the users of web3-compatible browsers (like MetaMask users), and whenever you request a transaction signature, MetaMask will prompt the user in as comprehensible a way as possible.</p><h3>4. React</h3><p>React is a front end JavaScript library for building web applications, user interfaces, and UI components. It's maintained by Facebook and many many individual developers and companies.</p><p>React and its large ecosystem of metaframeworks like&nbsp;<a href=\"https://nextjs.org/\" rel=\"noopener noreferrer\" target=\"_blank\" style=\"color: var(--accent-brand);\">Next.js</a>,&nbsp;<a href=\"https://www.gatsbyjs.com/\" rel=\"noopener noreferrer\" target=\"_blank\" style=\"color: var(--accent-brand);\">Gatsby</a>,&nbsp;<a href=\"https://redwoodjs.com/\" rel=\"noopener noreferrer\" target=\"_blank\" style=\"color: var(--accent-brand);\">Redwood</a>,&nbsp;<a href=\"https://blitzjs.com/\" rel=\"noopener noreferrer\" target=\"_blank\" style=\"color: var(--accent-brand);\">Blitz.js</a>, and others enable all types of deployment targets including traditional SPAs, static site generators, server-side rendering, and a combination of all three. React continues to be seemingly dominating the front-end space and I think will continue to do so for at least the near future.</p><h3>5. The Graph</h3><p>For most apps built on blockchains like Ethereum, it's hard and time-intensive to read data directly from the chain, so you used to see people and companies building their own centralized indexing server and serving API requests from these servers. This requires a lot of engineering and hardware resources and breaks the security properties required for decentralization.</p><p>The Graph is an indexing protocol for querying blockchain data that enables the creation of fully decentralized applications and solves this problem, exposing a rich GraphQL query layer that apps can consume. In this guide we won't be building a subgraph for our app but will do so in a future tutorial.</p><h2>What we will be building</h2><p>In this tutorial, we'll be building, deploying, and connecting to a couple of basic smart contracts:</p><ol><li>A contract for creating and updating a message on the Ethereum blockchain</li><li>A contract for minting tokens, then allowing the owner of the contract to send tokens to others and to read the token balances, and for owners of the new tokens to also send them to others.</li></ol><p>We will also build out a React front end that will allow a user to:</p><ol><li>Read the greeting from the contract deployed to the blockchain</li><li>Update the greeting</li><li>Send the newly minted tokens from their address to another address</li><li>Once someone has received tokens, allow them to also send their tokens to someone else</li><li>Read the token balance from the contract deployed to the blockchain</li></ol><h3>Prerequisites</h3><ol><li>Node.js installed on your local machine</li><li><a href=\"https://metamask.io/\" rel=\"noopener noreferrer\" target=\"_blank\" style=\"color: var(--accent-brand);\">MetaMask</a>&nbsp;Chrome extension installed in your browser</li></ol><p>You do not need to own any Ethereum for this guide as we will be using fake / test Ether on a test network for the entire tutorial.</p><h2>Getting started</h2><p>To get started, we'll create a new React application:</p><pre class=\"ql-syntax\" spellcheck=\"false\">npx create-react-app react-dapp\n</pre><p><br></p><p>Next, change into the new directory and install&nbsp;<code style=\"color: var(--color-body-color); background-color: rgba(0, 0, 0, 0.1);\"><a href=\"https://docs.ethers.io/v5/\" rel=\"noopener noreferrer\" target=\"_blank\">ethers.js</a></code>&nbsp;and&nbsp;<code style=\"color: var(--color-body-color); background-color: rgba(0, 0, 0, 0.1);\"><a href=\"https://github.com/nomiclabs/hardhat\" rel=\"noopener noreferrer\" target=\"_blank\">hardhat</a></code>&nbsp;using either&nbsp;<strong>NPM</strong>&nbsp;or&nbsp;<strong>Yarn</strong>:</p><pre class=\"ql-syntax\" spellcheck=\"false\">npm install ethers hardhat @nomiclabs/hardhat-waffle ethereum-waffle chai @nomiclabs/hardhat-ethers\n</pre><p><br></p><h3>Installing &amp; configuring an Ethereum development environment</h3><p>Next, initialize a new Ethereum Development Environment with Hardhat:</p><pre class=\"ql-syntax\" spellcheck=\"false\">npx hardhat\n\n? What do you want to do? Create a sample project\n? Hardhat project root: &lt;Choose default path&gt;\n</pre><p><br></p><p>Now you should see the following artifacts created for you in your root directory:</p><p><strong>hardhat.config.js</strong>&nbsp;- The entirety of your Hardhat setup (i.e. your config, plugins, and custom tasks) is contained in this file.</p><p><strong>scripts</strong>&nbsp;- A folder containing a script named&nbsp;<strong>sample-script.js</strong>&nbsp;that will deploy your smart contract when executed</p><p><strong>test</strong>&nbsp;- A folder containing an example testing script</p><p><strong>contracts</strong>&nbsp;- A folder holding an example Ethereum smart contract</p><p>Because of&nbsp;<a href=\"https://hardhat.org/metamask-issue.html\" rel=\"noopener noreferrer\" target=\"_blank\" style=\"color: var(--accent-brand);\">a MetaMask configuration issue</a>, we need to update the chain ID on our HardHat configuration to be&nbsp;<strong>1337</strong>. We also need to update the location for the&nbsp;<a href=\"https://hardhat.org/guides/compile-contracts.html#artifacts\" rel=\"noopener noreferrer\" target=\"_blank\" style=\"color: var(--accent-brand);\">artifacts</a>&nbsp;for our compiled contracts to be in the&nbsp;<strong>src</strong>&nbsp;directory of our React app.</p><p>To make these updates, open&nbsp;<strong>hardhat.config.js</strong>&nbsp;and update the&nbsp;<code style=\"color: var(--color-body-color); background-color: rgba(0, 0, 0, 0.1);\">module.exports</code>&nbsp;to look like this:</p><pre class=\"ql-syntax\" spellcheck=\"false\">module.exports = {\n  solidity: \"0.8.3\",\n  paths: {\n    artifacts: './src/artifacts',\n  },\n  networks: {\n    hardhat: {\n      chainId: 1337\n    }\n  }\n};\n</pre><p><br></p><h2>Our smart contract</h2><p>Next, let's have a look at the example contract given to us at&nbsp;<strong>contracts/Greeter.sol</strong>:</p><pre class=\"ql-syntax\" spellcheck=\"false\">//SPDX-License-Identifier: Unlicense\npragma solidity ^0.7.0;\n\nimport \"hardhat/console.sol\";\n\n\ncontract Greeter {\n  string greeting;\n\n  constructor(string memory _greeting) {\n    console.log(\"Deploying a Greeter with greeting:\", _greeting);\n    greeting = _greeting;\n  }\n\n  function greet() public view returns (string memory) {\n    return greeting;\n  }\n\n  function setGreeting(string memory _greeting) public {\n    console.log(\"Changing greeting from '%s' to '%s'\", greeting, _greeting);\n    greeting = _greeting;\n  }\n}\n</pre><p><br></p><p>This is a very basic smart contract. When deployed, it sets a Greeting variable and exposes a function (<code style=\"color: var(--color-body-color); background-color: rgba(0, 0, 0, 0.1);\">greet</code>) that can be called to return the greeting.</p><p>It also exposes a function that allows a user to update the greeting (<code style=\"color: var(--color-body-color); background-color: rgba(0, 0, 0, 0.1);\">setGreeting</code>). When deployed to the Ethereum blockchain, these methods will be available for a user to interact with.</p><p>Let's make one small modification to the smart contract. Since we set the solidity version of our compiler to&nbsp;<code style=\"color: var(--color-body-color); background-color: rgba(0, 0, 0, 0.1);\">0.8.3</code>&nbsp;in&nbsp;<strong>hardhat.config.js</strong>, let's also be sure to update our contract to use the same version of solidity:</p><pre class=\"ql-syntax\" spellcheck=\"false\">// contracts/Greeter.sol\npragma solidity ^0.8.3;\n</pre><p><br></p><h3>Reading and writing to the Ethereum blockchain</h3><p>There are two types of ways to interact with a smart contract, reading or writing / transactions. In our contract,&nbsp;<code style=\"color: var(--color-body-color); background-color: rgba(0, 0, 0, 0.1);\">greet</code>&nbsp;can be considered reading, and&nbsp;<code style=\"color: var(--color-body-color); background-color: rgba(0, 0, 0, 0.1);\">setGreeting</code>&nbsp;can be considered writing / transactional.</p><p>When writing or initializing a transaction, you have to pay for the transaction to be written to the blockchain. To make this work, you need to pay&nbsp;<a href=\"https://www.investopedia.com/terms/g/gas-ethereum.asp#:~:text=What%20Is%20Gas%20(Ethereum)%3F,on%20the%20Ethereum%20blockchain%20platform\" rel=\"noopener noreferrer\" target=\"_blank\" style=\"color: var(--accent-brand);\">gas</a>&nbsp;which is the fee, or price, required to successfully conduct a transaction and execute a contract on the Ethereum blockchain.</p><p>As long as you are only reading from the blockchain and not changing or updating anything, you don't need to carry out a transaction and there will be no gas or cost to do so. The function you call is then carried out only by the node you are connected to, so you don't need to pay any gas and the read is free.</p><p>From our React app, the way that we will interact with the smart contract is using a combination of the&nbsp;<code style=\"color: var(--color-body-color); background-color: rgba(0, 0, 0, 0.1);\">ethers.js</code>&nbsp;library, the contract address, and the&nbsp;<a href=\"https://docs.soliditylang.org/en/v0.5.3/abi-spec.html\" rel=\"noopener noreferrer\" target=\"_blank\" style=\"color: var(--accent-brand);\">ABI</a>&nbsp;that will be created from the contract by hardhat.</p><p>What is an ABI? ABI stands for application binary interface. You can think of it as the interface between your client-side application and the Ethereum blockchain where the smart contract you are going to be interacting with is deployed.</p><p>ABIs are typically compiled from Solidity smart contracts by a development framework like HardHat. You can also often find the ABIs for a smart contract on&nbsp;<a href=\"https://etherscan.io/\" rel=\"noopener noreferrer\" target=\"_blank\" style=\"color: var(--accent-brand);\">Etherscan</a></p><h3>Compiling the ABI</h3><p>Now that we have gone over the basic smart contract and know what ABIs are, let's compile an ABI for our project.</p><p>To do so, go to the command line and run the following command:</p><pre class=\"ql-syntax\" spellcheck=\"false\">npx hardhat compile\n</pre><p><br></p><p>Now, you should see a new folder named&nbsp;<strong>artifacts</strong>&nbsp;in the&nbsp;<strong>src</strong>&nbsp;directory. The&nbsp;<strong>artifacts/contracts/Greeter.json</strong>&nbsp;file contains the ABI as one of the properties. When we need to use the ABI, we can import it from our JavaScript file:</p><pre class=\"ql-syntax\" spellcheck=\"false\">import Greeter from './artifacts/contracts/Greeter.sol/Greeter.json'\n</pre><p><br></p><p>We can then reference the ABI like this:</p><pre class=\"ql-syntax\" spellcheck=\"false\">console.log(\"Greeter ABI: \", Greeter.abi)\n</pre><p><br></p><blockquote>Note that Ethers.js also enables&nbsp;<a href=\"https://blog.ricmoo.com/human-readable-contract-abis-in-ethers-js-141902f4d917\" rel=\"noopener noreferrer\" target=\"_blank\" style=\"color: var(--accent-brand);\">human readable ABIs</a>, but will will not be going into this during this tutorial.</blockquote><h3>Deploying and using a local network / blockchain</h3><p>Next, let's deploy our smart contract to a local blockchain so that we can test it out.</p><p>To deploy to the local network, you first need to start the local test node. To do so, open the CLI and run the following command:</p><pre class=\"ql-syntax\" spellcheck=\"false\">npx hardhat node\n</pre><p><br></p><p>When we run this command, you should see a list of addresses and private keys.</p><p><a href=\"https://res.cloudinary.com/practicaldev/image/fetch/s--A_zc2Dpd--/c_limit%2Cf_auto%2Cfl_progressive%2Cq_auto%2Cw_880/https://dev-to-uploads.s3.amazonaws.com/uploads/articles/e176nc82ik77hei3a48s.jpg\" rel=\"noopener noreferrer\" target=\"_blank\" style=\"color: var(--accent-brand);\"><img src=\"https://res.cloudinary.com/practicaldev/image/fetch/s--A_zc2Dpd--/c_limit%2Cf_auto%2Cfl_progressive%2Cq_auto%2Cw_880/https://dev-to-uploads.s3.amazonaws.com/uploads/articles/e176nc82ik77hei3a48s.jpg\" alt=\"Hardhat node addresses\"></a></p><p>These are 20 test accounts and addresses created for us that we can use to deploy and test our smart contracts. Each account is also loaded up with 10,000 fake Ether. In a moment, we'll learn how to import the test account into MetaMask so that we can use it.</p><p>Next, we need to deploy the contract to the test network. First update the name of&nbsp;<strong>scripts/sample-script.js</strong>&nbsp;to&nbsp;<strong>scripts/deploy.js</strong>.</p><p>Now we can run the deploy script and give a flag to the CLI that we would like to deploy to our local network:</p><pre class=\"ql-syntax\" spellcheck=\"false\">npx hardhat run scripts/deploy.js --network localhost\n</pre><p><br></p><p>Once this script is executed, the smart contract should be deployed to the local test network and we should be then able to start interacting with it.</p><blockquote>When the contract was deployed, it used the first account that was created when we started the local network.</blockquote><p>If you look at the output from the CLI, you should be able to see something like this:</p><pre class=\"ql-syntax\" spellcheck=\"false\">Greeter deployed to: 0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0\n</pre><p><br></p><p>This address is what we will use in our client application to talk to the smart contract. Keep this address available as we will need to use it when connecting to it from the client application.</p><p>To send transactions to the smart contract, we will need to connect our MetaMask wallet using one of the accounts created when we ran&nbsp;<code style=\"color: var(--color-body-color); background-color: rgba(0, 0, 0, 0.1);\">npx hardhat node</code>. In the list of contracts that the CLI logs out, you should see both an&nbsp;<strong>Account number</strong>&nbsp;as well as a&nbsp;<strong>Private Key</strong>:</p><pre class=\"ql-syntax\" spellcheck=\"false\">➜  react-defi-stack git:(main) npx hardhat node\nStarted HTTP and WebSocket JSON-RPC server at http://127.0.0.1:8545/\n\nAccounts\n========\nAccount #0: 0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266 (10000 ETH)\nPrivate Key: 0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80\n\n...\n</pre><p><br></p><p>We can import this account into MetaMask in order to start using some of the fake Eth available there. To do so, first open MetaMask and update the network to be Localhost 8545:</p><p><a href=\"https://res.cloudinary.com/practicaldev/image/fetch/s--UIsqf9Wh--/c_limit%2Cf_auto%2Cfl_progressive%2Cq_auto%2Cw_880/https://dev-to-uploads.s3.amazonaws.com/uploads/articles/qnbsbcm4y1md6cwjttpx.jpg\" rel=\"noopener noreferrer\" target=\"_blank\" style=\"color: var(--accent-brand);\"><img src=\"https://res.cloudinary.com/practicaldev/image/fetch/s--UIsqf9Wh--/c_limit%2Cf_auto%2Cfl_progressive%2Cq_auto%2Cw_880/https://dev-to-uploads.s3.amazonaws.com/uploads/articles/qnbsbcm4y1md6cwjttpx.jpg\" alt=\"MetaMask Localhost\"></a></p><p>Next, in MetaMask click on&nbsp;<strong>Import Account</strong>&nbsp;from the accounts menu:</p><p><a href=\"https://res.cloudinary.com/practicaldev/image/fetch/s--rUGcfvYR--/c_limit%2Cf_auto%2Cfl_progressive%2Cq_auto%2Cw_880/https://dev-to-uploads.s3.amazonaws.com/uploads/articles/n7vbzlov869gwk9rtwl1.jpg\" rel=\"noopener noreferrer\" target=\"_blank\" style=\"color: var(--accent-brand);\"><img src=\"https://res.cloudinary.com/practicaldev/image/fetch/s--rUGcfvYR--/c_limit%2Cf_auto%2Cfl_progressive%2Cq_auto%2Cw_880/https://dev-to-uploads.s3.amazonaws.com/uploads/articles/n7vbzlov869gwk9rtwl1.jpg\" alt=\"Import account\"></a></p><p>Copy then paste one of the&nbsp;<strong>Private Keys</strong>&nbsp;logged out by the CLI and click&nbsp;<strong>Import</strong>. Once the account is imported, you should see the Eth in the account:</p><p><a href=\"https://res.cloudinary.com/practicaldev/image/fetch/s---AfAcDFH--/c_limit%2Cf_auto%2Cfl_progressive%2Cq_auto%2Cw_880/https://dev-to-uploads.s3.amazonaws.com/uploads/articles/x5lob4yug3jznhy9z0qt.jpg\" rel=\"noopener noreferrer\" target=\"_blank\" style=\"color: var(--accent-brand);\"><img src=\"https://res.cloudinary.com/practicaldev/image/fetch/s---AfAcDFH--/c_limit%2Cf_auto%2Cfl_progressive%2Cq_auto%2Cw_880/https://dev-to-uploads.s3.amazonaws.com/uploads/articles/x5lob4yug3jznhy9z0qt.jpg\" alt=\"Imported account\"></a></p><p>Now that we have a smart contract deployed and an account ready to use, we can start interacting with it from the React app.</p><h3>Connecting the React client</h3><p>In this tutorial we are not going to be worrying about building a beautiful UI with CSS and all of that, we are focused 100% on the core functionality to get you up and running. From there, you can take it and make it look good if you'd like.</p><p>With that being said, let's review the two objectives that we want from our React application:</p><ol><li>Fetch the current value of&nbsp;<code style=\"color: var(--color-body-color); background-color: rgba(0, 0, 0, 0.1);\">greeting</code>&nbsp;from the smart contract</li><li>Allow a user to update the value of the&nbsp;<code style=\"color: var(--color-body-color); background-color: rgba(0, 0, 0, 0.1);\">greeting</code></li></ol><p>With those things being understood, how do we accomplish this? Here are the things we need to do to make this happen:</p><ol><li>Create an input field and some local state to manage the value of the input (to update the&nbsp;<code style=\"color: var(--color-body-color); background-color: rgba(0, 0, 0, 0.1);\">greeting</code>)</li><li>Allow the application to connect to the user's MetaMask account to sign transactions</li><li>Create functions for reading and writing to the smart contract</li></ol><p>To do this, open&nbsp;<code style=\"color: var(--color-body-color); background-color: rgba(0, 0, 0, 0.1);\">src/App.js</code>&nbsp;and update it with the following code, setting the value of&nbsp;<code style=\"color: var(--color-body-color); background-color: rgba(0, 0, 0, 0.1);\">greeterAddress</code>&nbsp;to the address of your smart contract.:</p><pre class=\"ql-syntax\" spellcheck=\"false\">import './App.css';\nimport { useState } from 'react';\nimport { ethers } from 'ethers'\nimport Greeter from './artifacts/contracts/Greeter.sol/Greeter.json'\n\n// Update with the contract address logged out to the CLI when it was deployed \nconst greeterAddress = \"your-contract-address\"\n\nfunction App() {\n  // store greeting in local state\n  const [greeting, setGreetingValue] = useState()\n\n  // request access to the user's MetaMask account\n  async function requestAccount() {\n    await window.ethereum.request({ method: 'eth_requestAccounts' });\n  }\n\n  // call the smart contract, read the current greeting value\n  async function fetchGreeting() {\n    if (typeof window.ethereum !== 'undefined') {\n      const provider = new ethers.providers.Web3Provider(window.ethereum)\n      const contract = new ethers.Contract(greeterAddress, Greeter.abi, provider)\n      try {\n        const data = await contract.greet()\n        console.log('data: ', data)\n      } catch (err) {\n        console.log(\"Error: \", err)\n      }\n    }    \n  }\n\n  // call the smart contract, send an update\n  async function setGreeting() {\n    if (!greeting) return\n    if (typeof window.ethereum !== 'undefined') {\n      await requestAccount()\n      const provider = new ethers.providers.Web3Provider(window.ethereum);\n      const signer = provider.getSigner()\n      const contract = new ethers.Contract(greeterAddress, Greeter.abi, signer)\n      const transaction = await contract.setGreeting(greeting)\n      await transaction.wait()\n      fetchGreeting()\n    }\n  }\n\n  return (\n    &lt;div className=\"App\"&gt;\n      &lt;header className=\"App-header\"&gt;\n        &lt;button onClick={fetchGreeting}&gt;Fetch Greeting&lt;/button&gt;\n        &lt;button onClick={setGreeting}&gt;Set Greeting&lt;/button&gt;\n        &lt;input onChange={e =&gt; setGreetingValue(e.target.value)} placeholder=\"Set greeting\" /&gt;\n      &lt;/header&gt;\n    &lt;/div&gt;\n  );\n}\n\nexport default App;\n</pre><p><br></p><p>To test it out, start the React server:</p><pre class=\"ql-syntax\" spellcheck=\"false\">npm start\n</pre><p><br></p><p>When the app loads, you should be able to fetch the current greeting and log it out to the console. You should also be able to make updates to the greeting by signing the contract with your MetaMask wallet and spending the fake Ether.</p><p><a href=\"https://res.cloudinary.com/practicaldev/image/fetch/s--AWIvD2l3--/c_limit%2Cf_auto%2Cfl_progressive%2Cq_auto%2Cw_880/https://dev-to-uploads.s3.amazonaws.com/uploads/articles/9a57jbzrwylr2l0rujxm.png\" rel=\"noopener noreferrer\" target=\"_blank\" style=\"color: var(--accent-brand);\"><img src=\"https://res.cloudinary.com/practicaldev/image/fetch/s--AWIvD2l3--/c_limit%2Cf_auto%2Cfl_progressive%2Cq_auto%2Cw_880/https://dev-to-uploads.s3.amazonaws.com/uploads/articles/9a57jbzrwylr2l0rujxm.png\" alt=\"Setting and getting the greeting value\"></a></p><h3>Deploying and using a live test network</h3><p>There are several Ethereum test networks like Ropsten, Rinkeby, or Kovan that we can also deploy to in order to have a publicly accessible version of our contract available without having to deploy it to mainnet. In this tutorial we'll be deploying to the&nbsp;<strong>Ropsten</strong>&nbsp;test network.</p><p>To start off, first update your MetaMask wallet to connect to the Ropsten network.</p><p><a href=\"https://res.cloudinary.com/practicaldev/image/fetch/s--HSvy3DUN--/c_limit%2Cf_auto%2Cfl_progressive%2Cq_auto%2Cw_880/https://dev-to-uploads.s3.amazonaws.com/uploads/articles/k85gplgp26wp58l95bhr.jpg\" rel=\"noopener noreferrer\" target=\"_blank\" style=\"color: var(--accent-brand);\"><img src=\"https://res.cloudinary.com/practicaldev/image/fetch/s--HSvy3DUN--/c_limit%2Cf_auto%2Cfl_progressive%2Cq_auto%2Cw_880/https://dev-to-uploads.s3.amazonaws.com/uploads/articles/k85gplgp26wp58l95bhr.jpg\" alt=\"Ropsten network\"></a></p><p>Next, send yourself some test Ether to use during the rest of this tutorial by visiting&nbsp;<a href=\"https://faucet.ropsten.be/\" rel=\"noopener noreferrer\" target=\"_blank\" style=\"color: var(--accent-brand);\">this test faucet</a>.</p><p>We can get access to Ropsten (or any of the other test networks) by signing up with a service like&nbsp;<a href=\"https://infura.io/dashboard/ethereum/cbdf7c5eee8b4e2b91e76b77ffd34533/settings\" rel=\"noopener noreferrer\" target=\"_blank\" style=\"color: var(--accent-brand);\">Infura</a>&nbsp;or&nbsp;<a href=\"https://www.alchemyapi.io/\" rel=\"noopener noreferrer\" target=\"_blank\" style=\"color: var(--accent-brand);\">Alchemy</a>&nbsp;(I'm using Infura for this tutorial).</p><p>Once you've created the app in Infura or Alchemy, you will be given an endpoint that looks something like this:</p><pre class=\"ql-syntax\" spellcheck=\"false\">https://ropsten.infura.io/v3/your-project-id\n</pre><p><br></p><p>Be sure to set the&nbsp;<strong>ALLOWLIST ETHEREUM ADDRESSES</strong>&nbsp;in the Infura or Alchemy app configuration to include the wallet address of the account you will be deploying from.</p><p>To deploy to the test network we need to update our hardhat config with some additional network information. One of the things we need to set is the private key of the wallet we will be deploying from.</p><p>To get the private key, you can export it from MetaMask.</p><p><a href=\"https://res.cloudinary.com/practicaldev/image/fetch/s--_g7R_Fdh--/c_limit%2Cf_auto%2Cfl_progressive%2Cq_auto%2Cw_880/https://dev-to-uploads.s3.amazonaws.com/uploads/articles/deod3d6qix8us12t17i4.jpg\" rel=\"noopener noreferrer\" target=\"_blank\" style=\"color: var(--accent-brand);\"><img src=\"https://res.cloudinary.com/practicaldev/image/fetch/s--_g7R_Fdh--/c_limit%2Cf_auto%2Cfl_progressive%2Cq_auto%2Cw_880/https://dev-to-uploads.s3.amazonaws.com/uploads/articles/deod3d6qix8us12t17i4.jpg\" alt=\"Export private key\"></a></p><blockquote>I'd suggest not hardcoding this value in your app but instead setting it as something like an environment variable.</blockquote><p>Next, add a&nbsp;<code style=\"color: var(--color-body-color); background-color: rgba(0, 0, 0, 0.1);\">networks</code>&nbsp;property with the following configuration:</p><pre class=\"ql-syntax\" spellcheck=\"false\">module.exports = {\n  defaultNetwork: \"hardhat\",\n  paths: {\n    artifacts: './src/artifacts',\n  },\n  networks: {\n    hardhat: {},\n    ropsten: {\n      url: \"https://ropsten.infura.io/v3/your-project-id\",\n      accounts: [`0x${your-private-key}`]\n    }\n  },\n  solidity: \"0.7.3\",\n};\n</pre><p><br></p><p>To deploy, run the following script:</p><pre class=\"ql-syntax\" spellcheck=\"false\">npx hardhat run scripts/deploy.js --network ropsten\n</pre><p><br></p><p>Once your contract is deployed you should be able to start interacting with it. You should be now able to view the live contract on&nbsp;<a href=\"https://ropsten.etherscan.io/\" rel=\"noopener noreferrer\" target=\"_blank\" style=\"color: var(--accent-brand);\">Etherscan Ropsten Testnet Explorer</a></p><h2>Minting tokens</h2><p>One of the most common use cases of smart contracts is creating tokens, let's look at how we can do that. Since we know a little more about how all of this works, we'll be going a little faster.</p><p>In the main&nbsp;<strong>contracts</strong>&nbsp;directory create a new file named&nbsp;<strong>Token.sol</strong>.</p><p>Next, update&nbsp;<strong>Token.sol</strong>&nbsp;with the following smart contract:</p><pre class=\"ql-syntax\" spellcheck=\"false\">//SPDX-License-Identifier: Unlicense\npragma solidity ^0.8.3;\n\nimport \"hardhat/console.sol\";\n\ncontract Token {\n  string public name = \"Nader Dabit Token\";\n  string public symbol = \"NDT\";\n  uint public totalSupply = 1000000;\n  address public owner;\n  mapping(address =&gt; uint) balances;\n\n  constructor() {\n    balances[msg.sender] = totalSupply;\n    owner = msg.sender;\n  }\n\n  function transfer(address to, uint amount) external {\n    require(balances[msg.sender] &gt;= amount, \"Not enough tokens\");\n    balances[msg.sender] -= amount;\n    balances[to] += amount;\n  }\n\n  function balanceOf(address account) external view returns (uint) {\n    return balances[account];\n  }\n}\n</pre><p><br></p><blockquote>Note that this token contract is for demo purposes only and is not&nbsp;<a href=\"https://eips.ethereum.org/EIPS/eip-20\" rel=\"noopener noreferrer\" target=\"_blank\" style=\"color: var(--accent-brand);\">ERC20</a>&nbsp;compliant. For an example of an ERC20 token, check out&nbsp;<a href=\"https://solidity-by-example.org/app/erc20/\" rel=\"noopener noreferrer\" target=\"_blank\" style=\"color: var(--accent-brand);\">this contract</a></blockquote><p>This contract will create a new token called \"Nader Dabit Token\" and set the supply to 1000000.</p><p>Next, compile this contract:</p><pre class=\"ql-syntax\" spellcheck=\"false\">npx hardhat compile\n</pre><p><br></p><p>Now, update the deploy script at&nbsp;<strong>scripts/deploy.js</strong>&nbsp;to include this new Token contract:</p><pre class=\"ql-syntax\" spellcheck=\"false\">const hre = require(\"hardhat\");\n\nasync function main() {\n  const [deployer] = await hre.ethers.getSigners();\n\n  console.log(\n    \"Deploying contracts with the account:\",\n    deployer.address\n  );\n\n  const Greeter = await hre.ethers.getContractFactory(\"Greeter\");\n  const greeter = await Greeter.deploy(\"Hello, World!\");\n\n  const Token = await hre.ethers.getContractFactory(\"Token\");\n  const token = await Token.deploy();\n\n  await greeter.deployed();\n  await token.deployed();\n\n  console.log(\"Greeter deployed to:\", greeter.address);\n  console.log(\"Token deployed to:\", token.address);\n}\n\nmain()\n  .then(() =&gt; process.exit(0))\n  .catch(error =&gt; {\n    console.error(error);\n    process.exit(1);\n  });\n</pre><p><br></p><p>Now, we can deploy this new contract to the local or Ropsten network:</p><pre class=\"ql-syntax\" spellcheck=\"false\">npx run scripts/deploy.js --network localhost\n</pre><p><br></p><p>Once the contract is deployed, you can start sending these tokens to other addresses.</p><p>To do so, let's update the client code we will need in order to make this work:</p><pre class=\"ql-syntax\" spellcheck=\"false\">import './App.css';\nimport { useState } from 'react';\nimport { ethers } from 'ethers'\nimport Greeter from './artifacts/contracts/Greeter.sol/Greeter.json'\nimport Token from './artifacts/contracts/Token.sol/Token.json'\n\nconst greeterAddress = \"your-contract-address\"\nconst tokenAddress = \"your-contract-address\"\n\nfunction App() {\n  const [greeting, setGreetingValue] = useState()\n  const [userAccount, setUserAccount] = useState()\n  const [amount, setAmount] = useState()\n\n  async function requestAccount() {\n    await window.ethereum.request({ method: 'eth_requestAccounts' });\n  }\n\n  async function fetchGreeting() {\n    if (typeof window.ethereum !== 'undefined') {\n      const provider = new ethers.providers.Web3Provider(window.ethereum)\n      console.log({ provider })\n      const contract = new ethers.Contract(greeterAddress, Greeter.abi, provider)\n      try {\n        const data = await contract.greet()\n        console.log('data: ', data)\n      } catch (err) {\n        console.log(\"Error: \", err)\n      }\n    }    \n  }\n\n  async function getBalance() {\n    if (typeof window.ethereum !== 'undefined') {\n      const [account] = await window.ethereum.request({ method: 'eth_requestAccounts' })\n      console.log({ account })\n      const provider = new ethers.providers.Web3Provider(window.ethereum);\n      const signer = provider.getSigner()\n      const contract = new ethers.Contract(tokenAddress, Token.abi, signer)\n      contract.balanceOf(account).then(data =&gt; {\n        console.log(\"data: \", data.toString())\n      })\n    }\n  }\n\n  async function setGreeting() {\n    if (!greeting) return\n    if (typeof window.ethereum !== 'undefined') {\n      await requestAccount()\n      const provider = new ethers.providers.Web3Provider(window.ethereum);\n      console.log({ provider })\n      const signer = provider.getSigner()\n      const contract = new ethers.Contract(greeterAddress, Greeter.abi, signer)\n      const transaction = await contract.setGreeting(greeting)\n      await transaction.wait()\n      fetchGreeting()\n    }\n  }\n\n  async function sendCoins() {\n    if (typeof window.ethereum !== 'undefined') {\n      await requestAccount()\n      const provider = new ethers.providers.Web3Provider(window.ethereum);\n      const signer = provider.getSigner()\n      const contract = new ethers.Contract(tokenAddress, Token.abi, signer)\n      contract.transfer(userAccount, amount).then(data =&gt; console.log({ data }))\n    }\n  }\n\n  return (\n    &lt;div className=\"App\"&gt;\n      &lt;header className=\"App-header\"&gt;\n        &lt;button onClick={fetchGreeting}&gt;Fetch Greeting&lt;/button&gt;\n        &lt;button onClick={setGreeting}&gt;Set Greeting&lt;/button&gt;\n        &lt;input onChange={e =&gt; setGreetingValue(e.target.value)} placeholder=\"Set greeting\" /&gt;\n\n        &lt;br /&gt;\n        &lt;button onClick={getBalance}&gt;Get Balance&lt;/button&gt;\n        &lt;button onClick={sendCoins}&gt;Send Coins&lt;/button&gt;\n        &lt;input onChange={e =&gt; setUserAccount(e.target.value)} placeholder=\"Account ID\" /&gt;\n        &lt;input onChange={e =&gt; setAmount(e.target.value)} placeholder=\"Amount\" /&gt;\n      &lt;/header&gt;\n    &lt;/div&gt;\n  );\n}\n\nexport default App;\n</pre><p><br></p><p>Next, run the app:</p><pre class=\"ql-syntax\" spellcheck=\"false\">npm start\n</pre><p><br></p><p>We should be able to click on&nbsp;<strong>Get Balance</strong>&nbsp;and see that we have 1,000,000 coins in our account logged out to the console.</p><p>You should also be able to view them in MetaMask by clicking on&nbsp;<strong>Add Token</strong>:</p><p><a href=\"https://res.cloudinary.com/practicaldev/image/fetch/s--bYhSNJ4P--/c_limit%2Cf_auto%2Cfl_progressive%2Cq_auto%2Cw_880/https://dev-to-uploads.s3.amazonaws.com/uploads/articles/0t2ip26i5d2ltjc9j2a6.jpg\" rel=\"noopener noreferrer\" target=\"_blank\" style=\"color: var(--accent-brand);\"><img src=\"https://res.cloudinary.com/practicaldev/image/fetch/s--bYhSNJ4P--/c_limit%2Cf_auto%2Cfl_progressive%2Cq_auto%2Cw_880/https://dev-to-uploads.s3.amazonaws.com/uploads/articles/0t2ip26i5d2ltjc9j2a6.jpg\" alt=\"Add token\"></a></p><p>Next click on&nbsp;<strong>Custom Token</strong>&nbsp;and enter the token contract address and then&nbsp;<strong>Add Token</strong>. Now the tokens should be available in your wallet:</p><p><a href=\"https://res.cloudinary.com/practicaldev/image/fetch/s--tLmPpIH8--/c_limit%2Cf_auto%2Cfl_progressive%2Cq_auto%2Cw_880/https://dev-to-uploads.s3.amazonaws.com/uploads/articles/5op32iqbeszizri72qc0.jpg\" rel=\"noopener noreferrer\" target=\"_blank\" style=\"color: var(--accent-brand);\"><img src=\"https://res.cloudinary.com/practicaldev/image/fetch/s--tLmPpIH8--/c_limit%2Cf_auto%2Cfl_progressive%2Cq_auto%2Cw_880/https://dev-to-uploads.s3.amazonaws.com/uploads/articles/5op32iqbeszizri72qc0.jpg\" alt=\"NDT\"></a></p><p>Next, let's try to send those coins to another address.</p><p>To do so, copy the address of another account and send them to that address using the updated React UI. When you check the token amount, it should be equal to the original amount minus the amount you sent to the address.</p><h2>Conclusion</h2><p>Ok, we covered a lot here but for me this is kind of the bread and butter / core of getting started with this stack and is kind of what I wanted to have not only as someone who was learning all of this stuff, but also in the future if I ever need to reference anything I may need in the future. I hope you learned a lot.</p><p>If you want to support multiple wallets in addition to MetaMask, check out&nbsp;<a href=\"https://github.com/Web3Modal/web3modal\" rel=\"noopener noreferrer\" target=\"_blank\" style=\"color: var(--accent-brand);\">Web3 Modal</a>&nbsp;which makes it easy to implement support for multiple providers in your app with a fairly simple and customizable configuration.</p><p>In my future tutorials and guides I'll be diving into more complex smart contract development and also how to deploy them as&nbsp;<a href=\"https://thegraph.com/docs/define-a-subgraph\" rel=\"noopener noreferrer\" target=\"_blank\" style=\"color: var(--accent-brand);\">subgraphs</a>&nbsp;to expose a GraphQL API on top of them and implement things like pagination and full text search.</p><p>I'll also be going into how to use technologies like IPFS and Web3 databases to store data in a decentralized way.</p><h2>If you have any questions or suggestions for future tutorials, drop some comments here and let me know.</h2>''',
+                title='The Complete Guide to Full Stack Ethereum Development',
+                coding_languages=['JS,'],
+                languages=['ENG'],
+                categories=['FE'],
+                user=ep1,
+                is_published=True,
+                date_created=now - timedelta(days=2),
+            )
+            a.thumbnail.save('article1.png', ImageFile(open('./codeine_django/common/management/demo_assets/articles/article1.png', 'rb')))
+            a.save()
+
+            a = Article(
+                content='''<p>JavaScript is no doubt one of the coolest languages in the world and is gaining more and more popularity day by day. So the developer community has found some tricks and tips after using JS for quite a while now. Today I will share 11 Tips &amp; Tricks With You!</p><p>So let's get started</p><h2>Functional Inheritance</h2><p>Functional inheritance is the process of receiving features by applying an augmenting function to an object instance. The function supplies a closure scope which you can use to keep some data private. The augmenting function uses dynamic object extension to extend the object instance with new properties and methods.</p><p>They look like:</p><pre class=\"ql-syntax\" spellcheck=\"false\">// Base function\nfunction Drinks(data) {\n  var that = {}; // Create an empty object\n  that.name = data.name; // Add it a \"name\" property\n  return that; // Return the object\n};\n\n// Fuction which inherits from the base function\nfunction Coffee(data) {\n  // Create the Drinks object\n  var that = Drinks(data);\n  // Extend base object\n  that.giveName = function() {\n    return 'This is ' + that.name;\n  };\n  return that;\n};\n\n// Usage\nvar firstCoffee = Coffee({ name: 'Cappuccino' });\nconsole.log(firstCoffee.giveName());\n// Output: \"This is Cappuccino\"\n</pre><p><br></p><p>Credits to&nbsp;<a href=\"https://twitter.com/loverajoel\" rel=\"noopener noreferrer\" target=\"_blank\" style=\"color: var(--accent-brand);\">@loverajoel</a>&nbsp;for explaining this topic in depth here -&nbsp;<a href=\"https://www.jstips.co/en/javascript/what-is-a-functional-inheritance/\" rel=\"noopener noreferrer\" target=\"_blank\" style=\"color: var(--accent-brand);\">Functional Inheritance on JS Tips</a>&nbsp;which I've paraphrased above</p><h2>.map() Substitute</h2><p><code style=\"color: var(--color-body-color); background-color: rgba(0, 0, 0, 0.1);\">.map()</code>&nbsp;also has a substitute that we can use which is&nbsp;<code style=\"color: var(--color-body-color); background-color: rgba(0, 0, 0, 0.1);\">.from()</code>:</p><pre class=\"ql-syntax\" spellcheck=\"false\">let dogs = [\n    { name: ‘Rio’, age: 2 },\n    { name: ‘Mac’, age: 3 },\n    { name: ‘Bruno’, age: 5 },\n    { name: ‘Jucas’, age: 10 },\n    { name: ‘Furr’, age: 8 },\n    { name: ‘Blu’, age: 7 },\n]\n\n\nlet dogsNames = Array.from(dogs, ({name}) =&gt; name);\nconsole.log(dogsNames); // returns [“Rio”, “Mac”, “Bruno”, “Jucas”, “Furr”, “Blu”]\n</pre><p><br></p><h2>Number to string/string to number</h2><p>Usually, to convert a string to a number, we use something like this:</p><pre class=\"ql-syntax\" spellcheck=\"false\">let num = 4\nlet newNum = num.toString();\n</pre><p><br></p><p>and to convert a string to a number, we use:</p><pre class=\"ql-syntax\" spellcheck=\"false\">let num = \"4\"\nlet stringNumber = Number(num);\n</pre><p><br></p><p>but what we can use to code fast is:</p><pre class=\"ql-syntax\" spellcheck=\"false\">let num = 15;\nlet numString = num + \"\"; // number to string\nlet stringNum = +s; // string to number\n</pre><p><br></p><h2>Using length to resize and emptying an array</h2><p>In javascript, we can override a built-in method called&nbsp;<code style=\"color: var(--color-body-color); background-color: rgba(0, 0, 0, 0.1);\">length</code>&nbsp;and assign it a value of our choice.</p><p>Let's look at an example:</p><pre class=\"ql-syntax\" spellcheck=\"false\">let array_values = [1, 2, 3, 4, 5, 6, 7, 8];  \nconsole.log(array_values.length); \n// 8  \narray_values.length = 5;  \nconsole.log(array_values.length); \n// 5  \nconsole.log(array_values); \n// [1, 2, 3, 4, 5]\n</pre><p><br></p><p>It can also be used in emptying an array, like this:</p><pre class=\"ql-syntax\" spellcheck=\"false\">let array_values = [1, 2, 3, 4, 5, 6, 7,8]; \nconsole.log(array_values.length); \n// 8  \narray_values.length = 0;   \nconsole.log(array_values.length); \n// 0 \nconsole.log(array_values); \n// []\n</pre><p><br></p><h2>Swap Values with Array Destructuring.</h2><p>The&nbsp;<strong>destructuring</strong>&nbsp;assignment syntax is a JavaScript expression that makes it possible to unpack values from arrays, or properties from objects, into distinct variables. We can also use that to swap values fast, like this:</p><pre class=\"ql-syntax\" spellcheck=\"false\">let a = 1, b = 2\n[a, b] = [b, a]\nconsole.log(a) // result -&gt; 2\nconsole.log(b) // result -&gt; 1\n</pre><p><br></p><h2>Remove duplicates from an Array</h2><p>This trick is pretty simple. Let's say, I made an array that is containing numbers, strings, and booleans, but the values are repeating themselves more than once and I want to remove the duplicates. So what I can do is:</p><pre class=\"ql-syntax\" spellcheck=\"false\">const array = [1, 3, 2, 3, 2, 1, true, false, true, 'Kio', 2, 3];\nconst filteredArray = [...new Set(array)];\nconsole.log(filteredArray) // [1, 3, 2, true, false, \"Kio\"]\n</pre><p><br></p><h2>Short For Loop</h2><p>You can write less code for a loop like this:</p><pre class=\"ql-syntax\" spellcheck=\"false\">const names = [\"Kio\", \"Rio\", \"Mac\"];\n\n// Long Version\nfor (let i = 0; i &lt; names.length; i++) {\n  const name = names[i];\n  console.log(name);\n}\n\n// Short Version\nfor (let name of names) console.log(name);\n</pre><p><br></p><h2>Performance</h2><p>In JS you can also get the time that the code was executed in like Google does:</p><p><a href=\"https://res.cloudinary.com/practicaldev/image/fetch/s--JSbC-A0p--/c_limit%2Cf_auto%2Cfl_progressive%2Cq_auto%2Cw_880/https://dev-to-uploads.s3.amazonaws.com/uploads/articles/i7ed89oyhcyyjhqirvc6.png\" rel=\"noopener noreferrer\" target=\"_blank\" style=\"color: var(--accent-brand);\"><img src=\"https://res.cloudinary.com/practicaldev/image/fetch/s--JSbC-A0p--/c_limit%2Cf_auto%2Cfl_progressive%2Cq_auto%2Cw_880/https://dev-to-uploads.s3.amazonaws.com/uploads/articles/i7ed89oyhcyyjhqirvc6.png\" alt=\"google example\"></a></p><p>It looks like this:</p><pre class=\"ql-syntax\" spellcheck=\"false\">const firstTime = performance.now();\nsomething();\nconst secondTime = performance.now();\nconsole.log(`The something function took ${secondTime - firstTime} milliseconds.`);\n</pre><p><br></p><p>Thank you very much for reading this article.</p><p>Comment any tricks &amp; tips you know!</p><p><strong>PLEASE LIKE, SHARE, AND COMMENT</strong></p><p>Follow me on&nbsp;<a href=\"https://dev.to/garvitmotwani\" rel=\"noopener noreferrer\" target=\"_blank\" style=\"color: var(--accent-brand);\">Dev</a>&nbsp;and&nbsp;<a href=\"https://twitter.com/GarvitMotwani\" rel=\"noopener noreferrer\" target=\"_blank\" style=\"color: var(--accent-brand);\">Twitter</a></p><p>You Should also check</p><p><br></p><h2><a href=\"https://dev.to/devlorenzo\" rel=\"noopener noreferrer\" target=\"_blank\" style=\"color: var(--accent-brand);\"><img src=\"https://res.cloudinary.com/practicaldev/image/fetch/s--QtgKvHIX--/c_limit%2Cf_auto%2Cfl_progressive%2Cq_66%2Cw_880/https://res.cloudinary.com/practicaldev/image/fetch/s--N0bOH9Ja--/c_fill%2Cf_auto%2Cfl_progressive%2Ch_150%2Cq_66%2Cw_150/https://dev-to-uploads.s3.amazonaws.com/uploads/user/profile_image/571015/3b1e2909-e87b-4fc7-b817-0673184568b0.gif\" alt=\"devlorenzo image\">&nbsp;</a><a href=\"https://dev.to/devlorenzo/10-projects-to-become-a-javascript-master-giveaway-2o4k\" rel=\"noopener noreferrer\" target=\"_blank\" style=\"color: var(--accent-brand);\">Projects to become a javascript master 🚀 Resource compilation 💥 + Giveaway⚡</a></h2><h3><a href=\"https://dev.to/devlorenzo/10-projects-to-become-a-javascript-master-giveaway-2o4k\" rel=\"noopener noreferrer\" target=\"_blank\" style=\"color: var(--accent-brand);\">DevLorenzo ・ Apr 10 ・ 7 min read</a></h3><p><a href=\"https://dev.to/devlorenzo/10-projects-to-become-a-javascript-master-giveaway-2o4k\" rel=\"noopener noreferrer\" target=\"_blank\" style=\"color: var(--accent-brand);\">#javascript&nbsp;#webdev&nbsp;#programming&nbsp;#beginners</a></p><p>by my friend&nbsp;<a href=\"https://dev.to/devlorenzo\" rel=\"noopener noreferrer\" target=\"_blank\" style=\"color: var(--accent-brand);\">@devlorenzo</a></p><p>Subscribe to our&nbsp;<a href=\"https://chipper-motivator-3112.ck.page/05710ea3d3\" rel=\"noopener noreferrer\" target=\"_blank\" style=\"color: var(--accent-brand);\">newsletter</a>&nbsp;to receive our weekly recap directly on your email!</p><p>Join us on&nbsp;<a href=\"https://discord.gg/aWS2YKk6\" rel=\"noopener noreferrer\" target=\"_blank\" style=\"color: var(--accent-brand);\">Discord</a>&nbsp;to participate in hackathons with us / participate in our giveaways!</p><p>Happy Coding.</p>''',
+                title='8 JavaScript Tips & Tricks That No One Teaches 🚀',
+                coding_languages=['JS,'],
+                languages=['ENG'],
+                categories=['FE'],
+                user=ep2,
+                is_published=True,
+            )
+            a.thumbnail.save('article2.jpeg', ImageFile(open('./codeine_django/common/management/demo_assets/articles/article2.jpeg', 'rb')))
+            a.save()
+
+            self.stdout.write(f'{self.style.SUCCESS("Success")}: Articles created')
+        except:
+            e = sys.exc_info()[0]
+            self.stdout.write(f'{self.style.ERROR("ERROR")}: {repr(e)}')
+        # end try-except
+
+
+        try:
+            # initiate some badges
+            self.stdout.write('Creating some achievement badges...')
+            now = timezone.now()
+
+            ach = Achievement(
+                title='Django Newbie',
+            )
+            ach.badge.save('dj1.png', ImageFile(open('./codeine_django/common/management/demo_assets/badges/dj1.png', 'rb')))
+            ach.save()
+
+            AchievementRequirement(
+                stat='PY',
+                experience_point=200,
+                achievement=ach,
+            ).save()
+            AchievementRequirement(
+                stat='BE',
+                experience_point=200,
+                achievement=ach,
+            ).save()
+            AchievementRequirement(
+                stat='DB',
+                experience_point=200,
+                achievement=ach,
+            ).save()
+
+            ach = Achievement(
+                title='Django Enthusiast',
+            )
+            ach.badge.save('dj2.png', ImageFile(open('./codeine_django/common/management/demo_assets/badges/dj2.png', 'rb')))
+            ach.save()
+
+            AchievementRequirement(
+                stat='PY',
+                experience_point=600,
+                achievement=ach,
+            ).save()
+            AchievementRequirement(
+                stat='BE',
+                experience_point=600,
+                achievement=ach,
+            ).save()
+            AchievementRequirement(
+                stat='DB',
+                experience_point=600,
+                achievement=ach,
+            ).save()
+
+            ach = Achievement(
+                title='Django Expert',
+            )
+            ach.badge.save('dj3.png', ImageFile(open('./codeine_django/common/management/demo_assets/badges/dj3.png', 'rb')))
+            ach.save()
+
+            AchievementRequirement(
+                stat='PY',
+                experience_point=800,
+                achievement=ach,
+            ).save()
+            AchievementRequirement(
+                stat='BE',
+                experience_point=1500,
+                achievement=ach,
+            ).save()
+            AchievementRequirement(
+                stat='DB',
+                experience_point=200,
+                achievement=ach,
+            ).save()
+
+            ach = Achievement(
+                title='Frontend Rookie',
+            )
+            ach.badge.save('fe1.png', ImageFile(open('./codeine_django/common/management/demo_assets/badges/fe1.png', 'rb')))
+            ach.save()
+
+            AchievementRequirement(
+                stat='FE',
+                experience_point=300,
+                achievement=ach,
+            ).save()
+            AchievementRequirement(
+                stat='HTML',
+                experience_point=200,
+                achievement=ach,
+            ).save()
+            AchievementRequirement(
+                stat='CSS',
+                experience_point=200,
+                achievement=ach,
+            ).save()
+            AchievementRequirement(
+                stat='JS',
+                experience_point=200,
+                achievement=ach,
+            ).save()
+
+            ach = Achievement(
+                title='Frontend Developer',
+            )
+            ach.badge.save('fe2.png', ImageFile(open('./codeine_django/common/management/demo_assets/badges/fe2.png', 'rb')))
+            ach.save()
+
+            AchievementRequirement(
+                stat='FE',
+                experience_point=1200,
+                achievement=ach,
+            ).save()
+            AchievementRequirement(
+                stat='HTML',
+                experience_point=800,
+                achievement=ach,
+            ).save()
+            AchievementRequirement(
+                stat='CSS',
+                experience_point=800,
+                achievement=ach,
+            ).save()
+            AchievementRequirement(
+                stat='JS',
+                experience_point=800,
+                achievement=ach,
+            ).save()
+
+            ach = Achievement(
+                title='Frontend Sexpert',
+            )
+            ach.badge.save('fe3.png', ImageFile(open('./codeine_django/common/management/demo_assets/badges/fe3.png', 'rb')))
+            ach.save()
+
+            AchievementRequirement(
+                stat='FE',
+                experience_point=40000,
+                achievement=ach,
+            ).save()
+            AchievementRequirement(
+                stat='HTML',
+                experience_point=40000,
+                achievement=ach,
+            ).save()
+            AchievementRequirement(
+                stat='CSS',
+                experience_point=40000,
+                achievement=ach,
+            ).save()
+            AchievementRequirement(
+                stat='JS',
+                experience_point=40000,
+                achievement=ach,
+            ).save()
+
+            ach = Achievement(
+                title='Pretty good at Javascript',
+            )
+            ach.badge.save('js1.png', ImageFile(open('./codeine_django/common/management/demo_assets/badges/js1.png', 'rb')))
+            ach.save()
+
+            AchievementRequirement(
+                stat='FE',
+                experience_point=250,
+                achievement=ach,
+            ).save()
+            AchievementRequirement(
+                stat='JS',
+                experience_point=500,
+                achievement=ach,
+            ).save()
+
+            ach = Achievement(
+                title='Pretty darn good at Javascript',
+            )
+            ach.badge.save('js2.png', ImageFile(open('./codeine_django/common/management/demo_assets/badges/js2.png', 'rb')))
+            ach.save()
+
+            AchievementRequirement(
+                stat='FE',
+                experience_point=500,
+                achievement=ach,
+            ).save()
+            AchievementRequirement(
+                stat='JS',
+                experience_point=800,
+                achievement=ach,
+            ).save()
+
+            ach = Achievement(
+                title='Pretty damn good at Javascript',
+            )
+            ach.badge.save('js3.png', ImageFile(open('./codeine_django/common/management/demo_assets/badges/js3.png', 'rb')))
+            ach.save()
+
+            AchievementRequirement(
+                stat='FE',
+                experience_point=800,
+                achievement=ach,
+            ).save()
+            AchievementRequirement(
+                stat='JS',
+                experience_point=1800,
+                achievement=ach,
+            ).save()
+
+            ach = Achievement(
+                title='React Rookie',
+            )
+            ach.badge.save('r1.png', ImageFile(open('./codeine_django/common/management/demo_assets/badges/r1.png', 'rb')))
+            ach.save()
+
+            AchievementRequirement(
+                stat='FE',
+                experience_point=200,
+                achievement=ach,
+            ).save()
+            AchievementRequirement(
+                stat='JS',
+                experience_point=500,
+                achievement=ach,
+            ).save()
+            AchievementRequirement(
+                stat='HTML',
+                experience_point=300,
+                achievement=ach,
+            ).save()
+            AchievementRequirement(
+                stat='CSS',
+                experience_point=300,
+                achievement=ach,
+            ).save()
+
+            ach = Achievement(
+                title='React-Ready',
+            )
+            ach.badge.save('r2.png', ImageFile(open('./codeine_django/common/management/demo_assets/badges/r2.png', 'rb')))
+            ach.save()
+
+            AchievementRequirement(
+                stat='FE',
+                experience_point=500,
+                achievement=ach,
+            ).save()
+            AchievementRequirement(
+                stat='JS',
+                experience_point=800,
+                achievement=ach,
+            ).save()
+            AchievementRequirement(
+                stat='HTML',
+                experience_point=500,
+                achievement=ach,
+            ).save()
+            AchievementRequirement(
+                stat='CSS',
+                experience_point=500,
+                achievement=ach,
+            ).save()
+
+            ach = Achievement(
+                title='React Ragnarok',
+            )
+            ach.badge.save('r3.png', ImageFile(open('./codeine_django/common/management/demo_assets/badges/r3.png', 'rb')))
+            ach.save()
+
+            AchievementRequirement(
+                stat='FE',
+                experience_point=2000,
+                achievement=ach,
+            ).save()
+            AchievementRequirement(
+                stat='JS',
+                experience_point=5000,
+                achievement=ach,
+            ).save()
+            AchievementRequirement(
+                stat='HTML',
+                experience_point=2000,
+                achievement=ach,
+            ).save()
+            AchievementRequirement(
+                stat='CSS',
+                experience_point=2000,
+                achievement=ach,
+            ).save()
+
+            self.stdout.write(f'{self.style.SUCCESS("Success")}: Achievement badges created')
         except:
             e = sys.exc_info()[0]
             self.stdout.write(f'{self.style.ERROR("ERROR")}: {repr(e)}')
