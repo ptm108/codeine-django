@@ -2595,7 +2595,8 @@ class Command(BaseCommand):
                 start_date=now + timedelta(days=120),
                 end_date=now + timedelta(days=240),
                 application_deadline=now + timedelta(days=60),
-                categories=['FE', 'BE']
+                categories=['FE', 'BE'],
+                partner=u.partner,
             ).save()
 
             IndustryProject(
@@ -2604,7 +2605,8 @@ class Command(BaseCommand):
                 start_date=now + timedelta(days=140),
                 end_date=now + timedelta(days=300),
                 application_deadline=now + timedelta(days=20),
-                categories=['ML', 'BE']
+                categories=['ML', 'BE'],
+                partner=u.partner,
             ).save()
 
             self.stdout.write(f'{self.style.SUCCESS("Success")}: Industry projects initiated')
