@@ -2,6 +2,7 @@ from .models import IndustryProject
 from .serializers import IndustryProjectSerializer
 from django.db.models import Q
 from django.core.exceptions import ObjectDoesNotExist
+from django.utils import timezone
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework import status
@@ -28,6 +29,7 @@ def industry_project_view(request):
             is_available = request.query_params.get('isAvailable', None)
             is_completed = request.query_params.get('isCompleted', None)
             date_sort = request.query_params.get('sortDate', None)
+            is_upcoming = request.query_params.get('isUpcoming', None)
 
             if search is not None:
                 industry_projects = industry_projects.filter(
@@ -47,6 +49,10 @@ def industry_project_view(request):
                 industry_projects = industry_projects.filter(is_completed=completed)
             if date_sort is not None:
                 industry_projects = industry_projects.order_by(date_sort)
+            if is_upcoming is not None:
+                industry_projects = industry_projects.filter(application_deadline__gte=timezone.now())
+            # end if
+        # end if
             # end ifs
 
             serializer = IndustryProjectSerializer(industry_projects.all(), many=True, context={"request": request})
