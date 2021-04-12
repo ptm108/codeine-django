@@ -20,6 +20,7 @@ hashids = "*"
 pycodestyle = "*"
 celery = "*"
 django-celery-beat = "*"
+psycopg2-binary = "*"
 
 [requires]
 python_version = "3.8"
