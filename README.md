@@ -2,6 +2,7 @@
 
 Backend powering Codeine
 
+
 ## Key Features
 * Course based content
 * Integrated coding environment
@@ -13,7 +14,7 @@ Backend powering Codeine
 
 ## Prerequisites
 
-To clone and run this application, you'll need [Git](https://git-scm.com), [Python 3.8](https://www.python.org/downloads/), [Pipenv](https://pypi.org/project/pipenv/), [Docker](https://docs.docker.com/get-docker/) and [RabbitMQ](https://www.rabbitmq.com/) installed on your computer. From your command line:
+To clone and run this application, you'll need [Git](https://git-scm.com), [Python 3.8](https://www.python.org/downloads/), [Pipenv](https://pypi.org/project/pipenv/), [Docker](https://docs.docker.com/get-docker/) and [RabbitMQ](https://www.rabbitmq.com/) installed on your computer.
 
 ## How To Use
 
