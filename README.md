@@ -1,6 +1,58 @@
 # codeine-django
 
-Backend powering codeine
+Backend powering Codeine
+
+
+## Key Features
+* Course based content
+* Integrated coding environment
+* Learning community
+* Industry projects
+* Student profiling
+* Course and platform analytics
+
+
+## Prerequisites
+
+To clone and run this application, you'll need [Git](https://git-scm.com), [Python 3.8](https://www.python.org/downloads/), [Pipenv](https://pypi.org/project/pipenv/), [Docker](https://docs.docker.com/get-docker/) and [RabbitMQ](https://www.rabbitmq.com/) installed on your computer.
+
+## How To Use
+
+```bash
+# Clone this repository
+$ git clone https://github.com/ptm108/codeine-django
+
+# Deploy Docker container
+# For Windows users, convert ~/codeine-die/entrypoint.sh to CRLF format
+$ docker build --tag codeine-ide ./codeine-ide
+
+# Install packages from Pipfile
+$ pipenv install
+
+# Run Python virtual environment
+$ pipenv shell
+
+# Migrate schema and create database tables
+$ python codeine_django/manage.py migrate
+
+# Initialise database with sample data
+$ python codeine_django/manage.py initdb
+
+# Run Django
+$ python codeine/manage.py runserver
+
+# In another terminal, access Django root folder
+$ cd codeine_django
+
+# Start Celery
+$ celery -A codeine_django  worker -l info --pool=solo
+
+# In another terminal, access Django root folder
+$ cd codeine_django
+
+# Start Celery Beat
+$ celery -A codeine_django beat -l INFO
+```
 
 ## Docker build and deployment instructions
 

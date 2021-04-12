@@ -1,4 +1,4 @@
-from .models import IndustryProject
+from .models import IndustryProject, IndustryProjectApplication
 from .serializers import IndustryProjectSerializer
 from django.db.models import Q
 from django.core.exceptions import ObjectDoesNotExist
@@ -158,9 +158,23 @@ def single_industry_project_view(request, pk):
     '''
     if request.method == 'DELETE':
         try:
+            user = request.user
             industry_project = IndustryProject.objects.get(pk=pk)
+            partner = industry_project.partner
+
+            if industry_project.is_completed:
+                return Response("Industry Project is marked as completed", status=status.HTTP_409_CONFLICT)
+            # end if
+
             industry_project.is_available = False
             industry_project.save()
+
+            # check if requesting user is partner
+            if partner.user == user:
+                # reject all industry project applications
+                applications = IndustryProjectApplication.objects.filter(
+                    industry_project=industry_project).update(is_rejected=True)
+            # end if
 
             serializer = IndustryProjectSerializer(industry_project, context={"request": request})
             return Response(serializer.data, status=status.HTTP_200_OK)
