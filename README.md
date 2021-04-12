@@ -2,15 +2,14 @@
 
 Backend powering Codeine
 
-
 ## Key Features
+
 * Course based content
 * Integrated coding environment
 * Learning community
 * Industry projects
 * Student profiling
 * Course and platform analytics
-
 
 ## Prerequisites
 
