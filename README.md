@@ -28,7 +28,7 @@ Codeine-django's aim is to support the logic and database layer operations, and 
 | Docker (GUI and CLI)                                 | 20.10.5, build 55c4c88 | [Windows](https://docs.docker.com/docker-for-windows/install/), [Mac](https://docs.docker.com/docker-for-mac/install/) |
 | RabbitMQ (may require manual installation of Erlang) | 3.8.14                 | [Windows](https://www.rabbitmq.com/install-windows.html), [Mac](https://www.rabbitmq.com/install-generic-unix.html)    |
 
-## Deployment Steps
+## How-To-Use
 
 ### 1. Pre-deployment
 
@@ -55,7 +55,7 @@ $ pipenv shell
 
 ### 2. **(OPTIONAL)** Deploy RabbitMQ and Celery
 
-We are using RabbitMQ and Celery to schedule notifications. This is optional you have trouble deploying the RabbitMQ server. Perform the following in a separate terminal.
+We are using RabbitMQ and Celery to schedule notifications. This is optional if you have trouble deploying the RabbitMQ server. Perform the following in a separate terminal.
 
 **Windows:**
 First go to C:\Program Files\RabbitMQ Server\rabbitmq_server-3.8.14\sbin then run command prompt as administrator and run: `rabbitmq-server restart`.
