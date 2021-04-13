@@ -31,6 +31,24 @@ $ pipenv install
 # Run Python virtual environment
 $ pipenv shell
 
+# Access Django root folder
+$ cd codeine_django
+
+# Start Celery
+$ celery -A codeine_django  worker -l info --pool=solo
+
+# In another terminal, Run Python virtual environment
+$ pipenv shell
+
+# Access Django root folder
+$ cd codeine_django
+
+# Start Celery Beat
+$ celery -A codeine_django beat -l INFO
+
+# In another terminal, Run Python virtual environment
+$ pipenv shell
+
 # Migrate schema and create database tables
 $ python codeine_django/manage.py migrate
 
@@ -40,17 +58,6 @@ $ python codeine_django/manage.py initdb
 # Run Django
 $ python codeine/manage.py runserver
 
-# In another terminal, access Django root folder
-$ cd codeine_django
-
-# Start Celery
-$ celery -A codeine_django  worker -l info --pool=solo
-
-# In another terminal, access Django root folder
-$ cd codeine_django
-
-# Start Celery Beat
-$ celery -A codeine_django beat -l INFO
 ```
 
 ## Docker build and deployment instructions
