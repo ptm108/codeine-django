@@ -105,7 +105,7 @@ class Command(BaseCommand):
             m = Member(user=u, unique_id=hashids.encode(int(u.id))[:5])
             m.save()
             self.stdout.write(f'{self.style.SUCCESS("Success")}: {Member.objects.count()} members instantiated')
-        except ValueError:
+        except:
             e = sys.exc_info()[0]
             self.stdout.write(f'{self.style.ERROR("ERROR")}: {repr(e)}')
         # end try-except

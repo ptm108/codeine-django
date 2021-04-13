@@ -1,10 +1,12 @@
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+from celery.exceptions import OperationalError
 
 from .models import ConsultationApplication, ConsultationSlot
+from .tasks import consultation_application_reminder, consultation_slot_reminder
 from courses.models import Course, Enrollment
 from notifications.models import Notification, NotificationObject
-from .tasks import consultation_application_reminder, consultation_slot_reminder
+
 from datetime import timedelta
 
 
@@ -28,7 +30,12 @@ def update_consultation_application(sender, instance, created, **kwargs):
         notification_object.save()
 
         reminder_time = consultation_slot.start_time - timedelta(minutes=30)
-        consultation_application_reminder.apply_async(eta=reminder_time, args=(instance.id,))
+
+        try:
+            consultation_application_reminder.apply_async(eta=reminder_time, args=(instance.id,))
+        except OperationalError as e:
+            pass
+        # end try-except
     # end if
 # end def
 
@@ -58,6 +65,11 @@ def update_consultation_slot(sender, instance, created, **kwargs):
         # end for
 
         reminder_time = consultation_slot.start_time - timedelta(minutes=30)
-        consultation_slot_reminder.apply_async(eta=reminder_time, args=(instance.id,))
+
+        try:
+            consultation_slot_reminder.apply_async(eta=reminder_time, args=(instance.id,))
+        except OperationalError as e:
+            pass
+        # end try-except
     # end if
 # end def

@@ -196,3 +196,10 @@ CELERY_BEAT_SCHEDULE = {
         "schedule": crontab(minute=00, hour=12, day_of_week='sat'),
     }
 }
+
+CELERY_BROKER_TRANSPORT_OPTIONS = {
+    'max_retries': 3,
+    'interval_start': 0,
+    'interval_step': 0.5,
+    'interval_max': 3,
+}

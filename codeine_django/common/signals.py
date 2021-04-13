@@ -1,10 +1,13 @@
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+from celery.exceptions import OperationalError
 
 from .models import PaymentTransaction, MembershipSubscription, Member
-from notifications.models import Notification, NotificationObject
-from datetime import timedelta
 from .tasks import subscription_reminder
+from notifications.models import Notification, NotificationObject
+
+from datetime import timedelta
+
 
 @receiver(post_save, sender=PaymentTransaction)
 def update_payment_transaction(sender, instance, created, **kwargs):
@@ -46,6 +49,11 @@ def update_payment_transaction(sender, instance, created, **kwargs):
 def update_payment_transaction(sender, instance, created, **kwargs):
     if created:
         reminder_time = instance.expiry_date - timedelta(days=7)
-        subscription_reminder.apply_async(eta=reminder_time, args=(instance.member.user.id,))
+        
+        try:
+            subscription_reminder.apply_async(eta=reminder_time, args=(instance.member.user.id,))
+        except OperationalError as e:
+            pass
+        # end try-except
     # end if
 # end def
