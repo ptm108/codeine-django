@@ -76,7 +76,7 @@ class Command(BaseCommand):
             u.profile_photo.save('m1.jpeg', ImageFile(open('./codeine_django/common/management/demo_assets/m1.jpeg', 'rb')))
             u.save()
 
-            m = Member(user=u, unique_id=hashids.encode(int(u.id))[:10])
+            m = Member(user=u, unique_id=hashids.encode(int(u.id))[:5], membership_tier='PRO')
             m.save()
 
             pt = PaymentTransaction(
@@ -102,7 +102,7 @@ class Command(BaseCommand):
             u.profile_photo.save('m2.jpeg', ImageFile(open('./codeine_django/common/management/demo_assets/m2.jpeg', 'rb')))
             u.save()
 
-            m = Member(user=u, unique_id=hashids.encode(int(u.id))[:10], membership_tier='PRO')
+            m = Member(user=u, unique_id=hashids.encode(int(u.id))[:5])
             m.save()
             self.stdout.write(f'{self.style.SUCCESS("Success")}: {Member.objects.count()} members instantiated')
         except ValueError:

@@ -16,7 +16,7 @@ services:
       
   pgadmin:
       image: dpage/pgadmin4
-      container_name: codeine-pgadmin #you can change this
+      container_name: codeine-pgadmin
       depends_on:
         - db
       ports:
