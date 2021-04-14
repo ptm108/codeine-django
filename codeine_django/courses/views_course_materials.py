@@ -6,7 +6,7 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.parsers import MultiPartParser, FormParser
 
-from .models import Chapter, CourseMaterial, CourseFile, Video, Quiz
+from .models import Chapter, CourseMaterial, CourseFile, Video, Quiz, VideoCodeSnippet
 from .serializers import CourseSerializer, CourseMaterialSerializer, QuizSerializer
 
 from common.permissions import IsPartnerOnly, IsPartnerOrReadOnly
@@ -152,6 +152,15 @@ def video_views(request, chapter_id):
                 )
                 video.save()
 
+                for code_snippet in data['video_code_snippets']:
+                    VideoCodeSnippet(
+                        video=video,
+                        start_time=code_snippet['start_time'],
+                        end_time=code_snippet['end_time'],
+                        code=code_snippet['code'],
+                    ).save()
+                # end for
+
                 serializer = CourseSerializer(course, context={'request': request, 'public': False})
                 return Response(serializer.data, status=status.HTTP_201_CREATED)
             except ObjectDoesNotExist:
@@ -194,11 +203,24 @@ def update_video_view(request, material_id):
                 # end ifs
                 course_material.save()
 
-                course_file = course_material.video
+                video = course_material.video
                 if 'video_url' in data:
-                    course_file.video_url = data['video_url']
+                    video.video_url = data['video_url']
                 # end if
-                course_file.save()
+
+                # delete all previous snippets
+                video.video_code_snippets.all().delete()
+                video.save()
+
+                # add new snippets
+                for code_snippet in data['video_code_snippets']:
+                    VideoCodeSnippet(
+                        video=video,
+                        start_time=code_snippet['start_time'],
+                        end_time=code_snippet['end_time'],
+                        code=code_snippet['code'],
+                    ).save()
+                # end for
 
                 serializer = CourseSerializer(course, context={'request': request, 'public': False})
                 return Response(serializer.data, status=status.HTTP_201_CREATED)
