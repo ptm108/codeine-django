@@ -147,6 +147,13 @@ class Video(models.Model):
     video_url = models.URLField()
 # end class
 
+class VideoCodeSnippet(models.Model):
+    video = models.ForeignKey('Video', on_delete=models.CASCADE, related_name='video_code_snippets')
+    start_time = models.TimeField()
+    end_time = models.TimeField()
+    code = models.TextField()
+# end class
+
 
 class Enrollment(models.Model):
     date_created = models.DateTimeField(auto_now_add=True)
