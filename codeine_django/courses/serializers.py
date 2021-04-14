@@ -5,6 +5,7 @@ from .models import (
     CourseMaterial,
     CourseFile,
     Video,
+    VideoCodeSnippet,
     Quiz,
     Chapter,
     Course,
@@ -137,14 +138,19 @@ class CourseFileSerializer(serializers.ModelSerializer):
     # end def
 # end class
 
-
-class CourseVideoSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Video
-        fields = ('video_url',)
-    # end Meta
+class VideoCodeSnippetSerializer(serializers.ModelSerializer):
+    class Meta: 
+        model = VideoCodeSnippet
+        fields = ('start_time', 'end_time', 'code')
 # end class
 
+class CourseVideoSerializer(serializers.ModelSerializer):
+    video_code_snippets = VideoCodeSnippetSerializer(many=True)
+    class Meta:
+        model = Video
+        fields = ('video_url', 'video_code_snippets')
+    # end Meta
+# end class
 
 class QuestionGroupSerializer(serializers.ModelSerializer):
     question_bank = QuestionBankSerializer()
