@@ -152,6 +152,10 @@ class VideoCodeSnippet(models.Model):
     start_time = models.TimeField()
     end_time = models.TimeField()
     code = models.TextField()
+
+    class Meta:
+        ordering = ['end_time']
+    # end Meta
 # end class
 
 
