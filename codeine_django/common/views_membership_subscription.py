@@ -29,7 +29,7 @@ def membership_subscription_view(request):
         with transaction.atomic():
             try:
                 # check if there is a pending completion
-                if MembershipSubscription.objects.filter(payment_transaction__payment_status='PENDING_COMPLETION'):
+                if MembershipSubscription.objects.filter(member=member).filter(payment_transaction__payment_status='PENDING_COMPLETION').exists():
                     # print('payment is pending completion!')
                     return Response(status=status.HTTP_400_BAD_REQUEST)
                 # end if
