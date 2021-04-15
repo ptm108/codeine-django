@@ -44,7 +44,7 @@ def member_view(request):
                 user = BaseUser.objects.create_user(data['email'], data['password'], first_name=data['first_name'], last_name=data['last_name'])
                 user.save()
 
-                member = Member(user=user, unique_id=hashids(int(user.id)))
+                member = Member(user=user, unique_id=hashids.encode(int(user.id)))
                 member.save()
 
                 name = user.first_name + ' ' + user.last_name
