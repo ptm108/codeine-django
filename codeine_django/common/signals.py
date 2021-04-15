@@ -51,7 +51,7 @@ def update_payment_transaction(sender, instance, created, **kwargs):
         reminder_time = instance.expiry_date - timedelta(days=7)
         
         try:
-            subscription_reminder.apply_async(eta=reminder_time, args=(instance.member.user.id,))
+            subscription_reminder.apply_async(eta=reminder_time, args=(instance.member.user.id,), countdown=3)
         except OperationalError as e:
             pass
         # end try-except

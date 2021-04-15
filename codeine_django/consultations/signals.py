@@ -32,7 +32,7 @@ def update_consultation_application(sender, instance, created, **kwargs):
         reminder_time = consultation_slot.start_time - timedelta(minutes=30)
 
         try:
-            consultation_application_reminder.apply_async(eta=reminder_time, args=(instance.id,))
+            consultation_application_reminder.apply_async(eta=reminder_time, args=(instance.id,), countdown=3)
         except OperationalError as e:
             pass
         # end try-exceptdatetime. strptime
@@ -65,7 +65,7 @@ def update_consultation_slot(sender, instance, created, **kwargs):
         reminder_time = datetime.strptime(consultation_slot.start_time, '%Y-%m-%dT%H:%M:%SZ') - timedelta(minutes=30)
 
         try:
-            consultation_slot_reminder.apply_async(eta=reminder_time, args=(consultation_slot.id,))
+            consultation_slot_reminder.apply_async(eta=reminder_time, args=(instance.id,), countdown=3)
         except OperationalError as e:
             pass
         # end try-except

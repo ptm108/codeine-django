@@ -10,7 +10,6 @@ from .models import ConsultationSlot, ConsultationApplication
 
 @shared_task
 def consultation_slot_reminder(consultation_slot_id):
-    print(consultation_slot_id)
     consultation_slot = ConsultationSlot.objects.get(pk=consultation_slot_id)
     partner = consultation_slot.partner
 
