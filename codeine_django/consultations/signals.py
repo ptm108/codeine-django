@@ -7,7 +7,7 @@ from .tasks import consultation_application_reminder, consultation_slot_reminder
 from courses.models import Course, Enrollment
 from notifications.models import Notification, NotificationObject
 
-from datetime import timedelta
+from datetime import timedelta, datetime
 
 
 @receiver(post_save, sender=ConsultationApplication)
@@ -35,8 +35,7 @@ def update_consultation_application(sender, instance, created, **kwargs):
             consultation_application_reminder.apply_async(eta=reminder_time, args=(instance.id,))
         except OperationalError as e:
             pass
-        # end try-except
-    # end if
+        # end try-exceptdatetime. strptime
 # end def
 
 
@@ -63,11 +62,10 @@ def update_consultation_slot(sender, instance, created, **kwargs):
                 notification_object.save()
             # end for
         # end for
-
-        reminder_time = consultation_slot.start_time - timedelta(minutes=30)
+        reminder_time = datetime.strptime(consultation_slot.start_time, '%Y-%m-%dT%H:%M:%SZ') - timedelta(minutes=30)
 
         try:
-            consultation_slot_reminder.apply_async(eta=reminder_time, args=(instance.id,))
+            consultation_slot_reminder.apply_async(eta=reminder_time, args=(consultation_slot.id,))
         except OperationalError as e:
             pass
         # end try-except
