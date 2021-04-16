@@ -21,15 +21,15 @@ from courses.models import (
     QuestionGroup,
 )
 from community.models import CodeReview, CodeReviewComment, Article
-from consultations.models import ConsultationSlot
+from consultations.models import ConsultationSlot, ConsultationApplication
 from analytics.models import EventLog
-from industry_projects.models import IndustryProject
+from industry_projects.models import IndustryProject, IndustryProjectApplication
 from helpdesk.models import Ticket, TicketMessage
 from achievements.models import Achievement, AchievementRequirement
 
 import sys
 from datetime import timedelta, datetime
-from random import randint
+from random import randint, seed
 from hashids import Hashids
 
 
@@ -43,7 +43,7 @@ class Command(BaseCommand):
         # global refs
         admin = None
         hashids = Hashids(min_length=5)
-        print(hashids.encode('oi'))
+        seed(42)
 
         # instantiate admins
         self.stdout.write('Creating superuser...')
@@ -69,19 +69,40 @@ class Command(BaseCommand):
             u = BaseUser.objects.create_user(
                 'm1@m1.com',
                 'password',
-                first_name='Jack',
-                last_name='Johnson',
-                is_active=True
+                first_name='Jonathan',
+                last_name='Chan',
+                is_active=True,
             )
             u.profile_photo.save('m1.jpeg', ImageFile(open('./codeine_django/common/management/demo_assets/m1.jpeg', 'rb')))
             u.save()
 
-            m = Member(user=u, unique_id=hashids.encode(int(u.id))[:5], membership_tier='PRO')
+            m = Member(
+                user=u, 
+                unique_id=hashids.encode(int(u.id))[:5], 
+                membership_tier='PRO', 
+                stats={
+                    'PY': randint(70, 300),
+                    'JAVA': randint(70, 300),
+                    'JS': randint(80, 800),
+                    'CPP': randint(100, 300),
+                    'CS': randint(90, 300),
+                    'HTML': randint(70, 600),
+                    'CSS': randint(120, 800),
+                    'RUBY': randint(130, 200),
+                    'SEC': randint(20, 100),
+                    'DB': randint(50, 300),
+                    'FE': randint(80, 500),
+                    'BE': randint(150, 300),
+                    'UI': randint(200, 300),
+                    'ML': randint(10, 300),
+                }
+            )
             m.save()
 
             pt = PaymentTransaction(
                 payment_amount=5.99,
-                payment_type='AMEX'
+                payment_type='AMEX',
+                payment_status='COMPLETED',
             )
             pt.save()
 
@@ -104,6 +125,40 @@ class Command(BaseCommand):
 
             m = Member(user=u, unique_id=hashids.encode(int(u.id))[:5])
             m.save()
+
+            for i in range(3, 31):
+                u = BaseUser.objects.create_user(
+                    f'm{i}@m{i}.com',
+                    'password',
+                    first_name='Member',
+                    last_name=str(i),
+                    is_active=True
+                )
+                u.save()
+
+                m = Member(
+                    user=u,
+                    unique_id=hashids.encode(int(u.id))[:5],
+                    stats={
+                        'PY': randint(100, 1800),
+                        'JAVA': randint(100, 1800),
+                        'JS': randint(100, 1800),
+                        'CPP': randint(100, 1800),
+                        'CS': randint(100, 1800),
+                        'HTML': randint(100, 1800),
+                        'CSS': randint(100, 1800),
+                        'RUBY': randint(100, 1800),
+                        'SEC': randint(100, 1800),
+                        'DB': randint(100, 1800),
+                        'FE': randint(100, 1800),
+                        'BE': randint(100, 1800),
+                        'UI': randint(100, 1800),
+                        'ML': randint(100, 1800),
+                    },
+                )
+                m.save()
+            # end for
+
             self.stdout.write(f'{self.style.SUCCESS("Success")}: {Member.objects.count()} members instantiated')
         except:
             e = sys.exc_info()[0]
@@ -116,8 +171,8 @@ class Command(BaseCommand):
             u = BaseUser.objects.create_user(
                 'p1@p1.com',
                 'password',
-                first_name='Vanessa',
-                last_name='Fred',
+                first_name='Shaun',
+                last_name='Pelling',
                 is_active=True
             )
             u.profile_photo.save('p1.jpeg', ImageFile(open('./codeine_django/common/management/demo_assets/p1.jpeg', 'rb')))
@@ -2430,14 +2485,24 @@ class Command(BaseCommand):
         self.stdout.write('Creating some comments...')
         try:
             chap = Chapter.objects.get(title='React Native App Basics')
-            cm = chap.course_materials.all()[0]
-            user = BaseUser.objects.get(first_name='Steve')
 
+            user = BaseUser.objects.get(first_name='Steve')
+            cm = chap.course_materials.all()[1]
             cc = CourseComment(
                 display_id=cm.course_comments.count() + 1,
                 comment='This is great!!!',
                 course_material=cm,
                 user=user,
+            )
+            cc.save()
+
+            m2 = BaseUser.objects.get(email="m2@m2.com")
+            cm = chap.course_materials.all()[1]
+            cc = CourseComment(
+                display_id=cm.course_comments.count() + 1,
+                comment='Would be great if we could copy the code from the video..',
+                course_material=cm,
+                user=m2,
             )
             cc.save()
 
@@ -2460,6 +2525,7 @@ class Command(BaseCommand):
         self.stdout.write('Creating some consultations...')
         try:
             p = Partner.objects.get(user__first_name='Andrew')
+            m = Member.objects.get(user__email='m1@m1.com')
             now = timezone.now()
 
             cs = ConsultationSlot(
@@ -2475,19 +2541,24 @@ class Command(BaseCommand):
 
             cs = ConsultationSlot(
                 title='React Native 1',
-                start_time=(now + timedelta(days=2)).replace(hour=2, minute=0),
-                end_time=(now + timedelta(days=2)).replace(hour=2, minute=30),
+                start_time=(now + timedelta(days=1)).replace(hour=2, minute=0),
+                end_time=(now + timedelta(days=1)).replace(hour=2, minute=30),
                 meeting_link='https://meet.google.com/meo-fymy-oae',
                 price_per_pax=0,
                 max_members=2,
                 partner=p
             )
             cs.save()
+            
+            ConsultationApplication(
+                member=m,
+                consultation_slot=cs
+            ).save()
 
             cs = ConsultationSlot(
                 title='React Native 2',
-                start_time=(now + timedelta(days=2)).replace(hour=3, minute=0),
-                end_time=(now + timedelta(days=2)).replace(hour=4, minute=0),
+                start_time=(now + timedelta(days=1)).replace(hour=3, minute=0),
+                end_time=(now + timedelta(days=1)).replace(hour=4, minute=0),
                 meeting_link='https://meet.google.com/meo-fymy-oae',
                 price_per_pax=5,
                 max_members=2,
@@ -2497,8 +2568,8 @@ class Command(BaseCommand):
 
             cs = ConsultationSlot(
                 title='React Native 3',
-                start_time=(now + timedelta(days=3)).replace(hour=10, minute=0),
-                end_time=(now + timedelta(days=3)).replace(hour=11, minute=30),
+                start_time=(now + timedelta(days=4)).replace(hour=10, minute=0),
+                end_time=(now + timedelta(days=4)).replace(hour=11, minute=30),
                 meeting_link='https://meet.google.com/meo-fymy-oae',
                 price_per_pax=0,
                 max_members=2,
@@ -2577,9 +2648,26 @@ class Command(BaseCommand):
                     ).save()
                 # end for
             # end for
+
+            # make a cm really long
+            chap = Chapter.objects.get(title='React Native App Basics')
+            cm = chap.course_materials.all()[1]
+            for i in range(10):
+                EventLog(
+                    payload='continue course material',
+                    user=members[randint(0, 1)],
+                    course_material=cm
+                ).save()
+                EventLog(
+                    payload='stop course material',
+                    user=members[randint(0, 1)],
+                    course_material=cm,
+                    duration=randint(1200, 3600),
+                ).save()
+            # end for
             self.stdout.write(f'{self.style.SUCCESS("Success")}: Event logs initiated')
 
-        except:
+        except KeyError:
             e = sys.exc_info()[0]
             self.stdout.write(f'{self.style.ERROR("ERROR")}: {repr(e)}')
         # end try-except
@@ -2588,26 +2676,45 @@ class Command(BaseCommand):
             # initiate some industry projects
             self.stdout.write('Initiating some industry projects...')
             now = timezone.now()
+            p = Partner.objects.get(user__email='ep2@ep2.com')
 
-            IndustryProject(
+            ip = IndustryProject(
                 title='Finance Dashboard',
                 description='Build a dashboard using the MERN stack',
                 start_date=now + timedelta(days=120),
                 end_date=now + timedelta(days=240),
                 application_deadline=now + timedelta(days=60),
                 categories=['FE', 'BE'],
-                partner=u.partner,
-            ).save()
+                partner=p,
+            )
+            ip.save()
 
-            IndustryProject(
+            for i in range(3, 25):
+                m = Member.objects.get(user__email=f'm{i}@m{i}.com')
+                IndustryProjectApplication(
+                    member=m,
+                    industry_project=ip
+                ).save()
+            # end for
+
+            ip = IndustryProject(
                 title='Finetune our ranking algorithm!',
                 description='Flex your ML skills! KNN!',
                 start_date=now + timedelta(days=140),
                 end_date=now + timedelta(days=300),
                 application_deadline=now + timedelta(days=20),
                 categories=['ML', 'BE'],
-                partner=u.partner,
-            ).save()
+                partner=p,
+            )
+            ip.save()
+
+            for i in range(20, 31):
+                m = Member.objects.get(user__email=f'm{i}@m{i}.com')
+                IndustryProjectApplication(
+                    member=m,
+                    industry_project=ip
+                ).save()
+            # end for
 
             self.stdout.write(f'{self.style.SUCCESS("Success")}: Industry projects initiated')
         except:
@@ -2778,7 +2885,6 @@ class Command(BaseCommand):
             e = sys.exc_info()[0]
             self.stdout.write(f'{self.style.ERROR("ERROR")}: {repr(e)}')
         # end try-except
-
 
         try:
             # initiate some badges
