@@ -86,17 +86,21 @@ def update_article_comment_engagement(sender, instance, created, **kwargs):
     base_user = instance.user
 
     if created:
-        title = f'New like for your comment on Article {article.title}!'
-        description = f'{base_user.first_name} {base_user.last_name} liked your Article comment on {article.title}!'
-        notification_type = 'ARTICLE'
-        notification = Notification(
-            title=title, description=description, notification_type=notification_type, article=article)
-        notification.save()
+        if base_user.id == instance.comment.user.id:
+            pass
+        else:
+            title = f'New like for your comment on Article {article.title}!'
+            description = f'{base_user.first_name} {base_user.last_name} liked your Article comment on {article.title}!'
+            notification_type = 'ARTICLE'
+            notification = Notification(
+                title=title, description=description, notification_type=notification_type, article=article)
+            notification.save()
 
-        receiver = instance.comment.user
-        notification_object = NotificationObject(
-            receiver=receiver, notification=notification)
-        notification_object.save()
+            receiver = instance.comment.user
+            notification_object = NotificationObject(
+                receiver=receiver, notification=notification)
+            notification_object.save()
+        # end if-else
     # end if
 # end def
 
@@ -142,16 +146,20 @@ def update_article_engagement(sender, instance, created, **kwargs):
     base_user = instance.user
 
     if created:
-        title = f'New like on your Article {article.title}!'
-        description = f'{base_user.first_name} {base_user.last_name} liked your Article {article.title}!'
-        notification_type = 'ARTICLE'
-        notification = Notification(
-            title=title, description=description, notification_type=notification_type, article=article)
-        notification.save()
+        if base_user.id == article.user.id:
+            pass
+        else:
+            title = f'New like on your Article {article.title}!'
+            description = f'{base_user.first_name} {base_user.last_name} liked your Article {article.title}!'
+            notification_type = 'ARTICLE'
+            notification = Notification(
+                title=title, description=description, notification_type=notification_type, article=article)
+            notification.save()
 
-        receiver = article.user
-        notification_object = NotificationObject(
-            receiver=receiver, notification=notification)
-        notification_object.save()
+            receiver = article.user
+            notification_object = NotificationObject(
+                receiver=receiver, notification=notification)
+            notification_object.save()
+        # end if-else
     # end if
 # end def
