@@ -13,6 +13,8 @@ from achievements.models import MemberAchievement
 from achievements.serializers import MemberAchievementSerializer
 from courses.models import Enrollment, QuizResult
 from courses.serializers import NestedEnrollmentSerializer, QuizResultSerializer
+from community.models import Article
+from community.serializers import ArticleSerializer
 
 
 @api_view(['GET'])
@@ -67,11 +69,18 @@ def public_member_course_view(request, pk):
             # member details
             serialized_member = NestedBaseUserSerializer(user, context={'request': request}).data
 
-            return Response({
-                'member': serialized_member,
-                'courses': serialized_enrollments,
-                'achievements': serialized_achievements,
-                'cv': serialized_cvs},
+            # get member articles
+            articles = Article.objects.filter(user=user)
+            serialized_articles = ArticleSerializer(articles, many=True, context={'request': request}).data
+
+            return Response(
+                {
+                    'member': serialized_member,
+                    'courses': serialized_enrollments,
+                    'achievements': serialized_achievements,
+                    'cv': serialized_cvs,
+                    'articles': serialized_articles
+                },
                 status=status.HTTP_200_OK
             )
         except ObjectDoesNotExist as e:
@@ -101,7 +110,7 @@ def check_unique_id_view(request, unique_id):
         except ValidationError:
             pass
         # end try-except
-        
+
         if unique_id_check or id_check:
             return Response(status=status.HTTP_409_CONFLICT)
         else:
