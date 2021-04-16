@@ -12,6 +12,7 @@ from courses.models import (
     Video,
     CourseReview,
     Quiz,
+    QuizResult,
     Question,
     ShortAnswer,
     MCQ,
@@ -19,6 +20,7 @@ from courses.models import (
     CourseComment,
     QuestionBank,
     QuestionGroup,
+    Enrollment
 )
 from community.models import CodeReview, CodeReviewComment, Article
 from consultations.models import ConsultationSlot, ConsultationApplication
@@ -316,6 +318,7 @@ class Command(BaseCommand):
         self.stdout.write('Creating courses...')
         try:
             partner = Partner.objects.get(user__first_name='Andrew')
+            members = Member.objects.exclude(user__email='m1@m1.com').exclude(user__email='m2@m2.com').all()
 
             c = Course(
                 title='React Native for Beginners',
@@ -323,6 +326,7 @@ class Command(BaseCommand):
                 requirements=['Node Package Manager', 'Basic Javascript Knowledge'],
                 description='Hey gang, and welcome to your first React Native tutorial for beginners. In this series we\'ll go from novice to ninja and create a React Native app from scratch. First though, we\'ll get set up and talk about what React Native actually is.',
                 introduction_video_url='https://www.youtube.com/watch?v=ur6I5m2nTvk',
+                github_repo='https://github.com/ptm108/Graspfood2.git',
                 coding_languages=['JS', 'HTML', 'CSS'],
                 languages=['ENG'],
                 categories=['FE', 'UI'],
@@ -335,6 +339,15 @@ class Command(BaseCommand):
             )
             c.thumbnail.save('courseimage.png', ImageFile(open('./codeine_django/common/management/demo_assets/course1/courseimage.png', 'rb')))
             c.save()
+
+            # create some fake enrollments
+            for m in members:
+                Enrollment(
+                    progress=0,
+                    course=c,
+                    member=m,
+                ).save()
+            # end for
 
             # create some fake views
             for u in BaseUser.objects.all():
@@ -791,6 +804,17 @@ class Command(BaseCommand):
                 question_bank=qb2
             )
             qg.save()
+
+            # create some fake enrollments
+            for m in members:
+                QuizResult(
+                    quiz=q,
+                    member=m,
+                    passed=False if randint(0, 2) > 0 else True,
+                    submitted=True,
+                    score=randint(0, 5)
+                ).save()
+            # end for
 
             self.stdout.write(f'{self.style.SUCCESS("Success")}: React Native Course created')
         except:
@@ -2870,16 +2894,10 @@ class Command(BaseCommand):
 
             t = Ticket(
                 description='My code review got banned...',
-                ticket_type='GENERAL',
+                ticket_type='CODE_REVIEWS',
                 base_user=u
             )
             t.save()
-
-            TicketMessage(
-                message='Can I check why my code review has been deactivated?',
-                base_user=u,
-                ticket=t
-            ).save()
 
             self.stdout.write(f'{self.style.SUCCESS("Success")}: Helpdesk tickets created')
         except:
