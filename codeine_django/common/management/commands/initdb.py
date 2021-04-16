@@ -29,7 +29,7 @@ from achievements.models import Achievement, AchievementRequirement
 
 import sys
 from datetime import timedelta, datetime
-from random import randint
+from random import randint, seed
 from hashids import Hashids
 
 
@@ -43,6 +43,7 @@ class Command(BaseCommand):
         # global refs
         admin = None
         hashids = Hashids(min_length=5)
+        seed(42)
 
         # instantiate admins
         self.stdout.write('Creating superuser...')
@@ -68,19 +69,40 @@ class Command(BaseCommand):
             u = BaseUser.objects.create_user(
                 'm1@m1.com',
                 'password',
-                first_name='Jack',
-                last_name='Johnson',
-                is_active=True
+                first_name='Jonathan',
+                last_name='Chan',
+                is_active=True,
             )
             u.profile_photo.save('m1.jpeg', ImageFile(open('./codeine_django/common/management/demo_assets/m1.jpeg', 'rb')))
             u.save()
 
-            m = Member(user=u, unique_id=hashids.encode(int(u.id))[:5], membership_tier='PRO')
+            m = Member(
+                user=u, 
+                unique_id=hashids.encode(int(u.id))[:5], 
+                membership_tier='PRO', 
+                stats={
+                    'PY': randint(70, 300),
+                    'JAVA': randint(70, 300),
+                    'JS': randint(80, 800),
+                    'CPP': randint(100, 300),
+                    'CS': randint(90, 300),
+                    'HTML': randint(70, 600),
+                    'CSS': randint(120, 800),
+                    'RUBY': randint(130, 200),
+                    'SEC': randint(20, 100),
+                    'DB': randint(50, 300),
+                    'FE': randint(80, 500),
+                    'BE': randint(150, 300),
+                    'UI': randint(200, 300),
+                    'ML': randint(10, 300),
+                }
+            )
             m.save()
 
             pt = PaymentTransaction(
                 payment_amount=5.99,
-                payment_type='AMEX'
+                payment_type='AMEX',
+                payment_status='COMPLETED',
             )
             pt.save()
 
@@ -103,6 +125,40 @@ class Command(BaseCommand):
 
             m = Member(user=u, unique_id=hashids.encode(int(u.id))[:5])
             m.save()
+
+            for i in range(3, 31):
+                u = BaseUser.objects.create_user(
+                    f'm{i}@m{i}.com',
+                    'password',
+                    first_name='Member',
+                    last_name=str(i),
+                    is_active=True
+                )
+                u.save()
+
+                m = Member(
+                    user=u,
+                    unique_id=hashids.encode(int(u.id))[:5],
+                    stats={
+                        'PY': randint(100, 1800),
+                        'JAVA': randint(100, 1800),
+                        'JS': randint(100, 1800),
+                        'CPP': randint(100, 1800),
+                        'CS': randint(100, 1800),
+                        'HTML': randint(100, 1800),
+                        'CSS': randint(100, 1800),
+                        'RUBY': randint(100, 1800),
+                        'SEC': randint(100, 1800),
+                        'DB': randint(100, 1800),
+                        'FE': randint(100, 1800),
+                        'BE': randint(100, 1800),
+                        'UI': randint(100, 1800),
+                        'ML': randint(100, 1800),
+                    },
+                )
+                m.save()
+            # end for
+
             self.stdout.write(f'{self.style.SUCCESS("Success")}: {Member.objects.count()} members instantiated')
         except:
             e = sys.exc_info()[0]
@@ -2586,9 +2642,26 @@ class Command(BaseCommand):
                     ).save()
                 # end for
             # end for
+
+            # make a cm really long
+            chap = Chapter.objects.get(title='React Native App Basics')
+            cm = chap.course_materials.all()[1]
+            for i in range(10):
+                EventLog(
+                    payload='continue course material',
+                    user=members[randint(0, 1)],
+                    course_material=cm
+                ).save()
+                EventLog(
+                    payload='stop course material',
+                    user=members[randint(0, 1)],
+                    course_material=cm,
+                    duration=randint(1200, 3600),
+                ).save()
+            # end for
             self.stdout.write(f'{self.style.SUCCESS("Success")}: Event logs initiated')
 
-        except KeyError:
+        except:
             e = sys.exc_info()[0]
             self.stdout.write(f'{self.style.ERROR("ERROR")}: {repr(e)}')
         # end try-except
@@ -2787,7 +2860,6 @@ class Command(BaseCommand):
             e = sys.exc_info()[0]
             self.stdout.write(f'{self.style.ERROR("ERROR")}: {repr(e)}')
         # end try-except
-
 
         try:
             # initiate some badges
