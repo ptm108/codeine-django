@@ -43,7 +43,6 @@ class Command(BaseCommand):
         # global refs
         admin = None
         hashids = Hashids(min_length=5)
-        print(hashids.encode('oi'))
 
         # instantiate admins
         self.stdout.write('Creating superuser...')
@@ -116,8 +115,8 @@ class Command(BaseCommand):
             u = BaseUser.objects.create_user(
                 'p1@p1.com',
                 'password',
-                first_name='Vanessa',
-                last_name='Fred',
+                first_name='Shaun',
+                last_name='Pelling',
                 is_active=True
             )
             u.profile_photo.save('p1.jpeg', ImageFile(open('./codeine_django/common/management/demo_assets/p1.jpeg', 'rb')))
@@ -2430,14 +2429,24 @@ class Command(BaseCommand):
         self.stdout.write('Creating some comments...')
         try:
             chap = Chapter.objects.get(title='React Native App Basics')
-            cm = chap.course_materials.all()[0]
-            user = BaseUser.objects.get(first_name='Steve')
 
+            user = BaseUser.objects.get(first_name='Steve')
+            cm = chap.course_materials.all()[1]
             cc = CourseComment(
                 display_id=cm.course_comments.count() + 1,
                 comment='This is great!!!',
                 course_material=cm,
                 user=user,
+            )
+            cc.save()
+
+            m2 = BaseUser.objects.get(email="m2@m2.com")
+            cm = chap.course_materials.all()[1]
+            cc = CourseComment(
+                display_id=cm.course_comments.count() + 1,
+                comment='Would be great if we could copy the code from the video..',
+                course_material=cm,
+                user=m2,
             )
             cc.save()
 
@@ -2579,7 +2588,7 @@ class Command(BaseCommand):
             # end for
             self.stdout.write(f'{self.style.SUCCESS("Success")}: Event logs initiated')
 
-        except:
+        except KeyError:
             e = sys.exc_info()[0]
             self.stdout.write(f'{self.style.ERROR("ERROR")}: {repr(e)}')
         # end try-except
