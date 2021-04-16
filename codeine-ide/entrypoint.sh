@@ -25,7 +25,7 @@ if [ "${COURSE_NAME-}" ]; then
     sudo mkdir $DIR
   fi
 
-  if [ ! -z "$GIT_URL"] && [ -d "$DIR" ] && [ -z "$(ls -A $DIR)" ]; then
+  if [ ! -z "$GIT_URL" ] && [ -d "$DIR" ] && [ -z "$(ls -A $DIR)" ]; then
     sudo git clone "${GIT_URL}" "$DIR"
     sudo chmod -R 777 "$DIR"
   fi
