@@ -3000,7 +3000,7 @@ class Command(BaseCommand):
             article = Article.objects.get(title='8 JavaScript Tips & Tricks That No One Teaches 🚀')
 
             cr_c3 = CodeReviewComment(
-                comment=f'<p>Check out an <a href=\"http://localhost:3000/article/partner/{article.id}\" rel=\"noopener noreferrer\" target=\"_blank\">article</a> I wrote!</p>',
+                comment=f'<p>Check out an <a href=\"http://localhost:3000/article/{article.id}\" rel=\"noopener noreferrer\" target=\"_blank\">article</a> I wrote!</p>',
                 user=u,
                 code_review=cr,
                 parent_comment=cr_c2,
