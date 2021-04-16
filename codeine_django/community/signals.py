@@ -11,17 +11,21 @@ def update_code_review_comment_engagement(sender, instance, created, **kwargs):
     base_user = instance.user
 
     if created:
-        title = f'New like for your comment on Code Review {code_review.title}!'
-        description = f'{base_user.first_name} {base_user.last_name} liked your Code Review comment on {code_review.title}!'
-        notification_type = 'CODE_REVIEW'
-        notification = Notification(
-            title=title, description=description, notification_type=notification_type, code_review=code_review)
-        notification.save()
+        if base_user.id == instance.comment.user.id:
+            pass
+        else:        
+            title = f'New like for your comment on Code Review {code_review.title}!'
+            description = f'{base_user.first_name} {base_user.last_name} liked your Code Review comment on {code_review.title}!'
+            notification_type = 'CODE_REVIEW'
+            notification = Notification(
+                title=title, description=description, notification_type=notification_type, code_review=code_review)
+            notification.save()
 
-        receiver = instance.comment.user
-        notification_object = NotificationObject(
-            receiver=receiver, notification=notification)
-        notification_object.save()
+            receiver = instance.comment.user
+            notification_object = NotificationObject(
+                receiver=receiver, notification=notification)
+            notification_object.save()
+        # end if-else
     # end if
 # end def
 
@@ -32,17 +36,21 @@ def update_code_review_comment(sender, instance, created, **kwargs):
     base_user = instance.user
 
     if created:
-        title = f'New comment on your Code Review {code_review.title}!'
-        description = f'{base_user.first_name} {base_user.last_name} left a comment on your Code Review {code_review.title}!'
-        notification_type = 'CODE_REVIEW'
-        notification = Notification(
-            title=title, description=description, notification_type=notification_type, code_review=code_review)
-        notification.save()
+        if base_user.id == code_review.user.id:
+            pass
+        else:
+            title = f'New comment on your Code Review {code_review.title}!'
+            description = f'{base_user.first_name} {base_user.last_name} left a comment on your Code Review {code_review.title}!'
+            notification_type = 'CODE_REVIEW'
+            notification = Notification(
+                title=title, description=description, notification_type=notification_type, code_review=code_review)
+            notification.save()
 
-        receiver = code_review.user
-        notification_object = NotificationObject(
-            receiver=receiver, notification=notification)
-        notification_object.save()
+            receiver = code_review.user
+            notification_object = NotificationObject(
+                receiver=receiver, notification=notification)
+            notification_object.save()
+        # end if-else
     # end if
 # end def
 
@@ -53,17 +61,21 @@ def update_code_review_engagement(sender, instance, created, **kwargs):
     base_user = instance.user
 
     if created:
-        title = f'New like on your Code Review {code_review.title}!'
-        description = f'{base_user.first_name} {base_user.last_name} liked your Code Review {code_review.title}!'
-        notification_type = 'CODE_REVIEW'
-        notification = Notification(
-            title=title, description=description, notification_type=notification_type, code_review=code_review)
-        notification.save()
+        if base_user.id == code_review.user.id:
+            pass
+        else:
+            title = f'New like on your Code Review {code_review.title}!'
+            description = f'{base_user.first_name} {base_user.last_name} liked your Code Review {code_review.title}!'
+            notification_type = 'CODE_REVIEW'
+            notification = Notification(
+                title=title, description=description, notification_type=notification_type, code_review=code_review)
+            notification.save()
 
-        receiver = code_review.user
-        notification_object = NotificationObject(
-            receiver=receiver, notification=notification)
-        notification_object.save()
+            receiver = code_review.user
+            notification_object = NotificationObject(
+                receiver=receiver, notification=notification)
+            notification_object.save()
+        # end if-else
     # end if
 # end def
 
