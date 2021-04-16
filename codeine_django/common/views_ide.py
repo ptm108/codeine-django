@@ -74,3 +74,34 @@ def init_ide(request):
         # end try-except
     # end if
 # end def
+
+
+@api_view(['GET'])
+@permission_classes((IsAuthenticated,))
+def check_ide_status_view(request, port_number):
+    user = request.user
+    '''
+    Returns true if IDE is ready, false otherwise
+    '''
+    if request.method == 'GET':
+        client = docker.from_env()
+
+        try:
+            container = client.containers.get(f'codeine-ide-{user.id}')
+            logs = container.logs()
+            logs = logs.decode("utf-8").split('\n')
+            curr = logs[-2].strip().split(' ')
+
+            if len(curr) > 0 and curr[-1] == 'HTTPS':
+                ready = True
+            else:
+                ready = False
+            # end if else
+
+            return Response({'logs': logs, 'ready': ready}, status=status.HTTP_200_OK)
+        except Exception as e:
+            print(str(e))
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+        # end try-except
+    # end if
+# end def
