@@ -352,6 +352,7 @@ def question_bank_view(request, course_id):
             with transaction.atomic():
                 qb.id = None
                 qb.label = data['label']
+                qb.course = course
                 qb.save()
 
                 for qn in data['questions']:
