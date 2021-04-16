@@ -66,12 +66,17 @@ class Command(BaseCommand):
         # instantiate members
         self.stdout.write('Creating members...')
         try:
+            locations = ['Singapore', 'London, United Kingdom', 'Texas, USA', 'Surabaya, Indonesia']
+            genders = ['M', 'F', 'U']
+
             u = BaseUser.objects.create_user(
                 'm1@m1.com',
                 'password',
                 first_name='Jonathan',
                 last_name='Chan',
                 is_active=True,
+                gender='M',
+                location='Singapore',
             )
             u.profile_photo.save('m1.jpeg', ImageFile(open('./codeine_django/common/management/demo_assets/m1.jpeg', 'rb')))
             u.save()
@@ -118,7 +123,9 @@ class Command(BaseCommand):
                 'password',
                 first_name='Suzuki',
                 last_name='Haneda',
-                is_active=True
+                is_active=True,
+                gender='M',
+                location='Haneda, Japan',
             )
             u.profile_photo.save('m2.jpeg', ImageFile(open('./codeine_django/common/management/demo_assets/m2.jpeg', 'rb')))
             u.save()
@@ -132,7 +139,9 @@ class Command(BaseCommand):
                     'password',
                     first_name='Member',
                     last_name=str(i),
-                    is_active=True
+                    is_active=True,
+                    gender=genders[randint(0, 2)],
+                    location=locations[randint(0, 3)]
                 )
                 u.save()
 
@@ -140,27 +149,40 @@ class Command(BaseCommand):
                     user=u,
                     unique_id=hashids.encode(int(u.id))[:5],
                     stats={
-                        'PY': randint(100, 1800),
+                        'PY': randint(100, 1500),
                         'JAVA': randint(100, 1800),
-                        'JS': randint(100, 1800),
-                        'CPP': randint(100, 1800),
-                        'CS': randint(100, 1800),
+                        'JS': randint(100, 1500),
+                        'CPP': randint(100, 1600),
+                        'CS': randint(100, 1700),
                         'HTML': randint(100, 1800),
-                        'CSS': randint(100, 1800),
-                        'RUBY': randint(100, 1800),
-                        'SEC': randint(100, 1800),
+                        'CSS': randint(100, 1500),
+                        'RUBY': randint(100, 1400),
+                        'SEC': randint(100, 1700),
                         'DB': randint(100, 1800),
-                        'FE': randint(100, 1800),
-                        'BE': randint(100, 1800),
-                        'UI': randint(100, 1800),
-                        'ML': randint(100, 1800),
+                        'FE': randint(100, 1900),
+                        'BE': randint(100, 1400),
+                        'UI': randint(100, 1300),
+                        'ML': randint(100, 1200),
                     },
                 )
                 m.save()
+                pt = PaymentTransaction(
+                    payment_amount=5.99,
+                    payment_type='AMEX',
+                    payment_status='COMPLETED',
+                )
+                pt.save()
+
+                now = timezone.now()
+                MembershipSubscription(
+                    payment_transaction=pt,
+                    expiry_date=timezone.make_aware(datetime(now.year, now.month + 1, 1)),
+                    member=m
+                ).save()
             # end for
 
             self.stdout.write(f'{self.style.SUCCESS("Success")}: {Member.objects.count()} members instantiated')
-        except:
+        except KeyError:
             e = sys.exc_info()[0]
             self.stdout.write(f'{self.style.ERROR("ERROR")}: {repr(e)}')
         # end try-except
@@ -2697,6 +2719,15 @@ class Command(BaseCommand):
                 ).save()
             # end for
 
+            for i in range(1, 31):
+                m = Member.objects.get(user__email=f'm{i}@m{i}.com')
+                EventLog(
+                    payload='view industry project',
+                    user=m.user,
+                    industry_project=ip
+                ).save()
+            # end for
+
             ip = IndustryProject(
                 title='Finetune our ranking algorithm!',
                 description='Flex your ML skills! KNN!',
@@ -2712,6 +2743,15 @@ class Command(BaseCommand):
                 m = Member.objects.get(user__email=f'm{i}@m{i}.com')
                 IndustryProjectApplication(
                     member=m,
+                    industry_project=ip
+                ).save()
+            # end for
+
+            for i in range(1, 31):
+                m = Member.objects.get(user__email=f'm{i}@m{i}.com')
+                EventLog(
+                    payload='view industry project',
+                    user=m.user,
                     industry_project=ip
                 ).save()
             # end for
