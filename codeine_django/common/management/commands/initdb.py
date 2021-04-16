@@ -151,20 +151,20 @@ class Command(BaseCommand):
                     user=u,
                     unique_id=hashids.encode(int(u.id))[:5],
                     stats={
-                        'PY': randint(100, 1500),
-                        'JAVA': randint(100, 1800),
-                        'JS': randint(100, 1500),
-                        'CPP': randint(100, 1600),
-                        'CS': randint(100, 1700),
-                        'HTML': randint(100, 1800),
-                        'CSS': randint(100, 1500),
-                        'RUBY': randint(100, 1400),
-                        'SEC': randint(100, 1700),
-                        'DB': randint(100, 1800),
-                        'FE': randint(100, 1900),
-                        'BE': randint(100, 1400),
-                        'UI': randint(100, 1300),
-                        'ML': randint(100, 1200),
+                        'PY': randint(1000, 1500),
+                        'JAVA': randint(1000, 1800),
+                        'JS': randint(1000, 1500),
+                        'CPP': randint(1000, 1600),
+                        'CS': randint(1000, 1700),
+                        'HTML': randint(1000, 1800),
+                        'CSS': randint(1000, 1500),
+                        'RUBY': randint(1000, 1400),
+                        'SEC': randint(1000, 1700),
+                        'DB': randint(1000, 1800),
+                        'FE': randint(1000, 1900),
+                        'BE': randint(1000, 1400),
+                        'UI': randint(1000, 1300),
+                        'ML': randint(1000, 1200),
                     },
                 )
                 m.save()
@@ -2743,7 +2743,7 @@ class Command(BaseCommand):
                 ).save()
             # end for
 
-            for i in range(1, 31):
+            for i in range(3, 25):
                 m = Member.objects.get(user__email=f'm{i}@m{i}.com')
                 EventLog(
                     payload='view industry project',
@@ -2771,7 +2771,7 @@ class Command(BaseCommand):
                 ).save()
             # end for
 
-            for i in range(1, 31):
+            for i in range(3, 31):
                 m = Member.objects.get(user__email=f'm{i}@m{i}.com')
                 EventLog(
                     payload='view industry project',
