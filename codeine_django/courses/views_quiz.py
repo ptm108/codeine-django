@@ -149,6 +149,7 @@ def single_question_view(request, qb_id, question_id):
                 question.title = data['title'] if 'title' in data else question.title
                 question.subtitle = data['subtitle'] if 'subtitle' in data else question.subtitle
                 question.image = data['image'] if 'image' in data else question.image
+                question.save()
 
                 if qn_type == 'shortanswer':
                     sa = question.shortanswer
