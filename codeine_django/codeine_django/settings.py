@@ -198,8 +198,8 @@ CELERY_BEAT_SCHEDULE = {
 }
 
 CELERY_BROKER_TRANSPORT_OPTIONS = {
-    'max_retries': 3,
+    'max_retries': 1,
     'interval_start': 0,
     'interval_step': 0.5,
-    'interval_max': 3,
+    'interval_max': 1,
 }
