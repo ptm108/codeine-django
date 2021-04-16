@@ -357,7 +357,7 @@ def quiz_views(request, chapter_id):
                 )
                 quiz.save()
 
-                serializer = CourseMaterialSerializer(course_material)
+                serializer = CourseMaterialSerializer(course_material, context={'request': request})
                 return Response(serializer.data, status=status.HTTP_201_CREATED)
             except ObjectDoesNotExist:
                 return Response(status=status.HTTP_404_NOT_FOUND)
@@ -406,7 +406,7 @@ def update_quiz_view(request, material_id):
                 # end ifs
                 quiz.save()
 
-                serializer = CourseMaterialSerializer(course_material)
+                serializer = CourseMaterialSerializer(course_material, context={'request': request})
                 return Response(serializer.data, status=status.HTTP_200_OK)
             except ObjectDoesNotExist:
                 return Response(status=status.HTTP_404_NOT_FOUND)
