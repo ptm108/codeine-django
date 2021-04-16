@@ -1,5 +1,6 @@
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+from django.utils.dateparse import parse_datetime
 from celery.exceptions import OperationalError
 
 from .models import ConsultationApplication, ConsultationSlot
@@ -30,7 +31,7 @@ def update_consultation_application(sender, instance, created, **kwargs):
         notification_object.save()
 
         if isinstance(consultation_slot.start_time, str):
-            reminder_time = datetime.strptime(consultation_slot.start_time, '%Y-%m-%dT%H:%M:%S.%fZ') - timedelta(minutes=30)
+            reminder_time = parse_datetime(consultation_slot.start_time) - timedelta(minutes=30)
         else:
             reminder_time = consultation_slot.start_time - timedelta(minutes=30)
         # end if else
@@ -68,7 +69,7 @@ def update_consultation_slot(sender, instance, created, **kwargs):
         # end for
 
         if isinstance(consultation_slot.start_time, str):
-            reminder_time = datetime(consultation_slot.start_time, '%Y-%m-%dT%H:%M:%S.%fZ') - timedelta(minutes=30)
+            reminder_time = parse_datetime(consultation_slot.start_time) - timedelta(minutes=30)
         else:
             reminder_time = consultation_slot.start_time - timedelta(minutes=30)
         # end if else
