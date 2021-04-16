@@ -113,27 +113,15 @@ def update_course_comment(sender, instance, created, **kwargs):
 
     if created:
         title = f'New comment on Course {course.title}!'
-        description = f'New course comment on {instance.course_material}!'
+        description = f'New course comment on {instance.course_material.title}!'
     else:
         title = f'Updated comment on Course {course.title}!'
-        description = f'Updated course comment on {instance.course_material}!'
+        description = f'Updated course comment on {instance.course_material.title}!'
     # end if-else
 
-    photo = course.thumbnail
-    notification_type = 'COURSE'
-    notification = Notification(
-        title=title, description=description, notification_type=notification_type, course=course)
-    notification.photo = photo
-    notification.save()
-
-    receiver = course.partner.user
-    notification_object = NotificationObject(
-        receiver=receiver, notification=notification)
-    notification_object.save()
-
-    if instance.reply_to is not None:
-        title = f'New reply for comment on Course: {course.title}!'
-        description = f'{instance.user} left a reply to your comment on {course.title}!\n {instance.comment}'
+    if instance.user.id == course.partner.user.id:
+        pass
+    else:
         photo = course.thumbnail
         notification_type = 'COURSE'
         notification = Notification(
@@ -141,10 +129,30 @@ def update_course_comment(sender, instance, created, **kwargs):
         notification.photo = photo
         notification.save()
 
-        receiver = instance.reply_to.user
+        receiver = course.partner.user
         notification_object = NotificationObject(
             receiver=receiver, notification=notification)
         notification_object.save()
+    # end if-else
+
+    if instance.reply_to is not None:
+        receiver = instance.reply_to.user
+        if instance.user.id == receiver.id:
+            pass
+        else:
+            title = f'New reply for comment on Course: {course.title}!'
+            description = f'{instance.user} left a reply to your comment on {course.title}!\n {instance.comment}'
+            photo = course.thumbnail
+            notification_type = 'COURSE'
+            notification = Notification(
+                title=title, description=description, notification_type=notification_type, course=course)
+            notification.photo = photo
+            notification.save()
+
+            notification_object = NotificationObject(
+                receiver=receiver, notification=notification)
+            notification_object.save()
+        # end if-else
     # end if
 # end def
 
@@ -155,19 +163,23 @@ def update_course_comment_engagement(sender, instance, created, **kwargs):
     member = instance.member
 
     if created:
-        title = f'New like for your comment on {course}!'
-        description = f'{member} liked your course comment on {course}!'
-        photo = course.thumbnail
-        notification_type = 'COURSE'
-        notification = Notification(
-            title=title, description=description, notification_type=notification_type, course=course)
-        notification.photo = photo
-        notification.save()
+        if member.user.id == instance.comment.user.id:
+            pass
+        else:
+            title = f'New like for your comment on {course.title}!'
+            description = f'{member} liked your course comment on {course.title}!'
+            photo = course.thumbnail
+            notification_type = 'COURSE'
+            notification = Notification(
+                title=title, description=description, notification_type=notification_type, course=course)
+            notification.photo = photo
+            notification.save()
 
-        receiver = instance.comment.user
-        notification_object = NotificationObject(
-            receiver=receiver, notification=notification)
-        notification_object.save()
+            receiver = instance.comment.user
+            notification_object = NotificationObject(
+                receiver=receiver, notification=notification)
+            notification_object.save()
+        # end if-else
     # end if
 # end def
 
