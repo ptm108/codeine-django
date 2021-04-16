@@ -456,7 +456,7 @@ def course_first_enrollment_count_view(request):
             for member in members:
                 first_enrollment = member.enrollments.first()
 
-                if first_enrollment.date_created < timezone.now() - timedelta(days=days):
+                if first_enrollment is not None and first_enrollment.date_created < timezone.now() - timedelta(days=days):
                     continue
                 # end if
 
