@@ -31,7 +31,7 @@ from achievements.models import Achievement, AchievementRequirement
 
 import sys
 from datetime import timedelta, datetime
-from random import randint, seed
+from random import randint, seed, sample
 from hashids import Hashids
 
 
@@ -45,7 +45,6 @@ class Command(BaseCommand):
         # global refs
         admin = None
         hashids = Hashids(min_length=5)
-        seed(42)
 
         # instantiate admins
         self.stdout.write('Creating superuser...')
@@ -84,9 +83,9 @@ class Command(BaseCommand):
             u.save()
 
             m = Member(
-                user=u, 
-                unique_id=hashids.encode(int(u.id))[:5], 
-                membership_tier='PRO', 
+                user=u,
+                unique_id=hashids.encode(int(u.id))[:5],
+                membership_tier='PRO',
                 stats={
                     'PY': randint(70, 300),
                     'JAVA': randint(70, 300),
@@ -142,8 +141,9 @@ class Command(BaseCommand):
                     first_name='Member',
                     last_name=str(i),
                     is_active=True,
-                    gender=genders[randint(0, 2)],
-                    location=locations[randint(0, 3)]
+                    gender=sample(genders, k=1)[0],
+                    location=sample(locations, k=1)[0],
+                    age=randint(18, 60)
                 )
                 u.save()
 
@@ -151,20 +151,20 @@ class Command(BaseCommand):
                     user=u,
                     unique_id=hashids.encode(int(u.id))[:5],
                     stats={
-                        'PY': randint(1000, 1500),
-                        'JAVA': randint(1000, 1800),
-                        'JS': randint(1000, 1500),
-                        'CPP': randint(1000, 1600),
-                        'CS': randint(1000, 1700),
-                        'HTML': randint(1000, 1800),
-                        'CSS': randint(1000, 1500),
-                        'RUBY': randint(1000, 1400),
-                        'SEC': randint(1000, 1700),
-                        'DB': randint(1000, 1800),
-                        'FE': randint(1000, 1900),
-                        'BE': randint(1000, 1400),
-                        'UI': randint(1000, 1300),
-                        'ML': randint(1000, 1200),
+                        'PY': randint(100, 1500),
+                        'JAVA': randint(100, 1800),
+                        'JS': randint(100, 1500),
+                        'CPP': randint(100, 1600),
+                        'CS': randint(100, 1700),
+                        'HTML': randint(100, 1800),
+                        'CSS': randint(100, 1500),
+                        'RUBY': randint(100, 1400),
+                        'SEC': randint(100, 1700),
+                        'DB': randint(100, 1800),
+                        'FE': randint(100, 1900),
+                        'BE': randint(100, 1400),
+                        'UI': randint(100, 1300),
+                        'ML': randint(100, 1200),
                     },
                 )
                 m.save()
@@ -814,6 +814,27 @@ class Command(BaseCommand):
                     submitted=True,
                     score=randint(0, 5)
                 ).save()
+            # end for
+
+            for i in range(3, 31):
+                m = Member.objects.get(user__email=f'm{i}@m{i}.com')
+                m.stats = {
+                    'PY': randint(1000, 1500),
+                    'JAVA': randint(1000, 1800),
+                    'JS': randint(1000, 1500),
+                    'CPP': randint(1000, 1600),
+                    'CS': randint(1000, 1700),
+                    'HTML': randint(1000, 1800),
+                    'CSS': randint(1000, 1500),
+                    'RUBY': randint(1000, 1400),
+                    'SEC': randint(1000, 1700),
+                    'DB': randint(1000, 1800),
+                    'FE': randint(1000, 1900),
+                    'BE': randint(1000, 1400),
+                    'UI': randint(1000, 1300),
+                    'ML': randint(1000, 1200),
+                }
+                m.save()
             # end for
 
             self.stdout.write(f'{self.style.SUCCESS("Success")}: React Native Course created')
@@ -2595,7 +2616,7 @@ class Command(BaseCommand):
                 partner=p
             )
             cs.save()
-            
+
             ConsultationApplication(
                 member=m,
                 consultation_slot=cs
@@ -2734,6 +2755,12 @@ class Command(BaseCommand):
                 partner=p,
             )
             ip.save()
+
+            m = Member.objects.get(user__email=f'm1@m1.com')
+            IndustryProjectApplication(
+                member=m,
+                industry_project=ip
+            ).save()
 
             for i in range(3, 25):
                 m = Member.objects.get(user__email=f'm{i}@m{i}.com')
