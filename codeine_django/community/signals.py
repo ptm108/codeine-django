@@ -51,6 +51,25 @@ def update_code_review_comment(sender, instance, created, **kwargs):
                 receiver=receiver, notification=notification)
             notification_object.save()
         # end if-else
+
+        if instance.parent_comment is not None:
+            receiver = instance.parent_comment.user
+            if base_user.id == receiver.id:
+                pass
+            else:
+                title = f'New reply on to your comment on Code Review {code_review.title}!'
+                description = f'{base_user.first_name} {base_user.last_name} left a reply to your comment on Code Review {code_review.title}!'
+                notification_type = 'CODE_REVIEW'
+                notification = Notification(
+                    title=title, description=description, notification_type=notification_type, code_review=code_review)
+                notification.save()
+
+                notification_object = NotificationObject(
+                    receiver=receiver, notification=notification)
+                notification_object.save()
+            # end if-else
+        # end if
+
     # end if
 # end def
 
@@ -111,30 +130,38 @@ def update_article_comment(sender, instance, created, **kwargs):
     base_user = instance.user
 
     if created:
-        title = f'New comment on your Article {article.title}!'
-        description = f'{base_user.first_name} {base_user.last_name} left a comment on your Article {article.title}!'
-        notification_type = 'ARTICLE'
-        notification = Notification(
-            title=title, description=description, notification_type=notification_type, article=article)
-        notification.save()
-
-        receiver = article.user
-        notification_object = NotificationObject(
-            receiver=receiver, notification=notification)
-        notification_object.save()
-
-        if instance.reply_to is not None:
-            title = f'New reply on to your comment on Article {article.title}!'
-            description = f'{base_user.first_name} {base_user.last_name} left a reply to your comment on Article {article.title}!'
+        if base_user.id == article.user.id:
+            pass
+        else:
+            title = f'New comment on your Article {article.title}!'
+            description = f'{base_user.first_name} {base_user.last_name} left a comment on your Article {article.title}!'
             notification_type = 'ARTICLE'
             notification = Notification(
                 title=title, description=description, notification_type=notification_type, article=article)
             notification.save()
 
-            receiver = instance.reply_to.user
+            receiver = article.user
             notification_object = NotificationObject(
                 receiver=receiver, notification=notification)
             notification_object.save()
+        # end if-else
+
+        if instance.reply_to is not None:
+            receiver = instance.reply_to.user
+            if base_user.id == receiver.id:
+                pass
+            else:
+                title = f'New reply on to your comment on Article {article.title}!'
+                description = f'{base_user.first_name} {base_user.last_name} left a reply to your comment on Article {article.title}!'
+                notification_type = 'ARTICLE'
+                notification = Notification(
+                    title=title, description=description, notification_type=notification_type, article=article)
+                notification.save()
+
+                notification_object = NotificationObject(
+                    receiver=receiver, notification=notification)
+                notification_object.save()
+            # end if-else
         # end if
     # end if
 # end def
