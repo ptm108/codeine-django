@@ -21,9 +21,9 @@ from courses.models import (
     QuestionGroup,
 )
 from community.models import CodeReview, CodeReviewComment, Article
-from consultations.models import ConsultationSlot
+from consultations.models import ConsultationSlot, ConsultationApplication
 from analytics.models import EventLog
-from industry_projects.models import IndustryProject
+from industry_projects.models import IndustryProject, IndustryProjectApplication
 from helpdesk.models import Ticket, TicketMessage
 from achievements.models import Achievement, AchievementRequirement
 
@@ -2525,6 +2525,7 @@ class Command(BaseCommand):
         self.stdout.write('Creating some consultations...')
         try:
             p = Partner.objects.get(user__first_name='Andrew')
+            m = Member.objects.get(user__email='m1@m1.com')
             now = timezone.now()
 
             cs = ConsultationSlot(
@@ -2540,19 +2541,24 @@ class Command(BaseCommand):
 
             cs = ConsultationSlot(
                 title='React Native 1',
-                start_time=(now + timedelta(days=2)).replace(hour=2, minute=0),
-                end_time=(now + timedelta(days=2)).replace(hour=2, minute=30),
+                start_time=(now + timedelta(days=1)).replace(hour=2, minute=0),
+                end_time=(now + timedelta(days=1)).replace(hour=2, minute=30),
                 meeting_link='https://meet.google.com/meo-fymy-oae',
                 price_per_pax=0,
                 max_members=2,
                 partner=p
             )
             cs.save()
+            
+            ConsultationApplication(
+                member=m,
+                consultation_slot=cs
+            ).save()
 
             cs = ConsultationSlot(
                 title='React Native 2',
-                start_time=(now + timedelta(days=2)).replace(hour=3, minute=0),
-                end_time=(now + timedelta(days=2)).replace(hour=4, minute=0),
+                start_time=(now + timedelta(days=1)).replace(hour=3, minute=0),
+                end_time=(now + timedelta(days=1)).replace(hour=4, minute=0),
                 meeting_link='https://meet.google.com/meo-fymy-oae',
                 price_per_pax=5,
                 max_members=2,
@@ -2562,8 +2568,8 @@ class Command(BaseCommand):
 
             cs = ConsultationSlot(
                 title='React Native 3',
-                start_time=(now + timedelta(days=3)).replace(hour=10, minute=0),
-                end_time=(now + timedelta(days=3)).replace(hour=11, minute=30),
+                start_time=(now + timedelta(days=4)).replace(hour=10, minute=0),
+                end_time=(now + timedelta(days=4)).replace(hour=11, minute=30),
                 meeting_link='https://meet.google.com/meo-fymy-oae',
                 price_per_pax=0,
                 max_members=2,
@@ -2661,7 +2667,7 @@ class Command(BaseCommand):
             # end for
             self.stdout.write(f'{self.style.SUCCESS("Success")}: Event logs initiated')
 
-        except:
+        except KeyError:
             e = sys.exc_info()[0]
             self.stdout.write(f'{self.style.ERROR("ERROR")}: {repr(e)}')
         # end try-except
@@ -2670,26 +2676,45 @@ class Command(BaseCommand):
             # initiate some industry projects
             self.stdout.write('Initiating some industry projects...')
             now = timezone.now()
+            p = Partner.objects.get(user__email='ep2@ep2.com')
 
-            IndustryProject(
+            ip = IndustryProject(
                 title='Finance Dashboard',
                 description='Build a dashboard using the MERN stack',
                 start_date=now + timedelta(days=120),
                 end_date=now + timedelta(days=240),
                 application_deadline=now + timedelta(days=60),
                 categories=['FE', 'BE'],
-                partner=u.partner,
-            ).save()
+                partner=p,
+            )
+            ip.save()
 
-            IndustryProject(
+            for i in range(3, 25):
+                m = Member.objects.get(user__email=f'm{i}@m{i}.com')
+                IndustryProjectApplication(
+                    member=m,
+                    industry_project=ip
+                ).save()
+            # end for
+
+            ip = IndustryProject(
                 title='Finetune our ranking algorithm!',
                 description='Flex your ML skills! KNN!',
                 start_date=now + timedelta(days=140),
                 end_date=now + timedelta(days=300),
                 application_deadline=now + timedelta(days=20),
                 categories=['ML', 'BE'],
-                partner=u.partner,
-            ).save()
+                partner=p,
+            )
+            ip.save()
+
+            for i in range(20, 31):
+                m = Member.objects.get(user__email=f'm{i}@m{i}.com')
+                IndustryProjectApplication(
+                    member=m,
+                    industry_project=ip
+                ).save()
+            # end for
 
             self.stdout.write(f'{self.style.SUCCESS("Success")}: Industry projects initiated')
         except:
