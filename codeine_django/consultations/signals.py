@@ -29,7 +29,11 @@ def update_consultation_application(sender, instance, created, **kwargs):
             receiver=receiver, notification=notification)
         notification_object.save()
 
-        reminder_time = consultation_slot.start_time - timedelta(minutes=30)
+        if isinstance(consultation_slot.start_time, str):
+            reminder_time = datetime.strptime(consultation_slot.start_time, '%Y-%m-%dT%H:%M:%SZ') - timedelta(minutes=30)
+        else:
+            reminder_time = consultation_slot.start_time - timedelta(minutes=30)
+        # end if else
 
         try:
             consultation_application_reminder.apply_async(eta=reminder_time, args=(instance.id,), countdown=3)
@@ -62,7 +66,12 @@ def update_consultation_slot(sender, instance, created, **kwargs):
                 notification_object.save()
             # end for
         # end for
-        reminder_time = datetime.strptime(consultation_slot.start_time, '%Y-%m-%dT%H:%M:%SZ') - timedelta(minutes=30)
+
+        if isinstance(consultation_slot.start_time, str):
+            reminder_time = datetime.strptime(consultation_slot.start_time, '%Y-%m-%dT%H:%M:%SZ') - timedelta(minutes=30)
+        else:
+            reminder_time = consultation_slot.start_time - timedelta(minutes=30)
+        # end if else
 
         try:
             consultation_slot_reminder.apply_async(eta=reminder_time, args=(instance.id,), countdown=3)
