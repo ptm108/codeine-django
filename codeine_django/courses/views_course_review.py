@@ -34,13 +34,13 @@ def course_review_views(request, course_id):
             # end if
 
             course_review = CourseReview(
-                rating=data['rating'], 
+                rating=data['rating'],
                 description=data['description'],
-                course=course, 
+                course=course,
                 member=member)
             course_review.save()
 
-            serializer = CourseReviewSerializer(course_review)
+            serializer = CourseReviewSerializer(course_review, context={'request': request})
             return Response(serializer.data, status=status.HTTP_200_OK)
         except Member.DoesNotExist:
             return Response("Invalid member", status=status.HTTP_404_NOT_FOUND)
@@ -56,7 +56,7 @@ def course_review_views(request, course_id):
         try:
             course = Course.objects.get(pk=course_id)
             course_reviews = CourseReview.objects.filter(course=course)
-            
+
             search = request.query_params.get('search', None)
             course_id = request.query_params.get('course_id', None)
             member_id = request.query_params.get('member_id', None)
@@ -109,7 +109,7 @@ def single_course_review_view(request, course_id, review_id):
             with transaction.atomic():
                 course_review = CourseReview.objects.get(pk=review_id)
                 member = course_review.member
-                user =  request.user
+                user = request.user
                 # assert requesting member editing their own course review
                 if member.user != user:
                     return Response(status=status.HTTP_401_UNAUTHORIZED)
@@ -140,8 +140,8 @@ def single_course_review_view(request, course_id, review_id):
         try:
             course_review = CourseReview.objects.get(pk=review_id)
             member = course_review.member
-            user =  request.user
-            
+            user = request.user
+
             # assert requesting member deleting their own course review
             if member.user != user:
                 return Response(status=status.HTTP_401_UNAUTHORIZED)

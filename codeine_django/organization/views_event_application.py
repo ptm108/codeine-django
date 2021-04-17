@@ -14,6 +14,8 @@ from .models import Event, EventApplication
 from .serializers import EventApplicationSerializer
 
 # Create your views here.
+
+
 @api_view(['GET', 'POST'])
 @permission_classes((IsMemberOrReadOnly,))
 def event_application_view(request, event_id):
@@ -30,7 +32,7 @@ def event_application_view(request, event_id):
         # check if event is cancelled
         if event.is_cancelled is True:
             return Response(status=status.HTTP_400_BAD_REQUEST)
-        # end if            
+        # end if
 
         prev_applications = EventApplication.objects.filter(
             Q(event=event) &
@@ -80,7 +82,7 @@ def event_application_view(request, event_id):
 
         event = Event.objects.get(pk=event_id)
         event_applications = EventApplication.objects.filter(event=event)
-        
+
         if member_id is not None:
             event_applications = event_applications.filter(
                 Q(member__user__id__exact=member_id)
@@ -92,6 +94,7 @@ def event_application_view(request, event_id):
         return Response(serializer.data, status=status.HTTP_200_OK)
     # end if
 # end def
+
 
 @api_view(['GET'])
 @permission_classes((IsMemberOrReadOnly,))
@@ -109,7 +112,8 @@ def single_event_application_view(request, pk):
             print(e)
             return Response(status=status.HTTP_400_BAD_REQUEST)
     # end if
-#end def
+# end def
+
 
 @api_view(['PATCH'])
 @permission_classes((IsMemberOnly,))
@@ -146,6 +150,7 @@ def cancel_event_application(request, pk):
     # end if
 # end def
 
+
 @api_view(['GET'])
 @permission_classes((IsPartnerOnly,))
 @parser_classes((MultiPartParser, FormParser, JSONParser))
@@ -164,7 +169,7 @@ def partner_event_application_view(request):
 
             events = Event.objects.filter(organization=organization)
             event_applications = EventApplication.objects.filter(event__in=events)
-            
+
             search = request.query_params.get('search', None)
             if search is not None:
                 event_applications = event_applications.filter(
@@ -182,7 +187,8 @@ def partner_event_application_view(request):
             return Response(status=status.HTTP_400_BAD_REQUEST)
         # end try-except
     # end if
-#end def
+# end def
+
 
 @api_view(['GET'])
 @permission_classes((IsMemberOnly,))
@@ -196,7 +202,7 @@ def member_event_application_view(request):
             user = request.user
             member = Member.objects.get(user=user)
             event_applications = EventApplication.objects.filter(member=member)
-            
+
             search = request.query_params.get('search', None)
             if search is not None:
                 event_applications = event_applications.filter(
@@ -212,4 +218,4 @@ def member_event_application_view(request):
             return Response(status=status.HTTP_400_BAD_REQUEST)
         # end try-except
     # end if
-#end def
+# end def

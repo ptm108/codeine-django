@@ -12,10 +12,10 @@ from .permissions import (
 from .models import BankDetail, Partner
 from .serializers import BankDetailSerializer
 
+
 @api_view(['GET', 'POST'])
 @permission_classes((IsPartnerOnly,))
 def bank_detail_view(request):
-
     '''
     Get Bank Detail by Partner
     '''
@@ -38,14 +38,14 @@ def bank_detail_view(request):
     Create a new Bank Detail
     '''
     if request.method == 'POST':
-        try: 
+        try:
             data = request.data
             user = request.user
             partner = Partner.objects.get(user=user)
 
             bank_detail = BankDetail.objects.filter(partner=partner)
 
-            if bank_detail: # bank account details is already created
+            if bank_detail:  # bank account details is already created
                 return Response("Partner has an existing bank account", status=status.HTTP_409_CONFLICT)
             # end if
 
@@ -56,7 +56,7 @@ def bank_detail_view(request):
                 bank_country=data['bank_country'],
                 bank_address=data['bank_address'],
 
-                partner = partner
+                partner=partner
             )
             bank_detail.save()
 
@@ -69,10 +69,10 @@ def bank_detail_view(request):
     # end if
 # end def
 
+
 @api_view(['GET', 'PATCH', 'DELETE'])
 @permission_classes((IsPartnerOrReadOnly,))
 def single_bank_detail_view(request, pk):
-
     '''
     Get Bank Detail by ID
     '''
@@ -91,7 +91,7 @@ def single_bank_detail_view(request, pk):
     Update Bank Detail
     '''
     if request.method == 'PATCH':
-        try: 
+        try:
             data = request.data
             user = request.user
             bank_detail = BankDetail.objects.get(pk=pk)
@@ -128,7 +128,7 @@ def single_bank_detail_view(request, pk):
     Delete Bank Detail
     '''
     if request.method == 'DELETE':
-        try: 
+        try:
             user = request.user
             bank_detail = BankDetail.objects.get(pk=pk)
             partner = bank_detail.partner

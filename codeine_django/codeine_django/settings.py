@@ -14,6 +14,7 @@ from pathlib import Path
 import os
 
 from datetime import timedelta
+from celery.schedules import crontab
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -38,13 +39,15 @@ INSTALLED_APPS = [
     'common',
     'consultations',
     'courses',
-    'tickets',
+    'helpdesk',
     'achievements',
     'community',
-    'industry-projects',
+    'industry_projects',
     'organization',
     'corsheaders',
     'utils',
+    'analytics',
+    'notifications',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -52,6 +55,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
+    'django_celery_beat',
 ]
 
 MIDDLEWARE = [
@@ -79,7 +83,7 @@ REST_FRAMEWORK = {
 }
 
 SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=15),
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=120),
 }
 
 # CORS settings
@@ -124,8 +128,12 @@ WSGI_APPLICATION = 'codeine_django.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        "ENGINE": os.environ.get("SQL_ENGINE", "django.db.backends.sqlite3"),
+        "NAME": os.environ.get("SQL_DATABASE", os.path.join(BASE_DIR, "db.sqlite3")),
+        "USER": os.environ.get("SQL_USER", "user"),
+        "PASSWORD": os.environ.get("SQL_PASSWORD", "password"),
+        "HOST": os.environ.get("SQL_HOST", "localhost"),
+        "PORT": os.environ.get("SQL_PORT", "5432"),
     }
 }
 
@@ -165,7 +173,7 @@ USE_TZ = True
 
 # Silence warnings
 
-SILENCED_SYSTEM_CHECKS = ["urls.W002"]
+SILENCED_SYSTEM_CHECKS = ["urls.W002", "models.W042"]
 
 
 # Static files (CSS, JavaScript, Images)
@@ -175,3 +183,23 @@ STATIC_URL = '/static/'
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+# CELERY CONFIG
+CELERY_ACCEPT_CONTENT = ['application/json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
+CELERY_TIMEZONE = 'Asia/Singapore'
+
+CELERY_BEAT_SCHEDULE = {
+    "scheduled_task": {
+        "task": "notifications.tasks.weekly_notification",
+        "schedule": crontab(minute=00, hour=12, day_of_week='sat'),
+    }
+}
+
+CELERY_BROKER_TRANSPORT_OPTIONS = {
+    'max_retries': 1,
+    'interval_start': 0,
+    'interval_step': 0.5,
+    'interval_max': 1,
+}

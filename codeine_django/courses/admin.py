@@ -1,6 +1,25 @@
 from django.contrib import admin
 
-from .models import Course, Chapter, CourseMaterial, Video, CourseFile, Quiz, Question, ShortAnswer, MCQ, MRQ, Enrollment, QuizResult, QuizAnswer, CourseReview, CourseComment, CourseCommentEngagement
+from .models import (
+    Course,
+    Chapter,
+    CourseMaterial,
+    Video,
+    CourseFile,
+    Quiz,
+    Question,
+    QuestionBank,
+    QuestionGroup,
+    ShortAnswer,
+    MCQ,
+    MRQ,
+    Enrollment,
+    QuizResult,
+    QuizAnswer,
+    CourseReview,
+    CourseComment,
+    CourseCommentEngagement
+)
 
 
 class CourseAdmin(admin.ModelAdmin):
@@ -74,7 +93,26 @@ class QuestionAdmin(admin.ModelAdmin):
         'title',
         'subtitle',
         'order',
+        'image',
+        'question_bank',
+    )
+# end class
+
+
+class QuestionBankAdmin(admin.ModelAdmin):
+    list_display = (
+        'id',
+        'label',
+        'course',
+    )
+# end class
+
+
+class QuestionGroupAdmin(admin.ModelAdmin):
+    list_display = (
+        'id',
         'quiz',
+        'question_bank',
     )
 # end class
 
@@ -180,6 +218,8 @@ admin.site.register(CourseFile, CourseFileAdmin)
 admin.site.register(Video, VideoAdmin)
 admin.site.register(Quiz, QuizAdmin)
 admin.site.register(Question, QuestionAdmin)
+admin.site.register(QuestionBank, QuestionBankAdmin)
+admin.site.register(QuestionGroup, QuestionGroupAdmin)
 admin.site.register(ShortAnswer, ShortAnswerAdmin)
 admin.site.register(MCQ, MCQAdmin)
 admin.site.register(MRQ, MRQAdmin)

@@ -4,14 +4,15 @@ from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.contrib.auth.forms import ReadOnlyPasswordHashField
 from django.core.exceptions import ValidationError
 
-from .models import BaseUser, Member, Partner, Organization, PaymentTransaction
+from .models import BaseUser, Member, Partner, Organization, PaymentTransaction, MembershipSubscription
 
 
 class UserCreationForm(forms.ModelForm):
     """A form for creating new users. Includes all the required
     fields, plus a repeated password."""
     password1 = forms.CharField(label='Password', widget=forms.PasswordInput)
-    password2 = forms.CharField(label='Password confirmation', widget=forms.PasswordInput)
+    password2 = forms.CharField(
+        label='Password confirmation', widget=forms.PasswordInput)
 
     class Meta:
         model = BaseUser
@@ -53,7 +54,8 @@ class UserChangeForm(forms.ModelForm):
 
     class Meta:
         model = BaseUser
-        fields = ('email', 'password', 'is_active', 'is_admin', 'first_name', 'last_name')
+        fields = ('email', 'password', 'is_active', 'is_admin',
+                  'first_name', 'last_name', 'age', 'gender', 'location')
     # end class
 
     def clean_password(self):
@@ -91,11 +93,13 @@ class UserAdmin(BaseUserAdmin):
     # The fields to be used in displaying the User model.
     # These override the definitions on the base UserAdmin
     # that reference specific fields on auth.User.
-    list_display = ('id', 'email', 'is_admin', 'is_active', 'is_suspended', 'profile_photo')
+    list_display = ('id', 'email', 'is_admin', 'is_active',
+                    'is_suspended', 'profile_photo', 'age', 'gender', 'location')
     list_filter = ('is_admin',)
     fieldsets = (
         (None, {'fields': ('email', 'password')}),
         ('Permissions', {'fields': ('is_admin', 'is_active',)}),
+        ('Meta', {'fields': ('age', 'gender', 'location',)}),
     )
     # add_fieldsets is not a standard ModelAdmin attribute. UserAdmin
     # overrides get_fieldsets to use this attribute when creating a user.
@@ -128,7 +132,14 @@ class OrganizationAdmin(admin.ModelAdmin):
 
 
 class PaymentTransactionAdmin(admin.ModelAdmin):
-    list_display = ('id', 'timestamp', 'payment_amount', 'payment_status', 'payment_type')
+    list_display = ('id', 'timestamp', 'payment_amount',
+                    'payment_status', 'payment_type')
+# end class
+
+
+class MembershipSubscriptionAdmin(admin.ModelAdmin):
+    list_display = ('id', 'payment_transaction',
+                    'month_duration', 'expiry_date', 'member')
 # end class
 
 
@@ -137,3 +148,4 @@ admin.site.register(Member, MemberAdmin)
 admin.site.register(Partner, PartnerAdmin)
 admin.site.register(Organization, OrganizationAdmin)
 admin.site.register(PaymentTransaction, PaymentTransactionAdmin)
+admin.site.register(MembershipSubscription, MembershipSubscriptionAdmin)

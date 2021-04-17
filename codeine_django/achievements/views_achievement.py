@@ -1,5 +1,3 @@
-from .models import Achievement
-from .serializer import AchievementSerializer
 from django.db.models import Q
 from django.core.exceptions import ObjectDoesNotExist
 from rest_framework.decorators import api_view, permission_classes, parser_classes
@@ -8,11 +6,14 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import IsAdminUser, AllowAny
 
+from .models import Achievement
+from .serializers import AchievementSerializer, FullAchievementSerializer
+from common.permissions import IsMemberOrAdminOrReadOnly
 from utils.member_utils import get_member_stats
 
 
 @api_view(['GET', 'POST'])
-@permission_classes((IsAdminUser,))
+@permission_classes((IsMemberOrAdminOrReadOnly,))
 @parser_classes((MultiPartParser, FormParser))
 def achievement_view(request):
     '''
@@ -31,7 +32,7 @@ def achievement_view(request):
                 )
             # end if
 
-            serializer = AchievementSerializer(achievements.all(), many=True, context={"request": request})
+            serializer = FullAchievementSerializer(achievements.all(), many=True, context={"request": request})
             return Response(serializer.data, status=status.HTTP_200_OK)
         except (ValueError) as e:
             return Response(status=status.HTTP_400_BAD_REQUEST)
@@ -53,7 +54,7 @@ def achievement_view(request):
 
             return Response(AchievementSerializer(achievement, context={'request': request}).data, status=status.HTTP_200_OK)
         except (KeyError, TypeError, ValueError) as e:
-            print(e)
+            # print(e)
             return Response(status=status.HTTP_400_BAD_REQUEST)
         # end try-except
     # end if
@@ -128,7 +129,7 @@ def get_member_achievements(request, pk):
     Returns all member achievements
     '''
     if request.method == 'GET':
-        print(get_member_stats(pk))
+        # print(get_member_stats(pk))
         return Response()
     # end if
 # end def

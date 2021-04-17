@@ -83,9 +83,18 @@ class Course(models.Model):
     # experience points
     exp_points = models.PositiveIntegerField()
 
+    # pro course
+    pro = models.BooleanField(default=False)
+
+    # course duration
+    duration = models.PositiveSmallIntegerField()
+
     class Meta:
         ordering = ['is_deleted', 'published_date']
     # end Meta
+
+    def __str__(self):
+        return f'{self.title}; {self.id}'
 # end class
 
 
@@ -138,6 +147,17 @@ class Video(models.Model):
     video_url = models.URLField()
 # end class
 
+class VideoCodeSnippet(models.Model):
+    video = models.ForeignKey('Video', on_delete=models.CASCADE, related_name='video_code_snippets')
+    start_time = models.TimeField()
+    end_time = models.TimeField()
+    code = models.TextField()
+
+    class Meta:
+        ordering = ['end_time']
+    # end Meta
+# end class
+
 
 class Enrollment(models.Model):
     date_created = models.DateTimeField(auto_now_add=True)
@@ -171,9 +191,48 @@ class Quiz(models.Model):
     passing_marks = models.PositiveIntegerField(default=None, null=True, blank=True)
     instructions = models.TextField(default='')
 
+    # question bank
+    is_randomized = models.BooleanField(default=False)
+
     # extends course material or mapped to course
     course_material = models.OneToOneField('CourseMaterial', on_delete=models.CASCADE, null=True, blank=True)
-    course = models.OneToOneField('Course',  on_delete=models.CASCADE, related_name='assessment', null=True, blank=True)
+    course = models.OneToOneField('Course', on_delete=models.CASCADE, related_name='assessment', null=True, blank=True)
+# end class
+
+
+class QuestionBank(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, unique=True)
+    label = models.CharField(max_length=255)
+
+    course = models.ForeignKey('Course', on_delete=models.CASCADE, related_name="question_banks")
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=['course', 'label'], name='Course_QuestionBank Unique Constraint: label')
+        ]
+    # end Meta
+
+    def __str__(self):
+        return f'{self.label}; {self.id}'
+    # end def
+
+# end class
+
+
+class QuestionGroup(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, unique=True)
+    count = models.PositiveSmallIntegerField(default=1)
+    order = models.PositiveSmallIntegerField(default=0)
+
+    # ref to quiz
+    quiz = models.ForeignKey('Quiz', on_delete=models.CASCADE, related_name='question_groups')
+
+    # ref to question bank
+    question_bank = models.ForeignKey('QuestionBank', null=True, blank=True, on_delete=models.CASCADE, related_name='+')
+
+    class Meta:
+        ordering = ['order']
+    # end Meta
 # end class
 
 
@@ -182,9 +241,10 @@ class Question(models.Model):
     title = models.TextField()
     subtitle = models.TextField(null=True, default='', blank=True)
     order = models.PositiveSmallIntegerField()
+    image = models.ImageField(null=True, blank=True, default=None)
 
-    # ref to Assessment
-    quiz = models.ForeignKey('Quiz', on_delete=models.CASCADE, null=True, blank=True, related_name='questions')
+    # ref to group -- for question banks
+    question_bank = models.ForeignKey('QuestionBank', null=True, blank=True, on_delete=models.CASCADE, related_name='questions')
 
     class Meta:
         ordering = ['order']

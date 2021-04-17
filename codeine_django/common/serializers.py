@@ -1,10 +1,12 @@
 from rest_framework import serializers
 
-from .models import Member, BaseUser, Partner, Organization, PaymentTransaction, BankDetail
+from .models import Member, BaseUser, Partner, Organization, PaymentTransaction, BankDetail, MembershipSubscription, CV
+from utils.member_utils import get_membership_tier
 
 
 class OrganizationSerializer(serializers.ModelSerializer):
-    organization_photo = serializers.SerializerMethodField('get_organization_photo_url')
+    organization_photo = serializers.SerializerMethodField(
+        'get_organization_photo_url')
 
     def get_organization_photo_url(self, obj):
         request = self.context.get("request")
@@ -34,14 +36,14 @@ class NestedPartnerSerializer(serializers.ModelSerializer):
 class NestedMemberSerializer(serializers.ModelSerializer):
     class Meta:
         model = Member
-        fields = ('id', 'stats',)
+        fields = ('id', 'stats', 'membership_tier', 'unique_id')
     # end Meta
 # end class
 
 
 class NestedBaseUserSerializer(serializers.ModelSerializer):
     partner = NestedPartnerSerializer()
-    member = NestedMemberSerializer()
+    member = serializers.SerializerMethodField('get_member')
     profile_photo = serializers.SerializerMethodField('get_profile_photo_url')
 
     class Meta:
@@ -56,6 +58,9 @@ class NestedBaseUserSerializer(serializers.ModelSerializer):
             'profile_photo',
             'first_name',
             'last_name',
+            'age',
+            'gender',
+            'location',
             'member',
             'partner',
         )
@@ -68,6 +73,18 @@ class NestedBaseUserSerializer(serializers.ModelSerializer):
         # end if
     # end def
 
+    def get_member(self, obj):
+        request = self.context.get("request")
+        try:
+            if obj.member:
+                get_membership_tier(obj.member)
+                return NestedMemberSerializer(obj.member, context={'request': request}).data
+            # end if
+        except Exception as e:
+            pass
+            # print(str(e))
+        # end try-except
+    # end def
 # end class
 
 
@@ -76,7 +93,8 @@ class BaseUserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = BaseUser
-        fields = ('id', 'email', 'is_active', 'date_joined', 'profile_photo', 'first_name', 'last_name')
+        fields = ('id', 'email', 'is_active', 'date_joined',
+                  'profile_photo', 'first_name', 'last_name', 'age', 'gender', 'location')
     # end Meta
 
     def get_profile_photo_url(self, obj):
@@ -109,7 +127,7 @@ class PartnerSerializer(serializers.ModelSerializer):
 # end class
 
 
-class PaymentTransactionSerializer(serializers.ModelSerializer):
+class NestedPaymentTransactionSerializer(serializers.ModelSerializer):
     class Meta:
         model = PaymentTransaction
         fields = '__all__'
@@ -141,7 +159,8 @@ class MemberApplicationSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Member
-        fields = ('id', 'base_id', 'email', 'profile_photo', 'first_name', 'last_name')
+        fields = ('id', 'base_id', 'email', 'profile_photo',
+                  'first_name', 'last_name', 'membership_tier')
     # end Meta
 
     def get_profile_photo_url(self, obj):
@@ -166,4 +185,39 @@ class MemberApplicationSerializer(serializers.ModelSerializer):
     def get_base_user_id(self, obj):
         return obj.user.id
     # end def
+# end class
+
+
+class NestedMembershipSubscriptionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = MembershipSubscription
+        fields = '__all__'
+    # end Meta
+# end class
+
+
+class MembershipSubscriptionSerializer(serializers.ModelSerializer):
+    payment_transaction = NestedPaymentTransactionSerializer()
+    member = MemberSerializer()
+
+    class Meta:
+        model = MembershipSubscription
+        fields = '__all__'
+    # end Meta
+# end class
+
+
+class CVSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CV
+        fields = '__all__'
+    # end Meta
+# end class
+
+
+class PaymentTransactionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PaymentTransaction
+        fields = '__all__'
+    # end Meta
 # end class

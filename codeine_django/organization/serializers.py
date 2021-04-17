@@ -2,12 +2,23 @@ from rest_framework import serializers
 from django.db.models import Q
 
 from .models import ContributionPayment, Event, EventApplication, EventPayment
-from common.serializers import PaymentTransactionSerializer, OrganizationSerializer, PartnerSerializer, NestedBaseUserSerializer
+from common.serializers import NestedPaymentTransactionSerializer, OrganizationSerializer, PartnerSerializer, NestedBaseUserSerializer
 from common.models import Organization
 
 
+class NestedContributionPaymentSerializer(serializers.ModelSerializer):
+    organization = OrganizationSerializer()
+    made_by = PartnerSerializer()
+
+    class Meta:
+        model = ContributionPayment
+        fields = '__all__'
+    # end Meta
+# end class
+
+
 class ContributionPaymentSerializer(serializers.ModelSerializer):
-    payment_transaction = PaymentTransactionSerializer()
+    payment_transaction = NestedPaymentTransactionSerializer()
     organization = OrganizationSerializer()
     made_by = PartnerSerializer()
 
@@ -48,8 +59,19 @@ class EventApplicationSerializer(serializers.ModelSerializer):
 # end class
 
 
+class NestedEventPaymentSerializer(serializers.ModelSerializer):
+    event_application = EventApplicationSerializer()
+
+    class Meta:
+        model = EventPayment
+        fields = '__all__'
+    # end Meta
+# end class
+
+
 class EventPaymentSerializer(serializers.ModelSerializer):
-    payment_transaction = PaymentTransactionSerializer()
+    payment_transaction = NestedPaymentTransactionSerializer()
+    event_application = EventApplicationSerializer()
 
     class Meta:
         model = EventPayment

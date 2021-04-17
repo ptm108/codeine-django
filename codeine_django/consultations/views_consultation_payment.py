@@ -33,7 +33,7 @@ def consultation_payment_view(request, consultation_application_id):
         prev_payments = ConsultationPayment.objects.filter(
             Q(consultation_application=consultation_application) &
             (Q(payment_transaction__payment_status='PENDING_COMPLETION') |
-            Q(payment_transaction__payment_status='COMPLETED'))
+             Q(payment_transaction__payment_status='COMPLETED'))
         )
 
         # check if application already has a payment, and is not failed
@@ -44,15 +44,15 @@ def consultation_payment_view(request, consultation_application_id):
         with transaction.atomic():
             try:
                 payment_transaction = PaymentTransaction(
-                    payment_amount = data['payment_amount'],
-                    payment_type = data['payment_type'],
+                    payment_amount=data['payment_amount'],
+                    payment_type=data['payment_type'],
                     payment_status='COMPLETED'
                 )
                 payment_transaction.save()
 
                 consultation_payment = ConsultationPayment(
-                    payment_transaction = payment_transaction,
-                    consultation_application = consultation_application
+                    payment_transaction=payment_transaction,
+                    consultation_application=consultation_application
                 )
                 consultation_payment.save()
 
@@ -82,6 +82,7 @@ def consultation_payment_view(request, consultation_application_id):
     # end if
 # end def
 
+
 @api_view(['GET'])
 @permission_classes((IsMemberOrReadOnly,))
 @parser_classes((MultiPartParser, FormParser, JSONParser))
@@ -98,7 +99,8 @@ def single_consultation_payment_view(request, pk):
             print(e)
             return Response(status=status.HTTP_400_BAD_REQUEST)
     # end if
-#end def
+# end def
+
 
 @api_view(['PATCH'])
 @permission_classes((IsMemberOrAdminOrReadOnly,))
@@ -126,6 +128,7 @@ def update_consultation_payment_status(request, pk):
     # end if
 # end def
 
+
 @api_view(['POST'])
 @permission_classes((IsMemberOrPartnerOrReadOnly,))
 def refund_consultation_payment_status(request, pk):
@@ -134,21 +137,21 @@ def refund_consultation_payment_status(request, pk):
     '''
     if request.method == 'POST':
         data = request.data
-        
+
         with transaction.atomic():
             try:
                 previous_consultation_payment = ConsultationPayment.objects.get(pk=pk)
 
                 payment_transaction = PaymentTransaction(
-                    payment_amount = previous_consultation_payment.payment_transaction.payment_amount,
-                    payment_type = previous_consultation_payment.payment_transaction.payment_type,
+                    payment_amount=previous_consultation_payment.payment_transaction.payment_amount,
+                    payment_type=previous_consultation_payment.payment_transaction.payment_type,
                     payment_status='REFUNDED'
                 )
                 payment_transaction.save()
 
                 consultation_payment = ConsultationPayment(
-                    payment_transaction = payment_transaction,
-                    consultation_application = previous_consultation_payment.consultation_application
+                    payment_transaction=payment_transaction,
+                    consultation_application=previous_consultation_payment.consultation_application
                 )
                 consultation_payment.save()
 
@@ -163,6 +166,7 @@ def refund_consultation_payment_status(request, pk):
         # end with
     # end if
 # end def
+
 
 @api_view(['GET'])
 @permission_classes((IsPartnerOnly,))
@@ -187,7 +191,8 @@ def partner_consultation_payment_view(request):
             return Response(status=status.HTTP_400_BAD_REQUEST)
         # end try-except
     # end if
-#end def
+# end def
+
 
 @api_view(['GET'])
 @permission_classes((IsMemberOnly,))
@@ -211,4 +216,4 @@ def member_consultation_payment_view(request):
             return Response(status=status.HTTP_400_BAD_REQUEST)
         # end try-except
     # end if
-#end def
+# end def

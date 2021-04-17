@@ -6,15 +6,16 @@ from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes, parser_classes, renderer_classes
 from rest_framework.response import Response
 from rest_framework.permissions import (
-    IsAuthenticated,
+    IsAuthenticatedOrReadOnly,
 )
-from .models import CodeReview
+from .models import CodeReview, CodeReviewEngagement
 from .serializers import CodeReviewSerializer
-from common.models import Member
 
 # Create your views here.
+
+
 @api_view(['GET', 'POST'])
-@permission_classes((IsAuthenticated,))
+@permission_classes((IsAuthenticatedOrReadOnly,))
 def code_review_view(request):
     '''
     Retrieves all code reviews
@@ -24,10 +25,12 @@ def code_review_view(request):
 
         # extract query params
         search = request.query_params.get('search', None)
+        date_sort = request.query_params.get('sortDate', None)
 
         if search is not None:
-            articles = articles.filter(
-                Q(member__user__id__icontains=search) |
+            code_reviews = code_reviews.filter(
+                Q(user__first_name__icontains=search) |
+                Q(user__last_name__icontains=search) |
                 Q(title__icontains=search) |
                 Q(code__icontains=search) |
                 Q(coding_languages__icontains=search) |
@@ -35,7 +38,13 @@ def code_review_view(request):
             )
         # end if
 
-        serializer = CodeReviewSerializer(code_reviews.all(), many=True)
+        if date_sort is not None:
+            code_reviews = code_reviews.order_by(date_sort)
+        # end if
+
+        serializer = CodeReviewSerializer(
+            code_reviews.all(), many=True, context={'request': request})
+
         return Response(serializer.data, status=status.HTTP_200_OK)
     # end if
 
@@ -45,19 +54,21 @@ def code_review_view(request):
     if request.method == 'POST':
         user = request.user
         data = request.data
-        member = Member.objects.get(user=user)
 
         try:
             code_review = CodeReview(
-                title = data['title'],
-                code = data['code'],
-                coding_languages = data['coding_languages'],
-                categories = data['categories'],
-                member = member
+                title=data['title'],
+                code=data['code'],
+                coding_languages=data['coding_languages'],
+                languages=data['languages'],
+                categories=data['categories'],
+                user=user
             )
             code_review.save()
 
-            serializer = CodeReviewSerializer(code_review)
+            serializer = CodeReviewSerializer(
+                code_review, context={'request': request})
+
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         except (IntegrityError, ValueError, KeyError) as e:
             print(e)
@@ -66,8 +77,9 @@ def code_review_view(request):
     # end if
 # def
 
+
 @api_view(['GET', 'PUT', 'DELETE'])
-@permission_classes((IsAuthenticated,))
+@permission_classes((IsAuthenticatedOrReadOnly,))
 def single_code_review_view(request, pk):
     '''
     Get a code review by primary key/ id
@@ -75,7 +87,8 @@ def single_code_review_view(request, pk):
     if request.method == 'GET':
         try:
             code_review = CodeReview.objects.get(pk=pk)
-            serializer = CodeReviewSerializer(code_review)
+            serializer = CodeReviewSerializer(
+                code_review, context={'request': request})
             return Response(serializer.data)
         except (ObjectDoesNotExist, KeyError, ValueError) as e:
             print(e)
@@ -94,15 +107,16 @@ def single_code_review_view(request, pk):
                 code_review.title = data['title']
             if 'code' in data:
                 code_review.code = data['code']
-            if 'category' in data:
-                code_review.category = data['category']
+            if 'languages' in data:
+                code_review.languages = data['languages']
             if 'coding_languages' in data:
                 code_review.coding_languages = data['coding_languages']
             if 'categories' in data:
                 code_review.categories = data['categories']
 
             code_review.save()
-            serializer = CodeReviewSerializer(code_review)
+            serializer = CodeReviewSerializer(
+                code_review, context={'request': request})
             return Response(serializer.data, status=status.HTTP_200_OK)
         except CodeReview.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
@@ -123,3 +137,70 @@ def single_code_review_view(request, pk):
         # end try-except
     # end if
 # def
+
+
+@api_view(['GET'])
+@permission_classes((IsAuthenticatedOrReadOnly,))
+def user_code_review_view(request):
+    '''
+    Retrieves all of user's code reviews
+    '''
+    if request.method == 'GET':
+        user = request.user
+        code_reviews = CodeReview.objects.filter(user=user)
+        serializer = CodeReviewSerializer(
+            code_reviews.all(), many=True, context={'request': request})
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    # end if
+# def
+
+
+@api_view(['POST', 'DELETE'])
+@permission_classes((IsAuthenticatedOrReadOnly,))
+def code_review_engagement_view(request, pk):
+    '''
+    Like a code review
+    '''
+    if request.method == 'POST':
+        user = request.user
+        try:
+            code_review = CodeReview.objects.get(pk=pk)
+
+            if CodeReviewEngagement.objects.filter(code_review=code_review).filter(user=user).exists():
+                return Response(CodeReviewSerializer(code_review, context={'request': request, 'recursive': True}).data, status=status.HTTP_409_CONFLICT)
+            # end if
+
+            code_review_engagement = CodeReviewEngagement(
+                user=user,
+                code_review=code_review
+            )
+            code_review_engagement.save()
+
+            serializer = CodeReviewSerializer(code_review, context={'request': request, 'recursive': True})
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except ObjectDoesNotExist as e:
+            print(e)
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        # end try-except
+    # end if
+
+    '''
+    Unlike a code review
+    '''
+    if request.method == 'DELETE':
+        user = request.user
+        try:
+            code_review = CodeReview.objects.get(pk=pk)
+
+            engagement = CodeReviewEngagement.objects.filter(code_review=code_review).get(user=user)
+            engagement.delete()
+            code_review.save()
+
+            serializer = CodeReviewSerializer(code_review, context={'request': request, 'recursive': True})
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except ObjectDoesNotExist as e:
+            print(e)
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        # end try-except
+    # end if
+# end def

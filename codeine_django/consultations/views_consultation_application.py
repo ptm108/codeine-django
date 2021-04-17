@@ -13,6 +13,7 @@ from .models import ConsultationApplication, ConsultationSlot
 from common.models import Member, Partner
 from common.permissions import IsMemberOnly, IsMemberOrReadOnly, IsPartnerOnly
 from .serializers import ConsultationApplicationSerializer
+from utils.member_utils import get_membership_tier
 
 
 @api_view(['GET', 'POST'])
@@ -29,15 +30,26 @@ def consultation_application_view(request, consultation_slot_id):
         consultation_slot = ConsultationSlot.objects.get(
             pk=consultation_slot_id)
 
+        get_membership_tier(member)
+
+        prev_applications = ConsultationApplication.objects.filter(
+            member=member)
+
+        if member.membership_tier == 'FREE':
+            if prev_applications.filter(consultation_slot__start_time__month=consultation_slot.start_time.month).count() > 0:
+                # free member can only have one consultation slot per month
+                return Response(status=status.HTTP_400_BAD_REQUEST)
+            # end if
+        # end if
+
         # check if consultation is cancelled
         if consultation_slot.is_cancelled is True:
             return Response(status=status.HTTP_400_BAD_REQUEST)
         # end if
 
         # check if user has been rejected before
-        prev_applications = ConsultationApplication.objects.filter(
-            Q(consultation_slot=consultation_slot) & 
-            Q(member=member) & 
+        prev_applications = prev_applications.filter(
+            Q(consultation_slot=consultation_slot) &
             Q(is_rejected=True)
         )
         if prev_applications.count() > 0:
@@ -166,6 +178,22 @@ def cancel_consultation_application(request, pk):
             consultation_application.is_cancelled = True
             consultation_application.save()
 
+            # notify partner
+            consultation_slot = consultation_application.consultation_slot
+            partner = consultation_slot.partner
+
+            title = f'Application for consultation slot {consultation_slot.title} cancelled!'
+            description = f'Member {member.user.first_name} {member.user.last_name} has cancelled their application for consultation slot {consultation_slot.title}'
+            notification_type = 'CONSULTATION'
+            notification = Notification(
+                title=title, description=description, notification_type=notification_type, consultation_slot=consultation_slot)
+            notification.save()
+
+            receiver = partner.user
+            notification_object = NotificationObject(
+                receiver=receiver, notification=notification)
+            notification_object.save()
+
             serializer = ConsultationApplicationSerializer(
                 consultation_application, context={"request": request})
             return Response(serializer.data, status=status.HTTP_200_OK)
@@ -207,6 +235,21 @@ def reject_consultation_application(request, pk):
 
             consultation_application.is_rejected = True
             consultation_application.save()
+
+            # notify member
+            consultation_slot = consultation_application.consultation_slot
+
+            title = f'Application for consultation slot {consultation_slot.title} rejeceted!'
+            description = f'Partner {partner.user.first_name} {partner.user.last_name} has rejected your application for consultation slot {consultation_slot.title}'
+            notification_type = 'CONSULTATION'
+            notification = Notification(
+                title=title, description=description, notification_type=notification_type, consultation_slot=consultation_slot)
+            notification.save()
+
+            receiver = consultation_application.member.user
+            notification_object = NotificationObject(
+                receiver=receiver, notification=notification)
+            notification_object.save()
 
             serializer = ConsultationApplicationSerializer(
                 consultation_application, context={"request": request})

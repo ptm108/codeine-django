@@ -65,7 +65,7 @@ class ConsultationPayment(models.Model):
     id = models.UUIDField(
         primary_key=True, default=uuid.uuid4, editable=False, unique=True)
     payment_transaction = models.OneToOneField(
-        'common.PaymentTransaction', on_delete=models.CASCADE)
+        'common.PaymentTransaction', on_delete=models.CASCADE, related_name="consultation_payment")
 
     # ref
     consultation_application = models.ForeignKey(

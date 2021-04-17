@@ -11,6 +11,7 @@ from common.models import Member, Partner
 from common.permissions import IsMemberOnly, IsPartnerOnly
 from common.serializers import NestedBaseUserSerializer, MemberSerializer
 
+
 @api_view(['POST', 'DELETE', 'PATCH'])
 @permission_classes((IsMemberOnly,))
 def course_enrollment_views(request, course_id):
@@ -23,6 +24,10 @@ def course_enrollment_views(request, course_id):
         try:
             member = Member.objects.get(user=user)
             course = Course.objects.get(pk=course_id)
+
+            if course.pro and member.membership_tier != 'PRO':
+                return Response(status=status.HTTP_401_UNAUTHORIZED)
+            # end if
 
             enrollment = Enrollment.objects.filter(course=course).filter(member=member)
             if enrollment.exists():  # already enrolled
@@ -136,6 +141,7 @@ def enrollment_views(request):
         # end try-except
     # end if
 # end def
+
 
 @api_view(['GET'])
 @permission_classes((IsPartnerOnly,))
