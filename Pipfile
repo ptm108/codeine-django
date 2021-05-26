@@ -7,7 +7,7 @@ verify_ssl = true
 autopep8 = "*"
 
 [packages]
-django = "==3.1.7"
+django = "==3.2.3"
 djangorestframework = "*"
 markdown = "*"
 django-filter = "*"
